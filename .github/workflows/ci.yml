@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: precocaindo
+          POSTGRES_PASSWORD: precocaindo
+          POSTGRES_DB: precocaindo
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U precocaindo"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://precocaindo:precocaindo@localhost:5432/precocaindo
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      AMAZON_PROVIDER: mock
+      CONTENT_GENERATION: mock
+      AMAZON_ASSOCIATE_TAG: precocaindo-ci-20
+      AMAZON_ASSOCIATE_DISCLOSURE: "Como associado da Amazon, eu ganho com compras qualificadas."
+      AMAZON_POLICY_REVIEW_DATE: "2026-08-17"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Apply migrations
+        run: npm run db:deploy
+
+      - name: Test
+        run: npm test
+
+      - name: Amazon compliance gate
+        run: npm run amazon:compliance
+
+      - name: Build
+        run: npm run build
