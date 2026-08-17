@@ -13,7 +13,10 @@ export function slugify(input: string): string {
 
 /** Appends a short suffix (e.g. derived from an ASIN) when the base slug
  * collides with an existing one, instead of silently overwriting a page. */
-export function slugifyWithFallback(title: string, disambiguator: string): string {
+export function slugifyWithFallback(
+  title: string,
+  disambiguator: string,
+): string {
   const base = slugify(title);
   const suffix = disambiguator.toLowerCase().slice(-6);
   return base ? `${base}-${suffix}` : suffix;

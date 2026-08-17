@@ -9,9 +9,14 @@ const REJECTED_CONTENT_RETENTION_DAYS = 30;
  * anything published. */
 export async function cleanup() {
   return runJob("CLEANUP", async (ctx) => {
-    const runsCutoff = new Date(Date.now() - AUTOMATION_RUN_RETENTION_DAYS * 24 * 60 * 60 * 1000);
+    const runsCutoff = new Date(
+      Date.now() - AUTOMATION_RUN_RETENTION_DAYS * 24 * 60 * 60 * 1000,
+    );
     const deletedRuns = await prisma.automationRun.deleteMany({
-      where: { startedAt: { lt: runsCutoff }, status: { in: ["SUCCESS", "FAILED", "PARTIAL"] } },
+      where: {
+        startedAt: { lt: runsCutoff },
+        status: { in: ["SUCCESS", "FAILED", "PARTIAL"] },
+      },
     });
 
     const contentCutoff = new Date(

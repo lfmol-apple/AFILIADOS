@@ -100,7 +100,12 @@ export async function calculateOpportunities() {
         price: Number(h.price),
         observedAt: h.observedAt,
       }));
-      const dropEvent = detectPriceDrop(product.id, priorHistory, Number(offer.price), statsResult);
+      const dropEvent = detectPriceDrop(
+        product.id,
+        priorHistory,
+        Number(offer.price),
+        statsResult,
+      );
 
       if (dropEvent) {
         drops.push(product.id);

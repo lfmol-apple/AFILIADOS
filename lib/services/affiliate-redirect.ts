@@ -1,4 +1,8 @@
-import { isValidAsin, buildAmazonProductUrl, assertAllowedAmazonDestination } from "@/lib/amazon/policy-guard";
+import {
+  isValidAsin,
+  buildAmazonProductUrl,
+  assertAllowedAmazonDestination,
+} from "@/lib/amazon/policy-guard";
 
 export class AffiliateRedirectError extends Error {
   constructor(
@@ -23,12 +27,17 @@ export interface AffiliateRedirectInput {
  * redirect) — the only inputs are what the server already knows about the
  * product plus the AmazonPolicyGuard allowlist.
  */
-export function resolveAffiliateRedirect(input: AffiliateRedirectInput): string {
+export function resolveAffiliateRedirect(
+  input: AffiliateRedirectInput,
+): string {
   if (!isValidAsin(input.asin)) {
     throw new AffiliateRedirectError(`Invalid ASIN: ${input.asin}`, 400);
   }
   if (!input.productActive) {
-    throw new AffiliateRedirectError(`Product not found or inactive: ${input.asin}`, 404);
+    throw new AffiliateRedirectError(
+      `Product not found or inactive: ${input.asin}`,
+      404,
+    );
   }
 
   const destination = input.affiliateUrl ?? buildAmazonProductUrl(input.asin);

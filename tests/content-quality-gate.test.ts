@@ -3,11 +3,15 @@ import { evaluateContentQuality } from "@/lib/services/content-quality-gate";
 
 const longBody = [
   "## O preço está bom?",
-  "O preço atual está abaixo da média dos últimos 30 dias, o que indica um bom momento para compra. ".repeat(3),
+  "O preço atual está abaixo da média dos últimos 30 dias, o que indica um bom momento para compra. ".repeat(
+    3,
+  ),
   "## Para quem faz sentido",
   "Este produto atende bem quem busca praticidade no dia a dia. ".repeat(3),
   "## Metodologia",
-  "O Score PreçoCaindo usa apenas dados coletados diretamente pelo próprio site. ".repeat(3),
+  "O Score PreçoCaindo usa apenas dados coletados diretamente pelo próprio site. ".repeat(
+    3,
+  ),
 ].join("\n\n");
 
 describe("evaluateContentQuality", () => {
@@ -26,7 +30,8 @@ describe("evaluateContentQuality", () => {
     const result = evaluateContentQuality({
       title: "Produto",
       metaTitle: "Produto na Amazon — confira o preço",
-      metaDescription: "Descrição curta para o produto disponível na Amazon agora mesmo por aqui.",
+      metaDescription:
+        "Descrição curta para o produto disponível na Amazon agora mesmo por aqui.",
       body: "Preço bom.",
     });
     expect(result.verdict).toBe("FAIL");
@@ -34,11 +39,13 @@ describe("evaluateContentQuality", () => {
   });
 
   it("fails content that merely restates the marketplace description (duplication)", () => {
-    const description = "Fone de ouvido bluetooth com cancelamento de ruído e 30 horas de bateria.";
+    const description =
+      "Fone de ouvido bluetooth com cancelamento de ruído e 30 horas de bateria.";
     const result = evaluateContentQuality({
       title: "Fone Bluetooth",
       metaTitle: "Fone Bluetooth — confira o preço agora mesmo",
-      metaDescription: "Confira o preço atual do Fone Bluetooth e o histórico de preços no PreçoCaindo.",
+      metaDescription:
+        "Confira o preço atual do Fone Bluetooth e o histórico de preços no PreçoCaindo.",
       body: description,
       sourceDescriptionLength: description.length,
     });
@@ -49,7 +56,8 @@ describe("evaluateContentQuality", () => {
     const result = evaluateContentQuality({
       title: "",
       metaTitle: "Meta título válido para o produto",
-      metaDescription: "Meta description dentro da faixa recomendada de cinquenta a cento e sessenta caracteres aqui.",
+      metaDescription:
+        "Meta description dentro da faixa recomendada de cinquenta a cento e sessenta caracteres aqui.",
       body: longBody,
     });
     expect(result.verdict).toBe("FAIL");
@@ -58,7 +66,8 @@ describe("evaluateContentQuality", () => {
   it("returns REVIEW for content with only soft issues", () => {
     const result = evaluateContentQuality({
       title: "Fone Bluetooth XYZ — vale a pena?",
-      metaTitle: "Fone Bluetooth XYZ — vale a pena comprar agora? Confira agora o preço completo",
+      metaTitle:
+        "Fone Bluetooth XYZ — vale a pena comprar agora? Confira agora o preço completo",
       metaDescription: "curta",
       body: longBody,
     });

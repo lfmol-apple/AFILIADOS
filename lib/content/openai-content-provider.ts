@@ -1,4 +1,8 @@
-import type { ContentGenerationRequest, ContentGenerationResult, ContentProvider } from "@/types/content";
+import type {
+  ContentGenerationRequest,
+  ContentGenerationResult,
+  ContentProvider,
+} from "@/types/content";
 import { env } from "@/lib/config/env";
 
 /**
@@ -19,7 +23,9 @@ export class OpenAIContentProvider implements ContentProvider {
     }
   }
 
-  async generate(_request: ContentGenerationRequest): Promise<ContentGenerationResult> {
+  async generate(
+    _request: ContentGenerationRequest,
+  ): Promise<ContentGenerationResult> {
     throw new Error(
       "OpenAIContentProvider.generate is not implemented yet. See docs/CONTENT_ENGINE.md.",
     );

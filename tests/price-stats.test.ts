@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { calculatePriceStats, type PricePoint } from "@/lib/services/price-stats";
+import {
+  calculatePriceStats,
+  type PricePoint,
+} from "@/lib/services/price-stats";
 
 const DAY = 24 * 60 * 60 * 1000;
 const now = new Date("2026-08-17T12:00:00Z");

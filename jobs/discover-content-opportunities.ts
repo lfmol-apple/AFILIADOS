@@ -13,13 +13,17 @@ export async function discoverContentOpportunities() {
       where: { contentType: "PRODUCT" },
       select: { entityId: true },
     });
-    const excludedIds = new Set(existingContentEntityIds.map((c) => c.entityId).filter(Boolean));
+    const excludedIds = new Set(
+      existingContentEntityIds.map((c) => c.entityId).filter(Boolean),
+    );
 
     const candidates = await prisma.product.findMany({
       where: {
         active: true,
         opportunityScore: { isNot: null },
-        searchOpportunities: { none: { status: { in: ["PENDING", "IN_PROGRESS"] } } },
+        searchOpportunities: {
+          none: { status: { in: ["PENDING", "IN_PROGRESS"] } },
+        },
       },
       include: { opportunityScore: true },
     });

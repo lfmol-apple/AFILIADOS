@@ -8,7 +8,9 @@ const STALE_AFTER_DAYS = 60;
  * drifting out of date. Does not unpublish anything. */
 export async function markStaleContent() {
   return runJob("MARK_STALE_CONTENT", async (ctx) => {
-    const cutoff = new Date(Date.now() - STALE_AFTER_DAYS * 24 * 60 * 60 * 1000);
+    const cutoff = new Date(
+      Date.now() - STALE_AFTER_DAYS * 24 * 60 * 60 * 1000,
+    );
 
     const result = await prisma.generatedContent.updateMany({
       where: { status: "PUBLISHED", updatedAt: { lt: cutoff } },

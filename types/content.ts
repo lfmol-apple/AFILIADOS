@@ -1,9 +1,5 @@
 export type GeneratableContentType =
-  | "PRODUCT"
-  | "BEST_OF"
-  | "COMPARISON"
-  | "CATEGORY"
-  | "DEAL_SUMMARY";
+  "PRODUCT" | "BEST_OF" | "COMPARISON" | "CATEGORY" | "DEAL_SUMMARY";
 
 /**
  * Only facts explicitly passed here may appear in generated content.

@@ -30,7 +30,9 @@ export class AmazonProvider implements CommerceProvider {
     }
   }
 
-  async searchProducts(_query: ProductSearchQuery): Promise<ProductSearchResult> {
+  async searchProducts(
+    _query: ProductSearchQuery,
+  ): Promise<ProductSearchResult> {
     throw new NotImplementedYetError("searchProducts");
   }
 
@@ -42,7 +44,9 @@ export class AmazonProvider implements CommerceProvider {
     throw new NotImplementedYetError("getProducts");
   }
 
-  async getOffers(_asins: string[]): Promise<Record<string, NormalizedOffer | null>> {
+  async getOffers(
+    _asins: string[],
+  ): Promise<Record<string, NormalizedOffer | null>> {
     throw new NotImplementedYetError("getOffers");
   }
 }

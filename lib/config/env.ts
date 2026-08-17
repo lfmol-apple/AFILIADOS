@@ -23,7 +23,9 @@ const envSchema = z.object({
     .default("Como associado da Amazon, eu ganho com compras qualificadas."),
   AMAZON_POLICY_REVIEW_DATE: z.string().default("2026-08-17"),
 
-  CONTENT_GENERATION: z.enum(["mock", "openai", "anthropic", "off"]).default("mock"),
+  CONTENT_GENERATION: z
+    .enum(["mock", "openai", "anthropic", "off"])
+    .default("mock"),
   OPENAI_API_KEY: z.string().default(""),
   ANTHROPIC_API_KEY: z.string().default(""),
 

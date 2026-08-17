@@ -65,7 +65,10 @@ export async function runJob(jobName: string, fn: JobFn): Promise<JobCounters> {
         created: ctx.counters.created,
         updated: ctx.counters.updated,
         errors: ctx.counters.errors + 1,
-        metadata: { ...ctx.metadata, error: String(err) } as Prisma.InputJsonValue,
+        metadata: {
+          ...ctx.metadata,
+          error: String(err),
+        } as Prisma.InputJsonValue,
       },
     });
     throw err;

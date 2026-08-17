@@ -6,7 +6,10 @@ import { DISCOVERY_SEED_KEYWORDS } from "@/lib/config/discovery";
 import { runJob, type JobContext } from "@/lib/jobs/automation-run";
 import type { NormalizedProduct } from "@/types/commerce";
 
-async function upsertDiscoveredProduct(product: NormalizedProduct, ctx: JobContext) {
+async function upsertDiscoveredProduct(
+  product: NormalizedProduct,
+  ctx: JobContext,
+) {
   ctx.counters.processed += 1;
 
   const existing = await prisma.product.findUnique({
@@ -14,11 +17,17 @@ async function upsertDiscoveredProduct(product: NormalizedProduct, ctx: JobConte
   });
   if (existing) return;
 
-  const category = product.categoryName ? await findOrCreateCategory(product.categoryName) : null;
-  const slug = await generateUniqueSlug(product.title, product.asin, async (s) => {
-    const taken = await prisma.product.findUnique({ where: { slug: s } });
-    return taken !== null;
-  });
+  const category = product.categoryName
+    ? await findOrCreateCategory(product.categoryName)
+    : null;
+  const slug = await generateUniqueSlug(
+    product.title,
+    product.asin,
+    async (s) => {
+      const taken = await prisma.product.findUnique({ where: { slug: s } });
+      return taken !== null;
+    },
+  );
 
   await prisma.product.create({
     data: {

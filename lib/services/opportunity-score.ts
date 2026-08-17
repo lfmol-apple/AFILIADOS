@@ -82,7 +82,10 @@ function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }
 
-export function labelForScore(score: number, insufficientHistory: boolean): string {
+export function labelForScore(
+  score: number,
+  insufficientHistory: boolean,
+): string {
   if (insufficientHistory) return "Ainda estamos acompanhando este preço.";
   if (score >= 90) return "Excelente preço";
   if (score >= 75) return "Bom momento para comprar";
@@ -97,11 +100,18 @@ export function labelForScore(score: number, insufficientHistory: boolean): stri
  * product page can show *why* a price got its label instead of asserting
  * false precision.
  */
-export function calculateOpportunityScore(input: OpportunityScoreInput): OpportunityScoreResult {
-  const insufficientHistory = input.stats.dataPointCount < MIN_DATA_POINTS_FOR_HISTORY;
+export function calculateOpportunityScore(
+  input: OpportunityScoreInput,
+): OpportunityScoreResult {
+  const insufficientHistory =
+    input.stats.dataPointCount < MIN_DATA_POINTS_FOR_HISTORY;
 
-  const priceScore = Math.round(scorePriceVsBaseline(input.stats.dropPercentage));
-  const discountScore = Math.round(scoreDiscount(input.listedDiscountPercentage));
+  const priceScore = Math.round(
+    scorePriceVsBaseline(input.stats.dropPercentage),
+  );
+  const discountScore = Math.round(
+    scoreDiscount(input.listedDiscountPercentage),
+  );
   const historicalScore = insufficientHistory
     ? 50
     : Math.round(scoreHistoricalPosition(input.stats.distanceFromLow));

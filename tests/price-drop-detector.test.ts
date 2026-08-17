@@ -11,7 +11,13 @@ function daysAgo(days: number, price: number) {
 
 describe("detectPriceDrop", () => {
   it("returns null when there is no prior history", () => {
-    const event = detectPriceDrop("p1", [], 100, calculatePriceStats([], 100, now), now);
+    const event = detectPriceDrop(
+      "p1",
+      [],
+      100,
+      calculatePriceStats([], 100, now),
+      now,
+    );
     expect(event).toBeNull();
   });
 

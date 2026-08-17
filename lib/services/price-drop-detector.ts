@@ -1,10 +1,7 @@
 import type { PricePoint, PriceStatsResult } from "./price-stats";
 
 export type PriceDropReason =
-  | "PERCENTAGE_DROP"
-  | "NEW_HISTORICAL_LOW"
-  | "BELOW_AVERAGE"
-  | "UNUSUAL_DROP";
+  "PERCENTAGE_DROP" | "NEW_HISTORICAL_LOW" | "BELOW_AVERAGE" | "UNUSUAL_DROP";
 
 export interface PriceDropEvent {
   type: "PRICE_DROP_DETECTED";
@@ -25,7 +22,8 @@ function round2(n: number): number {
 
 function stdDev(values: number[], mean: number): number {
   if (values.length < 2) return 0;
-  const variance = values.reduce((acc, v) => acc + (v - mean) ** 2, 0) / values.length;
+  const variance =
+    values.reduce((acc, v) => acc + (v - mean) ** 2, 0) / values.length;
   return Math.sqrt(variance);
 }
 
@@ -43,12 +41,16 @@ export function detectPriceDrop(
 ): PriceDropEvent | null {
   if (history.length === 0) return null;
 
-  const sorted = [...history].sort((a, b) => a.observedAt.getTime() - b.observedAt.getTime());
+  const sorted = [...history].sort(
+    (a, b) => a.observedAt.getTime() - b.observedAt.getTime(),
+  );
   const previousPrice = sorted[sorted.length - 1].price;
 
   if (currentPrice >= previousPrice) return null;
 
-  const dropPercentage = round2(((previousPrice - currentPrice) / previousPrice) * 100);
+  const dropPercentage = round2(
+    ((previousPrice - currentPrice) / previousPrice) * 100,
+  );
   const reasons: PriceDropReason[] = [];
 
   if (dropPercentage >= MIN_SIGNIFICANT_DROP_PERCENTAGE) {
@@ -68,7 +70,10 @@ export function detectPriceDrop(
 
   const mean = priorPrices.reduce((a, b) => a + b, 0) / priorPrices.length;
   const deviation = stdDev(priorPrices, mean);
-  if (deviation > 0 && previousPrice - currentPrice > deviation * UNUSUAL_DROP_STDDEV_MULTIPLIER) {
+  if (
+    deviation > 0 &&
+    previousPrice - currentPrice > deviation * UNUSUAL_DROP_STDDEV_MULTIPLIER
+  ) {
     reasons.push("UNUSUAL_DROP");
   }
 

@@ -11,7 +11,11 @@ export async function calculatePriceStatsJob() {
       select: {
         id: true,
         priceHistory: { select: { price: true, observedAt: true } },
-        offers: { orderBy: { observedAt: "desc" }, take: 1, select: { price: true } },
+        offers: {
+          orderBy: { observedAt: "desc" },
+          take: 1,
+          select: { price: true },
+        },
       },
     });
 
@@ -21,7 +25,10 @@ export async function calculatePriceStatsJob() {
       if (!currentOffer) continue;
 
       const stats = calculatePriceStats(
-        product.priceHistory.map((h) => ({ price: Number(h.price), observedAt: h.observedAt })),
+        product.priceHistory.map((h) => ({
+          price: Number(h.price),
+          observedAt: h.observedAt,
+        })),
         Number(currentOffer.price),
       );
 

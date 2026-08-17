@@ -65,7 +65,9 @@ export function calculatePriceStats(
     };
   }
 
-  const sorted = [...history].sort((a, b) => a.observedAt.getTime() - b.observedAt.getTime());
+  const sorted = [...history].sort(
+    (a, b) => a.observedAt.getTime() - b.observedAt.getTime(),
+  );
   const prices = sorted.map((p) => p.price);
   const lowestPrice = Math.min(...prices, currentPrice);
   const highestPrice = Math.max(...prices, currentPrice);
@@ -79,11 +81,15 @@ export function calculatePriceStats(
     baseline > 0 ? round2(((baseline - currentPrice) / baseline) * 100) : null;
 
   const range = highestPrice - lowestPrice;
-  const distanceFromLow = range > 0 ? round2((currentPrice - lowestPrice) / range) : 0;
+  const distanceFromLow =
+    range > 0 ? round2((currentPrice - lowestPrice) / range) : 0;
   const historicalPosition = distanceFromLow;
 
   const oldest = sorted[0].observedAt.getTime();
-  const coverageDays = Math.max(1, Math.ceil((now.getTime() - oldest) / DAY_MS));
+  const coverageDays = Math.max(
+    1,
+    Math.ceil((now.getTime() - oldest) / DAY_MS),
+  );
 
   return {
     currentPrice,

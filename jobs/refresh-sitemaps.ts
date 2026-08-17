@@ -9,6 +9,7 @@ import { runJob } from "@/lib/jobs/automation-run";
  */
 export async function refreshSitemaps() {
   return runJob("REFRESH_SITEMAPS", async (ctx) => {
-    ctx.metadata.note = "Sitemap is generated dynamically at request time; nothing to refresh.";
+    ctx.metadata.note =
+      "Sitemap is generated dynamically at request time; nothing to refresh.";
   });
 }

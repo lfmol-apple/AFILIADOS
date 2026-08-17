@@ -26,7 +26,8 @@ export async function validateContent() {
           select: { title: true, description: true },
         });
         if (product) {
-          sourceDescriptionLength = (product.title.length + (product.description?.length ?? 0));
+          sourceDescriptionLength =
+            product.title.length + (product.description?.length ?? 0);
         }
       }
 
@@ -39,7 +40,11 @@ export async function validateContent() {
       });
 
       const status =
-        result.verdict === "PASS" ? "APPROVED" : result.verdict === "REVIEW" ? "VALIDATING" : "REJECTED";
+        result.verdict === "PASS"
+          ? "APPROVED"
+          : result.verdict === "REVIEW"
+            ? "VALIDATING"
+            : "REJECTED";
 
       await prisma.generatedContent.update({
         where: { id: draft.id },

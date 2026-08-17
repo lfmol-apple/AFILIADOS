@@ -36,7 +36,9 @@ function countHeadings(body: string): number {
  * listing). It does not, and cannot, verify factual accuracy; that
  * responsibility stays with ContentGenerator's no-hallucination rule.
  */
-export function evaluateContentQuality(input: QualityCheckInput): QualityCheckResult {
+export function evaluateContentQuality(
+  input: QualityCheckInput,
+): QualityCheckResult {
   const hardFailures: string[] = [];
   const softIssues: string[] = [];
 
@@ -57,7 +59,9 @@ export function evaluateContentQuality(input: QualityCheckInput): QualityCheckRe
     input.metaDescription.trim().length < MIN_META_DESCRIPTION ||
     input.metaDescription.trim().length > MAX_META_DESCRIPTION
   ) {
-    softIssues.push("Meta description fora da faixa recomendada (50-160 caracteres)");
+    softIssues.push(
+      "Meta description fora da faixa recomendada (50-160 caracteres)",
+    );
   }
 
   if (body.length < MIN_BODY_LENGTH) {
@@ -68,7 +72,9 @@ export function evaluateContentQuality(input: QualityCheckInput): QualityCheckRe
 
   const headingCount = countHeadings(body);
   if (headingCount < MIN_HEADINGS) {
-    softIssues.push(`Estrutura editorial insuficiente (${headingCount} seções, mínimo ${MIN_HEADINGS})`);
+    softIssues.push(
+      `Estrutura editorial insuficiente (${headingCount} seções, mínimo ${MIN_HEADINGS})`,
+    );
   }
 
   if (input.sourceDescriptionLength && input.sourceDescriptionLength > 0) {
@@ -85,7 +91,11 @@ export function evaluateContentQuality(input: QualityCheckInput): QualityCheckRe
   }
 
   const verdict: QualityVerdict =
-    hardFailures.length > 0 ? "FAIL" : softIssues.length > 0 ? "REVIEW" : "PASS";
+    hardFailures.length > 0
+      ? "FAIL"
+      : softIssues.length > 0
+        ? "REVIEW"
+        : "PASS";
 
   const penalty = hardFailures.length * 30 + softIssues.length * 10;
   const qualityScore = Math.max(0, Math.min(100, 100 - penalty));

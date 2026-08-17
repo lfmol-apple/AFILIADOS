@@ -54,7 +54,9 @@ export function assertAllowedAmazonDestination(rawUrl: string): URL {
     throw new AmazonPolicyViolation(`Destination must use https: ${rawUrl}`);
   }
   if (!ALLOWED_AMAZON_HOSTS.includes(url.hostname)) {
-    throw new AmazonPolicyViolation(`Host not allowed for Amazon redirects: ${url.hostname}`);
+    throw new AmazonPolicyViolation(
+      `Host not allowed for Amazon redirects: ${url.hostname}`,
+    );
   }
   return url;
 }
@@ -105,9 +107,12 @@ export function checkLiveActivationReadiness(): LiveActivationCheck[] {
   ];
 }
 
-export function isPolicyReviewRecent(referenceDate: Date = new Date()): boolean {
+export function isPolicyReviewRecent(
+  referenceDate: Date = new Date(),
+): boolean {
   const reviewDate = new Date(env.AMAZON_POLICY_REVIEW_DATE);
   if (Number.isNaN(reviewDate.getTime())) return false;
-  const diffDays = (referenceDate.getTime() - reviewDate.getTime()) / (1000 * 60 * 60 * 24);
+  const diffDays =
+    (referenceDate.getTime() - reviewDate.getTime()) / (1000 * 60 * 60 * 24);
   return diffDays <= 90;
 }

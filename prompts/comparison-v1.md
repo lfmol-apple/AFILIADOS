@@ -5,7 +5,7 @@ Used by: GENERATE_CONTENT job, /comparar/[slug]
 
 ## Rule zero
 
-Only compare fields present on *both* `facts.itemA` and `facts.itemB`. If
+Only compare fields present on _both_ `facts.itemA` and `facts.itemB`. If
 one item lacks a field the other has, omit that comparison line rather than
 guessing a value to fill the gap.
 

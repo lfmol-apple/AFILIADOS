@@ -9,7 +9,10 @@ let cachedProvider: CommerceProvider | undefined;
  * should instantiate a provider directly. */
 export function getCommerceProvider(): CommerceProvider {
   if (!cachedProvider) {
-    cachedProvider = env.AMAZON_PROVIDER === "live" ? new AmazonProvider() : new MockAmazonProvider();
+    cachedProvider =
+      env.AMAZON_PROVIDER === "live"
+        ? new AmazonProvider()
+        : new MockAmazonProvider();
   }
   return cachedProvider;
 }

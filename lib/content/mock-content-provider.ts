@@ -1,4 +1,9 @@
-import type { ContentGenerationRequest, ContentGenerationResult, ContentProvider, ProductFacts } from "@/types/content";
+import type {
+  ContentGenerationRequest,
+  ContentGenerationResult,
+  ContentProvider,
+  ProductFacts,
+} from "@/types/content";
 
 /**
  * Deterministic, template-based generator that uses only the facts it
@@ -11,19 +16,29 @@ import type { ContentGenerationRequest, ContentGenerationResult, ContentProvider
 export class MockContentProvider implements ContentProvider {
   readonly name = "mock";
 
-  async generate(request: ContentGenerationRequest): Promise<ContentGenerationResult> {
+  async generate(
+    request: ContentGenerationRequest,
+  ): Promise<ContentGenerationResult> {
     if (request.contentType === "PRODUCT") {
-      return generateProductReview(request.facts as ProductFacts, request.promptVersion);
+      return generateProductReview(
+        request.facts as ProductFacts,
+        request.promptVersion,
+      );
     }
     return generateGenericFallback(request);
   }
 }
 
 function money(value: number, currency: string): string {
-  return new Intl.NumberFormat("pt-BR", { style: "currency", currency }).format(value);
+  return new Intl.NumberFormat("pt-BR", { style: "currency", currency }).format(
+    value,
+  );
 }
 
-function generateProductReview(facts: ProductFacts, promptVersion: string): ContentGenerationResult {
+function generateProductReview(
+  facts: ProductFacts,
+  promptVersion: string,
+): ContentGenerationResult {
   const lines: string[] = [];
 
   // -- O preço está bom? --
@@ -48,7 +63,9 @@ function generateProductReview(facts: ProductFacts, promptVersion: string): Cont
       : `Este histórico cobre ${facts.coverageDays} dias de observação direta do PreçoCaindo.`,
   );
   if (facts.opportunityLabel) {
-    priceParts.push(`Segundo o Score PreçoCaindo, a avaliação atual é: "${facts.opportunityLabel}".`);
+    priceParts.push(
+      `Segundo o Score PreçoCaindo, a avaliação atual é: "${facts.opportunityLabel}".`,
+    );
   }
   lines.push(priceParts.join(" "));
 
@@ -56,7 +73,9 @@ function generateProductReview(facts: ProductFacts, promptVersion: string): Cont
   lines.push("\n## Para quem faz sentido");
   const forWhomParts: string[] = [];
   if (facts.categoryName) {
-    forWhomParts.push(`Este produto se encaixa na categoria ${facts.categoryName}.`);
+    forWhomParts.push(
+      `Este produto se encaixa na categoria ${facts.categoryName}.`,
+    );
   }
   if (facts.description) {
     forWhomParts.push(facts.description);
@@ -72,19 +91,27 @@ function generateProductReview(facts: ProductFacts, promptVersion: string): Cont
   const specs = facts.specifications ?? {};
   const specEntries = Object.entries(specs);
   if (specEntries.length > 0) {
-    lines.push(specEntries.map(([key, value]) => `- ${key}: ${value}`).join("\n"));
+    lines.push(
+      specEntries.map(([key, value]) => `- ${key}: ${value}`).join("\n"),
+    );
   } else {
-    lines.push("Ainda não temos especificações suficientes para destacar pontos fortes específicos.");
+    lines.push(
+      "Ainda não temos especificações suficientes para destacar pontos fortes específicos.",
+    );
   }
 
   // -- Pontos de atenção --
   lines.push("\n## Pontos de atenção");
   const attentionParts: string[] = [];
   if (facts.rating === undefined || facts.reviewCount === undefined) {
-    attentionParts.push("Ainda não há avaliações suficientes de compradores para este produto.");
+    attentionParts.push(
+      "Ainda não há avaliações suficientes de compradores para este produto.",
+    );
   }
   if (facts.coverageDays < 30) {
-    attentionParts.push("O histórico de preços coletado ainda é curto para garantir tendências de longo prazo.");
+    attentionParts.push(
+      "O histórico de preços coletado ainda é curto para garantir tendências de longo prazo.",
+    );
   }
   lines.push(
     attentionParts.length > 0
@@ -102,17 +129,32 @@ function generateProductReview(facts: ProductFacts, promptVersion: string): Cont
 
   const body = lines.join("\n");
   const title = facts.title;
-  const metaTitle = truncate(`${facts.title} — vale a pena comprar agora? | PreçoCaindo`, 70);
+  const metaTitle = truncate(
+    `${facts.title} — vale a pena comprar agora? | PreçoCaindo`,
+    70,
+  );
   const metaDescription = truncate(
     `Veja o histórico de preço, o Score PreçoCaindo e se ${facts.title} está com um preço realmente bom agora.`,
     160,
   );
 
-  return { title, metaTitle, metaDescription, body, model: "mock", promptVersion };
+  return {
+    title,
+    metaTitle,
+    metaDescription,
+    body,
+    model: "mock",
+    promptVersion,
+  };
 }
 
-function generateGenericFallback(request: ContentGenerationRequest): ContentGenerationResult {
-  const title = typeof request.facts.title === "string" ? request.facts.title : request.slug;
+function generateGenericFallback(
+  request: ContentGenerationRequest,
+): ContentGenerationResult {
+  const title =
+    typeof request.facts.title === "string"
+      ? request.facts.title
+      : request.slug;
   const body = [
     `## Sobre ${title}`,
     `Conteúdo gerado automaticamente para ${request.contentType.toLowerCase()} ainda não possui um template dedicado no MockContentProvider.`,

@@ -28,7 +28,7 @@ make sense for the reader? Ground every claim about price in
    `facts.specifications`, and `facts.description` when present.
 3. `## Pontos fortes` — derived only from `facts.specifications` /
    `facts.description`.
-4. `## Pontos de atenção` — things the data does *not* confirm (e.g. no
+4. `## Pontos de atenção` — things the data does _not_ confirm (e.g. no
    warranty info given) rather than invented downsides.
 5. `## Metodologia` — one paragraph: score is PreçoCaindo's own, not
    Amazon's; based on price history collected by PreçoCaindo since first

@@ -19,12 +19,15 @@ const ALL_JOBS_IN_ORDER: JobName[] = [
 async function main() {
   const arg = process.argv[2];
 
-  const jobNames: JobName[] = arg === undefined || arg === "ALL" ? ALL_JOBS_IN_ORDER : [arg as JobName];
+  const jobNames: JobName[] =
+    arg === undefined || arg === "ALL" ? ALL_JOBS_IN_ORDER : [arg as JobName];
 
   for (const name of jobNames) {
     const job = JOBS[name];
     if (!job) {
-      console.error(`Unknown job: ${name}. Known jobs: ${Object.keys(JOBS).join(", ")}`);
+      console.error(
+        `Unknown job: ${name}. Known jobs: ${Object.keys(JOBS).join(", ")}`,
+      );
       process.exitCode = 1;
       return;
     }

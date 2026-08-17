@@ -15,14 +15,20 @@ import { MOCK_CATALOG } from "./mock-catalog";
 export class MockAmazonProvider implements CommerceProvider {
   readonly name = "AMAZON" as const;
 
-  async searchProducts(query: ProductSearchQuery): Promise<ProductSearchResult> {
+  async searchProducts(
+    query: ProductSearchQuery,
+  ): Promise<ProductSearchResult> {
     const keywords = query.keywords.toLowerCase();
     const matches = MOCK_CATALOG.filter(
       (p) =>
         p.title.toLowerCase().includes(keywords) ||
         p.categoryName?.toLowerCase().includes(keywords),
     );
-    return { products: matches, totalResults: matches.length, page: query.page ?? 1 };
+    return {
+      products: matches,
+      totalResults: matches.length,
+      page: query.page ?? 1,
+    };
   }
 
   async getProduct(asin: string): Promise<NormalizedProduct | null> {
@@ -34,7 +40,9 @@ export class MockAmazonProvider implements CommerceProvider {
     return MOCK_CATALOG.filter((p) => set.has(p.asin));
   }
 
-  async getOffers(asins: string[]): Promise<Record<string, NormalizedOffer | null>> {
+  async getOffers(
+    asins: string[],
+  ): Promise<Record<string, NormalizedOffer | null>> {
     const result: Record<string, NormalizedOffer | null> = {};
     for (const asin of asins) {
       const product = MOCK_CATALOG.find((p) => p.asin === asin);
