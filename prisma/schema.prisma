@@ -1,0 +1,309 @@
+// PreçoCaindo — core data model.
+// See docs/ARCHITECTURE.md for how these entities fit into the automation cycle.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CommerceProviderName {
+  AMAZON
+}
+
+enum Availability {
+  IN_STOCK
+  OUT_OF_STOCK
+  UNKNOWN
+}
+
+enum ContentType {
+  PRODUCT
+  BEST_OF
+  COMPARISON
+  CATEGORY
+  DEAL_SUMMARY
+}
+
+enum ContentStatus {
+  DRAFT
+  VALIDATING
+  APPROVED
+  REJECTED
+  PUBLISHED
+  STALE
+}
+
+enum OpportunityStatus {
+  PENDING
+  IN_PROGRESS
+  DONE
+  DISCARDED
+}
+
+enum AutomationStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+  PARTIAL
+}
+
+enum UpdatePriority {
+  HOT
+  WARM
+  COLD
+}
+
+enum AlertChannel {
+  EMAIL
+}
+
+enum CreativeType {
+  PRICE_DROP
+  OPPORTUNITY
+  BEST_OF
+}
+
+enum CreativeFormat {
+  OG_IMAGE
+  INSTAGRAM_FEED
+  INSTAGRAM_STORY
+  PINTEREST
+}
+
+enum CreativeStatus {
+  DRAFT
+  READY
+  PUBLISHED
+  ARCHIVED
+}
+
+model Category {
+  id       String  @id @default(cuid())
+  name     String
+  slug     String  @unique
+  parentId String?
+  parent   Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryToCategory")
+  active   Boolean @default(true)
+
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([parentId])
+}
+
+model Product {
+  id             String   @id @default(cuid())
+  asin           String
+  provider       CommerceProviderName @default(AMAZON)
+  slug           String   @unique
+  title          String
+  brand          String?
+  description    String?
+  imageUrl       String?
+  categoryId     String?
+  category       Category? @relation(fields: [categoryId], references: [id])
+  specifications Json?
+  rating         Float?
+  reviewCount    Int?
+  active         Boolean  @default(true)
+  updatePriority UpdatePriority @default(COLD)
+
+  firstSeenAt DateTime @default(now())
+  lastSeenAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  offers          Offer[]
+  priceHistory    PriceHistory[]
+  priceStats      PriceStats?
+  opportunityScore OpportunityScore?
+  affiliateClicks AffiliateClick[]
+  priceAlerts     PriceAlert[]
+  creatives       Creative[]
+  searchOpportunities SearchOpportunity[]
+
+  @@unique([provider, asin])
+  @@index([categoryId])
+  @@index([updatePriority])
+  @@index([active])
+}
+
+model Offer {
+  id                 String   @id @default(cuid())
+  productId          String
+  product            Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  provider           CommerceProviderName @default(AMAZON)
+  price              Decimal  @db.Decimal(10, 2)
+  currency           String   @default("BRL")
+  originalPrice      Decimal? @db.Decimal(10, 2)
+  discountPercentage Float?
+  affiliateUrl       String
+  availability       Availability @default(UNKNOWN)
+  observedAt         DateTime @default(now())
+
+  @@index([productId, observedAt])
+}
+
+model PriceHistory {
+  id         String   @id @default(cuid())
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  provider   CommerceProviderName @default(AMAZON)
+  price      Decimal  @db.Decimal(10, 2)
+  observedAt DateTime @default(now())
+
+  @@index([productId, observedAt])
+}
+
+model PriceStats {
+  id String @id @default(cuid())
+
+  productId String  @unique
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  currentPrice     Decimal  @db.Decimal(10, 2)
+  lowestPrice      Decimal  @db.Decimal(10, 2)
+  highestPrice     Decimal  @db.Decimal(10, 2)
+  avg7d            Decimal? @db.Decimal(10, 2)
+  avg30d           Decimal? @db.Decimal(10, 2)
+  avg90d           Decimal? @db.Decimal(10, 2)
+  dropPercentage   Float?
+  distanceFromLow  Float?
+  historicalPosition Float?
+  dataPointCount   Int      @default(0)
+  coverageDays     Int      @default(0)
+
+  calculatedAt DateTime @default(now())
+}
+
+model OpportunityScore {
+  id String @id @default(cuid())
+
+  productId String  @unique
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  score            Int
+  priceScore       Int
+  discountScore    Int
+  popularityScore  Int
+  ratingScore      Int
+  historicalScore  Int
+  confidence       Float
+
+  calculatedAt DateTime @default(now())
+
+  @@index([score])
+}
+
+model AffiliateClick {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  provider  CommerceProviderName @default(AMAZON)
+  pageType  String
+  pageSlug  String
+  source    String?
+  campaign  String?
+
+  createdAt DateTime @default(now())
+
+  @@index([productId, createdAt])
+  @@index([createdAt])
+}
+
+model GeneratedContent {
+  id            String        @id @default(cuid())
+  contentType   ContentType
+  entityId      String?
+  slug          String
+  title         String
+  metaTitle     String
+  metaDescription String
+  body          String
+  model         String
+  promptVersion String
+  status        ContentStatus @default(DRAFT)
+  qualityScore  Int?
+  qualityReasons Json?
+
+  generatedAt DateTime  @default(now())
+  reviewedAt  DateTime?
+  publishedAt DateTime?
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([contentType, slug])
+  @@index([status])
+  @@index([entityId])
+}
+
+model SearchOpportunity {
+  id         String   @id @default(cuid())
+  keyword    String
+  intent     String
+  category   String?
+  productId  String?
+  product    Product? @relation(fields: [productId], references: [id])
+  priority   Int      @default(0)
+  status     OpportunityStatus @default(PENDING)
+
+  discoveredAt DateTime @default(now())
+
+  @@index([status, priority])
+}
+
+model AutomationRun {
+  id         String   @id @default(cuid())
+  job        String
+  startedAt  DateTime @default(now())
+  finishedAt DateTime?
+  status     AutomationStatus @default(RUNNING)
+  processed  Int      @default(0)
+  created    Int      @default(0)
+  updated    Int      @default(0)
+  errors     Int      @default(0)
+  metadata   Json?
+
+  @@index([job, startedAt])
+}
+
+model PriceAlert {
+  id              String   @id @default(cuid())
+  productId       String
+  product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  targetPrice     Decimal  @db.Decimal(10, 2)
+  channel         AlertChannel @default(EMAIL)
+  destinationHash String
+  active          Boolean  @default(true)
+
+  createdAt   DateTime  @default(now())
+  triggeredAt DateTime?
+
+  @@index([productId, active])
+}
+
+model Creative {
+  id             String         @id @default(cuid())
+  productId      String
+  product        Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  type           CreativeType
+  format         CreativeFormat
+  headline       String
+  subtitle       String?
+  price          Decimal        @db.Decimal(10, 2)
+  previousPrice  Decimal?       @db.Decimal(10, 2)
+  discount       Float?
+  imageUrl       String?
+  destinationUrl String
+  status         CreativeStatus @default(DRAFT)
+
+  createdAt DateTime @default(now())
+
+  @@index([productId, status])
+}
