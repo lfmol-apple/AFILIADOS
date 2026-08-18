@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { siteConfig } from "@/lib/config/site";
 import { isProductPageIndexable } from "@/lib/seo/indexability";
 import { PRIMARY_PUBLIC_MARKETPLACE } from "@/lib/config/marketplaces";
-import { isPublicCatalogSafeToShow } from "@/lib/config/public-catalog";
+import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 
 export const revalidate = 3600;
 
@@ -26,11 +26,16 @@ const STATIC_ROUTES = [
  * via lib/seo/indexability.ts, so the two can't disagree).
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // If the public catalog isn't safe to show (pre-launch, or a mock
-  // provider in production — see lib/config/public-catalog.ts), the
-  // sitemap must not list a single product/category/content URL: an empty
-  // sitemap with just the static institutional routes is the honest state.
-  if (!isPublicCatalogSafeToShow()) {
+  // No currently-visible data source (pre-launch, or every gate closed —
+  // see lib/config/public-catalog.ts) means the sitemap must not list a
+  // single product/category/content URL: an empty sitemap with just the
+  // static institutional routes is the honest state. This is NOT the same
+  // check as isPublicCatalogSafeToShow() alone — a MANUAL_VERIFIED cohort
+  // can be visible even when that returns false (e.g. AMAZON_PROVIDER=mock
+  // in production), so we must ask what's *actually* visible, not just
+  // whether the mock-provider catalog is.
+  const visibleDataSources = currentlyVisibleDataSources();
+  if (visibleDataSources.length === 0) {
     return STATIC_ROUTES.map((path) => ({
       url: `${siteConfig.url}${path}`,
       changeFrequency: path === "" ? "daily" : "monthly",
@@ -40,7 +45,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const [products, categories, content] = await Promise.all([
     prisma.product.findMany({
-      where: { marketplace: PRIMARY_PUBLIC_MARKETPLACE, active: true },
+      where: {
+        marketplace: PRIMARY_PUBLIC_MARKETPLACE,
+        active: true,
+        dataSource: { in: visibleDataSources },
+      },
       select: {
         slug: true,
         updatedAt: true,
@@ -49,8 +58,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priceStats: { select: { coverageDays: true } },
       },
     }),
+    // Empty categories (no currently-visible product) must not be indexed
+    // — a category page with zero products is thin/useless content.
     prisma.category.findMany({
-      where: { active: true },
+      where: {
+        active: true,
+        products: {
+          some: {
+            marketplace: PRIMARY_PUBLIC_MARKETPLACE,
+            active: true,
+            dataSource: { in: visibleDataSources },
+          },
+        },
+      },
       select: { slug: true, updatedAt: true },
     }),
     prisma.generatedContent.findMany({

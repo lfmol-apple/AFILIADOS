@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { PRIMARY_PUBLIC_MARKETPLACE } from "@/lib/config/marketplaces";
+import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 
 /**
  * The public site (/, /ofertas, /produto, /categorias, /melhores,
@@ -11,6 +12,16 @@ import { PRIMARY_PUBLIC_MARKETPLACE } from "@/lib/config/marketplaces";
  */
 const PUBLIC_MARKETPLACE = PRIMARY_PUBLIC_MARKETPLACE;
 
+/** Every public query also filters on this — see
+ * lib/config/public-catalog.ts's currentlyVisibleDataSources(). MOCK rows
+ * never appear while AMAZON_PROVIDER=mock in production; MANUAL_VERIFIED
+ * rows only appear once MANUAL_PRODUCTS_ENABLED is turned on. An empty
+ * array (both gates closed) correctly returns zero rows, not an error —
+ * Prisma's `{ in: [] }` never matches anything. */
+function visibleDataSourceFilter() {
+  return { dataSource: { in: currentlyVisibleDataSources() } };
+}
+
 const PRODUCT_LIST_INCLUDE = {
   category: true,
   offers: { orderBy: { observedAt: "desc" as const }, take: 1 },
@@ -19,15 +30,27 @@ const PRODUCT_LIST_INCLUDE = {
 };
 
 export async function getHomeSections() {
+  const dataSourceFilter = visibleDataSourceFilter();
+
   const [pricesDropping, bestOpportunities, categories] = await Promise.all([
     prisma.product.findMany({
-      where: { marketplace: PUBLIC_MARKETPLACE, active: true, priceStats: { dropPercentage: { gt: 5 } } },
+      where: {
+        marketplace: PUBLIC_MARKETPLACE,
+        active: true,
+        priceStats: { dropPercentage: { gt: 5 } },
+        ...dataSourceFilter,
+      },
       include: PRODUCT_LIST_INCLUDE,
       orderBy: { priceStats: { dropPercentage: "desc" } },
       take: 8,
     }),
     prisma.product.findMany({
-      where: { marketplace: PUBLIC_MARKETPLACE, active: true, opportunityScore: { score: { gte: 75 } } },
+      where: {
+        marketplace: PUBLIC_MARKETPLACE,
+        active: true,
+        opportunityScore: { score: { gte: 75 } },
+        ...dataSourceFilter,
+      },
       include: PRODUCT_LIST_INCLUDE,
       orderBy: { opportunityScore: { score: "desc" } },
       take: 8,
@@ -40,10 +63,14 @@ export async function getHomeSections() {
         // taxonomy, not Amazon's), so only the product _count needs the
         // marketplace filter — otherwise a category with only US products
         // would show a nonzero count on the BR homepage.
-        products: { some: { marketplace: PUBLIC_MARKETPLACE, active: true } },
+        products: { some: { marketplace: PUBLIC_MARKETPLACE, active: true, ...dataSourceFilter } },
       },
       include: {
-        _count: { select: { products: { where: { marketplace: PUBLIC_MARKETPLACE, active: true } } } },
+        _count: {
+          select: {
+            products: { where: { marketplace: PUBLIC_MARKETPLACE, active: true, ...dataSourceFilter } },
+          },
+        },
       },
       orderBy: { name: "asc" },
       take: 12,
@@ -79,6 +106,7 @@ export async function getOfertas({ page = 1, pageSize = 24, categorySlug, query 
     marketplace: PUBLIC_MARKETPLACE,
     active: true,
     opportunityScore: { isNot: null },
+    ...visibleDataSourceFilter(),
     ...(categorySlug ? { category: { slug: categorySlug } } : {}),
     ...(query ? { title: { contains: query, mode: "insensitive" as const } } : {}),
   };
@@ -114,7 +142,7 @@ export type ProductListItem = Awaited<ReturnType<typeof getOfertas>>["items"][nu
  * URL strategy). */
 export async function getProductBySlug(slug: string) {
   return prisma.product.findFirst({
-    where: { slug, marketplace: PUBLIC_MARKETPLACE },
+    where: { slug, marketplace: PUBLIC_MARKETPLACE, active: true, ...visibleDataSourceFilter() },
     include: {
       category: true,
       offers: { orderBy: { observedAt: "desc" }, take: 1 },
@@ -128,7 +156,13 @@ export async function getProductBySlug(slug: string) {
 export async function getSimilarProducts(categoryId: string | null, excludeProductId: string) {
   if (!categoryId) return [];
   return prisma.product.findMany({
-    where: { marketplace: PUBLIC_MARKETPLACE, active: true, categoryId, id: { not: excludeProductId } },
+    where: {
+      marketplace: PUBLIC_MARKETPLACE,
+      active: true,
+      categoryId,
+      id: { not: excludeProductId },
+      ...visibleDataSourceFilter(),
+    },
     include: PRODUCT_LIST_INCLUDE,
     orderBy: { opportunityScore: { score: "desc" } },
     take: 4,
@@ -166,7 +200,12 @@ export async function getCategoryBySlug(slug: string, sort: CategorySort = "scor
   if (!category) return null;
 
   const products = await prisma.product.findMany({
-    where: { marketplace: PUBLIC_MARKETPLACE, active: true, categoryId: category.id },
+    where: {
+      marketplace: PUBLIC_MARKETPLACE,
+      active: true,
+      categoryId: category.id,
+      ...visibleDataSourceFilter(),
+    },
     include: PRODUCT_LIST_INCLUDE,
     orderBy: { opportunityScore: { score: "desc" } },
     take: 48,
