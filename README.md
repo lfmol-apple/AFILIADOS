@@ -24,6 +24,9 @@ O objetivo do produto é ficar disponível em **https://precocaindo.com.br**.
 - [docs/REMARKETING.md](docs/REMARKETING.md) — status (arquitetura pronta, nada ativo)
 - [docs/AMAZON.md](docs/AMAZON.md) — status da integração Amazon (mock vs. live), contexto PETMOL
 - [docs/AMAZON_COMPLIANCE.md](docs/AMAZON_COMPLIANCE.md) — checklist de conformidade com o Programa de Associados
+- [docs/COHORT.md](docs/COHORT.md) — fila de candidatos a produto, CLI de cadastro/promoção manual
+- [docs/GROWTH_METRICS.md](docs/GROWTH_METRICS.md) — KPIs de crescimento, RPM, limitações de atribuição
+- [docs/LAUNCH_CHECKLIST.md](docs/LAUNCH_CHECKLIST.md) — passo a passo para publicar a primeira coorte real
 - [docs/PRODUCTION_READINESS.md](docs/PRODUCTION_READINESS.md) — `npm run production:readiness`
 - [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — como rodar em produção (VPS + Docker Compose + Caddy)
 - [docs/OPERATIONS.md](docs/OPERATIONS.md) — logs, health check, jobs, deploy de atualização, rollback
