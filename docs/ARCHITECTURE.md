@@ -57,10 +57,12 @@ uma mudança de configuração (`AMAZON_PROVIDER`, `CONTENT_GENERATION`), não u
 | `lib/observability/` | Health checks e métricas internas |
 | `lib/seo/` | Structured data, indexabilidade, redirects de slug |
 | `lib/http/` | `RetryPolicy` genérica para chamadas externas futuras |
-| `lib/config/marketplaces.ts` | `AmazonMarketplaceConfig` por marketplace (BR/US) — host, moeda, tag, enabled/apiEnabled |
+| `lib/config/marketplaces.ts` | `AmazonMarketplaceConfig` por marketplace (BR/US) — host, moeda, tag, enabled/apiEnabled; `PRIMARY_PUBLIC_MARKETPLACE` (BR) — o marketplace que o site público serve hoje |
+| `lib/config/public-catalog.ts` | `isPublicCatalogSafeToShow()` — gate único de "é seguro mostrar o catálogo publicamente agora" (ver seção "Pré-lançamento" abaixo) |
 | `lib/amazon/` | `AmazonPolicyGuard` (marketplace-aware) — única fonte de verdade sobre regras Amazon; `readiness-checks.ts`/`status.ts` para admin e production:readiness |
-| `lib/queries/` | Acesso a dados usado pelas páginas (mantém Prisma fora dos componentes) |
-| `lib/jobs/` | Infraestrutura compartilhada de jobs (`AutomationRun` com locking/stale recovery) |
+| `lib/queries/` | Acesso a dados usado pelas páginas (mantém Prisma fora dos componentes) — `products.ts` (público, sempre BR) e `admin.ts` (inclui `getCatalogSnapshot`/`getUnexpectedCatalogAlerts` por marketplace) |
+| `lib/jobs/` | Infraestrutura compartilhada de jobs (`AutomationRun` com locking/stale recovery, `mergeJobCounters`) |
+| `lib/readiness/report.ts` | `buildReadinessReport()` — lógica pura por trás de `production:readiness`, testável sem spawnar um processo |
 | `jobs/` | Os 13 jobs de automação, um arquivo por job |
 | `proxy.ts` | Redirects permanentes de slug (renomeado de `middleware` no Next 16) |
 | `prisma/` | Schema, migrations, seed |
@@ -109,3 +111,44 @@ alimentam o `ProductPriorityService`. `SearchOpportunity` carrega o breakdown do
 `AffiliateClick`, `PageView` e `SearchEvent` registram atividade sem dado pessoal.
 `ConsentRecord` guarda a escolha de privacidade por sujeito pseudônimo. `SlugRedirect` registra
 redirects permanentes. Veja `prisma/schema.prisma` para os campos completos.
+
+### Isolamento por marketplace (Sprint 4)
+
+`Product.marketplace` (enum `BR`/`US`, padrão `BR`) faz de `Product` um registro **por
+marketplace** — a listagem BR e uma futura listagem US do "mesmo" ASIN são duas linhas `Product`
+distintas, cada uma com seu próprio conjunto completo de `Offer`/`PriceHistory`/`PriceStats`/
+`OpportunityScore` (chave única passou de `[provider, asin]` para `[provider, marketplace,
+asin]`). Essa é a decisão deliberada em vez de um `ProductMaster` global: como todo filho é 1:1/1:N
+via `productId`, o isolamento de preço/moeda é automático pela própria FK — não existe uma linha
+compartilhada por onde dado de um marketplace possa vazar para o outro, e nenhuma tabela filha
+precisou ganhar sua própria coluna `marketplace` redundante. `AffiliateClick`, `PriceAlert`,
+`Creative`, `SearchOpportunity` e `PageView` seguem o mesmo raciocínio — o marketplace é sempre
+derivável sem ambiguidade via `Product`.
+
+`GeneratedContent` é a exceção deliberada: como referencia sua entidade por `entityId` solto (não
+FK), não há como derivar marketplace via relação, e o pipeline editorial inteiro (`ContentQualityGate`,
+geração, publicação) ainda é hardcoded para BR — ver `jobs/discover-content-opportunities.ts`. Não
+ganhou uma coluna `marketplace` nesta sprint porque não há hoje nenhum caminho que produza conteúdo
+não-BR; revisitar juntos quando/se a geração de conteúdo também for multi-marketplace.
+
+Toda query que alimenta uma página pública (`lib/queries/products.ts`) filtra explicitamente por
+`PRIMARY_PUBLIC_MARKETPLACE` (hoje `"BR"`), mesmo onde isso hoje parece redundante — é o que
+impede um produto USD de aparecer silenciosamente no site BR no dia em que o US for habilitado.
+`getCommerceProvider(marketplace)` e os jobs de catálogo (`DISCOVER_PRODUCTS`,
+`REFRESH_*`, `CALCULATE_*`, `REBALANCE_*`) recebem o marketplace explicitamente e iteram sobre
+`getEnabledMarketplaces()` — hoje sempre `["BR"]`, já preparado para adicionar `"US"` sem reescrever
+nada além de configuração.
+
+### URLs e slugs — hoje e estratégia futura para US
+
+As URLs públicas BR (`/produto/[slug]`, `/categorias/[slug]`, `/melhores/[slug]`,
+`/comparar/[slug]`, `/go/amazon/[asin]`) permanecem **sem prefixo**, exatamente como estão — esta
+sprint não move nem redireciona nenhuma URL existente. `Product.slug` é único globalmente (não só
+por marketplace), então uma futura listagem US do mesmo produto vai precisar de um slug distinto
+mesmo com o mesmo `title` de origem.
+
+Estratégia documentada (não implementada) para quando o US for habilitado: URLs US usariam um
+prefixo explícito (`/us/produto/[slug]`, `/us/ofertas`, etc.), análogo ao padrão já usado em
+`/go/amazon/[marketplace]/[asin]` para o link de afiliado. Isso evita qualquer colisão de rota com
+as URLs BR existentes e deixa claro para o crawler/usuário qual marketplace está vendo, sem exigir
+mudar nenhuma URL BR já indexada.

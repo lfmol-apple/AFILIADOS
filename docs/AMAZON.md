@@ -145,6 +145,28 @@ de saída), não um segredo, e já foi confirmado pelo dono do negócio. `buildA
 (`lib/amazon/policy-guard.ts`) recusa-se a construir um link se a tag do marketplace pedido não
 estiver configurada ou se esse marketplace não estiver habilitado.
 
+## Pré-lançamento: catálogo público desligado por padrão
+
+Com `AMAZON_PROVIDER=mock`, os preços exibidos são fictícios por definição — publicar isso para a
+internet indexável seria mostrar preço falso para um visitante real. `PUBLIC_CATALOG_ENABLED`
+(padrão `false`, ver `lib/config/public-catalog.ts`) é o interruptor explícito que uma pessoa liga
+quando o lançamento for de fato decidido; mesmo ligado, `isPublicCatalogSafeToShow()` ainda força
+`false` sempre que `NODE_ENV=production` e `AMAZON_PROVIDER=mock` ao mesmo tempo — essa combinação
+nunca é permitida, independentemente do flag. Enquanto desligado, `/`, `/ofertas`, `/categorias`,
+`/produto`, `/melhores` e `/comparar` continuam de pé (a home some apenas as seções de catálogo,
+substituídas por um aviso de pré-lançamento), mas `/produto/[slug]`, `/categorias/[slug]`,
+`/melhores/[slug]` e `/comparar/[slug]` retornam 404, e `sitemap.xml`/`robots.txt` nunca listam uma
+URL de catálogo. Dev local usa mock livremente (`PUBLIC_CATALOG_ENABLED=true` no `.env` local, onde
+`NODE_ENV` nunca é `production`).
+
+Os checks de elegibilidade Amazon (`lib/amazon/readiness-checks.ts`) foram renomeados nesta sprint
+para casar com `npm run production:readiness`: `AMAZON_BR_TRACKING_ID`, `AMAZON_BR_ACCOUNT_APPROVED`,
+`AMAZON_BR_QUALIFIED_SALES`, `AMAZON_BR_API_CREDENTIALS`, `AMAZON_BR_LIVE_PROVIDER` (BR) e os
+`AMAZON_US_*` equivalentes. Só `AMAZON_BR_TRACKING_ID` bloqueia o veredito `BR_LAUNCH_READY` — os
+demais (aprovação de conta, vendas qualificadas, credenciais, provider ao vivo) só bloqueiam o
+veredito `PRODUCTION` (venda de verdade via API), e nenhuma linha `AMAZON_US_*` bloqueia nenhum dos
+dois — ver docs/PRODUCTION_READINESS.md.
+
 ## Whitelist de hosts de redirect
 
 `amzn.to` (encurtador da própria Amazon) foi deliberadamente removido da allowlist de destinos —

@@ -6,12 +6,17 @@
   comparações), com `title`, `description`, `alternates.canonical` e Open Graph.
 - **Open Graph dinâmico** por produto: `app/produto/[slug]/opengraph-image.tsx` gera uma imagem
   1200×630 com título, preço e o rótulo do Score no momento do request.
-- **Sitemap** (`app/sitemap.ts`): inclui páginas estáticas, produtos ativos **indexáveis**
-  (`lib/seo/indexability.ts` — ver abaixo), categorias ativas e conteúdo `PUBLISHED` com
-  `noindex=false`. Nunca páginas vazias, redirects, ou conteúdo marcado noindex. Revalida a cada
-  hora.
-- **Robots** (`app/robots.ts`): libera tudo exceto `/admin`, `/go/amazon/` e `/api/` (rotas sem
-  valor de indexação que não devem receber crawler).
+- **Sitemap** (`app/sitemap.ts`): inclui páginas estáticas, produtos **BR** ativos e **indexáveis**
+  (`lib/seo/indexability.ts` — ver abaixo; a query é sempre filtrada por
+  `PRIMARY_PUBLIC_MARKETPLACE`, nunca "todo Product"), categorias ativas e conteúdo `PUBLISHED` com
+  `noindex=false`. Nunca páginas vazias, redirects, ou conteúdo marcado noindex. Se o catálogo não
+  estiver seguro para mostrar (`isPublicCatalogSafeToShow()` — ver docs/AMAZON.md
+  "Pré-lançamento"), o sitemap lista só as rotas estáticas institucionais, nenhum produto/categoria/
+  conteúdo. Revalida a cada hora.
+- **Robots** (`app/robots.ts`): libera tudo exceto `/admin`, `/go/amazon/` e `/api/`. Quando o
+  catálogo não está seguro para mostrar, também bloqueia `/produto/`, `/ofertas`, `/categorias/`,
+  `/melhores/` e `/comparar/` — mesma função `isPublicCatalogSafeToShow()` que o sitemap usa, então
+  os dois nunca podem discordar sobre o que é seguro indexar.
 - **Structured data (JSON-LD)**:
   - `WebSite` e `Organization` no layout raiz;
   - `Product` na página de produto — com uma decisão deliberada: `offers.seller` é sempre
@@ -53,6 +58,17 @@ existir (seção 13 do briefing, e Partes F/G da Sprint 2). Isso é aplicado em 
    demanda e originalidade — nunca publica só porque "temos um ASIN". Mesmo conteúdo `APPROVED`
    só é efetivamente publicado se `AUTO_PUBLISH=true` (padrão: `false`) — ver
    `jobs/publish-content.ts`.
+
+## Pré-lançamento: nunca indexar o catálogo fictício
+
+`AMAZON_PROVIDER=mock` significa preços inventados. Antes de `PUBLIC_CATALOG_ENABLED=true` ser
+deliberadamente ligado (e nunca em produção com provider mock — ver docs/AMAZON.md), as páginas de
+produto/categoria/melhores/comparar (`/produto/[slug]`, `/categorias/[slug]`, `/melhores/[slug]`,
+`/comparar/[slug]`) retornam 404 em vez de renderizar um preço fictício, e `/ofertas` fica no ar
+mas vazia com `robots: {index: false}` forçado — a home segue institucional, sem as seções de
+catálogo. Isso é reforçado em quatro camadas independentes (página, sitemap, robots,
+`production:readiness`'s `PUBLIC_CATALOG_SAFE`) que compartilham a mesma função
+(`isPublicCatalogSafeToShow()`), para que nenhuma delas possa divergir das outras.
 
 ## Pendências conhecidas (próximos passos de SEO)
 
