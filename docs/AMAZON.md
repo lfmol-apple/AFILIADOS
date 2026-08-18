@@ -159,13 +159,14 @@ substituídas por um aviso de pré-lançamento), mas `/produto/[slug]`, `/catego
 URL de catálogo. Dev local usa mock livremente (`PUBLIC_CATALOG_ENABLED=true` no `.env` local, onde
 `NODE_ENV` nunca é `production`).
 
-Os checks de elegibilidade Amazon (`lib/amazon/readiness-checks.ts`) foram renomeados nesta sprint
-para casar com `npm run production:readiness`: `AMAZON_BR_TRACKING_ID`, `AMAZON_BR_ACCOUNT_APPROVED`,
+Os checks de elegibilidade Amazon (`lib/amazon/readiness-checks.ts`) casam com as linhas de
+`npm run production:readiness`: `AMAZON_BR_TRACKING_ID`, `AMAZON_BR_ACCOUNT_APPROVED`,
 `AMAZON_BR_QUALIFIED_SALES`, `AMAZON_BR_API_CREDENTIALS`, `AMAZON_BR_LIVE_PROVIDER` (BR) e os
-`AMAZON_US_*` equivalentes. Só `AMAZON_BR_TRACKING_ID` bloqueia o veredito `BR_LAUNCH_READY` — os
+`AMAZON_US_*` equivalentes. Só `AMAZON_BR_TRACKING_ID` bloqueia o veredito `SITE_LAUNCH_READY` — os
 demais (aprovação de conta, vendas qualificadas, credenciais, provider ao vivo) só bloqueiam o
 veredito `PRODUCTION` (venda de verdade via API), e nenhuma linha `AMAZON_US_*` bloqueia nenhum dos
-dois — ver docs/PRODUCTION_READINESS.md.
+três vereditos (`SITE_LAUNCH_READY`/`CATALOG_LAUNCH_READY`/`PRODUCTION`) — ver
+docs/PRODUCTION_READINESS.md.
 
 ## Whitelist de hosts de redirect
 

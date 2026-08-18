@@ -1,15 +1,15 @@
 import "dotenv/config";
 import { execSync } from "node:child_process";
 import { prisma } from "@/lib/db";
-import { buildReadinessReport } from "@/lib/readiness/report";
+import { buildReadinessReport, type Line } from "@/lib/readiness/report";
 
 /**
  * CLI wrapper around lib/readiness/report.ts — see that file for the full
- * design rationale (BR_LAUNCH_READY vs PRODUCTION, why PENDING isn't a
- * failure, why US never blocks BR). This script's only job is to run the
- * real test suite (the one thing the pure report module can't safely do
- * itself, since it's what this script is invoked from inside `npm test`
- * runs too) and print the report.
+ * design rationale (SITE_LAUNCH_READY / CATALOG_LAUNCH_READY / PRODUCTION,
+ * why PENDING isn't a failure, why US never blocks BR). This script's only
+ * job is to run the real test suite (the one thing the pure report module
+ * can't safely do itself, since it's what this script is invoked from
+ * inside `npm test` runs too) and print the report.
  */
 function runTestSuite(): boolean {
   try {
@@ -20,42 +20,51 @@ function runTestSuite(): boolean {
   }
 }
 
+function printGroup(lines: Line[], group: Line["group"], width: number) {
+  for (const l of lines.filter((line) => line.group === group)) {
+    console.log(`${l.label.padEnd(width, ".")} ${l.value}`);
+  }
+}
+
 async function main() {
   console.log("PreçoCaindo — production readiness\n");
 
   const infrastructureReady = runTestSuite();
-  const { lines, brLaunchReady, productionReady } = await buildReadinessReport({
-    infrastructureReady,
-  });
+  const { lines, siteLaunchReady, catalogLaunchReady, productionReady } =
+    await buildReadinessReport({ infrastructureReady });
 
-  const width = Math.max(...lines.map((l) => l.label.length)) + 2;
-  for (const l of lines) {
-    console.log(`${l.label.padEnd(width, ".")} ${l.value}`);
+  const width = Math.max(...lines.map((l) => l.label.length), "SITE_LAUNCH_READY".length) + 2;
+
+  printGroup(lines, "site", width);
+  console.log(`\n${"SITE_LAUNCH_READY".padEnd(width, ".")} ${siteLaunchReady ? "READY" : "NOT READY"}\n`);
+
+  printGroup(lines, "catalog", width);
+  console.log(`\n${"CATALOG_LAUNCH_READY".padEnd(width, ".")} ${catalogLaunchReady ? "READY" : "NOT READY"}\n`);
+
+  printGroup(lines, "production", width);
+  console.log(`\n${"PRODUCTION".padEnd(width, ".")} ${productionReady ? "READY" : "NOT READY"}\n`);
+
+  printGroup(lines, "us", width);
+
+  const siteBlockers = lines.filter((l) => l.blocksSiteLaunch);
+  const catalogBlockers = lines.filter((l) => l.blocksCatalogLaunch && !l.blocksSiteLaunch);
+  const productionBlockers = lines.filter((l) => l.blocksProduction && !l.blocksCatalogLaunch);
+
+  if (siteBlockers.length > 0) {
+    console.log("\nBloqueadores do lançamento do site:");
+    for (const b of siteBlockers) console.log(`  - ${b.label}: ${b.value}`);
   }
-
-  console.log(
-    `\n${"BR_LAUNCH_READY".padEnd(width, ".")} ${brLaunchReady ? "READY" : "NOT READY"}`,
-  );
-  console.log(
-    `${"PRODUCTION".padEnd(width, ".")} ${productionReady ? "READY" : "NOT READY"}`,
-  );
-
-  const brLaunchBlockers = lines.filter((l) => l.blocksBrLaunch);
-  const productionBlockers = lines.filter((l) => l.blocksProduction);
-
-  if (brLaunchBlockers.length > 0) {
-    console.log("\nBloqueadores do lançamento BR:");
-    for (const b of brLaunchBlockers) console.log(`  - ${b.label}: ${b.value}`);
+  if (catalogBlockers.length > 0) {
+    console.log("\nBloqueadores adicionais para exibir o catálogo:");
+    for (const b of catalogBlockers) console.log(`  - ${b.label}: ${b.value}`);
   }
-  if (productionBlockers.length > brLaunchBlockers.length) {
+  if (productionBlockers.length > 0) {
     console.log("\nBloqueadores adicionais para PRODUCTION (venda ao vivo via Amazon):");
-    for (const b of productionBlockers) {
-      if (!b.blocksBrLaunch) console.log(`  - ${b.label}: ${b.value}`);
-    }
+    for (const b of productionBlockers) console.log(`  - ${b.label}: ${b.value}`);
   }
 
   await prisma.$disconnect();
-  process.exitCode = brLaunchReady ? 0 : 1;
+  process.exitCode = siteLaunchReady ? 0 : 1;
 }
 
 main();

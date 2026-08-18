@@ -336,18 +336,26 @@ describe("9. production + mock never indexes the fictional catalog", () => {
 });
 
 describe("10. US pendencies never block BR launch readiness", () => {
-  it("every AMAZON_US_* line is informational-only — none of them can block BR_LAUNCH_READY", async () => {
+  it("every AMAZON_US_* line is informational-only — none of them can block any verdict", async () => {
     const { lines } = await buildReadinessReport({ infrastructureReady: true });
     const usLines = lines.filter((l) => l.label.startsWith("AMAZON_US"));
     expect(usLines.length).toBeGreaterThan(0);
-    expect(usLines.every((l) => l.blocksBrLaunch === false)).toBe(true);
+    expect(usLines.every((l) => l.blocksSiteLaunch === false)).toBe(true);
+    expect(usLines.every((l) => l.blocksCatalogLaunch === false)).toBe(true);
+    expect(usLines.every((l) => l.blocksProduction === false)).toBe(true);
   });
 
-  it("BR_LAUNCH_READY is computed purely from BR/local blockers, never from US lines", async () => {
-    const { lines, brLaunchReady } = await buildReadinessReport({ infrastructureReady: true });
-    const brLaunchBlockers = lines.filter((l) => l.blocksBrLaunch);
-    expect(brLaunchReady).toBe(brLaunchBlockers.length === 0);
-    expect(brLaunchBlockers.every((l) => !l.label.startsWith("AMAZON_US"))).toBe(true);
+  it("SITE_LAUNCH_READY is computed purely from site/local blockers, never from US lines", async () => {
+    const { lines, siteLaunchReady } = await buildReadinessReport({ infrastructureReady: true });
+    const siteBlockers = lines.filter((l) => l.blocksSiteLaunch);
+    expect(siteLaunchReady).toBe(siteBlockers.length === 0);
+    expect(siteBlockers.every((l) => !l.label.startsWith("AMAZON_US"))).toBe(true);
+  });
+
+  it("SITE_LAUNCH_READY never requires the public catalog to actually be shown", async () => {
+    const { lines } = await buildReadinessReport({ infrastructureReady: true });
+    const catalogSafeLine = lines.find((l) => l.label === "PUBLIC_CATALOG_SAFE");
+    expect(catalogSafeLine?.blocksSiteLaunch).toBe(false);
   });
 });
 

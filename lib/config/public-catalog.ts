@@ -23,3 +23,24 @@ export function isPublicCatalogSafeToShow(): boolean {
   if (process.env.NODE_ENV === "production" && env.AMAZON_PROVIDER === "mock") return false;
   return true;
 }
+
+/**
+ * A narrower, always-achievable safety bar than isPublicCatalogSafeToShow():
+ * "is fabricated data NOT being exposed publicly right now" — true whenever
+ * the catalog isn't being shown at all (PUBLIC_CATALOG_ENABLED=false, the
+ * default), or when it's being shown with real (non-mock) data. Only false
+ * for the one genuinely dangerous combination: production, a mock
+ * provider, and the catalog flag actually turned on.
+ *
+ * This is what SITE_LAUNCH_READY checks (lib/readiness/report.ts) — an
+ * institutional pre-launch site with the catalog hidden must be able to go
+ * live without waiting for PUBLIC_CATALOG_SAFE, which is a much higher bar
+ * (CATALOG_LAUNCH_READY) about whether the catalog itself is ready to show,
+ * not just whether it's safely hidden.
+ */
+export function isMockDataPubliclyHidden(): boolean {
+  const catalogWouldBeVisible = env.PUBLIC_CATALOG_ENABLED;
+  const isMock = env.AMAZON_PROVIDER === "mock";
+  const isProduction = process.env.NODE_ENV === "production";
+  return !(isProduction && isMock && catalogWouldBeVisible);
+}
