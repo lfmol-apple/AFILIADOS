@@ -44,16 +44,38 @@ o campo fica `null` e a priorização entre candidatos é feita lendo os campos 
 Nenhum desses campos aparece nunca em uma página pública. Eles existem só para ajudar a decidir
 "vale a pena verificar este ASIN a fundo e publicar."
 
-## Estado atual da ferramenta (honesto, não aspiracional)
+## Ferramenta operacional (CLI)
 
-Hoje, `ProductCandidate` existe apenas como modelo de banco — a migration
-`20260818163000_product_data_source_and_candidates` já está aplicada. **Ainda não existe** um
-script de linha de comando para importar candidatos em lote, listá-los ordenados por score, ou
-promover um candidato a `Product` automaticamente. Até que esse tooling seja construído, qualquer
-inserção/promoção de candidato é feita manualmente (Prisma Studio — `npm run db:studio`, ou uma
-migration de dados pontual), sempre revisada por uma pessoa antes de qualquer `Product` real ser
-criado com `dataSource = MANUAL_VERIFIED`. Isso é uma pendência real do projeto, não um recurso
-"invisível" — ver o relatório de retomada mais recente para o estado exato.
+Nenhuma etapa deste fluxo depende de SQL manual ou do Prisma Studio — seis comandos npm cobrem o
+ciclo completo (project brief Sprint 7 seções 4-5; implementação em `lib/services/manual-product-
+registration.ts`, `lib/services/candidate-promotion.ts`, `scripts/*.ts`):
+
+```bash
+npm run candidate:add      -- --asin <ASIN> --title "..." --rationale "..." [--category <slug>] [scores 0-100 opcionais]
+npm run candidate:list     [-- --status CANDIDATE|APPROVED|REJECTED|PROMOTED]
+npm run candidate:promote  -- --asin <ASIN> --title "..." --category <slug> --description "..." --confirm
+
+npm run product:add        -- --asin <ASIN> --title "..." --category <slug> --description "..."
+npm run product:list       [-- --dataSource all] [--active true|false]
+npm run product:activate   -- --asin <ASIN> [--marketplace BR] [--deactivate]
+```
+
+Garantias construídas na própria função, não apenas na documentação:
+
+- `dataSource` é sempre `MANUAL_VERIFIED` — nunca um parâmetro que o operador possa setar como
+  `MOCK` por engano.
+- Nenhum campo de preço, desconto, avaliação, estoque ou URL afiliada é aceito como entrada — eles
+  simplesmente não existem no tipo `ManualProductInput`, então não há como "esquecer" de omiti-los.
+- ASIN e marketplace são validados com as mesmas funções que `/go/amazon/[asin]` usa
+  (`isValidAsin`, `getEnabledMarketplaces`) — nunca uma checagem paralela que possa divergir.
+- O produto é sempre criado com `active=false` (rascunho); `product:activate` recusa
+  explicitamente qualquer produto com `dataSource=MOCK`.
+- `candidate:promote` exige `--confirm` — a promoção nunca é automática nem acidental.
+- A URL afiliada exibida é só uma prévia (`buildAmazonProductUrl()`), nunca gravada em `Offer` —
+  o link real continua sendo gerado no momento do clique, por `/go/amazon/[asin]`.
+
+Cobertura automatizada equivalente a um "dry run" (sem nunca tocar produção): `tests/manual-
+product-registration.test.ts`.
 
 ## Conteúdo editorial de um produto promovido
 
