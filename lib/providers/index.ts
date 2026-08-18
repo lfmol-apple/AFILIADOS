@@ -4,6 +4,7 @@ import { env } from "@/lib/config/env";
 import { getAmazonMarketplaceConfig } from "@/lib/config/marketplaces";
 import { MockAmazonProvider } from "./mock-amazon-provider";
 import { AmazonProvider } from "./amazon-provider";
+import { logger } from "@/lib/observability/logger";
 
 const cache = new Map<MarketplaceCode, CommerceProvider>();
 
@@ -20,6 +21,7 @@ const cache = new Map<MarketplaceCode, CommerceProvider>();
 export function getCommerceProvider(marketplace: MarketplaceCode): CommerceProvider {
   const config = getAmazonMarketplaceConfig(marketplace);
   if (!config.enabled) {
+    logger.error("provider.disabled_marketplace_requested", { marketplace });
     throw new Error(
       `Marketplace ${marketplace} is not enabled (AMAZON_${marketplace}_ENABLED=false); ` +
         `refusing to construct a CommerceProvider for it.`,
@@ -28,8 +30,13 @@ export function getCommerceProvider(marketplace: MarketplaceCode): CommerceProvi
 
   let provider = cache.get(marketplace);
   if (!provider) {
-    provider =
-      env.AMAZON_PROVIDER === "live" ? new AmazonProvider(marketplace) : new MockAmazonProvider(marketplace);
+    try {
+      provider =
+        env.AMAZON_PROVIDER === "live" ? new AmazonProvider(marketplace) : new MockAmazonProvider(marketplace);
+    } catch (err) {
+      logger.error("provider.construction_failed", { marketplace, message: String(err) });
+      throw err;
+    }
     cache.set(marketplace, provider);
   }
   return provider;

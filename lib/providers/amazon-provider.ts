@@ -7,6 +7,7 @@ import type {
 } from "@/types/commerce";
 import type { MarketplaceCode } from "@/types/marketplace";
 import { getAmazonMarketplaceConfig } from "@/lib/config/marketplaces";
+import { logger } from "@/lib/observability/logger";
 
 /**
  * Real Amazon integration via the Creators API, scoped to one marketplace.
@@ -68,5 +69,6 @@ class NotImplementedYetError extends Error {
         "integration requires confirmed access and official docs before implementation — see docs/AMAZON.md.",
     );
     this.name = "NotImplementedYetError";
+    logger.error("provider.not_implemented", { marketplace, method });
   }
 }

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { resolveAffiliateRedirect, AffiliateRedirectError } from "@/lib/services/affiliate-redirect";
+import { logger } from "@/lib/observability/logger";
 import type { MarketplaceCode } from "@/types/marketplace";
 
 export type GoAmazonResult =
@@ -40,10 +41,17 @@ export async function handleGoAmazonRequest(
     });
   } catch (err) {
     if (err instanceof AffiliateRedirectError) {
+      logger.warn("affiliate.redirect_rejected", {
+        marketplace,
+        asin,
+        status: err.status,
+      });
       return { status: "error", errorStatus: err.status, errorMessage: err.message };
     }
     throw err;
   }
+
+  logger.info("affiliate.redirect", { marketplace, asin, productFound: Boolean(product) });
 
   if (product) {
     await prisma.affiliateClick.create({
