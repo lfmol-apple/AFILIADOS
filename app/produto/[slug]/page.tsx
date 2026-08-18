@@ -8,7 +8,10 @@ import { OpportunityBadge } from "@/components/opportunity-badge";
 import { AmazonCta } from "@/components/amazon-cta";
 import { PriceHistoryChart } from "@/components/price-history-chart";
 import { ProductCard } from "@/components/product-card";
+import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { siteConfig } from "@/lib/config/site";
+import { buildBreadcrumbList } from "@/lib/seo/structured-data";
+import { isProductPageIndexable } from "@/lib/seo/indexability";
 
 export const revalidate = 900;
 
@@ -56,14 +59,24 @@ export async function generateMetadata(
   const data = await loadProduct(slug);
   if (!data) return {};
 
-  const { product, offer } = data;
+  const { product, offer, stats } = data;
   const title = `${product.title} — vale a pena comprar agora?`;
   const description = `Veja o histórico de preço e o Score PreçoCaindo de ${product.title}, atualmente por ${formatCurrency(Number(offer.price), offer.currency)}.`;
+
+  const specCount = product.specifications && typeof product.specifications === "object"
+    ? Object.keys(product.specifications as Record<string, unknown>).length
+    : 0;
+  const indexable = isProductPageIndexable({
+    coverageDays: stats.coverageDays,
+    hasDescription: Boolean(product.description),
+    specCount,
+  });
 
   return {
     title,
     description,
     alternates: { canonical: `/produto/${product.slug}` },
+    robots: indexable ? undefined : { index: false, follow: true },
     openGraph: {
       title,
       description,
@@ -118,27 +131,28 @@ export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
     },
   };
 
+  const breadcrumbItems = [
+    { label: "Início", href: "/" },
+    ...(product.category
+      ? [{ label: product.category.name, href: `/categorias/${product.category.slug}` }]
+      : []),
+    { label: product.title },
+  ];
+  const breadcrumbList = buildBreadcrumbList(breadcrumbItems);
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+      <AnalyticsBeacon pageType="product" pageSlug={product.slug} productId={product.id} />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-
-      <Breadcrumbs
-        items={[
-          { label: "Início", href: "/" },
-          ...(product.category
-            ? [
-                {
-                  label: product.category.name,
-                  href: `/categorias/${product.category.slug}`,
-                },
-              ]
-            : []),
-          { label: product.title },
-        ]}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbList) }}
       />
+
+      <Breadcrumbs items={breadcrumbItems} />
 
       <div className="mt-4 grid gap-8 sm:grid-cols-2">
         <div className="bg-surface-muted flex aspect-square items-center justify-center overflow-hidden rounded-xl">
