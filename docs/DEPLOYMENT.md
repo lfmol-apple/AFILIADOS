@@ -29,6 +29,13 @@ configuração explícita.
 6. Start: `npm run start`.
 7. Agendar os jobs de automação (`docs/AUTOMATION.md`) via GitHub Actions `schedule:`, crontab, ou
    equivalente — eles não rodam sozinhos.
+8. Rodar `npm run production:readiness` (docs/PRODUCTION_READINESS.md) e revisar os bloqueadores
+   listados antes de considerar o ambiente pronto para tráfego real.
+9. Configurar monitoramento externo de `/api/health` (retorna `503` quando `status: "unhealthy"`)
+   se a plataforma de hospedagem suportar health checks HTTP.
+
+Nesta sprint, **nenhum deploy foi realizado** — nem VPS, nem DNS, nem `precocaindo.com.br`. Essa
+etapa é explicitamente uma sprint futura, autorizada separadamente.
 
 ## Antes de ativar `AMAZON_PROVIDER=live`
 

@@ -11,6 +11,26 @@ mecânica em `lib/content/mock-content-provider.ts`: cada frase do template est�
 sobre o fato correspondente (`tests/mock-content-provider.test.ts` cobre isso: gerar conteúdo sem
 `rating`/`reviewCount` nunca menciona uma nota).
 
+## O contrato `VerifiedFacts` (FACTS / CALCULATIONS / EDITORIAL)
+
+`types/content.ts` define o único formato que um `ContentProvider` pode receber para conteúdo do
+tipo `PRODUCT`:
+
+```ts
+interface VerifiedFacts {
+  facts: VerifiedProductFacts;        // dados brutos observados (título, specs, rating...)
+  calculations: VerifiedPriceCalculations; // números que o PreçoCaindo calculou (preço, Score...)
+  editorial: EditorialGuidance;       // tom e estrutura — NUNCA uma fonte de fato
+}
+```
+
+A separação existe para que a regra "nunca alucinar" vire algo mecanicamente verificável: o
+prompt de um futuro provider real de LLM pode dizer "afirme como verdade só o que está em `facts`
+e `calculations`; `editorial` é só orientação de tom/estrutura" — e um revisor pode checar uma
+alegação específica contra um campo específico, em vez de confiar na prosa.
+`tests/mock-content-provider.test.ts` verifica isso na prática: nada em `editorial.tone` ou
+`editorial.disclosures` aparece literalmente no corpo gerado.
+
 ## Abstração de providers
 
 ```ts
@@ -56,7 +76,19 @@ geração ter rodado. O pipeline de `GeneratedContent` (com `ContentQualityGate`
 opt-in) é reservado para conteúdo que exige síntese — `BEST_OF`, `COMPARISON`, `CATEGORY` — que não
 dá para computar de forma trivial a partir de um único registro no request.
 
+## Proteção contra conteúdo em escala sem valor
+
+`ContentQualityGate` (`lib/services/content-quality-gate.ts`) avalia cinco dimensões, não só um
+veredito binário: `originality`, `dataSupport`, `usefulness`, `duplicationRisk` e
+`commercialTransparency`. `duplicationRisk` vem de uma comparação de similaridade por shingles de
+3 palavras (`lib/services/similarity.ts`, sem LLM) contra o conteúdo do mesmo tipo já publicado —
+o que pega exatamente o padrão "mesmo template, só troca o nome do produto" que caracteriza spam
+de conteúdo em escala. `commercialTransparency` cai a zero se o corpo contiver frases como
+"adicionar ao carrinho" ou "finalizar compra aqui", que dariam a entender que o PreçoCaindo vende
+o produto.
+
 ## Controle de qualidade
 
 Ver [docs/SEO.md](SEO.md#controle-de-qualidade-antes-de-publicar-seo-programático) para como o
-`ContentQualityGate` decide `PASS`/`REVIEW`/`FAIL`.
+`ContentQualityGate` decide `PASS`/`REVIEW`/`FAIL`, e como o `PublicationDecisionEngine` decide se
+uma página aprovada deve mesmo ser criada, atualizada, mantida, marcada noindex, ou rejeitada.

@@ -15,11 +15,16 @@ O objetivo do produto é ficar disponível em **https://precocaindo.com.br**.
 ## Documentação
 
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — camadas, modelo de dados, decisões de design
-- [docs/AUTOMATION.md](docs/AUTOMATION.md) — os 12 jobs do ciclo de automação
-- [docs/SEO.md](docs/SEO.md) — metadata, sitemap, structured data, controle de qualidade
+- [docs/AUTOMATION.md](docs/AUTOMATION.md) — os 13 jobs do ciclo de automação, priorização, locking
+- [docs/DEMAND_ENGINE.md](docs/DEMAND_ENGINE.md) — como a demanda real (nunca inventada) decide o que publicar
+- [docs/SEO.md](docs/SEO.md) — metadata, sitemap, structured data, controle de qualidade, redirects
 - [docs/CONTENT_ENGINE.md](docs/CONTENT_ENGINE.md) — geração de conteúdo, regra de zero alucinação
-- [docs/AMAZON.md](docs/AMAZON.md) — status da integração Amazon (mock vs. live)
+- [docs/ANALYTICS.md](docs/ANALYTICS.md) — o que é medido, o que nunca é coletado
+- [docs/PRIVACY.md](docs/PRIVACY.md) — consentimento LGPD, o que cada categoria controla
+- [docs/REMARKETING.md](docs/REMARKETING.md) — status (arquitetura pronta, nada ativo)
+- [docs/AMAZON.md](docs/AMAZON.md) — status da integração Amazon (mock vs. live), contexto PETMOL
 - [docs/AMAZON_COMPLIANCE.md](docs/AMAZON_COMPLIANCE.md) — checklist de conformidade com o Programa de Associados
+- [docs/PRODUCTION_READINESS.md](docs/PRODUCTION_READINESS.md) — `npm run production:readiness`
 - [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — como rodar em produção
 
 ## Stack
@@ -99,7 +104,10 @@ Veja a lista completa de jobs em [docs/AUTOMATION.md](docs/AUTOMATION.md).
 | `/comparar/[slug]` | Comparação entre produtos (gerado + validado) |
 | `/transparencia` | Como ganhamos dinheiro e como calculamos o Score |
 | `/go/amazon/[asin]` | Redirecionamento afiliado controlado (rastreado, sem redirect automático) |
-| `/admin` | Dashboard interno (protegido por `ADMIN_ACCESS_TOKEN` opcional) |
+| `/admin` | Dashboard interno (protegido por `ADMIN_ACCESS_TOKEN` opcional — dev-grade, ver docs/PRODUCTION_READINESS.md) |
+| `/api/health` | Health check (banco, automação, modo do provider) — nunca expõe secrets |
+| `/api/consent` | Persistência do consentimento LGPD (`GET`/`POST`) |
+| `/api/analytics/pageview` | Recebe pageviews first-party, só quando o visitante consentiu com Analytics |
 
 ## Qualidade e testes
 
@@ -108,10 +116,12 @@ npm run lint         # ESLint (flat config)
 npm run typecheck     # tsc --noEmit
 npm test              # Vitest
 npm run amazon:compliance   # checklist de compliance Amazon (obrigatório antes de AMAZON_PROVIDER=live)
+npm run production:readiness  # relatório PASS/FAIL/PENDING sobre prontidão para produção
 npm run build          # build de produção (Turbopack)
 ```
 
-Todos rodam no CI (`.github/workflows/ci.yml`) a cada push/PR.
+Todos (exceto `production:readiness`, que é esperado ficar `NOT READY` por enquanto — ver
+docs/PRODUCTION_READINESS.md) rodam no CI (`.github/workflows/ci.yml`) a cada push/PR.
 
 ## Segurança e privacidade
 
@@ -119,7 +129,9 @@ Todos rodam no CI (`.github/workflows/ci.yml`) a cada push/PR.
   server-side.
 - `/go/amazon/[asin]` nunca aceita um destino arbitrário via query string — o host é validado
   contra uma allowlist (`lib/amazon/policy-guard.ts`).
-- `AffiliateClick` não armazena endereço IP.
+- `AffiliateClick`, `PageView` e `SearchEvent` não armazenam endereço IP.
+- Banner de consentimento LGPD com três opções igualmente proeminentes (Aceitar / Recusar
+  não essenciais / Configurar) — ver [docs/PRIVACY.md](docs/PRIVACY.md).
 - Veja [docs/AMAZON_COMPLIANCE.md](docs/AMAZON_COMPLIANCE.md) para o checklist completo.
 
 ## Amazon: mock hoje, live quando configurado
