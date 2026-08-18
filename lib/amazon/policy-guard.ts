@@ -1,22 +1,15 @@
 import { env } from "@/lib/config/env";
+import { getAmazonMarketplaceConfig } from "@/lib/config/marketplaces";
+import type { MarketplaceCode } from "@/types/marketplace";
 
 /**
  * Single place where Amazon Associates Program rules become code. Nothing
  * outside this module should decide whether a link, redirect, or disclosure
  * is compliant — see docs/AMAZON_COMPLIANCE.md for the underlying policy
- * checklist this enforces.
+ * checklist this enforces. Every function is marketplace-aware; `marketplace`
+ * defaults to "BR" everywhere so existing call sites (written before US was
+ * architecturally prepared) keep working unchanged.
  */
-
-// Official Amazon hosts we are allowed to send affiliate traffic to. Never
-// add a non-Amazon host here — that would turn /go/amazon into an open
-// redirect.
-//
-// amzn.to (Amazon's own short-link domain) was deliberately left off this
-// list (project brief Part R). PreçoCaindo always builds or stores
-// canonical amazon.com.br/dp/<ASIN> destinations itself, so there's no
-// operational need to accept a short link we can't validate the true
-// target of before redirecting — prefer the known, canonical host.
-const ALLOWED_AMAZON_HOSTS = ["www.amazon.com.br", "amazon.com.br"];
 
 const ASIN_PATTERN = /^[A-Z0-9]{10}$/;
 
@@ -27,29 +20,69 @@ export function isValidAsin(asin: string): boolean {
 }
 
 /**
- * Builds a Special Link for a product page. Requires a real Associate tag —
- * refuses to fabricate one. The tag comes only from env, never hardcoded.
+ * Official Amazon hosts allowed as a redirect destination for one
+ * marketplace. amzn.to (Amazon's own short-link domain) is deliberately
+ * excluded everywhere (project brief Sprint 2 Part R) — PreçoCaindo always
+ * builds or stores canonical `<host>/dp/<ASIN>` destinations itself, so
+ * there's no operational need to accept a short link whose true target
+ * can't be validated before redirecting.
  */
-export function buildAmazonProductUrl(asin: string): string {
+function allowedHostsFor(marketplace: MarketplaceCode): string[] {
+  const { host } = getAmazonMarketplaceConfig(marketplace);
+  return [host, `www.${host}`];
+}
+
+/**
+ * Builds a Special Link for a product page on the given marketplace.
+ * Requires that marketplace to be enabled AND have a real Associate tag —
+ * refuses to fabricate either. The tag comes only from config
+ * (lib/config/marketplaces.ts), never hardcoded.
+ */
+export function buildAmazonProductUrl(
+  asin: string,
+  marketplace: MarketplaceCode = "BR",
+): string {
   if (!isValidAsin(asin)) {
     throw new AmazonPolicyViolation(`Invalid ASIN: ${asin}`);
   }
-  if (!env.AMAZON_ASSOCIATE_TAG) {
+
+  const config = getAmazonMarketplaceConfig(marketplace);
+  if (!config.enabled) {
     throw new AmazonPolicyViolation(
-      "AMAZON_ASSOCIATE_TAG is not configured; refusing to build an affiliate link without a real tracking ID.",
+      `Marketplace ${marketplace} is not enabled; refusing to build an affiliate link for it.`,
     );
   }
-  const url = new URL(`https://www.amazon.com.br/dp/${asin}`);
-  url.searchParams.set("tag", env.AMAZON_ASSOCIATE_TAG);
+  if (!config.associateTag) {
+    throw new AmazonPolicyViolation(
+      `No associate tag configured for marketplace ${marketplace}; refusing to build an affiliate link without a real tracking ID.`,
+    );
+  }
+
+  const url = new URL(`https://www.${config.host}/dp/${asin}`);
+  url.searchParams.set("tag", config.associateTag);
   return url.toString();
 }
 
 /**
- * Validates that a destination URL points at an official Amazon host before
- * it is ever used as a redirect target. This is the only function allowed
- * to authorize /go/amazon redirects.
+ * Validates that a destination URL points at an official Amazon host for
+ * the given (enabled) marketplace before it is ever used as a redirect
+ * target. This is the only function allowed to authorize /go/amazon
+ * redirects. Rejects immediately — before even checking the host — when
+ * the target marketplace itself isn't enabled, so a disabled marketplace
+ * (US, today) can never produce a live redirect regardless of what host
+ * the stored/constructed URL happens to use.
  */
-export function assertAllowedAmazonDestination(rawUrl: string): URL {
+export function assertAllowedAmazonDestination(
+  rawUrl: string,
+  marketplace: MarketplaceCode = "BR",
+): URL {
+  const config = getAmazonMarketplaceConfig(marketplace);
+  if (!config.enabled) {
+    throw new AmazonPolicyViolation(
+      `Marketplace ${marketplace} is not enabled for redirects.`,
+    );
+  }
+
   let url: URL;
   try {
     url = new URL(rawUrl);
@@ -59,8 +92,11 @@ export function assertAllowedAmazonDestination(rawUrl: string): URL {
   if (url.protocol !== "https:") {
     throw new AmazonPolicyViolation(`Destination must use https: ${rawUrl}`);
   }
-  if (!ALLOWED_AMAZON_HOSTS.includes(url.hostname)) {
-    throw new AmazonPolicyViolation(`Host not allowed for Amazon redirects: ${url.hostname}`);
+  const allowed = allowedHostsFor(marketplace);
+  if (!allowed.includes(url.hostname)) {
+    throw new AmazonPolicyViolation(
+      `Host not allowed for ${marketplace} Amazon redirects: ${url.hostname} (allowed: ${allowed.join(", ")})`,
+    );
   }
   return url;
 }
@@ -76,20 +112,29 @@ export interface LiveActivationCheck {
 }
 
 /**
- * Checklist gate for AMAZON_PROVIDER=live (section 72 of the project brief).
- * This only checks what code can verify (config presence, disclosure,
- * guard tests). Contractual/account items — including Amazon's own
- * eligibility rules for Creators API access (approved Associate account
- * AND at least 10 qualified sales in the trailing 30 days, per Amazon's
- * published FAQ) — must be confirmed by a human and tracked in
- * docs/AMAZON_COMPLIANCE.md.
+ * Checklist gate for AMAZON_PROVIDER=live, scoped to one marketplace
+ * (section 72 of the original brief; Sprint 2 Part 17/72; Sprint 3 Part 7).
+ * Only checks what code can verify (config presence, disclosure, guard
+ * tests). Contractual/account items — including Amazon's own eligibility
+ * rules for Creators API access (approved Associate account AND at least
+ * 10 qualified sales in the trailing 30 days, per Amazon's published FAQ)
+ * — must be confirmed by a human; see docs/AMAZON_COMPLIANCE.md and
+ * lib/amazon/readiness-checks.ts for the fuller multi-marketplace picture.
  */
-export function checkLiveActivationReadiness(): LiveActivationCheck[] {
+export function checkLiveActivationReadiness(
+  marketplace: MarketplaceCode = "BR",
+): LiveActivationCheck[] {
+  const config = getAmazonMarketplaceConfig(marketplace);
   return [
     {
+      key: "enabled",
+      label: `Marketplace ${marketplace} habilitado (AMAZON_${marketplace}_ENABLED)`,
+      pass: config.enabled,
+    },
+    {
       key: "associate_tag",
-      label: "AMAZON_ASSOCIATE_TAG configurado (Tracking ID próprio do PreçoCaindo, não petmol-20)",
-      pass: env.AMAZON_ASSOCIATE_TAG.length > 0,
+      label: `Tracking ID configurado para ${marketplace}`,
+      pass: config.associateTag.length > 0,
     },
     {
       key: "creators_api_key",
@@ -114,9 +159,12 @@ export function checkLiveActivationReadiness(): LiveActivationCheck[] {
   ];
 }
 
-export function isPolicyReviewRecent(referenceDate: Date = new Date()): boolean {
+export function isPolicyReviewRecent(
+  referenceDate: Date = new Date(),
+): boolean {
   const reviewDate = new Date(env.AMAZON_POLICY_REVIEW_DATE);
   if (Number.isNaN(reviewDate.getTime())) return false;
-  const diffDays = (referenceDate.getTime() - reviewDate.getTime()) / (1000 * 60 * 60 * 24);
+  const diffDays =
+    (referenceDate.getTime() - reviewDate.getTime()) / (1000 * 60 * 60 * 24);
   return diffDays <= 90;
 }
