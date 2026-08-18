@@ -121,10 +121,17 @@ model Category {
   @@index([parentId])
 }
 
+/// A Product is a listing within ONE marketplace — the BR listing and a
+/// future US listing for "the same" real-world item are two separate
+/// Product rows, each with their own full set of Offer/PriceHistory/
+/// PriceStats/OpportunityScore children. This is what makes price/currency
+/// isolation automatic: there is no shared row for cross-marketplace data
+/// to leak through. See docs/ARCHITECTURE.md and docs/AMAZON.md.
 model Product {
   id             String   @id @default(cuid())
   asin           String
   provider       CommerceProviderName @default(AMAZON)
+  marketplace    Marketplace @default(BR)
   slug           String   @unique
   title          String
   brand          String?
@@ -157,10 +164,11 @@ model Product {
   searchOpportunities SearchOpportunity[]
   pageViews       PageView[]
 
-  @@unique([provider, asin])
+  @@unique([provider, marketplace, asin])
   @@index([categoryId])
   @@index([updatePriority])
   @@index([active])
+  @@index([marketplace, active])
 }
 
 model Offer {
