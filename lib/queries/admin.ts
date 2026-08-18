@@ -1,6 +1,4 @@
 import { prisma } from "@/lib/db";
-import { env } from "@/lib/config/env";
-import { checkLiveActivationReadiness, isPolicyReviewRecent } from "@/lib/amazon/policy-guard";
 import { getRemarketingProvider } from "@/lib/remarketing";
 
 function startOfToday(): Date {
@@ -132,7 +130,8 @@ export async function getTrafficOverview() {
     prisma.searchEvent.count({ where: { createdAt: { gte: since } } }),
     prisma.affiliateClick.count({ where: { createdAt: { gte: since } } }),
   ]);
-  const ctr = pageviews > 0 ? Math.round((clicks / pageviews) * 1000) / 10 : null;
+  const ctr =
+    pageviews > 0 ? Math.round((clicks / pageviews) * 1000) / 10 : null;
   return { pageviews, searches, clicks, ctr };
 }
 
@@ -161,7 +160,9 @@ export async function getLatestJobRuns() {
       job: run.job,
       status: run.status,
       startedAt: run.startedAt,
-      durationMs: run.finishedAt ? run.finishedAt.getTime() - run.startedAt.getTime() : null,
+      durationMs: run.finishedAt
+        ? run.finishedAt.getTime() - run.startedAt.getTime()
+        : null,
       processed: run.processed,
       errors: run.errors,
     }))
@@ -170,39 +171,26 @@ export async function getLatestJobRuns() {
 
 export async function getSeoStatus() {
   const [publishable, rejected, noindexed, opportunities] = await Promise.all([
-    prisma.generatedContent.count({ where: { status: "PUBLISHED", noindex: false } }),
+    prisma.generatedContent.count({
+      where: { status: "PUBLISHED", noindex: false },
+    }),
     prisma.generatedContent.count({ where: { status: "REJECTED" } }),
-    prisma.generatedContent.count({ where: { status: "PUBLISHED", noindex: true } }),
+    prisma.generatedContent.count({
+      where: { status: "PUBLISHED", noindex: true },
+    }),
     prisma.searchOpportunity.count({ where: { status: "PENDING" } }),
   ]);
   return { publishable, rejected, noindexed, opportunities };
 }
 
-export interface AmazonStatus {
-  mode: "mock" | "live";
-  tagConfigured: boolean;
-  creatorsApiConfigured: boolean;
-  policyReviewDate: string;
-  policyReviewRecent: boolean;
-  compliancePass: boolean;
-}
-
-/** Never returns the tag/key/secret values themselves — only booleans
- * (project brief Part W: "Nunca mostrar API key, secret, token"). */
-export function getAmazonStatus(): AmazonStatus {
-  const checks = checkLiveActivationReadiness();
-  return {
-    mode: env.AMAZON_PROVIDER,
-    tagConfigured: env.AMAZON_ASSOCIATE_TAG.length > 0,
-    creatorsApiConfigured: env.AMAZON_CREATORS_API_KEY.length > 0 && env.AMAZON_CREATORS_API_SECRET.length > 0,
-    policyReviewDate: env.AMAZON_POLICY_REVIEW_DATE,
-    policyReviewRecent: isPolicyReviewRecent(),
-    compliancePass: checks.every((c) => c.pass),
-  };
-}
-
 export async function getPrivacyStatus() {
-  const [analyticsGranted, analyticsDenied, marketingGranted, marketingDenied, total] = await Promise.all([
+  const [
+    analyticsGranted,
+    analyticsDenied,
+    marketingGranted,
+    marketingDenied,
+    total,
+  ] = await Promise.all([
     prisma.consentRecord.count({ where: { analytics: "GRANTED" } }),
     prisma.consentRecord.count({ where: { analytics: "DENIED" } }),
     prisma.consentRecord.count({ where: { marketing: "GRANTED" } }),

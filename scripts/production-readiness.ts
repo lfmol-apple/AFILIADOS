@@ -2,15 +2,19 @@ import "dotenv/config";
 import { execSync } from "node:child_process";
 import { prisma } from "@/lib/db";
 import { env } from "@/lib/config/env";
-import { checkLiveActivationReadiness } from "@/lib/amazon/policy-guard";
+import {
+  getBrazilReadinessChecks,
+  getUsReadinessChecks,
+} from "@/lib/amazon/readiness-checks";
 
 /**
  * Evaluates what can honestly be evaluated automatically and prints a
- * PASS/FAIL/status report. Deliberately does NOT try to make every line say
- * PASS by inventing configuration (project brief: "NÃO tente transformar
- * tudo em PASS inventando configuração") — DOMAIN, Amazon Tracking ID and
- * Creators API are expected to read PENDING/NOT DEPLOYED until a human
- * actually provides those values.
+ * PASS/FAIL/PENDING report. Deliberately does NOT try to make every line
+ * say PASS by inventing configuration (project brief: "NÃO tente
+ * transformar tudo em PASS inventando configuração") — the BR/US Amazon
+ * checks in particular are expected to read PENDING until a human actually
+ * confirms account approval, qualified sales, US registration and payment
+ * with Amazon directly. PENDING is not a technical failure.
  */
 
 interface Line {
@@ -30,9 +34,17 @@ async function checkDatabase(): Promise<Line> {
 
 function checkMigrations(): Line {
   try {
-    const output = execSync("npx prisma migrate status", { encoding: "utf8", stdio: "pipe" });
-    const upToDate = /up to date/i.test(output) || /no pending migrations/i.test(output);
-    return { label: "MIGRATIONS", value: upToDate ? "PASS" : "FAIL", blocksProduction: !upToDate };
+    const output = execSync("npx prisma migrate status", {
+      encoding: "utf8",
+      stdio: "pipe",
+    });
+    const upToDate =
+      /up to date/i.test(output) || /no pending migrations/i.test(output);
+    return {
+      label: "MIGRATIONS",
+      value: upToDate ? "PASS" : "FAIL",
+      blocksProduction: !upToDate,
+    };
   } catch {
     return { label: "MIGRATIONS", value: "FAIL", blocksProduction: true };
   }
@@ -48,31 +60,31 @@ function checkTests(): Line {
 }
 
 async function checkSeo(): Promise<Line> {
-  const productsWithStats = await prisma.product.count({ where: { active: true, priceStats: { isNot: null } } });
+  const productsWithStats = await prisma.product.count({
+    where: { active: true, priceStats: { isNot: null } },
+  });
   const pass = productsWithStats > 0;
-  return { label: "SEO", value: pass ? "PASS" : "FAIL", blocksProduction: !pass };
-}
-
-function checkAmazonProvider(): Line {
-  return { label: "AMAZON PROVIDER", value: env.AMAZON_PROVIDER.toUpperCase(), blocksProduction: false };
-}
-
-function checkAmazonTracking(): Line {
-  const configured = env.AMAZON_ASSOCIATE_TAG.length > 0;
   return {
-    label: "AMAZON TRACKING ID",
-    value: configured ? "CONFIGURED" : "PENDING",
-    blocksProduction: !configured,
+    label: "SEO",
+    value: pass ? "PASS" : "FAIL",
+    blocksProduction: !pass,
   };
 }
 
-function checkCreatorsApi(): Line {
-  const configured = checkLiveActivationReadiness().find((c) => c.key === "credentials")?.pass ?? false;
-  return { label: "CREATORS API", value: configured ? "CONFIGURED" : "PENDING", blocksProduction: !configured };
+function checkAmazonProvider(): Line {
+  return {
+    label: "AMAZON PROVIDER",
+    value: env.AMAZON_PROVIDER.toUpperCase(),
+    blocksProduction: false,
+  };
 }
 
 function checkAutoPublish(): Line {
-  return { label: "AUTO PUBLISH", value: env.AUTO_PUBLISH ? "ON" : "OFF", blocksProduction: false };
+  return {
+    label: "AUTO PUBLISH",
+    value: env.AUTO_PUBLISH ? "ON" : "OFF",
+    blocksProduction: false,
+  };
 }
 
 function checkAdminSecurity(): Line {
@@ -86,7 +98,21 @@ function checkAdminSecurity(): Line {
 
 function checkDomain(): Line {
   const deployed = env.NEXT_PUBLIC_SITE_URL === "https://precocaindo.com.br";
-  return { label: "DOMAIN", value: deployed ? "DEPLOYED" : "NOT DEPLOYED", blocksProduction: !deployed };
+  return {
+    label: "DOMAIN",
+    value: deployed ? "DEPLOYED" : "NOT DEPLOYED",
+    blocksProduction: !deployed,
+  };
+}
+
+function amazonChecksToLines(
+  checks: ReturnType<typeof getBrazilReadinessChecks>,
+): Line[] {
+  return checks.map((c) => ({
+    label: c.label,
+    value: c.value,
+    blocksProduction: !c.pass,
+  }));
 }
 
 async function main() {
@@ -98,11 +124,11 @@ async function main() {
     checkTests(),
     await checkSeo(),
     checkAmazonProvider(),
-    checkAmazonTracking(),
-    checkCreatorsApi(),
+    ...amazonChecksToLines(getBrazilReadinessChecks()),
     checkAutoPublish(),
     checkAdminSecurity(),
     checkDomain(),
+    ...amazonChecksToLines(getUsReadinessChecks()),
   ];
 
   const width = Math.max(...lines.map((l) => l.label.length)) + 2;
