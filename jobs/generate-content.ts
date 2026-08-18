@@ -1,12 +1,13 @@
 import { prisma } from "@/lib/db";
 import { runJob } from "@/lib/jobs/automation-run";
 import { getContentProvider } from "@/lib/content";
-import type { ProductFacts } from "@/types/content";
+import { contentHash } from "@/lib/services/similarity";
+import type { VerifiedFacts } from "@/types/content";
 
 const PROMPT_VERSION = "product-review-v1";
 const BATCH_SIZE = 20;
 
-function buildProductFacts(product: {
+function buildVerifiedFacts(product: {
   title: string;
   brand: string | null;
   description: string | null;
@@ -14,11 +15,7 @@ function buildProductFacts(product: {
   rating: number | null;
   reviewCount: number | null;
   category: { name: string } | null;
-  offers: {
-    price: unknown;
-    currency: string;
-    discountPercentage: number | null;
-  }[];
+  offers: { price: unknown; currency: string; discountPercentage: number | null }[];
   priceStats: {
     lowestPrice: unknown;
     highestPrice: unknown;
@@ -26,41 +23,52 @@ function buildProductFacts(product: {
     coverageDays: number;
   } | null;
   opportunityScore: { score: number } | null;
-}): ProductFacts | null {
+}): VerifiedFacts | null {
   const offer = product.offers[0];
   if (!offer) return null;
 
   return {
-    title: product.title,
-    brand: product.brand ?? undefined,
-    categoryName: product.category?.name,
-    description: product.description ?? undefined,
-    specifications:
-      (product.specifications as Record<string, string | number | boolean>) ??
-      undefined,
-    rating: product.rating ?? undefined,
-    reviewCount: product.reviewCount ?? undefined,
-    currentPrice: Number(offer.price),
-    currency: offer.currency,
-    discountPercentage: offer.discountPercentage ?? undefined,
-    lowestPrice: product.priceStats
-      ? Number(product.priceStats.lowestPrice)
-      : undefined,
-    highestPrice: product.priceStats
-      ? Number(product.priceStats.highestPrice)
-      : undefined,
-    avg30d: product.priceStats?.avg30d
-      ? Number(product.priceStats.avg30d)
-      : undefined,
-    coverageDays: product.priceStats?.coverageDays ?? 0,
-    opportunityScore: product.opportunityScore?.score,
+    facts: {
+      title: product.title,
+      brand: product.brand ?? undefined,
+      categoryName: product.category?.name,
+      description: product.description ?? undefined,
+      specifications: (product.specifications as Record<string, string | number | boolean>) ?? undefined,
+      rating: product.rating ?? undefined,
+      reviewCount: product.reviewCount ?? undefined,
+      currency: offer.currency,
+    },
+    calculations: {
+      currentPrice: Number(offer.price),
+      discountPercentage: offer.discountPercentage ?? undefined,
+      lowestPrice: product.priceStats ? Number(product.priceStats.lowestPrice) : undefined,
+      highestPrice: product.priceStats ? Number(product.priceStats.highestPrice) : undefined,
+      avg30d: product.priceStats?.avg30d ? Number(product.priceStats.avg30d) : undefined,
+      coverageDays: product.priceStats?.coverageDays ?? 0,
+      opportunityScore: product.opportunityScore?.score,
+    },
+    editorial: {
+      tone: "direto, sem hype, em português do Brasil",
+      requiredSections: [
+        "O preço está bom?",
+        "Para quem faz sentido",
+        "Pontos fortes",
+        "Pontos de atenção",
+        "Metodologia",
+      ],
+      disclosures: [
+        "O Score é calculado pelo PreçoCaindo, não é uma recomendação da Amazon.",
+      ],
+    },
   };
 }
 
 /**
  * Generates DRAFT GeneratedContent rows for the highest-priority pending
  * SearchOpportunity entries. A no-op when CONTENT_GENERATION=off (project
- * brief section 33) — that is a valid, expected state, not a failure.
+ * brief section 33) — that is a valid, expected state, not a failure. The
+ * provider only ever receives a VerifiedFacts envelope (facts/calculations/
+ * editorial) — see types/content.ts and docs/CONTENT_ENGINE.md.
  */
 export async function generateContent() {
   return runJob("GENERATE_CONTENT", async (ctx) => {
@@ -91,8 +99,8 @@ export async function generateContent() {
       });
       if (!product) continue;
 
-      const facts = buildProductFacts(product);
-      if (!facts) {
+      const verifiedFacts = buildVerifiedFacts(product);
+      if (!verifiedFacts) {
         ctx.counters.errors += 1;
         continue;
       }
@@ -102,13 +110,13 @@ export async function generateContent() {
           contentType: "PRODUCT",
           promptVersion: PROMPT_VERSION,
           slug: product.slug,
-          facts,
+          facts: verifiedFacts,
         });
 
+        const hash = contentHash(result.body);
+
         await prisma.generatedContent.upsert({
-          where: {
-            contentType_slug: { contentType: "PRODUCT", slug: product.slug },
-          },
+          where: { contentType_slug: { contentType: "PRODUCT", slug: product.slug } },
           create: {
             contentType: "PRODUCT",
             entityId: product.id,
@@ -120,6 +128,8 @@ export async function generateContent() {
             model: result.model,
             promptVersion: result.promptVersion,
             status: "DRAFT",
+            contentHash: hash,
+            demandScoreAtGeneration: opportunity.overallScore,
           },
           update: {
             title: result.title,
@@ -129,6 +139,8 @@ export async function generateContent() {
             model: result.model,
             promptVersion: result.promptVersion,
             status: "DRAFT",
+            contentHash: hash,
+            demandScoreAtGeneration: opportunity.overallScore,
           },
         });
 
