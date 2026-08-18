@@ -168,6 +168,41 @@ veredito `PRODUCTION` (venda de verdade via API), e nenhuma linha `AMAZON_US_*` 
 três vereditos (`SITE_LAUNCH_READY`/`CATALOG_LAUNCH_READY`/`PRODUCTION`) — ver
 docs/PRODUCTION_READINESS.md.
 
+## Origem dos dados: `Product.dataSource`
+
+Além do interruptor de catálogo acima, cada linha de `Product` carrega um `dataSource`
+(`MOCK` | `MANUAL_VERIFIED` | `AMAZON_API`, ver `prisma/schema.prisma`) que decide, sozinho, se
+aquela linha pode aparecer numa página pública — independente de estar cadastrada com
+`AMAZON_PROVIDER=mock` ou não. `lib/config/public-catalog.ts` é o único lugar que decide isso
+(`isDataSourceCurrentlyVisible()`/`currentlyVisibleDataSources()`); toda query pública
+(`lib/queries/products.ts`, `app/sitemap.ts`, `app/robots.ts`) filtra por esse resultado.
+
+Dois flags, dois papéis que nunca se confundem:
+
+- **`PUBLIC_CATALOG_ENABLED`** — interruptor mestre. Desligado, nada aparece, ponto final.
+- **`MANUAL_PRODUCTS_ENABLED`** — só estreita ainda mais, nunca alarga além do mestre. Controla
+  especificamente se linhas `MANUAL_VERIFIED` (produtos reais, verificados a mão, sem Creators API)
+  podem participar do catálogo já habilitado.
+
+```text
+PUBLIC_CATALOG_ENABLED=false                              → nada é público (nenhum dataSource)
+PUBLIC_CATALOG_ENABLED=true, MANUAL_PRODUCTS_ENABLED=false → MANUAL_VERIFIED fica oculto
+PUBLIC_CATALOG_ENABLED=true, MANUAL_PRODUCTS_ENABLED=true  → MANUAL_VERIFIED elegível
+MOCK                                                        → nunca em produção (isPublicCatalogSafeToShow())
+AMAZON_API                                                  → ainda não implementado; hoje segue a
+                                                               mesma regra do MOCK
+```
+
+Por que `MANUAL_VERIFIED` não usa `isPublicCatalogSafeToShow()` diretamente: essa função também
+força `false` em produção quando `AMAZON_PROVIDER=mock` — uma rede de segurança contra preço
+fabricado por um provider mock, que não se aplica a um produto cujos fatos foram digitados e
+checados por um humano. `MANUAL_VERIFIED` lê o flag bruto `PUBLIC_CATALOG_ENABLED` em vez disso,
+mas continua respeitando esse interruptor mestre como qualquer outra origem.
+
+`ProductCandidate` (fila interna de seleção/priorização de cohort, `docs/COHORT.md`) nunca é lido
+por nenhuma query pública — é um modelo deliberadamente separado de `Product`, promovido apenas
+manualmente via script, nunca automaticamente.
+
 ## Whitelist de hosts de redirect
 
 `amzn.to` (encurtador da própria Amazon) foi deliberadamente removido da allowlist de destinos —
