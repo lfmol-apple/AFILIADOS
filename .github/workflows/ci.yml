@@ -50,7 +50,7 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Apply migrations
+      - name: Migration validation (apply all migrations to a fresh database)
         run: npm run db:deploy
 
       - name: Test
@@ -58,6 +58,9 @@ jobs:
 
       - name: Amazon compliance gate
         run: npm run amazon:compliance
+
+      - name: Privacy / compliance tests
+        run: npx vitest run tests/price-alert.test.ts tests/amazon-policy-guard.test.ts tests/content-quality-gate-scaled-abuse.test.ts tests/slug-redirect.test.ts tests/structured-data.test.ts
 
       - name: Build
         run: npm run build

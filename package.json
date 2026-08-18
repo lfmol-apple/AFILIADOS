@@ -18,7 +18,8 @@
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
     "jobs:run": "tsx jobs/run.ts",
-    "amazon:compliance": "tsx scripts/amazon-compliance.ts"
+    "amazon:compliance": "tsx scripts/amazon-compliance.ts",
+    "production:readiness": "tsx scripts/production-readiness.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

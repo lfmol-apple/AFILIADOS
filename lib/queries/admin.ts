@@ -1,4 +1,7 @@
 import { prisma } from "@/lib/db";
+import { env } from "@/lib/config/env";
+import { checkLiveActivationReadiness, isPolicyReviewRecent } from "@/lib/amazon/policy-guard";
+import { getRemarketingProvider } from "@/lib/remarketing";
 
 function startOfToday(): Date {
   const d = new Date();
@@ -108,5 +111,110 @@ export async function getWeeklyStats() {
     biggestDrops,
     failedJobs,
     categoryStrength,
+  };
+}
+
+export async function getPriorityBreakdown() {
+  const rows = await prisma.product.groupBy({
+    by: ["updatePriority"],
+    where: { active: true },
+    _count: { _all: true },
+  });
+  const byPriority = { HOT: 0, WARM: 0, COLD: 0 };
+  for (const row of rows) byPriority[row.updatePriority] = row._count._all;
+  return byPriority;
+}
+
+export async function getTrafficOverview() {
+  const since = startOfToday();
+  const [pageviews, searches, clicks] = await Promise.all([
+    prisma.pageView.count({ where: { createdAt: { gte: since } } }),
+    prisma.searchEvent.count({ where: { createdAt: { gte: since } } }),
+    prisma.affiliateClick.count({ where: { createdAt: { gte: since } } }),
+  ]);
+  const ctr = pageviews > 0 ? Math.round((clicks / pageviews) * 1000) / 10 : null;
+  return { pageviews, searches, clicks, ctr };
+}
+
+/** Most recent AutomationRun per job name, for the automation section of
+ * /admin. Derived from real rows, not a hardcoded job list, so it stays
+ * correct even if jobs are renamed/added. */
+export async function getLatestJobRuns() {
+  const distinctJobs = await prisma.automationRun.findMany({
+    distinct: ["job"],
+    orderBy: { startedAt: "desc" },
+    select: { job: true },
+  });
+
+  const latestRuns = await Promise.all(
+    distinctJobs.map((j) =>
+      prisma.automationRun.findFirst({
+        where: { job: j.job },
+        orderBy: { startedAt: "desc" },
+      }),
+    ),
+  );
+
+  return latestRuns
+    .filter((r): r is NonNullable<typeof r> => r !== null)
+    .map((run) => ({
+      job: run.job,
+      status: run.status,
+      startedAt: run.startedAt,
+      durationMs: run.finishedAt ? run.finishedAt.getTime() - run.startedAt.getTime() : null,
+      processed: run.processed,
+      errors: run.errors,
+    }))
+    .sort((a, b) => a.job.localeCompare(b.job));
+}
+
+export async function getSeoStatus() {
+  const [publishable, rejected, noindexed, opportunities] = await Promise.all([
+    prisma.generatedContent.count({ where: { status: "PUBLISHED", noindex: false } }),
+    prisma.generatedContent.count({ where: { status: "REJECTED" } }),
+    prisma.generatedContent.count({ where: { status: "PUBLISHED", noindex: true } }),
+    prisma.searchOpportunity.count({ where: { status: "PENDING" } }),
+  ]);
+  return { publishable, rejected, noindexed, opportunities };
+}
+
+export interface AmazonStatus {
+  mode: "mock" | "live";
+  tagConfigured: boolean;
+  creatorsApiConfigured: boolean;
+  policyReviewDate: string;
+  policyReviewRecent: boolean;
+  compliancePass: boolean;
+}
+
+/** Never returns the tag/key/secret values themselves — only booleans
+ * (project brief Part W: "Nunca mostrar API key, secret, token"). */
+export function getAmazonStatus(): AmazonStatus {
+  const checks = checkLiveActivationReadiness();
+  return {
+    mode: env.AMAZON_PROVIDER,
+    tagConfigured: env.AMAZON_ASSOCIATE_TAG.length > 0,
+    creatorsApiConfigured: env.AMAZON_CREATORS_API_KEY.length > 0 && env.AMAZON_CREATORS_API_SECRET.length > 0,
+    policyReviewDate: env.AMAZON_POLICY_REVIEW_DATE,
+    policyReviewRecent: isPolicyReviewRecent(),
+    compliancePass: checks.every((c) => c.pass),
+  };
+}
+
+export async function getPrivacyStatus() {
+  const [analyticsGranted, analyticsDenied, marketingGranted, marketingDenied, total] = await Promise.all([
+    prisma.consentRecord.count({ where: { analytics: "GRANTED" } }),
+    prisma.consentRecord.count({ where: { analytics: "DENIED" } }),
+    prisma.consentRecord.count({ where: { marketing: "GRANTED" } }),
+    prisma.consentRecord.count({ where: { marketing: "DENIED" } }),
+    prisma.consentRecord.count(),
+  ]);
+  return {
+    analyticsGranted,
+    analyticsDenied,
+    marketingGranted,
+    marketingDenied,
+    total,
+    remarketingProvider: getRemarketingProvider().name,
   };
 }
