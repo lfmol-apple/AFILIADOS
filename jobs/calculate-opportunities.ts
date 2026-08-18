@@ -1,8 +1,10 @@
 import { prisma } from "@/lib/db";
-import { runJob } from "@/lib/jobs/automation-run";
+import { runJob, mergeJobCounters, type JobCounters } from "@/lib/jobs/automation-run";
 import { calculateOpportunityScore } from "@/lib/services/opportunity-score";
 import { detectPriceDrop } from "@/lib/services/price-drop-detector";
 import type { PriceStatsResult } from "@/lib/services/price-stats";
+import { getEnabledMarketplaces } from "@/lib/config/marketplaces";
+import type { MarketplaceCode } from "@/types/marketplace";
 
 function toStatsResult(row: {
   currentPrice: unknown;
@@ -32,19 +34,12 @@ function toStatsResult(row: {
   };
 }
 
-/**
- * Recomputes OpportunityScore for every active product with PriceStats, and
- * emits PRICE_DROP_DETECTED events (logged into AutomationRun.metadata for
- * now — see project brief section 19; homepage/alerts consume this later).
- * A detected drop also bumps the product to HOT priority so
- * REFRESH_PRIORITY_PRODUCTS keeps a closer eye on it.
- */
-export async function calculateOpportunities() {
+async function calculateOpportunitiesForMarketplace(marketplace: MarketplaceCode): Promise<JobCounters> {
   return runJob(
     "CALCULATE_OPPORTUNITIES",
     async (ctx) => {
       const products = await prisma.product.findMany({
-        where: { active: true, priceStats: { isNot: null } },
+        where: { marketplace, active: true, priceStats: { isNot: null } },
         select: {
           id: true,
           rating: true,
@@ -65,6 +60,9 @@ export async function calculateOpportunities() {
 
         const statsResult = toStatsResult(stats);
 
+        // OpportunityScore is 1:1 with Product, which is itself
+        // marketplace-scoped — a BR score can never be computed from US
+        // signals because there is no US data attached to a BR Product row.
         const result = calculateOpportunityScore({
           currentPrice: Number(offer.price),
           listedDiscountPercentage: offer.discountPercentage,
@@ -102,12 +100,7 @@ export async function calculateOpportunities() {
           price: Number(h.price),
           observedAt: h.observedAt,
         }));
-        const dropEvent = detectPriceDrop(
-          product.id,
-          priorHistory,
-          Number(offer.price),
-          statsResult,
-        );
+        const dropEvent = detectPriceDrop(product.id, priorHistory, Number(offer.price), statsResult);
 
         if (dropEvent) {
           drops.push(product.id);
@@ -123,6 +116,22 @@ export async function calculateOpportunities() {
       ctx.metadata.priceDropsDetected = drops.length;
       ctx.metadata.priceDropProductIds = drops;
     },
-    { marketplace: "BR" },
+    { marketplace },
   );
+}
+
+/**
+ * Recomputes OpportunityScore for every active product with PriceStats, per
+ * enabled marketplace, and emits PRICE_DROP_DETECTED events (logged into
+ * AutomationRun.metadata for now — see project brief section 19;
+ * homepage/alerts consume this later). A detected drop also bumps the
+ * product to HOT priority so REFRESH_PRIORITY_PRODUCTS keeps a closer eye
+ * on it.
+ */
+export async function calculateOpportunities(): Promise<JobCounters> {
+  const results: JobCounters[] = [];
+  for (const marketplace of getEnabledMarketplaces()) {
+    results.push(await calculateOpportunitiesForMarketplace(marketplace));
+  }
+  return mergeJobCounters(results);
 }

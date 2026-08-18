@@ -1,15 +1,15 @@
 import { prisma } from "@/lib/db";
-import { runJob } from "@/lib/jobs/automation-run";
+import { runJob, mergeJobCounters, type JobCounters } from "@/lib/jobs/automation-run";
 import { calculatePriceStats } from "@/lib/services/price-stats";
+import { getEnabledMarketplaces } from "@/lib/config/marketplaces";
+import type { MarketplaceCode } from "@/types/marketplace";
 
-/** Recomputes PriceStats for every active product from its raw
- * PriceHistory + latest offer. Pure aggregation — see docs/AUTOMATION.md. */
-export async function calculatePriceStatsJob() {
+async function calculatePriceStatsForMarketplace(marketplace: MarketplaceCode): Promise<JobCounters> {
   return runJob(
     "CALCULATE_PRICE_STATS",
     async (ctx) => {
       const products = await prisma.product.findMany({
-        where: { active: true },
+        where: { marketplace, active: true },
         select: {
           id: true,
           priceHistory: { select: { price: true, observedAt: true } },
@@ -26,6 +26,10 @@ export async function calculatePriceStatsJob() {
         const currentOffer = product.offers[0];
         if (!currentOffer) continue;
 
+        // PriceStats is 1:1 with Product, and Product is itself
+        // marketplace-scoped (a BR listing and a US listing for "the same"
+        // item are different Product rows) — so this aggregation can never
+        // mix BRL and USD observations, by construction, not by filtering.
         const stats = calculatePriceStats(
           product.priceHistory.map((h) => ({
             price: Number(h.price),
@@ -68,6 +72,17 @@ export async function calculatePriceStatsJob() {
         ctx.counters.updated += 1;
       }
     },
-    { marketplace: "BR" },
+    { marketplace },
   );
+}
+
+/** Recomputes PriceStats for every active product, per enabled marketplace,
+ * from its raw PriceHistory + latest offer. Pure aggregation — see
+ * docs/AUTOMATION.md. */
+export async function calculatePriceStatsJob(): Promise<JobCounters> {
+  const results: JobCounters[] = [];
+  for (const marketplace of getEnabledMarketplaces()) {
+    results.push(await calculatePriceStatsForMarketplace(marketplace));
+  }
+  return mergeJobCounters(results);
 }

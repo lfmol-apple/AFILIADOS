@@ -1,29 +1,18 @@
 import { prisma } from "@/lib/db";
-import { runJob } from "@/lib/jobs/automation-run";
+import { runJob, mergeJobCounters, type JobCounters } from "@/lib/jobs/automation-run";
 import { decideProductPriority } from "@/lib/services/product-priority";
 import { PRIORITY_THRESHOLDS } from "@/lib/config/priority";
+import { getEnabledMarketplaces } from "@/lib/config/marketplaces";
+import type { MarketplaceCode } from "@/types/marketplace";
 
-/**
- * Recomputes HOT/WARM/COLD for every active product from real signals
- * (score, price drop, availability, recent clicks) — see
- * lib/services/product-priority.ts. Complements the immediate HOT
- * promotion CALCULATE_OPPORTUNITIES already does on a fresh price drop:
- * this job is what *demotes* products whose signals have gone quiet.
- *
- * Recommended frequency: once daily is enough — the staleness windows in
- * lib/config/priority.ts are measured in days, so running this more often
- * than that has no effect beyond wasted DB reads (see docs/AUTOMATION.md).
- */
-export async function rebalanceProductPriorities() {
+async function rebalanceForMarketplace(marketplace: MarketplaceCode): Promise<JobCounters> {
   return runJob(
     "REBALANCE_PRODUCT_PRIORITIES",
     async (ctx) => {
-      const since = new Date(
-        Date.now() - PRIORITY_THRESHOLDS.clicksWindowDays * 24 * 60 * 60 * 1000,
-      );
+      const since = new Date(Date.now() - PRIORITY_THRESHOLDS.clicksWindowDays * 24 * 60 * 60 * 1000);
 
       const products = await prisma.product.findMany({
-        where: { active: true },
+        where: { marketplace, active: true },
         select: {
           id: true,
           updatePriority: true,
@@ -67,6 +56,26 @@ export async function rebalanceProductPriorities() {
         }
       }
     },
-    { marketplace: "BR" },
+    { marketplace },
   );
+}
+
+/**
+ * Recomputes HOT/WARM/COLD for every active product, per enabled
+ * marketplace, from real signals (score, price drop, availability, recent
+ * clicks) — see lib/services/product-priority.ts. Complements the
+ * immediate HOT promotion CALCULATE_OPPORTUNITIES already does on a fresh
+ * price drop: this job is what *demotes* products whose signals have gone
+ * quiet.
+ *
+ * Recommended frequency: once daily is enough — the staleness windows in
+ * lib/config/priority.ts are measured in days, so running this more often
+ * than that has no effect beyond wasted DB reads (see docs/AUTOMATION.md).
+ */
+export async function rebalanceProductPriorities(): Promise<JobCounters> {
+  const results: JobCounters[] = [];
+  for (const marketplace of getEnabledMarketplaces()) {
+    results.push(await rebalanceForMarketplace(marketplace));
+  }
+  return mergeJobCounters(results);
 }

@@ -12,7 +12,13 @@ const prisma = new PrismaClient();
  * before real Amazon data exists (project brief section 32). Refuses to run
  * against anything that looks like a production database, since this data
  * must never be mistaken for real prices.
+ *
+ * Every seeded product is explicitly marketplace: "BR" (project brief
+ * Sprint 4 section 11: "Todos os produtos mock existentes devem ficar
+ * explicitamente BR"). There is no US mock catalog — MOCK_CATALOG itself
+ * is BR-only (see lib/providers/mock-catalog.ts).
  */
+const SEED_MARKETPLACE = "BR" as const;
 async function main() {
   const databaseUrl = process.env.DATABASE_URL ?? "";
   if (/precocaindo\.com\.br|prod|production/i.test(databaseUrl)) {
@@ -53,10 +59,13 @@ async function main() {
     }
 
     const product = await prisma.product.upsert({
-      where: { provider_asin: { provider: "AMAZON", asin: item.asin } },
+      where: {
+        provider_marketplace_asin: { provider: "AMAZON", marketplace: SEED_MARKETPLACE, asin: item.asin },
+      },
       create: {
         asin: item.asin,
         provider: "AMAZON",
+        marketplace: SEED_MARKETPLACE,
         slug,
         title: item.title,
         brand: item.brand,

@@ -1,8 +1,5 @@
 import { prisma } from "@/lib/db";
-import {
-  resolveAffiliateRedirect,
-  AffiliateRedirectError,
-} from "@/lib/services/affiliate-redirect";
+import { resolveAffiliateRedirect, AffiliateRedirectError } from "@/lib/services/affiliate-redirect";
 import type { MarketplaceCode } from "@/types/marketplace";
 
 export type GoAmazonResult =
@@ -17,10 +14,11 @@ export type GoAmazonResult =
  * One implementation here means the click-tracking-then-redirect flow can't
  * drift between the two URL shapes.
  *
- * Product lookup is still by (provider, asin) only — Product isn't
- * marketplace-scoped yet because there is no real second-marketplace data
- * to distinguish (US stays disabled); see docs/AMAZON.md for why that
- * split hasn't happened.
+ * Looks up the product by (provider, marketplace, asin) — now that Product
+ * is marketplace-scoped (Sprint 4), the same ASIN can legitimately be two
+ * different Product rows for BR and US, and this must resolve the one that
+ * matches the marketplace actually being requested, not just any row with
+ * that ASIN.
  */
 export async function handleGoAmazonRequest(
   marketplace: MarketplaceCode,
@@ -28,7 +26,7 @@ export async function handleGoAmazonRequest(
   searchParams: URLSearchParams,
 ): Promise<GoAmazonResult> {
   const product = await prisma.product.findUnique({
-    where: { provider_asin: { provider: "AMAZON", asin } },
+    where: { provider_marketplace_asin: { provider: "AMAZON", marketplace, asin } },
     include: { offers: { orderBy: { observedAt: "desc" }, take: 1 } },
   });
 
@@ -38,20 +36,11 @@ export async function handleGoAmazonRequest(
       asin,
       marketplace,
       productActive: product?.active ?? false,
-      // A stored affiliateUrl is only meaningful for the marketplace it was
-      // observed in; today that's always BR (see note above).
-      affiliateUrl:
-        marketplace === "BR"
-          ? (product?.offers[0]?.affiliateUrl ?? null)
-          : null,
+      affiliateUrl: product?.offers[0]?.affiliateUrl ?? null,
     });
   } catch (err) {
     if (err instanceof AffiliateRedirectError) {
-      return {
-        status: "error",
-        errorStatus: err.status,
-        errorMessage: err.message,
-      };
+      return { status: "error", errorStatus: err.status, errorMessage: err.message };
     }
     throw err;
   }

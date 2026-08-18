@@ -121,3 +121,21 @@ export async function runJob(
 
   return ctx.counters;
 }
+
+/** Sums counters from running the same job across multiple marketplaces
+ * (project brief Sprint 4 section 6: `for marketplace in
+ * getEnabledMarketplaces()`) into the single JobCounters shape the
+ * jobs/index.ts registry expects. Each marketplace still gets its own
+ * AutomationRun row via its own runJob() call — this only merges the
+ * return value for the CLI/registry caller. */
+export function mergeJobCounters(counters: JobCounters[]): JobCounters {
+  return counters.reduce(
+    (acc, c) => ({
+      processed: acc.processed + c.processed,
+      created: acc.created + c.created,
+      updated: acc.updated + c.updated,
+      errors: acc.errors + c.errors,
+    }),
+    { processed: 0, created: 0, updated: 0, errors: 0 },
+  );
+}
