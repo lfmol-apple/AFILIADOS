@@ -12,10 +12,15 @@ import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { siteConfig } from "@/lib/config/site";
 import { buildBreadcrumbList } from "@/lib/seo/structured-data";
 import { isProductPageIndexable } from "@/lib/seo/indexability";
+import { isPublicCatalogSafeToShow } from "@/lib/config/public-catalog";
 
 export const revalidate = 900;
 
 async function loadProduct(slug: string) {
+  // Pre-launch (or a misconfigured production+mock combo) — never render a
+  // specific fabricated price to a visitor. See lib/config/public-catalog.ts.
+  if (!isPublicCatalogSafeToShow()) return null;
+
   const product = await getProductBySlug(slug);
   if (!product || !product.active) return null;
 

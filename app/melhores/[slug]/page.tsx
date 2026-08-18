@@ -3,14 +3,22 @@ import { notFound } from "next/navigation";
 import { getPublishedContent } from "@/lib/queries/products";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { renderSimpleMarkdown } from "@/lib/markdown";
+import { isPublicCatalogSafeToShow } from "@/lib/config/public-catalog";
 
 export const revalidate = 3600;
+
+async function loadBestOf(slug: string) {
+  // Pre-launch (or a misconfigured production+mock combo) — "best of"
+  // content is built around real catalog prices. See lib/config/public-catalog.ts.
+  if (!isPublicCatalogSafeToShow()) return null;
+  return getPublishedContent("BEST_OF", slug);
+}
 
 export async function generateMetadata(
   props: PageProps<"/melhores/[slug]">,
 ): Promise<Metadata> {
   const { slug } = await props.params;
-  const content = await getPublishedContent("BEST_OF", slug);
+  const content = await loadBestOf(slug);
   if (!content) return {};
   return {
     title: content.metaTitle,
@@ -26,7 +34,7 @@ export async function generateMetadata(
  */
 export default async function BestOfPage(props: PageProps<"/melhores/[slug]">) {
   const { slug } = await props.params;
-  const content = await getPublishedContent("BEST_OF", slug);
+  const content = await loadBestOf(slug);
   if (!content) notFound();
 
   return (

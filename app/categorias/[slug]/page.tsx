@@ -5,14 +5,23 @@ import { ProductCard } from "@/components/product-card";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { buildBreadcrumbList } from "@/lib/seo/structured-data";
+import { isPublicCatalogSafeToShow } from "@/lib/config/public-catalog";
 
 export const revalidate = 600;
+
+async function loadCategory(slug: string) {
+  // Pre-launch (or a misconfigured production+mock combo) — a category page
+  // with only fabricated prices in it has nothing safe to show. See
+  // lib/config/public-catalog.ts.
+  if (!isPublicCatalogSafeToShow()) return null;
+  return getCategoryBySlug(slug);
+}
 
 export async function generateMetadata(
   props: PageProps<"/categorias/[slug]">,
 ): Promise<Metadata> {
   const { slug } = await props.params;
-  const data = await getCategoryBySlug(slug);
+  const data = await loadCategory(slug);
   if (!data) return {};
   return {
     title: data.category.name,
@@ -25,7 +34,7 @@ export default async function CategoryPage(
   props: PageProps<"/categorias/[slug]">,
 ) {
   const { slug } = await props.params;
-  const data = await getCategoryBySlug(slug);
+  const data = await loadCategory(slug);
   if (!data) notFound();
 
   const { category, products } = data;

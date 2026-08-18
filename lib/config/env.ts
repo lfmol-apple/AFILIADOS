@@ -78,6 +78,15 @@ const envSchema = z.object({
   PRICE_ALERTS: booleanFromEnv,
   PAID_MEDIA: booleanFromEnv,
 
+  // Explicit pre-launch gate for the public catalog (/, /ofertas,
+  // /produto, /categorias, /melhores, /comparar) — see
+  // lib/config/public-catalog.ts. Defaults to false ("off") so a fresh
+  // deploy never accidentally shows fictional prices before a human has
+  // deliberately turned this on. Even when true, isPublicCatalogSafeToShow()
+  // still forces it off in production if AMAZON_PROVIDER is "mock" — this
+  // flag alone is not enough to publish mock prices to the internet.
+  PUBLIC_CATALOG_ENABLED: booleanFromEnvDefault(false),
+
   ADMIN_ACCESS_TOKEN: z.string().default(""),
 });
 

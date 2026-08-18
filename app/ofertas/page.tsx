@@ -5,15 +5,23 @@ import { ProductCard } from "@/components/product-card";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { recordSearchEvent } from "@/lib/analytics/search-event";
+import { isPublicCatalogSafeToShow } from "@/lib/config/public-catalog";
 
 export const revalidate = 300;
 
-export const metadata: Metadata = {
-  title: "Ofertas",
-  description:
-    "Produtos com o melhor Score PreçoCaindo agora — preços comparados ao histórico, não só ao preço de tabela.",
-  alternates: { canonical: "/ofertas" },
-};
+export function generateMetadata(): Metadata {
+  const catalogSafe = isPublicCatalogSafeToShow();
+  return {
+    title: "Ofertas",
+    description:
+      "Produtos com o melhor Score PreçoCaindo agora — preços comparados ao histórico, não só ao preço de tabela.",
+    alternates: { canonical: "/ofertas" },
+    // Pre-launch (or a misconfigured production+mock combo) — the page
+    // stays reachable (it's a listing, not a specific fabricated price),
+    // but must never be indexed while it could show fictional offers.
+    robots: catalogSafe ? undefined : { index: false, follow: true },
+  };
+}
 
 export default async function OfertasPage(props: PageProps<"/ofertas">) {
   const searchParams = await props.searchParams;
@@ -21,14 +29,17 @@ export default async function OfertasPage(props: PageProps<"/ofertas">) {
   const query =
     typeof searchParams?.q === "string" ? searchParams.q : undefined;
 
+  const catalogSafe = isPublicCatalogSafeToShow();
   const {
     items,
     page: currentPage,
     totalPages,
     total,
-  } = await getOfertas({ page, query });
+  } = catalogSafe
+    ? await getOfertas({ page, query })
+    : { items: [], page: 1, totalPages: 1, total: 0 };
 
-  if (query) {
+  if (query && catalogSafe) {
     await recordSearchEvent(query, total);
   }
 
@@ -50,7 +61,15 @@ export default async function OfertasPage(props: PageProps<"/ofertas">) {
         coletado por nós, não só ao preço de tabela.
       </p>
 
-      {items.length === 0 ? (
+      {!catalogSafe ? (
+        <div className="border-border-subtle bg-surface-muted mt-10 rounded-lg border p-6 text-sm">
+          <p className="font-semibold">Estamos em fase de pré-lançamento.</p>
+          <p className="text-foreground/70 mt-1">
+            As ofertas ainda não estão disponíveis publicamente. Volte em
+            breve.
+          </p>
+        </div>
+      ) : items.length === 0 ? (
         <p className="text-foreground/60 mt-10 text-sm">
           Nenhum produto encontrado.
         </p>

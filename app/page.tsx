@@ -2,12 +2,19 @@ import Link from "next/link";
 import { getHomeSections } from "@/lib/queries/products";
 import { ProductCard } from "@/components/product-card";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
+import { isPublicCatalogSafeToShow } from "@/lib/config/public-catalog";
 
 export const revalidate = 300;
 
 export default async function Home() {
-  const { pricesDropping, bestOpportunities, categories, guides } =
-    await getHomeSections();
+  // Pre-launch (or a misconfigured production+mock combo) — see
+  // lib/config/public-catalog.ts. The homepage itself stays up in an
+  // institutional shell; only the catalog-derived sections are withheld,
+  // since those are the only thing that could show fictional prices.
+  const catalogSafe = isPublicCatalogSafeToShow();
+  const { pricesDropping, bestOpportunities, categories, guides } = catalogSafe
+    ? await getHomeSections()
+    : { pricesDropping: [], bestOpportunities: [], categories: [], guides: [] };
 
   return (
     <div>
@@ -44,6 +51,18 @@ export default async function Home() {
           </form>
         </div>
       </section>
+
+      {!catalogSafe && (
+        <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+          <div className="border-border-subtle bg-surface-muted rounded-lg border p-6 text-sm">
+            <p className="font-semibold">Estamos em fase de pré-lançamento.</p>
+            <p className="text-foreground/70 mt-1">
+              O catálogo de produtos ainda não está disponível publicamente.
+              Volte em breve para comparar preços reais da Amazon.
+            </p>
+          </div>
+        </section>
+      )}
 
       {pricesDropping.length > 0 && (
         <HomeSection title="🔥 Preços caindo agora" href="/ofertas">
