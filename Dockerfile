@@ -12,6 +12,15 @@ FROM node:22-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+# NEXT_PUBLIC_* vars are baked in at build time, not read at runtime — an
+# env_file/-e at container start is too late. Must be threaded through as
+# both ARG (received from `docker compose build.args`) and ENV (so the
+# Next.js build step actually sees it in process.env). Confirmed missing
+# during the Stage 2 VPS rollout: without this, every NEXT_PUBLIC_SITE_URL
+# build arg was silently ignored and the image always baked in the
+# "http://localhost:3000" fallback from lib/config/env.ts.
+ARG NEXT_PUBLIC_SITE_URL="http://localhost:3000"
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 # Placeholder DATABASE_URL: `next build` needs env.ts (Zod) to parse
 # successfully and `prisma generate` needs a syntactically valid URL, but
 # neither talks to a real database at build time. The real DATABASE_URL is
