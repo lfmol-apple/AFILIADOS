@@ -21,6 +21,26 @@ enum Marketplace {
   US
 }
 
+/// Where a Product row's facts actually came from — the single source of
+/// truth for "is this safe to show a real visitor" (project brief Sprint
+/// 6, section 12). Independent of AMAZON_PROVIDER: a MANUAL_VERIFIED
+/// product's facts were entered and checked by a human, not fetched from
+/// any provider, so it is never gated by the mock-provider safety switch
+/// that protects MOCK data. See lib/config/public-catalog.ts.
+enum DataSource {
+  /// Demo/development data — lib/providers/mock-catalog.ts or the seed
+  /// script. Never publicly visible in production, unconditionally.
+  MOCK
+  /// A human entered and verified these facts by hand (title, ASIN,
+  /// category — never a fabricated price/rating/spec). Gated by
+  /// MANUAL_PRODUCTS_ENABLED, independent of AMAZON_PROVIDER.
+  MANUAL_VERIFIED
+  /// Reserved for when the real Creators API integration exists. Not
+  /// implemented yet — see docs/AMAZON.md. Gated the same way MOCK is
+  /// today (isPublicCatalogSafeToShow()).
+  AMAZON_API
+}
+
 enum Availability {
   IN_STOCK
   OUT_OF_STOCK
@@ -132,6 +152,9 @@ model Product {
   asin           String
   provider       CommerceProviderName @default(AMAZON)
   marketplace    Marketplace @default(BR)
+  /// See the DataSource doc comment above. Every public query filters on
+  /// this — never remove that filter to "temporarily" show something.
+  dataSource     DataSource @default(MOCK)
   slug           String   @unique
   title          String
   brand          String?
@@ -163,12 +186,67 @@ model Product {
   creatives       Creative[]
   searchOpportunities SearchOpportunity[]
   pageViews       PageView[]
+  candidate       ProductCandidate?
 
   @@unique([provider, marketplace, asin])
   @@index([categoryId])
   @@index([updatePriority])
   @@index([active])
   @@index([marketplace, active])
+  @@index([dataSource, active])
+}
+
+enum CandidateStatus {
+  CANDIDATE
+  APPROVED
+  REJECTED
+  PROMOTED
+}
+
+/// The internal cohort-selection workspace (project brief Sprint 6,
+/// sections 7-8) — deliberately a separate model from Product, never
+/// joined into any public query, so internal rationale/heuristic scores
+/// can never leak onto a public page (project brief: "não misturar
+/// rationale interno com conteúdo público"). scripts/cohort/*.ts is the
+/// only intended way to read/write this table. See docs/COHORT.md.
+model ProductCandidate {
+  id           String   @id @default(cuid())
+  asin         String
+  marketplace  Marketplace @default(BR)
+  workingTitle String
+  categoryHint String?
+  slugHint     String?
+
+  /// Internal-only justification for considering this ASIN — never shown
+  /// to a visitor, never copied into Product.description.
+  rationale String
+
+  /// Manual heuristic scores, 0-100, documented in docs/COHORT.md — never
+  /// machine-learned, never inferred from real traffic, never shown to a
+  /// visitor. All optional: score only the dimensions you actually have
+  /// an opinion on.
+  searchPotential     Int?
+  purchaseIntent       Int?
+  ticketSize           Int?
+  commissionEstimate   Int?
+  longTailOpportunity  Int?
+  seoCompetitiveness   Int?
+  valuePropositionFit  Int?
+  clickProbability     Int?
+  /// Computed by lib/services/cohort-ranking.ts — a documented weighted
+  /// average of the scores above, never edited by hand.
+  internalScore        Int?
+
+  status    CandidateStatus @default(CANDIDATE)
+  productId String?  @unique
+  product   Product? @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([asin, marketplace])
+  @@index([status])
+  @@index([internalScore])
 }
 
 model Offer {

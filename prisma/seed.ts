@@ -66,6 +66,10 @@ async function main() {
         asin: item.asin,
         provider: "AMAZON",
         marketplace: SEED_MARKETPLACE,
+        // Explicit, not relying on the schema default — seed data is
+        // demo/fictional and must never be mistaken for a manually
+        // verified real product. See lib/config/public-catalog.ts.
+        dataSource: "MOCK",
         slug,
         title: item.title,
         brand: item.brand,

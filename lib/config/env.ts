@@ -87,6 +87,16 @@ const envSchema = z.object({
   // flag alone is not enough to publish mock prices to the internet.
   PUBLIC_CATALOG_ENABLED: booleanFromEnvDefault(false),
 
+  // Independent gate for Product rows with dataSource=MANUAL_VERIFIED —
+  // a small, hand-curated cohort whose facts a human entered and checked
+  // directly, never fetched from AMAZON_PROVIDER. Deliberately decoupled
+  // from PUBLIC_CATALOG_ENABLED/AMAZON_PROVIDER: a manually verified
+  // product isn't "mock data" just because the provider mode is mock, so
+  // it must not be blocked by the same switch that protects the
+  // provider-sourced/demo catalog. dataSource=MOCK is NEVER made visible
+  // by this flag — see lib/config/public-catalog.ts.
+  MANUAL_PRODUCTS_ENABLED: booleanFromEnvDefault(false),
+
   // scrypt-hashed admin password ("scrypt:<saltHex>:<hashHex>"), generated
   // via `npm run admin:hash-password` — never the plaintext password.
   // Replaces the old ADMIN_ACCESS_TOKEN shared-secret-in-the-URL scheme
