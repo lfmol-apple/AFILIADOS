@@ -8,6 +8,8 @@ import {
   getLatestJobRuns,
   getSeoStatus,
   getPrivacyStatus,
+  getCatalogSnapshot,
+  getUnexpectedCatalogAlerts,
 } from "@/lib/queries/admin";
 import {
   isPolicyReviewRecent,
@@ -76,6 +78,9 @@ export default async function AdminPage(props: PageProps<"/admin">) {
     amazonUs,
     privacy,
     policyRecent,
+    catalogBr,
+    catalogUs,
+    unexpectedCatalogAlerts,
   ] = await Promise.all([
     getTodayStats(),
     getWeeklyStats(),
@@ -87,6 +92,9 @@ export default async function AdminPage(props: PageProps<"/admin">) {
     Promise.resolve(getUsAmazonStatus()),
     getPrivacyStatus(),
     Promise.resolve(isPolicyReviewRecent()),
+    getCatalogSnapshot("BR"),
+    getCatalogSnapshot("US"),
+    getUnexpectedCatalogAlerts(),
   ]);
   const brCompliancePass = checkLiveActivationReadiness("BR").every(
     (c) => c.pass,
@@ -101,6 +109,17 @@ export default async function AdminPage(props: PageProps<"/admin">) {
           ⚠️ ADMIN_ACCESS_TOKEN não está configurado — este painel está
           publicamente acessível. Aceitável apenas em desenvolvimento local (ver
           docs/PRODUCTION_READINESS.md).
+        </div>
+      )}
+
+      {unexpectedCatalogAlerts.length > 0 && (
+        <div className="mt-4 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm text-rose-800 dark:border-rose-800 dark:bg-rose-950 dark:text-rose-300">
+          ⚠️ Existem produtos em marketplaces desativados — isso não deveria
+          acontecer:{" "}
+          {unexpectedCatalogAlerts
+            .map((a) => `${a.marketplace}: ${a.productCount} produto(s)`)
+            .join(", ")}
+          . Investigue antes de habilitar esse marketplace.
         </div>
       )}
 
@@ -191,6 +210,57 @@ export default async function AdminPage(props: PageProps<"/admin">) {
               ))}
             </tbody>
           </table>
+        </div>
+      </section>
+
+      <section className="mt-10 grid gap-8 sm:grid-cols-2">
+        <div>
+          <h2 className="text-foreground/70 text-sm font-semibold">
+            Catálogo BR
+          </h2>
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <StatCard label="Produtos (total)" value={catalogBr.totalProducts} />
+            <StatCard label="Ativos" value={catalogBr.activeProducts} />
+            <StatCard label="HOT" value={catalogBr.priorityBreakdown.HOT} />
+            <StatCard label="WARM" value={catalogBr.priorityBreakdown.WARM} />
+            <StatCard label="COLD" value={catalogBr.priorityBreakdown.COLD} />
+            <StatCard label="Cliques (7d)" value={catalogBr.clicksLast7Days} />
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <StatusPill ok={catalogBr.enabled} label={catalogBr.enabled ? "Habilitado" : "Desabilitado"} />
+          </div>
+          <p className="text-foreground/50 mt-2 text-xs">
+            Último refresh de catálogo:{" "}
+            {catalogBr.lastRefreshAt
+              ? catalogBr.lastRefreshAt.toISOString()
+              : "nunca"}
+          </p>
+        </div>
+
+        <div>
+          <h2 className="text-foreground/70 text-sm font-semibold">
+            Catálogo EUA
+          </h2>
+          {!catalogUs.enabled && catalogUs.totalProducts === 0 ? (
+            <p className="text-foreground/50 mt-3 text-sm">
+              Marketplace EUA desativado — nenhum dado operacional. Isso é o
+              estado esperado enquanto AMAZON_US_ENABLED=false.
+            </p>
+          ) : (
+            <>
+              <div className="mt-3 grid grid-cols-2 gap-3">
+                <StatCard label="Produtos (total)" value={catalogUs.totalProducts} />
+                <StatCard label="Ativos" value={catalogUs.activeProducts} />
+                <StatCard label="HOT" value={catalogUs.priorityBreakdown.HOT} />
+                <StatCard label="WARM" value={catalogUs.priorityBreakdown.WARM} />
+                <StatCard label="COLD" value={catalogUs.priorityBreakdown.COLD} />
+                <StatCard label="Cliques (7d)" value={catalogUs.clicksLast7Days} />
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <StatusPill ok={catalogUs.enabled} label={catalogUs.enabled ? "Habilitado" : "Desabilitado"} />
+              </div>
+            </>
+          )}
         </div>
       </section>
 
