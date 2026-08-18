@@ -35,6 +35,12 @@ export const metadata: Metadata = {
     title: siteConfig.name,
     description: siteConfig.description,
   },
+  // Google Search Console property verification (HTML tag method) — see
+  // docs/LAUNCH_CHECKLIST.md "Google Search Console". Only proves domain
+  // ownership; does not submit anything or request indexing by itself.
+  verification: {
+    google: "uYaLQjQSnEVd6lB_TOyV6ZXnDNfFbqgnncCxosWdG5I",
+  },
 };
 
 const jsonLd = {
