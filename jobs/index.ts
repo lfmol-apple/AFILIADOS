@@ -3,6 +3,7 @@ import { refreshPriorityProducts } from "./refresh-priority-products";
 import { refreshCatalog } from "./refresh-catalog";
 import { calculatePriceStatsJob } from "./calculate-price-stats";
 import { calculateOpportunities } from "./calculate-opportunities";
+import { rebalanceProductPriorities } from "./rebalance-product-priorities";
 import { discoverContentOpportunities } from "./discover-content-opportunities";
 import { generateContent } from "./generate-content";
 import { validateContent } from "./validate-content";
@@ -21,6 +22,7 @@ export const JOBS = {
   REFRESH_CATALOG: refreshCatalog,
   CALCULATE_PRICE_STATS: calculatePriceStatsJob,
   CALCULATE_OPPORTUNITIES: calculateOpportunities,
+  REBALANCE_PRODUCT_PRIORITIES: rebalanceProductPriorities,
   DISCOVER_CONTENT_OPPORTUNITIES: discoverContentOpportunities,
   GENERATE_CONTENT: generateContent,
   VALIDATE_CONTENT: validateContent,

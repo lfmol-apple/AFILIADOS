@@ -111,7 +111,7 @@ export async function calculateOpportunities() {
         drops.push(product.id);
         await prisma.product.update({
           where: { id: product.id },
-          data: { updatePriority: "HOT" },
+          data: { updatePriority: "HOT", priorityUpdatedAt: new Date() },
         });
       }
 
