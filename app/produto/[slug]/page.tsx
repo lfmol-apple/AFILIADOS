@@ -4,6 +4,7 @@ import { getProductBySlug, getSimilarProducts } from "@/lib/queries/products";
 import { calculateOpportunityScore } from "@/lib/services/opportunity-score";
 import { calculateDecision } from "@/lib/services/decision-engine";
 import { priceEvidenceLine } from "@/lib/services/price-evidence";
+import { calculateUnitEconomics } from "@/lib/services/unit-economics";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ScorePanel } from "@/components/score-panel";
@@ -12,12 +13,72 @@ import { PriceHistoryChart } from "@/components/price-history-chart";
 import { ProductCard } from "@/components/product-card";
 import { ProductImage } from "@/components/product-image";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
+import { PetLitterCalculator } from "@/components/pet-litter-calculator";
 import { siteConfig } from "@/lib/config/site";
-import { buildBreadcrumbList } from "@/lib/seo/structured-data";
+import {
+  buildBreadcrumbList,
+  buildFaqPage,
+  jsonLdScriptPayload,
+} from "@/lib/seo/structured-data";
 import { isProductPageIndexable } from "@/lib/seo/indexability";
 import Link from "next/link";
 
 export const revalidate = 900;
+
+interface ProductPageSpecs {
+  [key: string]: string | number | boolean | string[] | Record<string, string>;
+}
+
+const PET_LITTER_FAQS = [
+  {
+    question: "Como calcular o preço por kg dessa areia?",
+    answer:
+      "Divida o preço verificado do pacote pelo peso líquido informado. Em um pacote de 4 kg, o PreçoCaindo calcula preço atual dividido por 4.",
+  },
+  {
+    question: "O PreçoCaindo sabe quanto tempo um pacote dura?",
+    answer:
+      "Não como afirmação fixa. A duração depende do número de gatos, da caixa, da frequência de limpeza e da quantidade reposta. Por isso a página usa calculadora com dados informados pelo tutor.",
+  },
+  {
+    question: "O preço por kg substitui o histórico de preço?",
+    answer:
+      "Não. O preço por kg ajuda a comparar embalagens e alternativas. A decisão de comprar agora exige histórico próprio suficiente.",
+  },
+  {
+    question: "Esta página recomenda uma areia para a saúde do gato?",
+    answer:
+      "Não. A página compara preço, embalagem e características declaradas pelo fabricante. Questões de saúde devem ser avaliadas com um veterinário.",
+  },
+];
+
+function isPetLitter(specs: ProductPageSpecs): boolean {
+  return specs.petType === "cat" && specs.productKind === "pet_litter";
+}
+
+function visibleSpecEntries(specs: ProductPageSpecs) {
+  const hiddenKeys = new Set([
+    "economicUnit",
+    "netWeightKg",
+    "netVolumeLiters",
+    "unitCount",
+    "netVolumeMl",
+    "capsuleCount",
+    "doseCount",
+    "petType",
+    "productKind",
+    "variantAsins",
+  ]);
+
+  return Object.entries(specs).filter(([key]) => !hiddenKeys.has(key));
+}
+
+function hasValidOfferPrice<T extends { price: unknown }>(
+  offer: T | null | undefined,
+): offer is T {
+  const price = Number(offer?.price);
+  return Number.isFinite(price) && price > 0;
+}
 
 /**
  * getProductBySlug() already applies the active + dataSource visibility
@@ -42,7 +103,11 @@ async function loadProduct(slug: string) {
       product,
       offer: null,
       stats: null,
-      decision: calculateDecision({ hasOffer: false, stats: null, opportunity: null }),
+      decision: calculateDecision({
+        hasOffer: false,
+        stats: null,
+        opportunity: null,
+      }),
     };
   }
 
@@ -90,13 +155,22 @@ export async function generateMetadata(
   const data = await loadProduct(slug);
   if (!data) return {};
 
-  const { product, offer, stats } = data;
-  const title = offer
-    ? `${product.title} — vale a pena comprar agora?`
-    : `${product.title} — PreçoCaindo`;
-  const description = offer
-    ? `Veja o histórico de preço e o Score PreçoCaindo de ${product.title}, atualmente por ${formatCurrency(Number(offer.price), offer.currency)}.`
-    : `Estamos começando a acompanhar o preço de ${product.title} na Amazon. Veja os detalhes no PreçoCaindo.`;
+  const { product, offer: rawOffer, stats } = data;
+  const offer = hasValidOfferPrice(rawOffer) ? rawOffer : null;
+  const unitEconomics = calculateUnitEconomics({
+    specifications: product.specifications,
+    currentPrice: offer ? Number(offer.price) : null,
+  });
+  const title = unitEconomics
+    ? `${product.title}: preço por ${unitEconomics.label} e histórico`
+    : offer
+      ? `${product.title} — vale a pena comprar agora?`
+      : `${product.title} — PreçoCaindo`;
+  const description = unitEconomics
+    ? `Veja ${product.title} com preço por ${unitEconomics.label}, histórico de preço e decisão honesta de compra no PreçoCaindo.`
+    : offer
+      ? `Veja o histórico de preço e o Score PreçoCaindo de ${product.title}, atualmente por ${formatCurrency(Number(offer.price), offer.currency)}.`
+      : `Estamos começando a acompanhar o preço de ${product.title} na Amazon. Veja os detalhes no PreçoCaindo.`;
 
   const specCount =
     product.specifications && typeof product.specifications === "object"
@@ -126,13 +200,20 @@ export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
   const data = await loadProduct(slug);
   if (!data) notFound();
 
-  const { product, offer, stats, decision } = data;
+  const { product, offer: rawOffer, stats, decision } = data;
+  const offer = hasValidOfferPrice(rawOffer) ? rawOffer : null;
   const specs =
     (product.specifications as Record<
       string,
-      string | number | boolean
+      string | number | boolean | string[] | Record<string, string>
     > | null) ?? {};
-  const specEntries = Object.entries(specs);
+  const specEntries = visibleSpecEntries(specs);
+  const unitEconomics = calculateUnitEconomics({
+    specifications: product.specifications,
+    currentPrice: offer ? Number(offer.price) : null,
+  });
+  const isLitterProduct = isPetLitter(specs);
+  const faqs = isLitterProduct ? PET_LITTER_FAQS : [];
   const similar = await getSimilarProducts(product.categoryId, product.id);
 
   const jsonLd = {
@@ -185,9 +266,10 @@ export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
     { label: product.title },
   ];
   const breadcrumbList = buildBreadcrumbList(breadcrumbItems);
+  const faqJsonLd = faqs.length > 0 ? buildFaqPage(faqs) : null;
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+    <div className="mx-auto w-full max-w-5xl overflow-x-hidden px-4 py-8 sm:px-6">
       <AnalyticsBeacon
         pageType="product"
         pageSlug={product.slug}
@@ -195,17 +277,25 @@ export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(jsonLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbList) }}
+        dangerouslySetInnerHTML={{
+          __html: jsonLdScriptPayload(breadcrumbList),
+        }}
       />
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(faqJsonLd) }}
+        />
+      )}
 
       <Breadcrumbs items={breadcrumbItems} />
 
-      <div className="mt-4 grid gap-8 sm:grid-cols-2">
-        <div className="bg-surface-muted aspect-square overflow-hidden rounded-xl">
+      <div className="mt-4 grid min-w-0 gap-8 sm:grid-cols-2">
+        <div className="bg-surface-muted aspect-square w-full max-w-full overflow-hidden rounded-xl">
           <ProductImage
             src={product.imageUrl}
             alt={product.title}
@@ -215,7 +305,7 @@ export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
           />
         </div>
 
-        <div>
+        <div className="min-w-0">
           <h1 className="text-2xl leading-tight font-semibold">
             {product.title}
           </h1>
@@ -232,13 +322,39 @@ export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
                 {offer.originalPrice &&
                   Number(offer.originalPrice) > Number(offer.price) && (
                     <span className="text-foreground/40 text-sm line-through">
-                      {formatCurrency(Number(offer.originalPrice), offer.currency)}
+                      {formatCurrency(
+                        Number(offer.originalPrice),
+                        offer.currency,
+                      )}
                     </span>
                   )}
               </div>
               <p className="text-foreground/50 mt-1 text-xs">
                 Preço verificado em {formatDate(new Date())}
               </p>
+              {unitEconomics && (
+                <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                  <div className="border-border-subtle rounded-xl border p-3">
+                    <p className="text-foreground/50 text-xs">Unidade</p>
+                    <p className="font-semibold">
+                      {unitEconomics.quantity} {unitEconomics.label}
+                    </p>
+                  </div>
+                  <div className="border-border-subtle rounded-xl border p-3">
+                    <p className="text-foreground/50 text-xs">
+                      Preço por {unitEconomics.label}
+                    </p>
+                    <p className="font-semibold">
+                      {unitEconomics.pricePerUnit != null
+                        ? formatCurrency(
+                            unitEconomics.pricePerUnit,
+                            offer.currency,
+                          )
+                        : "Aguardando preço"}
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {offer.availability === "OUT_OF_STOCK" && (
                 <p className="mt-3 text-sm font-medium text-rose-600 dark:text-rose-400">
@@ -248,16 +364,28 @@ export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
             </>
           ) : (
             <p className="text-foreground/60 mt-4 text-sm leading-relaxed">
-              Ainda estamos acompanhando este produto. Assim que tivermos
-              preço e histórico verificados, eles aparecem aqui.
+              Ainda estamos acompanhando este produto. Assim que tivermos preço
+              e histórico verificados, eles aparecem aqui.
             </p>
+          )}
+
+          {unitEconomics && !offer && (
+            <div className="border-border-subtle mt-4 min-w-0 rounded-xl border p-3 text-sm">
+              <p className="text-foreground/50 text-xs">Unidade econômica</p>
+              <p className="break-words font-semibold">
+                {unitEconomics.quantity} {unitEconomics.label} — preço por{" "}
+                {unitEconomics.label} aguardando oferta verificada
+              </p>
+            </div>
           )}
 
           <div className="mt-5">
             <ScorePanel
               decision={decision}
               evidence={
-                stats ? priceEvidenceLine(stats.currentPrice, stats.avg30d) : null
+                stats
+                  ? priceEvidenceLine(stats.currentPrice, stats.avg30d)
+                  : null
               }
             />
             <Link
@@ -276,6 +404,39 @@ export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
           />
         </div>
       </div>
+
+      {unitEconomics && (
+        <section className="mt-12 w-full max-w-3xl">
+          <h2 className="text-lg font-semibold">Unidade econômica</h2>
+          <div className="text-foreground/80 mt-3 space-y-2 text-sm leading-relaxed">
+            <p>
+              Este produto é comparado por {unitEconomics.label}. O pacote
+              informado tem {unitEconomics.quantity} {unitEconomics.label}
+              {unitEconomics.pricePerUnit != null && offer
+                ? `, então o preço verificado equivale a ${formatCurrency(unitEconomics.pricePerUnit, offer.currency)} por ${unitEconomics.label}.`
+                : `, mas ainda precisamos de um preço verificado para calcular o valor por ${unitEconomics.label}.`}
+            </p>
+            <p>
+              O preço por kg ajuda a comparar embalagens e alternativas, mas não
+              substitui histórico de preço. A decisão de compra continua
+              dependendo das observações próprias do PreçoCaindo.
+            </p>
+          </div>
+        </section>
+      )}
+
+      {isLitterProduct && unitEconomics?.unit === "kg" && (
+        <section className="mt-10 w-full max-w-3xl">
+          <h2 className="text-lg font-semibold">
+            Quanto essa areia custa para os seus gatos?
+          </h2>
+          <PetLitterCalculator
+            packageWeightKg={unitEconomics.quantity}
+            packagePrice={offer ? Number(offer.price) : null}
+            currency={offer?.currency}
+          />
+        </section>
+      )}
 
       {stats && offer && (
         <section className="mt-12 max-w-3xl">
@@ -318,7 +479,8 @@ export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
 
           <div className="text-foreground/80 mt-4 space-y-2 text-sm leading-relaxed">
             <p>
-              O preço atual é {formatCurrency(stats.currentPrice, offer.currency)}
+              O preço atual é{" "}
+              {formatCurrency(stats.currentPrice, offer.currency)}
               {stats.avg30d
                 ? `, o que está ${stats.currentPrice < stats.avg30d ? "abaixo" : "acima"} da média dos últimos 30 dias (${formatCurrency(stats.avg30d, offer.currency)}).`
                 : "."}
@@ -344,6 +506,44 @@ export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
               currency={offer.currency}
               average={stats.avg30d}
             />
+          </div>
+        </section>
+      )}
+
+      {isLitterProduct && (
+        <section className="mt-10 max-w-3xl">
+          <h2 className="text-lg font-semibold">
+            O que observar antes de comprar
+          </h2>
+          <div className="text-foreground/80 mt-3 grid gap-3 text-sm sm:grid-cols-2">
+            <div className="border-border-subtle rounded-xl border p-4">
+              <p className="font-semibold">Rastro pela casa</p>
+              <p className="text-foreground/60 mt-1">
+                Grãos finos podem sair da caixa nas patas. A própria Viva Verde
+                recomenda tapete anti-rastro para essa versão.
+              </p>
+            </div>
+            <div className="border-border-subtle rounded-xl border p-4">
+              <p className="font-semibold">Rendimento</p>
+              <p className="text-foreground/60 mt-1">
+                Não assuma uma duração fixa. Use a calculadora com a rotina da
+                sua casa e compare o custo mensal.
+              </p>
+            </div>
+            <div className="border-border-subtle rounded-xl border p-4">
+              <p className="font-semibold">Granulação</p>
+              <p className="text-foreground/60 mt-1">
+                Finos, mistos e grossos resolvem problemas diferentes. A
+                comparação econômica precisa considerar a versão exata.
+              </p>
+            </div>
+            <div className="border-border-subtle rounded-xl border p-4">
+              <p className="font-semibold">Saúde do gato</p>
+              <p className="text-foreground/60 mt-1">
+                Esta página não substitui orientação veterinária. Usamos dados
+                econômicos e características declaradas do produto.
+              </p>
+            </div>
           </div>
         </section>
       )}
@@ -377,6 +577,22 @@ export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
             {similar.map((p) => (
               <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {faqs.length > 0 && (
+        <section className="mt-10 max-w-3xl">
+          <h2 className="text-lg font-semibold">Perguntas frequentes</h2>
+          <div className="divide-border-subtle border-border-subtle mt-3 divide-y rounded-xl border">
+            {faqs.map((faq) => (
+              <div key={faq.question} className="p-4">
+                <h3 className="text-sm font-semibold">{faq.question}</h3>
+                <p className="text-foreground/70 mt-1 text-sm leading-relaxed">
+                  {faq.answer}
+                </p>
+              </div>
             ))}
           </div>
         </section>

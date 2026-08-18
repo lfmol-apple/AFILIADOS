@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { buildBreadcrumbList } from "@/lib/seo/structured-data";
+import {
+  buildBreadcrumbList,
+  buildFaqPage,
+  jsonLdScriptPayload,
+} from "@/lib/seo/structured-data";
 import { isProductPageIndexable } from "@/lib/seo/indexability";
 
 describe("buildBreadcrumbList", () => {
@@ -27,6 +31,26 @@ describe("buildBreadcrumbList", () => {
   it("resolves hrefs to absolute URLs", () => {
     const result = buildBreadcrumbList([{ label: "Início", href: "/" }]);
     expect(result.itemListElement[0].item).toMatch(/^https?:\/\//);
+  });
+});
+
+describe("buildFaqPage", () => {
+  it("produces FAQPage structured data from visible FAQ content", () => {
+    const result = buildFaqPage([
+      { question: "Pergunta?", answer: "Resposta." },
+    ]);
+
+    expect(result["@type"]).toBe("FAQPage");
+    expect(result.mainEntity[0].name).toBe("Pergunta?");
+    expect(result.mainEntity[0].acceptedAnswer.text).toBe("Resposta.");
+  });
+});
+
+describe("jsonLdScriptPayload", () => {
+  it("escapes less-than characters before injecting JSON-LD", () => {
+    expect(jsonLdScriptPayload({ text: "<script>" })).toContain(
+      "\\u003cscript>",
+    );
   });
 });
 

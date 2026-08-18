@@ -30,8 +30,8 @@ export function ConsentBanner() {
   }
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border-subtle bg-background p-4 shadow-lg">
-      <div className="mx-auto max-w-3xl">
+    <div className="border-border-subtle bg-background fixed inset-x-0 bottom-0 z-50 max-w-[100vw] border-t p-4 shadow-lg">
+      <div className="mx-auto w-full max-w-3xl">
         <p className="text-sm text-foreground/80">
           Usamos cookies essenciais para o site funcionar. Com sua permissão, também usamos
           cookies de análise para entender o que é útil no PreçoCaindo. Veja detalhes na{" "}
@@ -62,18 +62,18 @@ export function ConsentBanner() {
           </div>
         )}
 
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
           <button
             type="button"
             onClick={() => choose({ analytics: "GRANTED", marketing: "GRANTED" })}
-            className="rounded-full bg-brand px-5 py-2 text-sm font-semibold text-brand-foreground"
+            className="max-w-full rounded-full bg-brand px-5 py-2 text-center text-sm font-semibold text-brand-foreground whitespace-normal"
           >
             Aceitar
           </button>
           <button
             type="button"
             onClick={() => choose({ analytics: "DENIED", marketing: "DENIED" })}
-            className="rounded-full border border-border-subtle px-5 py-2 text-sm font-semibold"
+            className="max-w-full rounded-full border border-border-subtle px-5 py-2 text-center text-sm font-semibold whitespace-normal"
           >
             Recusar não essenciais
           </button>
@@ -86,7 +86,7 @@ export function ConsentBanner() {
                   marketing: marketing ? "GRANTED" : "DENIED",
                 })
               }
-              className="rounded-full border border-border-subtle px-5 py-2 text-sm font-semibold"
+              className="max-w-full rounded-full border border-border-subtle px-5 py-2 text-center text-sm font-semibold whitespace-normal"
             >
               Salvar preferências
             </button>
@@ -94,7 +94,7 @@ export function ConsentBanner() {
             <button
               type="button"
               onClick={() => setConfiguring(true)}
-              className="rounded-full border border-border-subtle px-5 py-2 text-sm font-semibold"
+              className="max-w-full rounded-full border border-border-subtle px-5 py-2 text-center text-sm font-semibold whitespace-normal"
             >
               Configurar
             </button>

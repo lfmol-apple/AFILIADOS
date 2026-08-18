@@ -8,8 +8,8 @@ import Link from "next/link";
  */
 export function SiteHeader() {
   return (
-    <header className="border-border-subtle border-b">
-      <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-4 sm:px-6">
+    <header className="border-border-subtle max-w-[100vw] overflow-x-hidden border-b">
+      <div className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-4 sm:px-6">
         <Link
           href="/"
           className="flex shrink-0 items-center gap-2 text-lg font-semibold"
@@ -58,7 +58,7 @@ export function SiteHeader() {
           <Link href="/ofertas" className="hover:text-brand hidden sm:inline">
             Ofertas
           </Link>
-          <Link href="/transparencia" className="hover:text-brand">
+          <Link href="/transparencia" className="hover:text-brand hidden sm:inline">
             Transparência
           </Link>
         </nav>
