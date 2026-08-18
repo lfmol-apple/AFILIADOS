@@ -37,6 +37,16 @@ enum ContentStatus {
   STALE
 }
 
+enum DemandIntent {
+  PRODUCT_RESEARCH
+  PRICE
+  DEAL
+  BEST_OF
+  COMPARISON
+  CATEGORY
+  INFORMATIONAL
+}
+
 enum OpportunityStatus {
   PENDING
   IN_PROGRESS
@@ -81,6 +91,12 @@ enum CreativeStatus {
   ARCHIVED
 }
 
+enum ConsentChoice {
+  GRANTED
+  DENIED
+  UNSET
+}
+
 model Category {
   id       String  @id @default(cuid())
   name     String
@@ -114,6 +130,10 @@ model Product {
   reviewCount    Int?
   active         Boolean  @default(true)
   updatePriority UpdatePriority @default(COLD)
+  /// Set whenever ProductPriorityService changes updatePriority. Used both
+  /// for hysteresis (avoid flapping HOT/WARM on noisy signals) and for
+  /// admin observability ("idade da última mudança de prioridade").
+  priorityUpdatedAt DateTime @default(now())
 
   firstSeenAt DateTime @default(now())
   lastSeenAt  DateTime @default(now())
@@ -128,6 +148,7 @@ model Product {
   priceAlerts     PriceAlert[]
   creatives       Creative[]
   searchOpportunities SearchOpportunity[]
+  pageViews       PageView[]
 
   @@unique([provider, asin])
   @@index([categoryId])
@@ -218,6 +239,42 @@ model AffiliateClick {
   @@index([createdAt])
 }
 
+/// A first-party pageview, used as a demand/traffic signal and for the
+/// admin dashboard. No IP, no fingerprinting — `sessionId` is a
+/// pseudonymous, client-generated identifier (see lib/analytics).
+model PageView {
+  id             String   @id @default(cuid())
+  pageType       String
+  pageSlug       String
+  productId      String?
+  product        Product? @relation(fields: [productId], references: [id])
+  referrerDomain String?
+  utmSource      String?
+  utmMedium      String?
+  utmCampaign    String?
+  sessionId      String
+
+  createdAt DateTime @default(now())
+
+  @@index([pageType, pageSlug, createdAt])
+  @@index([sessionId])
+  @@index([createdAt])
+}
+
+/// Internal site search, used as a demand signal by DemandEngine. No IP.
+model SearchEvent {
+  id                String   @id @default(cuid())
+  query             String
+  normalizedQuery   String
+  resultCount       Int
+  clickedProductId  String?
+
+  createdAt DateTime @default(now())
+
+  @@index([normalizedQuery, createdAt])
+  @@index([createdAt])
+}
+
 model GeneratedContent {
   id            String        @id @default(cuid())
   contentType   ContentType
@@ -232,6 +289,18 @@ model GeneratedContent {
   status        ContentStatus @default(DRAFT)
   qualityScore  Int?
   qualityReasons Json?
+  /// Multi-dimensional ContentQualityGate breakdown: originality,
+  /// dataSupport, usefulness, duplicationRisk, commercialTransparency.
+  qualityBreakdown Json?
+  /// Hash of the normalized body, used by the duplication/similarity check
+  /// in ContentQualityGate to flag near-identical scaled content.
+  contentHash   String?
+  /// True when PublicationDecisionEngine decided NOINDEX: the page may
+  /// still be served, but must not be indexed or listed in the sitemap.
+  noindex       Boolean       @default(false)
+  /// SearchOpportunity.overallScore at the time content was generated, kept
+  /// for decision transparency/audit, not recalculated after the fact.
+  demandScoreAtGeneration Float?
 
   generatedAt DateTime  @default(now())
   reviewedAt  DateTime?
@@ -241,21 +310,33 @@ model GeneratedContent {
   @@unique([contentType, slug])
   @@index([status])
   @@index([entityId])
+  @@index([contentHash])
 }
 
 model SearchOpportunity {
-  id         String   @id @default(cuid())
-  keyword    String
-  intent     String
-  category   String?
-  productId  String?
-  product    Product? @relation(fields: [productId], references: [id])
-  priority   Int      @default(0)
-  status     OpportunityStatus @default(PENDING)
+  id                String   @id @default(cuid())
+  keyword           String
+  normalizedKeyword String
+  intent            DemandIntent @default(PRODUCT_RESEARCH)
+  category          String?
+  productId         String?
+  product           Product? @relation(fields: [productId], references: [id])
+  /// Where this opportunity was discovered — e.g. "internal_search",
+  /// "product_catalog", "manual_seed". See lib/demand/sources.
+  source            String
+  demandScore       Float?
+  commercialScore   Float?
+  freshnessScore    Float?
+  contentGapScore   Float?
+  overallScore      Float?
+  priority          Int      @default(0)
+  status            OpportunityStatus @default(PENDING)
 
-  discoveredAt DateTime @default(now())
+  discoveredAt   DateTime  @default(now())
+  lastEvaluatedAt DateTime?
 
   @@index([status, priority])
+  @@index([normalizedKeyword])
 }
 
 model AutomationRun {
@@ -271,21 +352,37 @@ model AutomationRun {
   metadata   Json?
 
   @@index([job, startedAt])
+  @@index([job, status])
 }
 
 model PriceAlert {
-  id              String   @id @default(cuid())
-  productId       String
-  product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  targetPrice     Decimal  @db.Decimal(10, 2)
-  channel         AlertChannel @default(EMAIL)
-  destinationHash String
-  active          Boolean  @default(true)
+  id          String   @id @default(cuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  targetPrice Decimal  @db.Decimal(10, 2)
+  channel     AlertChannel @default(EMAIL)
+  /// The contact itself (e.g. email address). Stored only because a price
+  /// alert is functionally impossible to deliver without it — this is data
+  /// minimization *for the stated purpose*, not maximization. Never reused
+  /// for marketing without a separate MARKETING consent (see
+  /// docs/PRIVACY.md).
+  contact         String
+  /// Deterministic hash of the normalized contact, used to detect/prevent
+  /// duplicate alerts without needing to compare plaintext in ordinary
+  /// queries.
+  contactHash     String
+  /// Double opt-in: an alert is not active until the confirmation link
+  /// (using this token) has been used. PRICE_ALERTS=false today, so no
+  /// email is actually sent yet — see docs/AUTOMATION.md.
+  confirmationToken String?
+  confirmedAt       DateTime?
+  active            Boolean  @default(true)
 
   createdAt   DateTime  @default(now())
   triggeredAt DateTime?
 
   @@index([productId, active])
+  @@index([contactHash])
 }
 
 model Creative {
@@ -306,4 +403,32 @@ model Creative {
   createdAt DateTime @default(now())
 
   @@index([productId, status])
+}
+
+/// Permanent redirect registered whenever a published slug changes.
+/// oldPath/newPath are full site paths (e.g. "/produto/antigo-slug").
+model SlugRedirect {
+  id         String   @id @default(cuid())
+  oldPath    String   @unique
+  newPath    String
+  statusCode Int      @default(301)
+
+  createdAt DateTime @default(now())
+
+  @@index([newPath])
+}
+
+/// LGPD consent, keyed by a pseudonymous subject id (a client-generated,
+/// non-personal identifier stored in a first-party cookie — never an email
+/// or account id). One row per subject; choices are overwritten in place so
+/// there is always exactly one current answer, never a growing log of a
+/// person's consent history.
+model ConsentRecord {
+  id         String   @id @default(cuid())
+  subjectId  String   @unique
+  analytics  ConsentChoice @default(UNSET)
+  marketing  ConsentChoice @default(UNSET)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
