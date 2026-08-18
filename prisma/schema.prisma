@@ -14,6 +14,13 @@ enum CommerceProviderName {
   AMAZON
 }
 
+/// Kept intentionally small — see lib/config/marketplaces.ts for the
+/// runtime config each code maps to (host, currency, enabled, tag).
+enum Marketplace {
+  BR
+  US
+}
+
 enum Availability {
   IN_STOCK
   OUT_OF_STOCK
@@ -340,19 +347,25 @@ model SearchOpportunity {
 }
 
 model AutomationRun {
-  id         String   @id @default(cuid())
-  job        String
-  startedAt  DateTime @default(now())
-  finishedAt DateTime?
-  status     AutomationStatus @default(RUNNING)
-  processed  Int      @default(0)
-  created    Int      @default(0)
-  updated    Int      @default(0)
-  errors     Int      @default(0)
-  metadata   Json?
+  id          String       @id @default(cuid())
+  job         String
+  /// Which marketplace this run processed, when the job is scoped to one
+  /// (product discovery/refresh/scoring). Null for jobs that aren't
+  /// marketplace-scoped (content validation/publish, cleanup, sitemap
+  /// refresh). See lib/jobs/automation-run.ts runJob() `options.marketplace`.
+  marketplace Marketplace?
+  startedAt   DateTime     @default(now())
+  finishedAt  DateTime?
+  status      AutomationStatus @default(RUNNING)
+  processed   Int          @default(0)
+  created     Int          @default(0)
+  updated     Int          @default(0)
+  errors      Int          @default(0)
+  metadata    Json?
 
   @@index([job, startedAt])
   @@index([job, status])
+  @@index([job, marketplace, startedAt])
 }
 
 model PriceAlert {
