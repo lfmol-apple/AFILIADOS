@@ -4,6 +4,16 @@ import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 
 const CATALOG_PATHS = ["/produto/", "/ofertas", "/categorias/", "/melhores/", "/comparar/"];
 
+// Without this, Next.js prerenders robots.txt once at build time and caches
+// it indefinitely — PUBLIC_CATALOG_ENABLED/MANUAL_PRODUCTS_ENABLED are
+// runtime-only env vars (never set during `next build`), so a build-time
+// snapshot would permanently bake in "catalog disabled" regardless of what
+// the flags are actually set to afterward. Confirmed live: flipping both
+// flags and restarting the container (no rebuild) left robots.txt still
+// disallowing every catalog path. force-dynamic makes this route re-read
+// the flags on every request, matching how /produto/[slug] already behaves.
+export const dynamic = "force-dynamic";
+
 export default function robots(): MetadataRoute.Robots {
   const disallow = ["/admin", "/go/amazon/", "/api/"];
 

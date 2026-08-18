@@ -5,7 +5,13 @@ import { isProductPageIndexable } from "@/lib/seo/indexability";
 import { PRIMARY_PUBLIC_MARKETPLACE } from "@/lib/config/marketplaces";
 import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 
-export const revalidate = 3600;
+// force-dynamic (not just `revalidate`) because PUBLIC_CATALOG_ENABLED/
+// MANUAL_PRODUCTS_ENABLED are runtime-only env vars, never set during
+// `next build` — a build-time ISR snapshot always bakes in "catalog
+// disabled" and would only self-correct up to an hour later. Confirmed
+// live: flipping both flags and restarting the container left sitemap.xml
+// showing only static routes, no products, right after the flip.
+export const dynamic = "force-dynamic";
 
 const STATIC_ROUTES = [
   "",
