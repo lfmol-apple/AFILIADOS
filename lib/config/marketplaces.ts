@@ -67,6 +67,16 @@ export function getAmazonMarketplaceConfig(
 
 export const ALL_MARKETPLACES: MarketplaceCode[] = ["BR", "US"];
 
+/**
+ * The marketplace the public precocaindo.com.br site serves today (project
+ * brief Sprint 4 section 8). Every public query (lib/queries/products.ts,
+ * app/sitemap.ts, etc.) filters on this constant explicitly instead of a
+ * bare "BR" literal, so a future decision to serve a second marketplace on
+ * the public site is a one-line, greppable change — not a hunt through
+ * every query for a hardcoded string.
+ */
+export const PRIMARY_PUBLIC_MARKETPLACE: MarketplaceCode = "BR";
+
 export function isMarketplaceCode(value: string): value is MarketplaceCode {
   return (ALL_MARKETPLACES as string[]).includes(value);
 }

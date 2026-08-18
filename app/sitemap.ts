@@ -2,6 +2,8 @@ import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/db";
 import { siteConfig } from "@/lib/config/site";
 import { isProductPageIndexable } from "@/lib/seo/indexability";
+import { PRIMARY_PUBLIC_MARKETPLACE } from "@/lib/config/marketplaces";
+import { isPublicCatalogSafeToShow } from "@/lib/config/public-catalog";
 
 export const revalidate = 3600;
 
@@ -24,9 +26,21 @@ const STATIC_ROUTES = [
  * via lib/seo/indexability.ts, so the two can't disagree).
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // If the public catalog isn't safe to show (pre-launch, or a mock
+  // provider in production — see lib/config/public-catalog.ts), the
+  // sitemap must not list a single product/category/content URL: an empty
+  // sitemap with just the static institutional routes is the honest state.
+  if (!isPublicCatalogSafeToShow()) {
+    return STATIC_ROUTES.map((path) => ({
+      url: `${siteConfig.url}${path}`,
+      changeFrequency: path === "" ? "daily" : "monthly",
+      priority: path === "" ? 1 : 0.5,
+    }));
+  }
+
   const [products, categories, content] = await Promise.all([
     prisma.product.findMany({
-      where: { active: true },
+      where: { marketplace: PRIMARY_PUBLIC_MARKETPLACE, active: true },
       select: {
         slug: true,
         updatedAt: true,
