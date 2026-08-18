@@ -1,27 +1,93 @@
 # Integração Amazon
 
-## Contexto de negócio
+## Contexto de negócio (atualizado)
 
-A operação é a **PETMOL**, que já possui uma conta aprovada no Programa de Associados Amazon
-Brasil, com **Store ID `petmol-20`**. O PreçoCaindo é uma propriedade digital diferente da mesma
-operação (não um site pet) e deve operar com um **Tracking ID próprio**, para manter o analytics
-separado do `petmol-20`. Esse Tracking ID específico do PreçoCaindo ainda não foi criado/fornecido
-— até que exista, `AMAZON_ASSOCIATE_TAG` fica vazio. **Nunca usar `petmol-20` como tag do
-PreçoCaindo.**
+A operação é a **PETMOL NEGOCIOS DIGITAIS LTDA**. PreçoCaindo é uma propriedade digital
+diferente da mesma operação (não um site pet) e opera com marketplaces Amazon configurados
+independentemente — hoje só Brasil está habilitado; EUA existe apenas como configuração
+preparada. Ver `lib/config/marketplaces.ts` para a implementação.
+
+### Amazon Brasil
+
+- **Store ID da conta PETMOL:** `petmol-20` (a tag da própria PETMOL, não do PreçoCaindo).
+- **Tracking ID do PreçoCaindo: `precocaindo-20` — já criado e configurado.** Não é mais
+  pendente; qualquer documentação antiga afirmando o contrário estava desatualizada. É a tag
+  usada em `AMAZON_BR_ASSOCIATE_TAG`.
+- **Elegibilidade para a Creators API: PENDENTE.** A página oficial da Creators API para a conta
+  BR atualmente mostra a conta como **não aprovada** para a Creators API (checkbox desmarcado).
+  Isso é independente de o Tracking ID existir — são dois fatos diferentes.
+- **Requisito de vendas qualificadas: PENDENTE.** Ver seção de elegibilidade abaixo. Dados atuais
+  do painel de afiliados BR (29 cliques, 13 produtos pedidos, 3 produtos enviados, R$ 15,86 em
+  comissões) **não** comprovam o requisito de "10 vendas qualificadas nos últimos 30 dias" — esses
+  números são atividade do painel, não a confirmação de elegibilidade que só a própria Amazon dá.
+  Nunca inferir um do outro.
+- **`AMAZON_PROVIDER` continua `mock`.**
+
+### Amazon Estados Unidos
+
+- Nova conta de Amazon Associates criada em affiliate-program.amazon.com.
+- **Associate ID: `petmol07-20`**, vinculado à propriedade `petmol.com.br` — **não** ao
+  PreçoCaindo.
+- `precocaindo.com.br` **não** foi cadastrado nessa conta ainda.
+- Conta em fase inicial/revisão; configuração de recebimento bancário (parece exigir dados
+  ABA/internacional) **ainda não resolvida**.
+- Consequência: `AMAZON_US_ASSOCIATE_TAG` fica vazio, `AMAZON_US_ENABLED=false`. **Nunca usar
+  `petmol07-20` como tag de um link do PreçoCaindo** — pertence a outra propriedade, sob uma
+  conta cuja situação ainda não está validada para o PreçoCaindo.
+- EUA é, por enquanto, **marketplace futuro / configuração preparada** — não operacional.
+
+## Configuração multi-marketplace
+
+`lib/config/marketplaces.ts` é a única fonte de verdade sobre "qual marketplace, configurado
+como" — nenhum outro código lê as variáveis `AMAZON_BR_*`/`AMAZON_US_*` diretamente.
+
+```ts
+interface AmazonMarketplaceConfig {
+  marketplace: "BR" | "US";
+  country: string;
+  host: string;          // amazon.com.br | amazon.com
+  currency: string;       // BRL | USD
+  associateTag: string;   // vazio = "não construir links para este marketplace ainda"
+  enabled: boolean;
+  apiEnabled: boolean;
+}
+```
+
+`AMAZON_ASSOCIATE_TAG` (variável antiga, pré-multi-marketplace) continua funcionando como
+fallback silencioso para `AMAZON_BR_ASSOCIATE_TAG` quando esta não está definida — mantido só por
+compatibilidade; configuração nova deve usar `AMAZON_BR_ASSOCIATE_TAG` diretamente.
+
+`AmazonPolicyGuard` (`lib/amazon/policy-guard.ts`) é totalmente marketplace-aware:
+`buildAmazonProductUrl(asin, marketplace)` e `assertAllowedAmazonDestination(url, marketplace)`
+recusam qualquer operação para um marketplace desabilitado **antes mesmo de checar o host** — um
+link para `amazon.com` só é aceito quando `AMAZON_US_ENABLED=true`, independentemente de o host em
+si ser um domínio Amazon legítimo.
+
+## Rotas de redirect
+
+`/go/amazon/[asin]` continua funcionando exatamente como antes — nenhum link existente quebra.
+Foi preparada `/go/amazon/[marketplace]/[asin]` (ex.: `/go/amazon/US/B0EXEMPLO1`) para marketplaces
+futuros; hoje ela sempre retorna 404 para `US` porque `AmazonPolicyGuard` recusa qualquer destino
+para um marketplace desabilitado — não porque a rota está incompleta. As duas URLs são servidas
+por uma única rota catch-all (`app/go/amazon/[...segments]/route.ts`, ver o comentário no arquivo
+sobre por que não são duas rotas dinâmicas irmãs) chamando a mesma implementação
+(`lib/services/go-amazon-handler.ts`), então o fluxo de clique-depois-redirect nunca diverge entre
+as duas formas de URL.
 
 ## Status atual: mock
 
 `AMAZON_PROVIDER=mock` (padrão) usa `MockAmazonProvider`, que serve um catálogo fixo e claramente
 fictício (`lib/providers/mock-catalog.ts`) — sem nenhuma chamada de rede. Isso permite desenvolver
 e demonstrar o produto inteiro (banco, score, SEO, páginas, jobs) antes de qualquer credencial
-real da Amazon existir.
+real da Amazon existir, para qualquer marketplace.
 
 ## Elegibilidade para a Creators API (segundo a Amazon)
 
 De acordo com a página oficial de FAQ da Creators API:
 
 - É necessário ter uma **conta de associado aprovada**, e estar logado com uma conta com acesso
-  total para criar aplicativos e gerar credenciais.
+  total para criar aplicativos e gerar credenciais. **A conta BR ainda mostra esse item como não
+  cumprido.**
 - Para acessar a **PA API através da Creators API**, é necessário ter **pelo menos 10 vendas
   qualificadas nos últimos 30 dias**. Sem isso, chamadas retornam o erro `AssociateNotEligible`.
 - Após gerar uma credencial, pode levar **até 48 horas** para a elegibilidade ser reavaliada e o
@@ -30,19 +96,21 @@ De acordo com a página oficial de FAQ da Creators API:
 - É possível criar até duas aplicações, cada uma com dois conjuntos de credenciais (para
   rotação, mas utilizáveis de forma independente).
 
-Isso significa que ativar `AMAZON_PROVIDER=live` depende de duas coisas fora do nosso controle de
-engenharia: (a) o Tracking ID próprio do PreçoCaindo ser criado, e (b) a conta ter volume de
-vendas qualificadas suficiente para desbloquear a Creators API. Nenhuma das duas pode ser resolvida
-com código.
+Isso significa que ativar `AMAZON_PROVIDER=live` para o BR depende de duas coisas fora do nosso
+controle de engenharia, que só a Amazon confirma: (a) aprovação da conta para a Creators API, e
+(b) volume de vendas qualificadas suficiente. O Tracking ID **não é mais** um bloqueador — já
+existe (`precocaindo-20`) — mas isso sozinho não desbloqueia a API.
 
 ## O que falta para `AMAZON_PROVIDER=live`
 
 `AmazonProvider` (`lib/providers/amazon-provider.ts`) existe como classe que implementa a mesma
 interface `CommerceProvider`, mas **cada método lança `NotImplementedYetError`**. Antes de
-implementar de verdade:
+implementar de verdade (para qualquer marketplace):
 
 1. Confirmar acesso oficial à **Creators API** da Amazon (não a antiga PA-API sem confirmar
-   compatibilidade — seção 54 do briefing), incluindo os critérios de elegibilidade acima.
+   compatibilidade), incluindo os critérios de elegibilidade acima — para BR isso significa
+   aprovação da conta + vendas qualificadas; para US, adicionalmente, cadastro de
+   `precocaindo.com.br` na conta e resolução do pagamento.
 2. Ler a documentação oficial vigente da Creators API e implementar autenticação exatamente como
    especificado. **Não presumir que a autenticação é idêntica à PA-API legada** — os nomes de
    variável em `.env.example` (`AMAZON_CREATORS_API_KEY`/`AMAZON_CREATORS_API_SECRET`) são
@@ -67,17 +135,21 @@ silenciosamente para dados mock em produção, e nunca para scraping.
 Não existe, em nenhum lugar do código, Puppeteer/Playwright/Cheerio apontado para páginas da
 Amazon, rotação de user-agent, proxy, ou bypass de CAPTCHA. Isso é uma decisão de arquitetura, não
 uma lacuna: scraping violaria os Termos de Uso da Amazon e colocaria a conta de Associado em
-risco (seção 55 do briefing). Se a Creators API estiver indisponível, o comportamento correto é
-falhar, não improvisar.
+risco. Se a Creators API estiver indisponível, o comportamento correto é falhar, não improvisar.
 
 ## Tag de afiliado
 
-Nunca hardcoded. `AMAZON_ASSOCIATE_TAG` vem de variável de ambiente; `buildAmazonProductUrl()`
-(`lib/amazon/policy-guard.ts`) recusa-se a construir um link se a tag não estiver configurada.
+Nunca hardcoded no sentido de "chutada" — mas o Tracking ID BR confirmado (`precocaindo-20`) É o
+valor padrão documentado em `.env.example`, porque é um identificador público (aparece em toda URL
+de saída), não um segredo, e já foi confirmado pelo dono do negócio. `buildAmazonProductUrl()`
+(`lib/amazon/policy-guard.ts`) recusa-se a construir um link se a tag do marketplace pedido não
+estiver configurada ou se esse marketplace não estiver habilitado.
 
 ## Whitelist de hosts de redirect
 
 `amzn.to` (encurtador da própria Amazon) foi deliberadamente removido da allowlist de destinos —
-o PreçoCaindo sempre constrói/armazena URLs canônicas (`amazon.com.br/dp/<ASIN>`), então não há
+o PreçoCaindo sempre constrói/armazena URLs canônicas (`<host>/dp/<ASIN>`), então não há
 necessidade operacional de aceitar um link curto cujo destino final não podemos validar antes do
-redirect. Ver `lib/amazon/policy-guard.ts` e `tests/amazon-policy-guard.test.ts`.
+redirect. A allowlist é escopada por marketplace: `amazon.com.br` só é válido para BR,
+`amazon.com` só para US (e só quando US está habilitado). Ver `lib/amazon/policy-guard.ts` e
+`tests/amazon-policy-guard.test.ts`.

@@ -8,23 +8,31 @@ Runs `scripts/production-readiness.ts`, which checks what can honestly be checke
 prints a report like:
 
 ```
-DATABASE............ PASS
-MIGRATIONS.......... PASS
-TESTS............... PASS
-SEO................. PASS
-AMAZON PROVIDER..... MOCK
-AMAZON TRACKING ID.. PENDING
-CREATORS API........ PENDING
-AUTO PUBLISH........ OFF
-ADMIN SECURITY...... DEV ONLY
-DOMAIN.............. NOT DEPLOYED
-PRODUCTION.......... NOT READY
+DATABASE................... PASS
+MIGRATIONS................. PASS
+TESTS....................... PASS
+SEO......................... PASS
+AMAZON PROVIDER............. MOCK
+BR_TRACKING_ID.............. PASS
+BR_ACCOUNT_APPROVED......... PENDING
+BR_QUALIFIED_SALES.......... PENDING
+BR_CREATORS_CREDENTIALS..... PENDING
+AUTO PUBLISH................ OFF
+ADMIN SECURITY.............. DEV ONLY
+DOMAIN....................... NOT DEPLOYED
+US_PRECOCAINDO_REGISTERED... PENDING
+US_PAYMENT_CONFIGURED....... PENDING
+US_ACCOUNT_STATUS........... PENDING
+US_API_CREDENTIALS.......... PENDING
+PRODUCTION................... NOT READY
 ```
 
 **This is expected to say NOT READY today.** The script does not try to make every line say PASS
 by inventing configuration — a `PENDING`/`NOT DEPLOYED` line is the script doing its job
 correctly, not a bug (project brief: "Isso é intencional. NÃO tente transformar tudo em PASS
-inventando configuração").
+inventando configuração"). `BR_TRACKING_ID` reading PASS is new and correct — PreçoCaindo's BR
+Tracking ID (`precocaindo-20`) has actually been created; the remaining BR/US lines are genuinely
+still pending on Amazon or on the business, not on code.
 
 ## What each line means
 
@@ -35,11 +43,17 @@ inventando configuração").
 | TESTS | `vitest run` exits 0 | Runs the full suite as part of this check. |
 | SEO | At least one active product has PriceStats | A minimal sanity check that there's something to serve/index — not a substitute for `docs/SEO.md`'s checklist. |
 | AMAZON PROVIDER | Informational (MOCK/LIVE) | Not a pass/fail — just current mode. |
-| AMAZON TRACKING ID | `AMAZON_ASSOCIATE_TAG` is set | Must be PreçoCaindo's own tag, never `petmol-20` — see docs/AMAZON.md. |
-| CREATORS API | Access key + secret configured | Configuration presence only — does not verify the credentials actually work. |
+| BR_TRACKING_ID | `AMAZON_BR_ASSOCIATE_TAG` is set | PreçoCaindo's own BR tag, `precocaindo-20` — never `petmol-20`. See docs/AMAZON.md. |
+| BR_ACCOUNT_APPROVED | `AMAZON_BR_CREATORS_API_ACCOUNT_APPROVED=true` | Only a human can set this, after Amazon itself shows the account as approved for the Creators API — not inferable from panel activity. |
+| BR_QUALIFIED_SALES | `AMAZON_BR_QUALIFIED_SALES_MET=true` | Same — only Amazon's own confirmation of "10 vendas qualificadas nos últimos 30 dias" counts, never click/order counts from the affiliate panel. |
+| BR_CREATORS_CREDENTIALS | Access key + secret configured | Configuration presence only — does not verify the credentials actually work. |
 | AUTO PUBLISH | Informational (ON/OFF) | Not a pass/fail — `OFF` is the correct default, not a blocker. |
 | ADMIN SECURITY | `ADMIN_ACCESS_TOKEN` is set | A token being set is dev-grade protection, not real auth — see "Admin security" below. |
 | DOMAIN | `NEXT_PUBLIC_SITE_URL` equals `https://precocaindo.com.br` | Never true until an actual deploy happens — this sprint explicitly does not deploy. |
+| US_PRECOCAINDO_REGISTERED | `AMAZON_US_PRECOCAINDO_REGISTERED=true` | Set only once precocaindo.com.br is actually registered on the US Associates account. |
+| US_PAYMENT_CONFIGURED | `AMAZON_US_PAYMENT_CONFIGURED=true` | Bank/payment setup for the US account is unresolved as of this sprint. |
+| US_ACCOUNT_STATUS | `AMAZON_US_ENABLED=true` | The US account is still in initial review; this flag should only flip once that's resolved and the marketplace is deliberately turned on. |
+| US_API_CREDENTIALS | `AMAZON_US_API_ENABLED=true` | US has no Creators API integration prepared at all yet — this is aspirational until the account itself is ready. |
 
 ## Admin security
 

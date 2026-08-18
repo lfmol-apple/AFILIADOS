@@ -57,7 +57,8 @@ uma mudança de configuração (`AMAZON_PROVIDER`, `CONTENT_GENERATION`), não u
 | `lib/observability/` | Health checks e métricas internas |
 | `lib/seo/` | Structured data, indexabilidade, redirects de slug |
 | `lib/http/` | `RetryPolicy` genérica para chamadas externas futuras |
-| `lib/amazon/` | `AmazonPolicyGuard` — única fonte de verdade sobre regras Amazon |
+| `lib/config/marketplaces.ts` | `AmazonMarketplaceConfig` por marketplace (BR/US) — host, moeda, tag, enabled/apiEnabled |
+| `lib/amazon/` | `AmazonPolicyGuard` (marketplace-aware) — única fonte de verdade sobre regras Amazon; `readiness-checks.ts`/`status.ts` para admin e production:readiness |
 | `lib/queries/` | Acesso a dados usado pelas páginas (mantém Prisma fora dos componentes) |
 | `lib/jobs/` | Infraestrutura compartilhada de jobs (`AutomationRun` com locking/stale recovery) |
 | `jobs/` | Os 13 jobs de automação, um arquivo por job |
@@ -79,7 +80,10 @@ uma mudança de configuração (`AMAZON_PROVIDER`, `CONTENT_GENERATION`), não u
   (`types/content.ts`), nunca dados soltos — ver docs/CONTENT_ENGINE.md.
 - **`AmazonPolicyGuard`** centraliza toda regra de compliance (host permitido, tag de afiliado,
   disclosure) para que nenhuma outra parte do código precise "lembrar" da regra — ela só pode
-  chamar o guard.
+  chamar o guard. É marketplace-aware desde a Sprint 3: toda função aceita qual marketplace está
+  em jogo e rejeita um marketplace desabilitado antes mesmo de validar o host, então BR e US nunca
+  podem se confundir (`lib/config/marketplaces.ts` é a única fonte de verdade sobre qual
+  marketplace está habilitado e com qual tag — ver docs/AMAZON.md).
 - **`ProductPriorityService` + `RefreshPlanner`** separam "o que mudou de prioridade" (sinais
   reais: score, queda, cliques, disponibilidade) de "quanto orçamento de chamadas temos" — a
   primeira decide HOT/WARM/COLD, a segunda decide a ordem da fila dentro do orçamento disponível,

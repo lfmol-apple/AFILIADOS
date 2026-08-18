@@ -45,6 +45,13 @@ Todo job roda dentro de `runJob()` (`lib/jobs/automation-run.ts`), que:
 - atualiza para `SUCCESS` / `PARTIAL` (se houve erros parciais) / `FAILED` ao final, com contadores
   (`processed`, `created`, `updated`, `errors`) e metadata livre em JSON.
 
+`runJob()` aceita um terceiro parâmetro opcional `{ marketplace }`, que grava
+`AutomationRun.marketplace`. Os jobs que operam sobre o catálogo de produtos
+(`DISCOVER_PRODUCTS`, `REFRESH_PRIORITY_PRODUCTS`, `REFRESH_CATALOG`, `CALCULATE_PRICE_STATS`,
+`CALCULATE_OPPORTUNITIES`, `REBALANCE_PRODUCT_PRIORITIES`) já passam `{ marketplace: "BR" }`, já
+que hoje só o Brasil está habilitado. Jobs de conteúdo/manutenção (validação, publicação,
+cleanup, sitemap) não são marketplace-scoped e deixam o campo `null`.
+
 O dashboard `/admin` lê `AutomationRun` para mostrar a última execução de cada job, jobs com falha
 nos últimos 7 dias, e erros do dia. `tests/automation-run.test.ts` cobre o locking, a recuperação
 de lock travado, e os estados `FAILED`/`PARTIAL`.
