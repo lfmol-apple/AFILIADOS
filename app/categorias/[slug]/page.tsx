@@ -9,7 +9,7 @@ import { ProductCard } from "@/components/product-card";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { buildBreadcrumbList } from "@/lib/seo/structured-data";
-import { isPublicCatalogSafeToShow } from "@/lib/config/public-catalog";
+import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 
 export const revalidate = 600;
 
@@ -24,10 +24,14 @@ function parseSort(value: string | undefined): CategorySort {
 }
 
 async function loadCategory(slug: string, sort: CategorySort) {
-  // Pre-launch (or a misconfigured production+mock combo) — a category page
-  // with only fabricated prices in it has nothing safe to show. See
-  // lib/config/public-catalog.ts.
-  if (!isPublicCatalogSafeToShow()) return null;
+  // Pre-launch (or every data-source gate closed) — see
+  // lib/config/public-catalog.ts. Deliberately checks "is anything at all
+  // currently visible" rather than isPublicCatalogSafeToShow() alone: a
+  // MANUAL_VERIFIED cohort can be visible even when that check is false
+  // (e.g. AMAZON_PROVIDER=mock in production) — getCategoryBySlug() itself
+  // already filters by currentlyVisibleDataSources(), so this is only an
+  // early-exit consistency check, not a second source of truth.
+  if (currentlyVisibleDataSources().length === 0) return null;
   return getCategoryBySlug(slug, sort);
 }
 

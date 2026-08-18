@@ -3,14 +3,16 @@ import { notFound } from "next/navigation";
 import { getPublishedContent } from "@/lib/queries/products";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { renderSimpleMarkdown } from "@/lib/markdown";
-import { isPublicCatalogSafeToShow } from "@/lib/config/public-catalog";
+import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 
 export const revalidate = 3600;
 
 async function loadComparison(slug: string) {
-  // Pre-launch (or a misconfigured production+mock combo) — comparison
-  // content is built around real catalog prices. See lib/config/public-catalog.ts.
-  if (!isPublicCatalogSafeToShow()) return null;
+  // Pre-launch (or every data-source gate closed) — comparison content is
+  // built around real catalog prices, so it has nothing safe to show when
+  // nothing is currently visible. See lib/config/public-catalog.ts and the
+  // matching check in app/categorias/[slug]/page.tsx.
+  if (currentlyVisibleDataSources().length === 0) return null;
   return getPublishedContent("COMPARISON", slug);
 }
 

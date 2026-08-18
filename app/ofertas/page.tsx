@@ -5,20 +5,20 @@ import { ProductCard } from "@/components/product-card";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { recordSearchEvent } from "@/lib/analytics/search-event";
-import { isPublicCatalogSafeToShow } from "@/lib/config/public-catalog";
+import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 
 export const revalidate = 300;
 
 export function generateMetadata(): Metadata {
-  const catalogSafe = isPublicCatalogSafeToShow();
+  const catalogSafe = currentlyVisibleDataSources().length > 0;
   return {
     title: "Ofertas",
     description:
       "Produtos com o melhor Score PreçoCaindo agora — preços comparados ao histórico, não só ao preço de tabela.",
     alternates: { canonical: "/ofertas" },
-    // Pre-launch (or a misconfigured production+mock combo) — the page
-    // stays reachable (it's a listing, not a specific fabricated price),
-    // but must never be indexed while it could show fictional offers.
+    // Pre-launch (or every data-source gate closed) — the page stays
+    // reachable (it's a listing, not a specific fabricated price), but must
+    // never be indexed while nothing real is currently visible.
     robots: catalogSafe ? undefined : { index: false, follow: true },
   };
 }
@@ -29,7 +29,7 @@ export default async function OfertasPage(props: PageProps<"/ofertas">) {
   const query =
     typeof searchParams?.q === "string" ? searchParams.q : undefined;
 
-  const catalogSafe = isPublicCatalogSafeToShow();
+  const catalogSafe = currentlyVisibleDataSources().length > 0;
   const {
     items,
     page: currentPage,

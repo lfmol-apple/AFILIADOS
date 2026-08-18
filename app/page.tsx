@@ -2,16 +2,19 @@ import Link from "next/link";
 import { getHomeSections } from "@/lib/queries/products";
 import { ProductCard } from "@/components/product-card";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
-import { isPublicCatalogSafeToShow } from "@/lib/config/public-catalog";
+import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 
 export const revalidate = 300;
 
 export default async function Home() {
-  // Pre-launch (or a misconfigured production+mock combo) — see
-  // lib/config/public-catalog.ts. The homepage itself stays up in an
-  // institutional shell; only the catalog-derived sections are withheld,
-  // since those are the only thing that could show fictional prices.
-  const catalogSafe = isPublicCatalogSafeToShow();
+  // Pre-launch (or every data-source gate closed) — see
+  // lib/config/public-catalog.ts. Deliberately checks "is anything at all
+  // currently visible" rather than isPublicCatalogSafeToShow() alone: a
+  // MANUAL_VERIFIED cohort can be visible even when that check is false
+  // (e.g. AMAZON_PROVIDER=mock in production). The homepage itself stays up
+  // in an institutional shell either way; only the catalog-derived sections
+  // are withheld when nothing is currently visible.
+  const catalogSafe = currentlyVisibleDataSources().length > 0;
   const { pricesDropping, bestOpportunities, categories, guides } = catalogSafe
     ? await getHomeSections()
     : { pricesDropping: [], bestOpportunities: [], categories: [], guides: [] };
