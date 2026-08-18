@@ -10,7 +10,13 @@ import { env } from "@/lib/config/env";
 // Official Amazon hosts we are allowed to send affiliate traffic to. Never
 // add a non-Amazon host here — that would turn /go/amazon into an open
 // redirect.
-const ALLOWED_AMAZON_HOSTS = ["www.amazon.com.br", "amazon.com.br", "amzn.to"];
+//
+// amzn.to (Amazon's own short-link domain) was deliberately left off this
+// list (project brief Part R). PreçoCaindo always builds or stores
+// canonical amazon.com.br/dp/<ASIN> destinations itself, so there's no
+// operational need to accept a short link we can't validate the true
+// target of before redirecting — prefer the known, canonical host.
+const ALLOWED_AMAZON_HOSTS = ["www.amazon.com.br", "amazon.com.br"];
 
 const ASIN_PATTERN = /^[A-Z0-9]{10}$/;
 
@@ -54,9 +60,7 @@ export function assertAllowedAmazonDestination(rawUrl: string): URL {
     throw new AmazonPolicyViolation(`Destination must use https: ${rawUrl}`);
   }
   if (!ALLOWED_AMAZON_HOSTS.includes(url.hostname)) {
-    throw new AmazonPolicyViolation(
-      `Host not allowed for Amazon redirects: ${url.hostname}`,
-    );
+    throw new AmazonPolicyViolation(`Host not allowed for Amazon redirects: ${url.hostname}`);
   }
   return url;
 }
@@ -74,14 +78,17 @@ export interface LiveActivationCheck {
 /**
  * Checklist gate for AMAZON_PROVIDER=live (section 72 of the project brief).
  * This only checks what code can verify (config presence, disclosure,
- * guard tests). Contractual/account items must be confirmed by a human and
- * tracked in docs/AMAZON_COMPLIANCE.md.
+ * guard tests). Contractual/account items — including Amazon's own
+ * eligibility rules for Creators API access (approved Associate account
+ * AND at least 10 qualified sales in the trailing 30 days, per Amazon's
+ * published FAQ) — must be confirmed by a human and tracked in
+ * docs/AMAZON_COMPLIANCE.md.
  */
 export function checkLiveActivationReadiness(): LiveActivationCheck[] {
   return [
     {
       key: "associate_tag",
-      label: "AMAZON_ASSOCIATE_TAG configurado",
+      label: "AMAZON_ASSOCIATE_TAG configurado (Tracking ID próprio do PreçoCaindo, não petmol-20)",
       pass: env.AMAZON_ASSOCIATE_TAG.length > 0,
     },
     {
@@ -107,12 +114,9 @@ export function checkLiveActivationReadiness(): LiveActivationCheck[] {
   ];
 }
 
-export function isPolicyReviewRecent(
-  referenceDate: Date = new Date(),
-): boolean {
+export function isPolicyReviewRecent(referenceDate: Date = new Date()): boolean {
   const reviewDate = new Date(env.AMAZON_POLICY_REVIEW_DATE);
   if (Number.isNaN(reviewDate.getTime())) return false;
-  const diffDays =
-    (referenceDate.getTime() - reviewDate.getTime()) / (1000 * 60 * 60 * 24);
+  const diffDays = (referenceDate.getTime() - reviewDate.getTime()) / (1000 * 60 * 60 * 24);
   return diffDays <= 90;
 }

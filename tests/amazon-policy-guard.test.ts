@@ -44,6 +44,14 @@ describe("AmazonPolicyGuard", () => {
     ).toThrow(/not allowed/);
   });
 
+  it("rejects amzn.to short links — no operational need to accept an unvalidated redirect target (Part R)", async () => {
+    const { assertAllowedAmazonDestination } =
+      await import("@/lib/amazon/policy-guard");
+    expect(() =>
+      assertAllowedAmazonDestination("https://amzn.to/abc123"),
+    ).toThrow(/not allowed/);
+  });
+
   it("rejects non-https destinations", async () => {
     const { assertAllowedAmazonDestination } =
       await import("@/lib/amazon/policy-guard");
