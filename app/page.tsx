@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getHomeSections } from "@/lib/queries/products";
 import { ProductCard } from "@/components/product-card";
+import { AnalyticsBeacon } from "@/components/analytics-beacon";
 
 export const revalidate = 300;
 
@@ -10,6 +11,7 @@ export default async function Home() {
 
   return (
     <div>
+      <AnalyticsBeacon pageType="home" pageSlug="/" />
       <section className="border-border-subtle bg-surface-muted border-b">
         <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <h1 className="max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
