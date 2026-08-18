@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { getProductBySlug } from "@/lib/queries/products";
 import { calculateOpportunityScore } from "@/lib/services/opportunity-score";
+import { calculateDecision, labelForVerdict } from "@/lib/services/decision-engine";
 import { formatCurrency } from "@/lib/format";
 
 export const size = { width: 1200, height: 630 };
@@ -36,26 +37,32 @@ export default async function Image({
 
   const offer = product.offers[0];
   const stats = product.priceStats;
-  const score = calculateOpportunityScore({
+  const statsResult = {
+    currentPrice: Number(stats.currentPrice),
+    lowestPrice: Number(stats.lowestPrice),
+    highestPrice: Number(stats.highestPrice),
+    avg7d: stats.avg7d ? Number(stats.avg7d) : null,
+    avg30d: stats.avg30d ? Number(stats.avg30d) : null,
+    avg90d: stats.avg90d ? Number(stats.avg90d) : null,
+    dropPercentage: stats.dropPercentage,
+    distanceFromLow: stats.distanceFromLow ?? 0,
+    historicalPosition: stats.historicalPosition ?? 0,
+    dataPointCount: stats.dataPointCount,
+    coverageDays: stats.coverageDays,
+  };
+  const opportunity = calculateOpportunityScore({
     currentPrice: Number(offer.price),
     listedDiscountPercentage: offer.discountPercentage,
     rating: product.rating,
     reviewCount: product.reviewCount,
     availability: offer.availability,
-    stats: {
-      currentPrice: Number(stats.currentPrice),
-      lowestPrice: Number(stats.lowestPrice),
-      highestPrice: Number(stats.highestPrice),
-      avg7d: stats.avg7d ? Number(stats.avg7d) : null,
-      avg30d: stats.avg30d ? Number(stats.avg30d) : null,
-      avg90d: stats.avg90d ? Number(stats.avg90d) : null,
-      dropPercentage: stats.dropPercentage,
-      distanceFromLow: stats.distanceFromLow ?? 0,
-      historicalPosition: stats.historicalPosition ?? 0,
-      dataPointCount: stats.dataPointCount,
-      coverageDays: stats.coverageDays,
-    },
+    stats: statsResult,
   });
+  // Same visitor-facing question as ScorePanel on the page itself — reuses
+  // the OpportunityScore sub-computation as a signal, but the label shown
+  // here is the Decision Engine's verdict, never the internal ranking
+  // score (docs/ARCHITECTURE.md).
+  const decision = calculateDecision({ hasOffer: true, stats: statsResult, opportunity });
 
   return new ImageResponse(
     <div
@@ -123,7 +130,7 @@ export default async function Image({
           width: "fit-content",
         }}
       >
-        {score.label}
+        {labelForVerdict(decision.verdict)}
       </div>
     </div>,
     size,

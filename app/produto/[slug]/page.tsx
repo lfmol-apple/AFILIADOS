@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getProductBySlug, getSimilarProducts } from "@/lib/queries/products";
 import { calculateOpportunityScore } from "@/lib/services/opportunity-score";
+import { calculateDecision } from "@/lib/services/decision-engine";
 import { priceEvidenceLine } from "@/lib/services/price-evidence";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { Breadcrumbs } from "@/components/breadcrumbs";
@@ -26,7 +27,8 @@ export const revalidate = 900;
  * not re-apply that check itself. What it DOES still need to handle: a real,
  * publishable product that has an ASIN and editorial content but no Offer
  * yet — no scraping/Creators API means price/availability may simply not
- * exist. offer/stats/score are null in that case; the page renders an
+ * exist. offer/stats are null in that case (decision still resolves to
+ * INSUFFICIENT_DATA); the page renders an
  * honest "ainda estamos acompanhando" state instead of 404ing (project
  * brief Sprint 6 section 7 — never invent a price/history to fill the gap).
  */
@@ -36,7 +38,12 @@ async function loadProduct(slug: string) {
 
   const offer = product.offers[0];
   if (!offer || !product.priceStats) {
-    return { product, offer: null, stats: null, score: null };
+    return {
+      product,
+      offer: null,
+      stats: null,
+      decision: calculateDecision({ hasOffer: false, stats: null, opportunity: null }),
+    };
   }
 
   const stats = {
@@ -57,7 +64,7 @@ async function loadProduct(slug: string) {
     coverageDays: product.priceStats.coverageDays,
   };
 
-  const score = calculateOpportunityScore({
+  const opportunity = calculateOpportunityScore({
     currentPrice: Number(offer.price),
     listedDiscountPercentage: offer.discountPercentage,
     rating: product.rating,
@@ -66,7 +73,14 @@ async function loadProduct(slug: string) {
     stats,
   });
 
-  return { product, offer, stats, score };
+  // calculateOpportunityScore()'s output also feeds the persisted
+  // OpportunityScore used to rank the homepage/ofertas listings — reused
+  // here only as an input signal. calculateDecision() is the thing that
+  // actually answers "vale a pena comprar agora?" for this visitor; the
+  // two must never be treated as the same number (docs/ARCHITECTURE.md).
+  const decision = calculateDecision({ hasOffer: true, stats, opportunity });
+
+  return { product, offer, stats, decision };
 }
 
 export async function generateMetadata(
@@ -112,7 +126,7 @@ export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
   const data = await loadProduct(slug);
   if (!data) notFound();
 
-  const { product, offer, stats, score } = data;
+  const { product, offer, stats, decision } = data;
   const specs =
     (product.specifications as Record<
       string,
@@ -241,8 +255,7 @@ export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
 
           <div className="mt-5">
             <ScorePanel
-              score={score?.score ?? 0}
-              insufficientHistory={score?.insufficientHistory ?? true}
+              decision={decision}
               evidence={
                 stats ? priceEvidenceLine(stats.currentPrice, stats.avg30d) : null
               }

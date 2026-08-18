@@ -49,7 +49,7 @@ uma mudança de configuração (`AMAZON_PROVIDER`, `CONTENT_GENERATION`), não u
 | `lib/config/` | `env.ts` (parse Zod de `process.env`), feature flags, thresholds de prioridade |
 | `lib/providers/` | `CommerceProvider` e suas implementações (Mock, Amazon) |
 | `lib/content/` | `ContentProvider` e suas implementações (Mock, OpenAI, Anthropic) |
-| `lib/services/` | Lógica de domínio pura e testável (score, stats, slug, quality gate, priority, publication decision, price alert) |
+| `lib/services/` | Lógica de domínio pura e testável (score, stats, slug, quality gate, priority, publication decision, price alert, decision engine, cadastro/promoção manual de produto) |
 | `lib/demand/` | Demand Engine — fontes de demanda e scoring (docs/DEMAND_ENGINE.md) |
 | `lib/analytics/` | Registro de eventos de busca interna |
 | `lib/privacy/` | `ConsentManager` — LGPD (docs/PRIVACY.md) |
@@ -70,7 +70,7 @@ uma mudança de configuração (`AMAZON_PROVIDER`, `CONTENT_GENERATION`), não u
 | `prisma/` | Schema, migrations, seed |
 | `prompts/` | Prompts versionados para geração de conteúdo |
 | `types/` | Tipos compartilhados entre camadas (`commerce.ts`, `content.ts`, `marketplace.ts`) |
-| `scripts/` | `amazon-compliance.ts`, `production-readiness.ts` |
+| `scripts/` | `amazon-compliance.ts`, `production-readiness.ts`, `generate-admin-password-hash.ts`, e o CLI operacional de cadastro (`product-add/list/activate.ts`, `candidate-add/list/promote.ts` — ver docs/COHORT.md) |
 | `docs/` | Esta documentação |
 | `tests/` | Testes Vitest, um arquivo por serviço testado |
 
@@ -95,6 +95,18 @@ uma mudança de configuração (`AMAZON_PROVIDER`, `CONTENT_GENERATION`), não u
 - **`DemandEngine` + `PublicationDecisionEngine`** separam "este produto é uma boa oportunidade de
   preço" (Opportunity Score) de "vale a pena escrever/indexar uma página sobre isso" (demanda +
   qualidade + originalidade). Nenhuma automação publica só porque um ASIN existe.
+- **Decision Engine vs. Opportunity Score** (`lib/services/decision-engine.ts`, Sprint 7) respondem
+  perguntas diferentes e nunca podem ser confundidos: `OpportunityScore` (persistido,
+  `jobs/calculate-opportunities.ts`) ajuda o **PreçoCaindo** a decidir onde investir atenção/refresh
+  — alimenta o ranking de `/`, `/ofertas` e o `<OpportunityBadge/>` compacto dos cards de listagem.
+  O Decision Engine responde "vale a pena comprar agora?" para o **visitante** na página de
+  produto — `score: number | null`, `verdict` (`BUY_NOW`/`GOOD_TIME`/`NEUTRAL`/`WAIT`/
+  `INSUFFICIENT_DATA`), `confidence` (`LOW`/`MEDIUM`/`HIGH`) e `reasons[]` estruturadas, nunca uma
+  string livre. Ele reaproveita o mesmo `OpportunityScoreResult` já calculado como sinal de entrada
+  (não recalcula os sub-scores de preço do zero), mas o resultado nunca é persistido nem alimenta
+  nenhuma query de ranking — é calculado sob demanda em `app/produto/[slug]/page.tsx` e no OG
+  image. Sem histórico legítimo suficiente (ou sem `Offer` nenhum ainda — produto `MANUAL_VERIFIED`
+  recém-cadastrado), `score` é `null` e `verdict` é `INSUFFICIENT_DATA`, nunca um número inventado.
 - **Jobs vs. páginas**: páginas fazem leitura (read-only) de dados já calculados; toda escrita
   (descoberta, refresh de preço, cálculo de score, geração de conteúdo) acontece em jobs
   observáveis via `AutomationRun`, com lock contra execução concorrente e recuperação automática
