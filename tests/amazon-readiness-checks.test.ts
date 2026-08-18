@@ -11,7 +11,7 @@ describe("Amazon readiness checks (BR/US)", () => {
     const { getBrazilReadinessChecks } =
       await import("@/lib/amazon/readiness-checks");
     const check = getBrazilReadinessChecks().find(
-      (c) => c.key === "br_tracking_id",
+      (c) => c.key === "amazon_br_tracking_id",
     );
     expect(check?.value).toBe("PASS");
   });
@@ -21,7 +21,7 @@ describe("Amazon readiness checks (BR/US)", () => {
     const { getBrazilReadinessChecks } =
       await import("@/lib/amazon/readiness-checks");
     const check = getBrazilReadinessChecks().find(
-      (c) => c.key === "br_account_approved",
+      (c) => c.key === "amazon_br_account_approved",
     );
     expect(check?.value).toBe("PENDING");
     expect(check?.pass).toBe(false);
@@ -34,7 +34,7 @@ describe("Amazon readiness checks (BR/US)", () => {
     const { getBrazilReadinessChecks } =
       await import("@/lib/amazon/readiness-checks");
     const check = getBrazilReadinessChecks().find(
-      (c) => c.key === "br_qualified_sales",
+      (c) => c.key === "amazon_br_qualified_sales",
     );
     expect(check?.value).toBe("PENDING");
   });
@@ -45,7 +45,7 @@ describe("Amazon readiness checks (BR/US)", () => {
     const { getBrazilReadinessChecks } =
       await import("@/lib/amazon/readiness-checks");
     const check = getBrazilReadinessChecks().find(
-      (c) => c.key === "br_creators_credentials",
+      (c) => c.key === "amazon_br_api_credentials",
     );
     expect(check?.value).toBe("PENDING");
   });
@@ -66,7 +66,7 @@ describe("Amazon readiness checks (BR/US)", () => {
     const { getUsReadinessChecks } =
       await import("@/lib/amazon/readiness-checks");
     const check = getUsReadinessChecks().find(
-      (c) => c.key === "us_precocaindo_registered",
+      (c) => c.key === "amazon_us_precocaindo_registered",
     );
     expect(check?.value).toBe("PASS");
   });

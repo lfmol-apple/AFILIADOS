@@ -29,22 +29,31 @@ function check(key: string, label: string, pass: boolean): ReadinessCheck {
 export function getBrazilReadinessChecks(): ReadinessCheck[] {
   const config = getAmazonMarketplaceConfig("BR");
   return [
-    check("br_tracking_id", "BR_TRACKING_ID", config.associateTag.length > 0),
     check(
-      "br_account_approved",
-      "BR_ACCOUNT_APPROVED",
+      "amazon_br_tracking_id",
+      "AMAZON_BR_TRACKING_ID",
+      config.associateTag.length > 0,
+    ),
+    check(
+      "amazon_br_account_approved",
+      "AMAZON_BR_ACCOUNT_APPROVED",
       env.AMAZON_BR_CREATORS_API_ACCOUNT_APPROVED,
     ),
     check(
-      "br_qualified_sales",
-      "BR_QUALIFIED_SALES",
+      "amazon_br_qualified_sales",
+      "AMAZON_BR_QUALIFIED_SALES",
       env.AMAZON_BR_QUALIFIED_SALES_MET,
     ),
     check(
-      "br_creators_credentials",
-      "BR_CREATORS_CREDENTIALS",
+      "amazon_br_api_credentials",
+      "AMAZON_BR_API_CREDENTIALS",
       env.AMAZON_CREATORS_API_KEY.length > 0 &&
         env.AMAZON_CREATORS_API_SECRET.length > 0,
+    ),
+    check(
+      "amazon_br_live_provider",
+      "AMAZON_BR_LIVE_PROVIDER",
+      env.AMAZON_PROVIDER === "live" && config.apiEnabled,
     ),
   ];
 }
@@ -52,19 +61,23 @@ export function getBrazilReadinessChecks(): ReadinessCheck[] {
 export function getUsReadinessChecks(): ReadinessCheck[] {
   return [
     check(
-      "us_precocaindo_registered",
-      "US_PRECOCAINDO_REGISTERED",
+      "amazon_us_precocaindo_registered",
+      "AMAZON_US_PRECOCAINDO_REGISTERED",
       env.AMAZON_US_PRECOCAINDO_REGISTERED,
     ),
     check(
-      "us_payment_configured",
-      "US_PAYMENT_CONFIGURED",
+      "amazon_us_payment_configured",
+      "AMAZON_US_PAYMENT_CONFIGURED",
       env.AMAZON_US_PAYMENT_CONFIGURED,
     ),
-    check("us_account_status", "US_ACCOUNT_STATUS", env.AMAZON_US_ENABLED),
     check(
-      "us_api_credentials",
-      "US_API_CREDENTIALS",
+      "amazon_us_account_status",
+      "AMAZON_US_ACCOUNT_STATUS",
+      env.AMAZON_US_ENABLED,
+    ),
+    check(
+      "amazon_us_api_credentials",
+      "AMAZON_US_API_CREDENTIALS",
       env.AMAZON_US_API_ENABLED,
     ),
   ];
