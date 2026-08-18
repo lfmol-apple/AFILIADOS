@@ -54,7 +54,8 @@ uma mudança de configuração (`AMAZON_PROVIDER`, `CONTENT_GENERATION`), não u
 | `lib/analytics/` | Registro de eventos de busca interna |
 | `lib/privacy/` | `ConsentManager` — LGPD (docs/PRIVACY.md) |
 | `lib/remarketing/` | `RemarketingProvider` (Noop hoje — docs/REMARKETING.md) |
-| `lib/observability/` | Health checks e métricas internas |
+| `lib/observability/` | `health.ts` (banco, migrations, automação — `/api/health`), `metrics.ts`, `logger.ts` (log estruturado mínimo, com redação automática de campos sensíveis — ver docs/OPERATIONS.md) |
+| `lib/admin/auth.ts` | Autenticação por sessão do `/admin` (scrypt + cookie HttpOnly + rate limiting) — ver docs/PRODUCTION_READINESS.md "Admin security" |
 | `lib/seo/` | Structured data, indexabilidade, redirects de slug |
 | `lib/http/` | `RetryPolicy` genérica para chamadas externas futuras |
 | `lib/config/marketplaces.ts` | `AmazonMarketplaceConfig` por marketplace (BR/US) — host, moeda, tag, enabled/apiEnabled; `PRIMARY_PUBLIC_MARKETPLACE` (BR) — o marketplace que o site público serve hoje |
@@ -62,7 +63,8 @@ uma mudança de configuração (`AMAZON_PROVIDER`, `CONTENT_GENERATION`), não u
 | `lib/amazon/` | `AmazonPolicyGuard` (marketplace-aware) — única fonte de verdade sobre regras Amazon; `readiness-checks.ts`/`status.ts` para admin e production:readiness |
 | `lib/queries/` | Acesso a dados usado pelas páginas (mantém Prisma fora dos componentes) — `products.ts` (público, sempre BR) e `admin.ts` (inclui `getCatalogSnapshot`/`getUnexpectedCatalogAlerts` por marketplace) |
 | `lib/jobs/` | Infraestrutura compartilhada de jobs (`AutomationRun` com locking/stale recovery, `mergeJobCounters`) |
-| `lib/readiness/report.ts` | `buildReadinessReport()` — lógica pura por trás de `production:readiness`, testável sem spawnar um processo |
+| `lib/readiness/report.ts` | `buildReadinessReport()` — lógica pura por trás de `production:readiness` (três vereditos: `SITE_LAUNCH_READY`/`CATALOG_LAUNCH_READY`/`PRODUCTION`), testável sem spawnar um processo |
+| `instrumentation.ts` | Hook `register()` do Next.js — log estruturado de startup (modo do provider, geração de conteúdo, flags), sem segredos |
 | `jobs/` | Os 13 jobs de automação, um arquivo por job |
 | `proxy.ts` | Redirects permanentes de slug (renomeado de `middleware` no Next 16) |
 | `prisma/` | Schema, migrations, seed |
@@ -110,7 +112,10 @@ alimentam o `ProductPriorityService`. `SearchOpportunity` carrega o breakdown do
 `contentHash` (deduplicação) e `noindex`. `AutomationRun` registra cada execução de job.
 `AffiliateClick`, `PageView` e `SearchEvent` registram atividade sem dado pessoal.
 `ConsentRecord` guarda a escolha de privacidade por sujeito pseudônimo. `SlugRedirect` registra
-redirects permanentes. Veja `prisma/schema.prisma` para os campos completos.
+redirects permanentes. `AdminSession` guarda só o hash do token de sessão do `/admin` (o token bruto
+existe apenas no cookie HttpOnly); `AdminLoginAttempt` guarda tentativas de login por hash de IP,
+para rate limiting — nenhuma das duas tabelas guarda dado sensível em texto puro. Veja
+`prisma/schema.prisma` para os campos completos.
 
 ### Isolamento por marketplace (Sprint 4)
 

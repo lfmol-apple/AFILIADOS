@@ -25,7 +25,9 @@ O objetivo do produto é ficar disponível em **https://precocaindo.com.br**.
 - [docs/AMAZON.md](docs/AMAZON.md) — status da integração Amazon (mock vs. live), contexto PETMOL
 - [docs/AMAZON_COMPLIANCE.md](docs/AMAZON_COMPLIANCE.md) — checklist de conformidade com o Programa de Associados
 - [docs/PRODUCTION_READINESS.md](docs/PRODUCTION_READINESS.md) — `npm run production:readiness`
-- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — como rodar em produção
+- [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) — como rodar em produção (VPS + Docker Compose + Caddy)
+- [docs/OPERATIONS.md](docs/OPERATIONS.md) — logs, health check, jobs, deploy de atualização, rollback
+- [docs/BACKUP.md](docs/BACKUP.md) — backup e restauração do Postgres
 
 ## Stack
 
@@ -104,8 +106,10 @@ Veja a lista completa de jobs em [docs/AUTOMATION.md](docs/AUTOMATION.md).
 | `/comparar/[slug]` | Comparação entre produtos (gerado + validado) |
 | `/transparencia` | Como ganhamos dinheiro e como calculamos o Score |
 | `/go/amazon/[asin]` | Redirecionamento afiliado controlado (rastreado, sem redirect automático) |
-| `/admin` | Dashboard interno (protegido por `ADMIN_ACCESS_TOKEN` opcional — dev-grade, ver docs/PRODUCTION_READINESS.md) |
-| `/api/health` | Health check (banco, automação, modo do provider) — nunca expõe secrets |
+| `/admin` | Dashboard interno — login por sessão (cookie HttpOnly), ver docs/PRODUCTION_READINESS.md "Admin security" |
+| `/api/admin/login` | `POST` — autentica com a senha configurada (`ADMIN_PASSWORD_HASH`), define o cookie de sessão |
+| `/api/admin/logout` | `POST` — encerra a sessão |
+| `/api/health` | Health check (banco, migrations, automação, modo do provider) — nunca expõe secrets |
 | `/api/consent` | Persistência do consentimento LGPD (`GET`/`POST`) |
 | `/api/analytics/pageview` | Recebe pageviews first-party, só quando o visitante consentiu com Analytics |
 
@@ -116,8 +120,10 @@ npm run lint         # ESLint (flat config)
 npm run typecheck     # tsc --noEmit
 npm test              # Vitest
 npm run amazon:compliance   # checklist de compliance Amazon (obrigatório antes de AMAZON_PROVIDER=live)
-npm run production:readiness  # relatório PASS/FAIL/PENDING sobre prontidão para produção
+npm run production:readiness  # relatório PASS/FAIL/PENDING sobre prontidão para produção (3 vereditos)
 npm run build          # build de produção (Turbopack)
+npm run admin:hash-password -- 'senha'  # gera ADMIN_PASSWORD_HASH (nunca a senha em texto puro)
+npm run db:backup      # pg_dump + gzip + retenção — docs/BACKUP.md
 ```
 
 Todos (exceto `production:readiness`, que é esperado ficar `NOT READY` por enquanto — ver
@@ -127,9 +133,15 @@ docs/PRODUCTION_READINESS.md) rodam no CI (`.github/workflows/ci.yml`) a cada pu
 
 - Nenhuma credencial é enviada ao browser; segredos só existem em variáveis de ambiente
   server-side.
+- `/admin` usa autenticação por sessão (senha com hash scrypt, cookie `HttpOnly`/`Secure`/
+  `SameSite=Lax`, rate limiting de tentativas de login por IP) — ver
+  [docs/PRODUCTION_READINESS.md](docs/PRODUCTION_READINESS.md) "Admin security" e `lib/admin/auth.ts`.
 - `/go/amazon/[asin]` nunca aceita um destino arbitrário via query string — o host é validado
   contra uma allowlist (`lib/amazon/policy-guard.ts`).
-- `AffiliateClick`, `PageView` e `SearchEvent` não armazenam endereço IP.
+- `AffiliateClick`, `PageView` e `SearchEvent` não armazenam endereço IP. Tentativas de login
+  admin armazenam só um hash do IP, nunca o endereço em texto puro.
+- Log estruturado (`lib/observability/logger.ts`) redige automaticamente qualquer campo com
+  nome de senha/token/cookie/secret antes de escrever a linha — ver [docs/OPERATIONS.md](docs/OPERATIONS.md).
 - Banner de consentimento LGPD com três opções igualmente proeminentes (Aceitar / Recusar
   não essenciais / Configurar) — ver [docs/PRIVACY.md](docs/PRIVACY.md).
 - Veja [docs/AMAZON_COMPLIANCE.md](docs/AMAZON_COMPLIANCE.md) para o checklist completo.
