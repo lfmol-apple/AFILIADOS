@@ -2,17 +2,20 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getProductBySlug, getSimilarProducts } from "@/lib/queries/products";
 import { calculateOpportunityScore } from "@/lib/services/opportunity-score";
+import { priceEvidenceLine } from "@/lib/services/price-evidence";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { Breadcrumbs } from "@/components/breadcrumbs";
-import { OpportunityBadge } from "@/components/opportunity-badge";
+import { ScorePanel } from "@/components/score-panel";
 import { AmazonCta } from "@/components/amazon-cta";
 import { PriceHistoryChart } from "@/components/price-history-chart";
 import { ProductCard } from "@/components/product-card";
+import { ProductImage } from "@/components/product-image";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { siteConfig } from "@/lib/config/site";
 import { buildBreadcrumbList } from "@/lib/seo/structured-data";
 import { isProductPageIndexable } from "@/lib/seo/indexability";
 import { isPublicCatalogSafeToShow } from "@/lib/config/public-catalog";
+import Link from "next/link";
 
 export const revalidate = 900;
 
@@ -170,17 +173,14 @@ export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
       <Breadcrumbs items={breadcrumbItems} />
 
       <div className="mt-4 grid gap-8 sm:grid-cols-2">
-        <div className="bg-surface-muted flex aspect-square items-center justify-center overflow-hidden rounded-xl">
-          {product.imageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element -- mock/demo image URL
-            <img
-              src={product.imageUrl}
-              alt={product.title}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <span className="text-foreground/40 text-sm">Sem imagem</span>
-          )}
+        <div className="bg-surface-muted aspect-square overflow-hidden rounded-xl">
+          <ProductImage
+            src={product.imageUrl}
+            alt={product.title}
+            categoryName={product.category?.name}
+            className="h-full w-full object-cover"
+            iconClassName="h-16 w-16"
+          />
         </div>
 
         <div>
@@ -206,18 +206,25 @@ export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
             Preço verificado em {formatDate(new Date())}
           </p>
 
-          <div className="mt-4">
-            <OpportunityBadge
-              score={score.score}
-              insufficientHistory={score.insufficientHistory}
-            />
-          </div>
-
           {offer.availability === "OUT_OF_STOCK" && (
             <p className="mt-3 text-sm font-medium text-rose-600 dark:text-rose-400">
               Indisponível no momento na Amazon.
             </p>
           )}
+
+          <div className="mt-5">
+            <ScorePanel
+              score={score.score}
+              insufficientHistory={score.insufficientHistory}
+              evidence={priceEvidenceLine(stats.currentPrice, stats.avg30d)}
+            />
+            <Link
+              href="/transparencia"
+              className="text-brand mt-2 inline-block text-xs hover:underline"
+            >
+              Como calculamos?
+            </Link>
+          </div>
 
           <AmazonCta
             asin={product.asin}
@@ -230,7 +237,43 @@ export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
 
       <section className="mt-12 max-w-3xl">
         <h2 className="text-lg font-semibold">O preço está bom?</h2>
-        <div className="text-foreground/80 mt-3 space-y-2 text-sm leading-relaxed">
+
+        <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 sm:grid-cols-4">
+          <div>
+            <dt className="text-foreground/50 text-xs">Hoje</dt>
+            <dd className="font-semibold">
+              {formatCurrency(stats.currentPrice, offer.currency)}
+            </dd>
+          </div>
+          {stats.avg30d != null && (
+            <div>
+              <dt className="text-foreground/50 text-xs">Média 30 dias</dt>
+              <dd className="font-semibold">
+                {formatCurrency(stats.avg30d, offer.currency)}
+              </dd>
+            </div>
+          )}
+          <div>
+            <dt className="text-foreground/50 text-xs">Menor observado</dt>
+            <dd className="font-semibold">
+              {formatCurrency(stats.lowestPrice, offer.currency)}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-foreground/50 text-xs">Maior observado</dt>
+            <dd className="font-semibold">
+              {formatCurrency(stats.highestPrice, offer.currency)}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-foreground/50 text-xs">Acompanhamos</dt>
+            <dd className="font-semibold">
+              {stats.coverageDays} dia{stats.coverageDays === 1 ? "" : "s"}
+            </dd>
+          </div>
+        </dl>
+
+        <div className="text-foreground/80 mt-4 space-y-2 text-sm leading-relaxed">
           <p>
             O preço atual é {formatCurrency(stats.currentPrice, offer.currency)}
             {stats.avg30d
@@ -254,6 +297,7 @@ export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
               observedAt: h.observedAt,
             }))}
             currency={offer.currency}
+            average={stats.avg30d}
           />
         </div>
       </section>

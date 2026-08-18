@@ -11,7 +11,7 @@ export function AmazonCta({
   asin,
   pageType,
   pageSlug,
-  label = "Ver preço na Amazon",
+  label = "Ver oferta na Amazon →",
   className = "",
 }: {
   asin: string;

@@ -25,9 +25,9 @@ export default async function Home() {
             Descubra se está barato de verdade.
           </h1>
           <p className="text-foreground/70 mt-4 max-w-xl">
-            Compare preços, veja o histórico e descubra se agora é uma boa hora
-            para comprar — direto da Amazon, com metodologia própria e
-            transparente.
+            Acompanhamos preços e o histórico de cada produto para mostrar se
+            vale comprar agora ou esperar — com metodologia própria e
+            independente, não uma recomendação da Amazon.
           </p>
           <form action="/ofertas" method="GET" className="mt-8 max-w-xl">
             <label htmlFor="hero-search" className="sr-only">

@@ -135,7 +135,33 @@ export async function getSimilarProducts(categoryId: string | null, excludeProdu
   });
 }
 
-export async function getCategoryBySlug(slug: string) {
+export type CategorySort = "score" | "drop" | "price";
+
+/** Re-sorts the already-fetched (max 48) products in memory rather than
+ * asking Prisma to order by a to-many relation's latest row (price lives
+ * on Offer, a 1:N relation) — simplest correct option at this scale, no
+ * new query shape needed per sort. */
+function sortCategoryProducts<
+  T extends {
+    opportunityScore: { score: number } | null;
+    priceStats: { dropPercentage: number | null } | null;
+    offers: { price: unknown }[];
+  },
+>(products: T[], sort: CategorySort): T[] {
+  const sorted = [...products];
+  if (sort === "drop") {
+    sorted.sort(
+      (a, b) => (b.priceStats?.dropPercentage ?? -1) - (a.priceStats?.dropPercentage ?? -1),
+    );
+  } else if (sort === "price") {
+    sorted.sort((a, b) => Number(a.offers[0]?.price ?? Infinity) - Number(b.offers[0]?.price ?? Infinity));
+  } else {
+    sorted.sort((a, b) => (b.opportunityScore?.score ?? -1) - (a.opportunityScore?.score ?? -1));
+  }
+  return sorted;
+}
+
+export async function getCategoryBySlug(slug: string, sort: CategorySort = "score") {
   const category = await prisma.category.findUnique({ where: { slug } });
   if (!category) return null;
 
@@ -146,7 +172,7 @@ export async function getCategoryBySlug(slug: string) {
     take: 48,
   });
 
-  return { category, products };
+  return { category, products: sortCategoryProducts(products, sort) };
 }
 
 export async function getAllActiveCategories() {

@@ -18,9 +18,14 @@ const PADDING = 24;
 export function PriceHistoryChart({
   points,
   currency = "BRL",
+  average,
 }: {
   points: PriceHistoryPoint[];
   currency?: string;
+  /** 30-day average, when available — drawn as a dashed reference line so
+   * "is this actually low?" has a visual answer, not just numbers below
+   * the chart. Omit when there isn't a real average yet. */
+  average?: number | null;
 }) {
   if (points.length < 2) {
     return (
@@ -34,8 +39,8 @@ export function PriceHistoryChart({
     (a, b) => a.observedAt.getTime() - b.observedAt.getTime(),
   );
   const prices = sorted.map((p) => p.price);
-  const min = Math.min(...prices);
-  const max = Math.max(...prices);
+  const min = Math.min(...prices, ...(average ? [average] : []));
+  const max = Math.max(...prices, ...(average ? [average] : []));
   const range = max - min || 1;
 
   const tMin = sorted[0].observedAt.getTime();
@@ -57,6 +62,11 @@ export function PriceHistoryChart({
     .join(" ");
   const areaPath = `${path} L${coords[coords.length - 1].x.toFixed(1)},${HEIGHT - PADDING} L${coords[0].x.toFixed(1)},${HEIGHT - PADDING} Z`;
 
+  const averageY =
+    average != null
+      ? PADDING + usableHeight - ((average - min) / range) * usableHeight
+      : null;
+
   return (
     <div>
       <svg
@@ -66,6 +76,29 @@ export function PriceHistoryChart({
         aria-label="Histórico de preço"
       >
         <path d={areaPath} fill="var(--brand)" opacity="0.08" />
+        {averageY !== null && (
+          <>
+            <line
+              x1={PADDING}
+              y1={averageY}
+              x2={WIDTH - PADDING}
+              y2={averageY}
+              stroke="currentColor"
+              className="text-foreground/30"
+              strokeWidth={1}
+              strokeDasharray="4 4"
+            />
+            <text
+              x={WIDTH - PADDING}
+              y={averageY - 5}
+              textAnchor="end"
+              className="fill-foreground/40"
+              fontSize="10"
+            >
+              Média 30d
+            </text>
+          </>
+        )}
         <path d={path} fill="none" stroke="var(--brand)" strokeWidth={2} />
         {coords.map((c, i) => (
           <circle

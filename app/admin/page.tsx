@@ -58,6 +58,44 @@ function StatusPill({ ok, label }: { ok: boolean; label: string }) {
   );
 }
 
+/** Top-level grouping used to organize the dashboard into the four areas
+ * an operator should be able to scan in seconds: Saúde do sistema,
+ * Negócio, Catálogo, Integrações — presentation only, no data changes. */
+function DashboardGroup({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="border-border-subtle mt-12 border-t pt-8 first:mt-8 first:border-t-0 first:pt-0">
+      <h2 className="text-lg font-semibold">{title}</h2>
+      {description && (
+        <p className="text-foreground/50 mt-1 text-sm">{description}</p>
+      )}
+      <div className="mt-5 space-y-8">{children}</div>
+    </section>
+  );
+}
+
+function SubSection({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <h3 className="text-foreground/70 text-sm font-semibold">{title}</h3>
+      <div className="mt-3">{children}</div>
+    </div>
+  );
+}
+
 export default async function AdminPage() {
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
@@ -99,6 +137,7 @@ export default async function AdminPage() {
   const brCompliancePass = checkLiveActivationReadiness("BR").every(
     (c) => c.pass,
   );
+  const hasFailedJobsToday = today.automationErrorsToday > 0;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
@@ -135,354 +174,77 @@ export default async function AdminPage() {
         </div>
       )}
 
-      <section className="mt-8">
-        <h2 className="text-foreground/70 text-sm font-semibold">
-          Visão geral
-        </h2>
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      {/* ---------------- SAÚDE DO SISTEMA ---------------- */}
+      <DashboardGroup
+        title="Saúde do sistema"
+        description="Jobs, erros e última atualização."
+      >
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <StatCard label="Preços atualizados hoje" value={today.pricesUpdatedToday} />
+          <StatCard label="Quedas detectadas hoje" value={today.dropsDetectedToday} />
           <StatCard
-            label="Produtos monitorados"
-            value={today.productsMonitored}
-          />
-          <StatCard label="HOT" value={priority.HOT} />
-          <StatCard label="WARM" value={priority.WARM} />
-          <StatCard label="COLD" value={priority.COLD} />
-          <StatCard label="Pageviews hoje" value={traffic.pageviews} />
-          <StatCard label="Buscas hoje" value={traffic.searches} />
-          <StatCard label="Cliques Amazon hoje" value={traffic.clicks} />
-          <StatCard
-            label="CTR (cliques/pageviews)"
-            value={traffic.ctr !== null ? `${traffic.ctr}%` : "—"}
-          />
-        </div>
-      </section>
-
-      <section className="mt-8">
-        <h2 className="text-foreground/70 text-sm font-semibold">Hoje</h2>
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatCard
-            label="Preços atualizados"
-            value={today.pricesUpdatedToday}
-          />
-          <StatCard
-            label="Quedas detectadas"
-            value={today.dropsDetectedToday}
-          />
-          <StatCard label="Páginas publicadas" value={today.pagesPublished} />
-          <StatCard label="Páginas rejeitadas" value={today.pagesRejected} />
-          <StatCard
-            label="Erros das automações"
+            label="Erros das automações hoje"
             value={today.automationErrorsToday}
           />
         </div>
-      </section>
+        {hasFailedJobsToday && (
+          <p className="mt-2 text-xs font-medium text-amber-700 dark:text-amber-400">
+            ⚠️ Há erros de automação registrados hoje — veja a tabela abaixo.
+          </p>
+        )}
 
-      <section className="mt-10">
-        <h2 className="text-foreground/70 text-sm font-semibold">
-          Automação — última execução por job
-        </h2>
-        <div className="mt-3 overflow-x-auto">
-          <table className="w-full min-w-140 text-left text-sm">
-            <thead>
-              <tr className="text-foreground/50 text-xs">
-                <th className="pb-2 font-medium">Job</th>
-                <th className="pb-2 font-medium">Status</th>
-                <th className="pb-2 font-medium">Duração</th>
-                <th className="pb-2 font-medium">Processados</th>
-                <th className="pb-2 font-medium">Erros</th>
-              </tr>
-            </thead>
-            <tbody className="divide-border-subtle divide-y">
-              {jobRuns.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="text-foreground/50 py-3">
-                    Nenhuma execução registrada ainda.
-                  </td>
+        <SubSection title="Automação — última execução por job">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-140 text-left text-sm">
+              <thead>
+                <tr className="text-foreground/50 text-xs">
+                  <th className="pb-2 font-medium">Job</th>
+                  <th className="pb-2 font-medium">Status</th>
+                  <th className="pb-2 font-medium">Duração</th>
+                  <th className="pb-2 font-medium">Processados</th>
+                  <th className="pb-2 font-medium">Erros</th>
                 </tr>
-              )}
-              {jobRuns.map((run) => (
-                <tr key={run.job}>
-                  <td className="py-2 font-medium">{run.job}</td>
-                  <td className="py-2">{run.status}</td>
-                  <td className="py-2">
-                    {run.durationMs !== null
-                      ? `${(run.durationMs / 1000).toFixed(1)}s`
-                      : "—"}
-                  </td>
-                  <td className="py-2">{run.processed}</td>
-                  <td className="py-2">{run.errors}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <section className="mt-10 grid gap-8 sm:grid-cols-2">
-        <div>
-          <h2 className="text-foreground/70 text-sm font-semibold">
-            Catálogo BR
-          </h2>
-          <div className="mt-3 grid grid-cols-2 gap-3">
-            <StatCard label="Produtos (total)" value={catalogBr.totalProducts} />
-            <StatCard label="Ativos" value={catalogBr.activeProducts} />
-            <StatCard label="HOT" value={catalogBr.priorityBreakdown.HOT} />
-            <StatCard label="WARM" value={catalogBr.priorityBreakdown.WARM} />
-            <StatCard label="COLD" value={catalogBr.priorityBreakdown.COLD} />
-            <StatCard label="Cliques (7d)" value={catalogBr.clicksLast7Days} />
+              </thead>
+              <tbody className="divide-border-subtle divide-y">
+                {jobRuns.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="text-foreground/50 py-3">
+                      Nenhuma execução registrada ainda.
+                    </td>
+                  </tr>
+                )}
+                {jobRuns.map((run) => (
+                  <tr key={run.job}>
+                    <td className="py-2 font-medium">{run.job}</td>
+                    <td className="py-2">
+                      {run.status === "FAILED" ? (
+                        <span className="font-medium text-rose-600 dark:text-rose-400">
+                          {run.status}
+                        </span>
+                      ) : run.status === "PARTIAL" ? (
+                        <span className="font-medium text-amber-600 dark:text-amber-400">
+                          {run.status}
+                        </span>
+                      ) : (
+                        run.status
+                      )}
+                    </td>
+                    <td className="py-2">
+                      {run.durationMs !== null
+                        ? `${(run.durationMs / 1000).toFixed(1)}s`
+                        : "—"}
+                    </td>
+                    <td className="py-2">{run.processed}</td>
+                    <td className="py-2">{run.errors}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <StatusPill ok={catalogBr.enabled} label={catalogBr.enabled ? "Habilitado" : "Desabilitado"} />
-          </div>
-          <p className="text-foreground/50 mt-2 text-xs">
-            Último refresh de catálogo:{" "}
-            {catalogBr.lastRefreshAt
-              ? catalogBr.lastRefreshAt.toISOString()
-              : "nunca"}
-          </p>
-        </div>
+        </SubSection>
 
-        <div>
-          <h2 className="text-foreground/70 text-sm font-semibold">
-            Catálogo EUA
-          </h2>
-          {!catalogUs.enabled && catalogUs.totalProducts === 0 ? (
-            <p className="text-foreground/50 mt-3 text-sm">
-              Marketplace EUA desativado — nenhum dado operacional. Isso é o
-              estado esperado enquanto AMAZON_US_ENABLED=false.
-            </p>
-          ) : (
-            <>
-              <div className="mt-3 grid grid-cols-2 gap-3">
-                <StatCard label="Produtos (total)" value={catalogUs.totalProducts} />
-                <StatCard label="Ativos" value={catalogUs.activeProducts} />
-                <StatCard label="HOT" value={catalogUs.priorityBreakdown.HOT} />
-                <StatCard label="WARM" value={catalogUs.priorityBreakdown.WARM} />
-                <StatCard label="COLD" value={catalogUs.priorityBreakdown.COLD} />
-                <StatCard label="Cliques (7d)" value={catalogUs.clicksLast7Days} />
-              </div>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <StatusPill ok={catalogUs.enabled} label={catalogUs.enabled ? "Habilitado" : "Desabilitado"} />
-              </div>
-            </>
-          )}
-        </div>
-      </section>
-
-      <section className="mt-10 grid gap-8 sm:grid-cols-2">
-        <div>
-          <h2 className="text-foreground/70 text-sm font-semibold">SEO</h2>
-          <div className="mt-3 grid grid-cols-2 gap-3">
-            <StatCard label="Páginas publicáveis" value={seo.publishable} />
-            <StatCard label="Rejeitadas" value={seo.rejected} />
-            <StatCard label="Noindex" value={seo.noindexed} />
-            <StatCard
-              label="Oportunidades pendentes"
-              value={seo.opportunities}
-            />
-          </div>
-        </div>
-
-        <div>
-          <h2 className="text-foreground/70 text-sm font-semibold">
-            Amazon Brasil
-          </h2>
-          <dl className="mt-3 space-y-1.5 text-sm">
-            <div className="flex justify-between gap-2">
-              <dt className="text-foreground/60">Store ID</dt>
-              <dd className="font-medium">{amazonBr.storeId}</dd>
-            </div>
-            <div className="flex justify-between gap-2">
-              <dt className="text-foreground/60">Tracking ID PreçoCaindo</dt>
-              <dd className="font-medium">{amazonBr.trackingId}</dd>
-            </div>
-          </dl>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <StatusPill
-              ok={amazonBr.provider === "live"}
-              label={`Provider: ${amazonBr.provider.toUpperCase()}`}
-            />
-            <StatusPill
-              ok={amazonBr.apiEnabled}
-              label={
-                amazonBr.apiEnabled ? "API habilitada" : "API desabilitada"
-              }
-            />
-            <StatusPill
-              ok={amazonBr.creatorsApiAccountApproved}
-              label={
-                amazonBr.creatorsApiAccountApproved
-                  ? "Conta aprovada p/ Creators API"
-                  : "Conta NÃO aprovada p/ Creators API"
-              }
-            />
-            <StatusPill
-              ok={amazonBr.qualifiedSalesRequirementMet}
-              label={
-                amazonBr.qualifiedSalesRequirementMet
-                  ? "Vendas qualificadas OK"
-                  : "Vendas qualificadas PENDENTE"
-              }
-            />
-            <StatusPill
-              ok={brCompliancePass}
-              label={
-                brCompliancePass ? "Compliance PASS" : "Compliance PENDING"
-              }
-            />
-          </div>
-          <p className="text-foreground/50 mt-2 text-xs">
-            Revisão de políticas: {env.AMAZON_POLICY_REVIEW_DATE}
-          </p>
-        </div>
-
-        <div>
-          <h2 className="text-foreground/70 text-sm font-semibold">
-            Amazon EUA
-          </h2>
-          <dl className="mt-3 space-y-1.5 text-sm">
-            <div className="flex justify-between gap-2">
-              <dt className="text-foreground/60">Store ID</dt>
-              <dd className="font-medium">{amazonUs.storeId}</dd>
-            </div>
-          </dl>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <StatusPill
-              ok={amazonUs.precoCaindoRegistered}
-              label={
-                amazonUs.precoCaindoRegistered
-                  ? "precocaindo.com.br cadastrado"
-                  : "precocaindo.com.br NÃO cadastrado"
-              }
-            />
-            <StatusPill
-              ok={amazonUs.paymentConfigured}
-              label={
-                amazonUs.paymentConfigured
-                  ? "Pagamento configurado"
-                  : "Pagamento PENDENTE"
-              }
-            />
-            <StatusPill
-              ok={amazonUs.apiEnabled}
-              label={
-                amazonUs.apiEnabled ? "API habilitada" : "API desabilitada"
-              }
-            />
-            <StatusPill
-              ok={amazonUs.operationalOnPrecoCaindo}
-              label={
-                amazonUs.operationalOnPrecoCaindo
-                  ? "Marketplace operacional"
-                  : "Marketplace NÃO operacional"
-              }
-            />
-          </div>
-        </div>
-
-        <div>
-          <h2 className="text-foreground/70 text-sm font-semibold">
-            Privacidade
-          </h2>
-          <div className="mt-3 grid grid-cols-2 gap-3">
-            <StatCard
-              label="Analytics aceito"
-              value={privacy.analyticsGranted}
-            />
-            <StatCard
-              label="Analytics recusado"
-              value={privacy.analyticsDenied}
-            />
-            <StatCard
-              label="Marketing aceito"
-              value={privacy.marketingGranted}
-            />
-            <StatCard
-              label="Marketing recusado"
-              value={privacy.marketingDenied}
-            />
-          </div>
-          <p className="text-foreground/50 mt-2 text-xs">
-            Provedor de remarketing ativo: {privacy.remarketingProvider}
-          </p>
-        </div>
-      </section>
-
-      <section className="mt-10 grid gap-8 sm:grid-cols-2">
-        <div>
-          <h2 className="text-foreground/70 text-sm font-semibold">
-            Produtos com mais cliques (7d)
-          </h2>
-          <ul className="mt-3 space-y-2 text-sm">
-            {weekly.topProductsByClicks.length === 0 && (
-              <li className="text-foreground/50">Sem cliques ainda.</li>
-            )}
-            {weekly.topProductsByClicks.map((row, i) => (
-              <li key={i} className="flex justify-between">
-                <span>{row.product?.title ?? "—"}</span>
-                <span className="font-medium">{row.clicks}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div>
-          <h2 className="text-foreground/70 text-sm font-semibold">
-            Páginas com mais cliques (7d)
-          </h2>
-          <ul className="mt-3 space-y-2 text-sm">
-            {weekly.topPagesByClicks.length === 0 && (
-              <li className="text-foreground/50">Sem cliques ainda.</li>
-            )}
-            {weekly.topPagesByClicks.map((row, i) => (
-              <li key={i} className="flex justify-between">
-                <span>
-                  {row.pageType}/{row.pageSlug}
-                </span>
-                <span className="font-medium">{row.clicks}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div>
-          <h2 className="text-foreground/70 text-sm font-semibold">
-            Categorias mais fortes
-          </h2>
-          <ul className="mt-3 space-y-2 text-sm">
-            {weekly.categoryStrength.map((c) => (
-              <li key={c.id} className="flex justify-between">
-                <span>{c.name}</span>
-                <span className="font-medium">{c._count.products}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div>
-          <h2 className="text-foreground/70 text-sm font-semibold">
-            Maiores quedas
-          </h2>
-          <ul className="mt-3 space-y-2 text-sm">
-            {weekly.biggestDrops.length === 0 && (
-              <li className="text-foreground/50">Nenhuma queda registrada.</li>
-            )}
-            {weekly.biggestDrops.map((row) => (
-              <li key={row.id} className="flex justify-between">
-                <span>{row.product.title}</span>
-                <span className="font-medium">
-                  {row.dropPercentage?.toFixed(1)}%
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="sm:col-span-2">
-          <h2 className="text-foreground/70 text-sm font-semibold">
-            Jobs com falha (7d)
-          </h2>
-          <ul className="mt-3 space-y-2 text-sm">
+        <SubSection title="Jobs com falha (7d)">
+          <ul className="space-y-2 text-sm">
             {weekly.failedJobs.length === 0 && (
               <li className="text-foreground/50">Nenhuma falha recente.</li>
             )}
@@ -495,8 +257,268 @@ export default async function AdminPage() {
               </li>
             ))}
           </ul>
+        </SubSection>
+      </DashboardGroup>
+
+      {/* ---------------- NEGÓCIO ---------------- */}
+      <DashboardGroup
+        title="Negócio"
+        description="Tráfego, buscas e cliques para a Amazon."
+      >
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatCard label="Pageviews hoje" value={traffic.pageviews} />
+          <StatCard label="Buscas hoje" value={traffic.searches} />
+          <StatCard label="Cliques Amazon hoje" value={traffic.clicks} />
+          <StatCard
+            label="CTR (cliques/pageviews)"
+            value={traffic.ctr !== null ? `${traffic.ctr}%` : "—"}
+          />
         </div>
-      </section>
+
+        <div className="grid gap-8 sm:grid-cols-2">
+          <SubSection title="Produtos com mais cliques (7d)">
+            <ul className="space-y-2 text-sm">
+              {weekly.topProductsByClicks.length === 0 && (
+                <li className="text-foreground/50">Sem cliques ainda.</li>
+              )}
+              {weekly.topProductsByClicks.map((row, i) => (
+                <li key={i} className="flex justify-between">
+                  <span>{row.product?.title ?? "—"}</span>
+                  <span className="font-medium">{row.clicks}</span>
+                </li>
+              ))}
+            </ul>
+          </SubSection>
+
+          <SubSection title="Páginas com mais cliques (7d)">
+            <ul className="space-y-2 text-sm">
+              {weekly.topPagesByClicks.length === 0 && (
+                <li className="text-foreground/50">Sem cliques ainda.</li>
+              )}
+              {weekly.topPagesByClicks.map((row, i) => (
+                <li key={i} className="flex justify-between">
+                  <span>
+                    {row.pageType}/{row.pageSlug}
+                  </span>
+                  <span className="font-medium">{row.clicks}</span>
+                </li>
+              ))}
+            </ul>
+          </SubSection>
+        </div>
+      </DashboardGroup>
+
+      {/* ---------------- CATÁLOGO ---------------- */}
+      <DashboardGroup
+        title="Catálogo"
+        description="Produtos monitorados, prioridade e conteúdo."
+      >
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatCard label="Produtos monitorados" value={today.productsMonitored} />
+          <StatCard label="HOT" value={priority.HOT} />
+          <StatCard label="WARM" value={priority.WARM} />
+          <StatCard label="COLD" value={priority.COLD} />
+        </div>
+
+        <div className="grid gap-8 sm:grid-cols-2">
+          <SubSection title="Catálogo BR">
+            <div className="grid grid-cols-2 gap-3">
+              <StatCard label="Produtos (total)" value={catalogBr.totalProducts} />
+              <StatCard label="Ativos" value={catalogBr.activeProducts} />
+              <StatCard label="HOT" value={catalogBr.priorityBreakdown.HOT} />
+              <StatCard label="WARM" value={catalogBr.priorityBreakdown.WARM} />
+              <StatCard label="COLD" value={catalogBr.priorityBreakdown.COLD} />
+              <StatCard label="Cliques (7d)" value={catalogBr.clicksLast7Days} />
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <StatusPill ok={catalogBr.enabled} label={catalogBr.enabled ? "Habilitado" : "Desabilitado"} />
+            </div>
+            <p className="text-foreground/50 mt-2 text-xs">
+              Último refresh de catálogo:{" "}
+              {catalogBr.lastRefreshAt
+                ? catalogBr.lastRefreshAt.toISOString()
+                : "nunca"}
+            </p>
+          </SubSection>
+
+          <SubSection title="Catálogo EUA">
+            {!catalogUs.enabled && catalogUs.totalProducts === 0 ? (
+              <p className="text-foreground/50 text-sm">
+                Marketplace EUA desativado — nenhum dado operacional. Isso é o
+                estado esperado enquanto AMAZON_US_ENABLED=false.
+              </p>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 gap-3">
+                  <StatCard label="Produtos (total)" value={catalogUs.totalProducts} />
+                  <StatCard label="Ativos" value={catalogUs.activeProducts} />
+                  <StatCard label="HOT" value={catalogUs.priorityBreakdown.HOT} />
+                  <StatCard label="WARM" value={catalogUs.priorityBreakdown.WARM} />
+                  <StatCard label="COLD" value={catalogUs.priorityBreakdown.COLD} />
+                  <StatCard label="Cliques (7d)" value={catalogUs.clicksLast7Days} />
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <StatusPill ok={catalogUs.enabled} label={catalogUs.enabled ? "Habilitado" : "Desabilitado"} />
+                </div>
+              </>
+            )}
+          </SubSection>
+        </div>
+
+        <div className="grid gap-8 sm:grid-cols-2">
+          <SubSection title="Maiores quedas">
+            <ul className="space-y-2 text-sm">
+              {weekly.biggestDrops.length === 0 && (
+                <li className="text-foreground/50">Nenhuma queda registrada.</li>
+              )}
+              {weekly.biggestDrops.map((row) => (
+                <li key={row.id} className="flex justify-between">
+                  <span>{row.product.title}</span>
+                  <span className="font-medium">
+                    {row.dropPercentage?.toFixed(1)}%
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </SubSection>
+
+          <SubSection title="Categorias mais fortes">
+            <ul className="space-y-2 text-sm">
+              {weekly.categoryStrength.map((c) => (
+                <li key={c.id} className="flex justify-between">
+                  <span>{c.name}</span>
+                  <span className="font-medium">{c._count.products}</span>
+                </li>
+              ))}
+            </ul>
+          </SubSection>
+        </div>
+
+        <SubSection title="SEO / conteúdo">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <StatCard label="Páginas publicáveis" value={seo.publishable} />
+            <StatCard label="Rejeitadas" value={seo.rejected} />
+            <StatCard label="Noindex" value={seo.noindexed} />
+            <StatCard label="Oportunidades pendentes" value={seo.opportunities} />
+          </div>
+          <p className="text-foreground/50 mt-3 text-xs">
+            Páginas publicadas hoje: {today.pagesPublished} · Rejeitadas hoje:{" "}
+            {today.pagesRejected}
+          </p>
+        </SubSection>
+      </DashboardGroup>
+
+      {/* ---------------- INTEGRAÇÕES ---------------- */}
+      <DashboardGroup
+        title="Integrações"
+        description="Status Amazon BR/US e compliance."
+      >
+        <div className="grid gap-8 sm:grid-cols-2">
+          <SubSection title="Amazon Brasil">
+            <dl className="space-y-1.5 text-sm">
+              <div className="flex justify-between gap-2">
+                <dt className="text-foreground/60">Store ID</dt>
+                <dd className="font-medium">{amazonBr.storeId}</dd>
+              </div>
+              <div className="flex justify-between gap-2">
+                <dt className="text-foreground/60">Tracking ID PreçoCaindo</dt>
+                <dd className="font-medium">{amazonBr.trackingId}</dd>
+              </div>
+            </dl>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <StatusPill
+                ok={amazonBr.provider === "live"}
+                label={`Provider: ${amazonBr.provider.toUpperCase()}`}
+              />
+              <StatusPill
+                ok={amazonBr.apiEnabled}
+                label={
+                  amazonBr.apiEnabled ? "API habilitada" : "API desabilitada"
+                }
+              />
+              <StatusPill
+                ok={amazonBr.creatorsApiAccountApproved}
+                label={
+                  amazonBr.creatorsApiAccountApproved
+                    ? "Conta aprovada p/ Creators API"
+                    : "Conta NÃO aprovada p/ Creators API"
+                }
+              />
+              <StatusPill
+                ok={amazonBr.qualifiedSalesRequirementMet}
+                label={
+                  amazonBr.qualifiedSalesRequirementMet
+                    ? "Vendas qualificadas OK"
+                    : "Vendas qualificadas PENDENTE"
+                }
+              />
+              <StatusPill
+                ok={brCompliancePass}
+                label={
+                  brCompliancePass ? "Compliance PASS" : "Compliance PENDING"
+                }
+              />
+            </div>
+            <p className="text-foreground/50 mt-2 text-xs">
+              Revisão de políticas: {env.AMAZON_POLICY_REVIEW_DATE}
+            </p>
+          </SubSection>
+
+          <SubSection title="Amazon EUA">
+            <dl className="space-y-1.5 text-sm">
+              <div className="flex justify-between gap-2">
+                <dt className="text-foreground/60">Store ID</dt>
+                <dd className="font-medium">{amazonUs.storeId}</dd>
+              </div>
+            </dl>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <StatusPill
+                ok={amazonUs.precoCaindoRegistered}
+                label={
+                  amazonUs.precoCaindoRegistered
+                    ? "precocaindo.com.br cadastrado"
+                    : "precocaindo.com.br NÃO cadastrado"
+                }
+              />
+              <StatusPill
+                ok={amazonUs.paymentConfigured}
+                label={
+                  amazonUs.paymentConfigured
+                    ? "Pagamento configurado"
+                    : "Pagamento PENDENTE"
+                }
+              />
+              <StatusPill
+                ok={amazonUs.apiEnabled}
+                label={
+                  amazonUs.apiEnabled ? "API habilitada" : "API desabilitada"
+                }
+              />
+              <StatusPill
+                ok={amazonUs.operationalOnPrecoCaindo}
+                label={
+                  amazonUs.operationalOnPrecoCaindo
+                    ? "Marketplace operacional"
+                    : "Marketplace NÃO operacional"
+                }
+              />
+            </div>
+          </SubSection>
+        </div>
+      </DashboardGroup>
+
+      {/* ---------------- PRIVACIDADE ---------------- */}
+      <DashboardGroup title="Privacidade">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatCard label="Analytics aceito" value={privacy.analyticsGranted} />
+          <StatCard label="Analytics recusado" value={privacy.analyticsDenied} />
+          <StatCard label="Marketing aceito" value={privacy.marketingGranted} />
+          <StatCard label="Marketing recusado" value={privacy.marketingDenied} />
+        </div>
+        <p className="text-foreground/50 mt-2 text-xs">
+          Provedor de remarketing ativo: {privacy.remarketingProvider}
+        </p>
+      </DashboardGroup>
     </div>
   );
 }
