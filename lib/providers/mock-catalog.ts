@@ -4,6 +4,14 @@ import type { NormalizedProduct } from "@/types/commerce";
  * Demo catalog for MockAmazonProvider and the database seed. Clearly
  * fictional ASINs/prices — never treat this as real market data, and never
  * seed it into a production database (see prisma/seed.ts guard).
+ *
+ * Explicitly BR-only (project brief Sprint 4 section 11: "Não criar
+ * catálogo mock US por enquanto"). MockAmazonProvider only serves this
+ * catalog when constructed for the BR marketplace; a US instance always
+ * returns empty results rather than reusing BR data, since there is no US
+ * marketplace requesting it today anyway — getCommerceProvider("US")
+ * refuses to construct at all while AMAZON_US_ENABLED=false (see
+ * lib/providers/index.ts).
  */
 export const MOCK_CATALOG: NormalizedProduct[] = [
   {
