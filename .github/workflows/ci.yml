@@ -59,8 +59,8 @@ jobs:
       - name: Amazon compliance gate
         run: npm run amazon:compliance
 
-      - name: Privacy / compliance tests
-        run: npx vitest run tests/price-alert.test.ts tests/amazon-policy-guard.test.ts tests/content-quality-gate-scaled-abuse.test.ts tests/slug-redirect.test.ts tests/structured-data.test.ts
+      - name: Privacy / compliance / security tests
+        run: npx vitest run tests/price-alert.test.ts tests/amazon-policy-guard.test.ts tests/content-quality-gate-scaled-abuse.test.ts tests/slug-redirect.test.ts tests/structured-data.test.ts tests/admin-auth.test.ts tests/marketplace-data-isolation.test.ts tests/jobs-cycle-lock.test.ts tests/health.test.ts
 
       - name: Build
         run: npm run build
