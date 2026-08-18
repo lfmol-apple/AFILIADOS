@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(__dirname),
   },
+  // Produces .next/standalone — a minimal, self-contained server bundle
+  // with only the traced dependencies, used by the production Dockerfile.
+  // See docs/DEPLOYMENT.md.
+  output: "standalone",
 };
 
 export default nextConfig;

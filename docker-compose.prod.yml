@@ -1,0 +1,68 @@
+# Production stack for a single Ubuntu VPS — see docs/DEPLOYMENT.md.
+#
+# Three services: Postgres (persistent volume), the Next.js app (built
+# from ./Dockerfile), and Caddy as the reverse proxy — Caddy gets automatic
+# Let's Encrypt HTTPS from a two-line Caddyfile with no separate
+# certbot/cron setup, which is the whole reason it was picked over nginx
+# for a small, single-domain deployment.
+#
+# Usage:
+#   docker compose -f docker-compose.prod.yml up -d --build
+#   docker compose -f docker-compose.prod.yml exec app node node_modules/prisma/build/index.js migrate deploy
+#
+# Requires a `.env` file next to this compose file with production values
+# — see .env.example's "PRODUCTION LIVE" section. Never commit that file.
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-precocaindo}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-precocaindo}
+    volumes:
+      - precocaindo_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-precocaindo}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks: [internal]
+
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [internal, web]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on: [app]
+    networks: [web]
+
+networks:
+  internal:
+  web:
+
+volumes:
+  precocaindo_db_data:
+  caddy_data:
+  caddy_config:
