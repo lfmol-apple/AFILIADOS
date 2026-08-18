@@ -24,7 +24,13 @@ describe("isRetryableStatus", () => {
 
 describe("shouldRetry", () => {
   it("stops once maxAttempts is reached", () => {
-    expect(shouldRetry(4, { status: 500 }, { ...DEFAULT_RETRY_POLICY, maxAttempts: 4 })).toBe(false);
+    expect(
+      shouldRetry(
+        4,
+        { status: 500 },
+        { ...DEFAULT_RETRY_POLICY, maxAttempts: 4 },
+      ),
+    ).toBe(false);
   });
 
   it("retries on timeout", () => {
@@ -42,9 +48,15 @@ describe("computeBackoffDelayMs", () => {
   it("grows exponentially with the attempt number, capped at maxDelayMs", () => {
     const config = { maxAttempts: 10, baseDelayMs: 100, maxDelayMs: 1000 };
     const alwaysMax = () => 0.999999;
-    expect(computeBackoffDelayMs(1, config, alwaysMax)).toBeLessThanOrEqual(100);
-    expect(computeBackoffDelayMs(5, config, alwaysMax)).toBeLessThanOrEqual(1000);
-    expect(computeBackoffDelayMs(10, config, alwaysMax)).toBeLessThanOrEqual(1000);
+    expect(computeBackoffDelayMs(1, config, alwaysMax)).toBeLessThanOrEqual(
+      100,
+    );
+    expect(computeBackoffDelayMs(5, config, alwaysMax)).toBeLessThanOrEqual(
+      1000,
+    );
+    expect(computeBackoffDelayMs(10, config, alwaysMax)).toBeLessThanOrEqual(
+      1000,
+    );
   });
 
   it("applies jitter (0 -> zero delay)", () => {
@@ -67,7 +79,11 @@ describe("withRetry", () => {
       if (calls < 3) throw new RetryableError("temporary", { status: 503 });
       return "recovered";
     });
-    const result = await withRetry(fn, { maxAttempts: 5, baseDelayMs: 1, maxDelayMs: 5 }, async () => {});
+    const result = await withRetry(
+      fn,
+      { maxAttempts: 5, baseDelayMs: 1, maxDelayMs: 5 },
+      async () => {},
+    );
     expect(result).toBe("recovered");
     expect(fn).toHaveBeenCalledTimes(3);
   });
@@ -77,7 +93,11 @@ describe("withRetry", () => {
       throw new RetryableError("always fails", { status: 500 });
     });
     await expect(
-      withRetry(fn, { maxAttempts: 3, baseDelayMs: 1, maxDelayMs: 5 }, async () => {}),
+      withRetry(
+        fn,
+        { maxAttempts: 3, baseDelayMs: 1, maxDelayMs: 5 },
+        async () => {},
+      ),
     ).rejects.toThrow("always fails");
     expect(fn).toHaveBeenCalledTimes(3);
   });
@@ -86,9 +106,9 @@ describe("withRetry", () => {
     const fn = vi.fn(async () => {
       throw new Error("not our retryable type");
     });
-    await expect(withRetry(fn, DEFAULT_RETRY_POLICY, async () => {})).rejects.toThrow(
-      "not our retryable type",
-    );
+    await expect(
+      withRetry(fn, DEFAULT_RETRY_POLICY, async () => {}),
+    ).rejects.toThrow("not our retryable type");
     expect(fn).toHaveBeenCalledTimes(1);
   });
 
@@ -96,7 +116,9 @@ describe("withRetry", () => {
     const fn = vi.fn(async () => {
       throw new RetryableError("bad request", { status: 400 });
     });
-    await expect(withRetry(fn, DEFAULT_RETRY_POLICY, async () => {})).rejects.toThrow("bad request");
+    await expect(
+      withRetry(fn, DEFAULT_RETRY_POLICY, async () => {}),
+    ).rejects.toThrow("bad request");
     expect(fn).toHaveBeenCalledTimes(1);
   });
 });

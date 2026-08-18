@@ -43,7 +43,10 @@ export function jaccardSimilarity(a: string, b: string): number {
 
 /** Highest similarity between `body` and any text in `corpus`, for flagging
  * near-duplicate scaled content against already-published pages. */
-export function maxSimilarityAgainstCorpus(body: string, corpus: string[]): number {
+export function maxSimilarityAgainstCorpus(
+  body: string,
+  corpus: string[],
+): number {
   let max = 0;
   for (const other of corpus) {
     const score = jaccardSimilarity(body, other);

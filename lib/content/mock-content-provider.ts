@@ -1,4 +1,9 @@
-import type { ContentGenerationRequest, ContentGenerationResult, ContentProvider, VerifiedFacts } from "@/types/content";
+import type {
+  ContentGenerationRequest,
+  ContentGenerationResult,
+  ContentProvider,
+  VerifiedFacts,
+} from "@/types/content";
 
 /**
  * Deterministic, template-based generator that uses only the facts it
@@ -13,7 +18,9 @@ import type { ContentGenerationRequest, ContentGenerationResult, ContentProvider
 export class MockContentProvider implements ContentProvider {
   readonly name = "mock";
 
-  async generate(request: ContentGenerationRequest): Promise<ContentGenerationResult> {
+  async generate(
+    request: ContentGenerationRequest,
+  ): Promise<ContentGenerationResult> {
     if (request.contentType === "PRODUCT" && isVerifiedFacts(request.facts)) {
       return generateProductReview(request.facts, request.promptVersion);
     }
@@ -32,10 +39,15 @@ function isVerifiedFacts(value: unknown): value is VerifiedFacts {
 }
 
 function money(value: number, currency: string): string {
-  return new Intl.NumberFormat("pt-BR", { style: "currency", currency }).format(value);
+  return new Intl.NumberFormat("pt-BR", { style: "currency", currency }).format(
+    value,
+  );
 }
 
-function generateProductReview(verified: VerifiedFacts, promptVersion: string): ContentGenerationResult {
+function generateProductReview(
+  verified: VerifiedFacts,
+  promptVersion: string,
+): ContentGenerationResult {
   const { facts, calculations } = verified;
   const lines: string[] = [];
 
@@ -45,12 +57,16 @@ function generateProductReview(verified: VerifiedFacts, promptVersion: string): 
     `O preço atual é ${money(calculations.currentPrice, facts.currency)}.`,
   ];
   if (calculations.avg30d) {
-    const vsAvg = calculations.currentPrice < calculations.avg30d ? "abaixo" : "acima";
+    const vsAvg =
+      calculations.currentPrice < calculations.avg30d ? "abaixo" : "acima";
     priceParts.push(
       `Isso está ${vsAvg} da média dos últimos 30 dias, que foi de ${money(calculations.avg30d, facts.currency)}.`,
     );
   }
-  if (calculations.lowestPrice !== undefined && calculations.highestPrice !== undefined) {
+  if (
+    calculations.lowestPrice !== undefined &&
+    calculations.highestPrice !== undefined
+  ) {
     priceParts.push(
       `No período acompanhado, o menor preço observado foi ${money(calculations.lowestPrice, facts.currency)} e o maior foi ${money(calculations.highestPrice, facts.currency)}.`,
     );
@@ -61,7 +77,9 @@ function generateProductReview(verified: VerifiedFacts, promptVersion: string): 
       : `Este histórico cobre ${calculations.coverageDays} dias de observação direta do PreçoCaindo.`,
   );
   if (calculations.opportunityLabel) {
-    priceParts.push(`Segundo o Score PreçoCaindo, a avaliação atual é: "${calculations.opportunityLabel}".`);
+    priceParts.push(
+      `Segundo o Score PreçoCaindo, a avaliação atual é: "${calculations.opportunityLabel}".`,
+    );
   }
   lines.push(priceParts.join(" "));
 
@@ -69,7 +87,9 @@ function generateProductReview(verified: VerifiedFacts, promptVersion: string): 
   lines.push("\n## Para quem faz sentido");
   const forWhomParts: string[] = [];
   if (facts.categoryName) {
-    forWhomParts.push(`Este produto se encaixa na categoria ${facts.categoryName}.`);
+    forWhomParts.push(
+      `Este produto se encaixa na categoria ${facts.categoryName}.`,
+    );
   }
   if (facts.description) {
     forWhomParts.push(facts.description);
@@ -85,19 +105,27 @@ function generateProductReview(verified: VerifiedFacts, promptVersion: string): 
   const specs = facts.specifications ?? {};
   const specEntries = Object.entries(specs);
   if (specEntries.length > 0) {
-    lines.push(specEntries.map(([key, value]) => `- ${key}: ${value}`).join("\n"));
+    lines.push(
+      specEntries.map(([key, value]) => `- ${key}: ${value}`).join("\n"),
+    );
   } else {
-    lines.push("Ainda não temos especificações suficientes para destacar pontos fortes específicos.");
+    lines.push(
+      "Ainda não temos especificações suficientes para destacar pontos fortes específicos.",
+    );
   }
 
   // -- Pontos de atenção --
   lines.push("\n## Pontos de atenção");
   const attentionParts: string[] = [];
   if (facts.rating === undefined || facts.reviewCount === undefined) {
-    attentionParts.push("Ainda não há avaliações suficientes de compradores para este produto.");
+    attentionParts.push(
+      "Ainda não há avaliações suficientes de compradores para este produto.",
+    );
   }
   if (calculations.coverageDays < 30) {
-    attentionParts.push("O histórico de preços coletado ainda é curto para garantir tendências de longo prazo.");
+    attentionParts.push(
+      "O histórico de preços coletado ainda é curto para garantir tendências de longo prazo.",
+    );
   }
   lines.push(
     attentionParts.length > 0
@@ -115,18 +143,31 @@ function generateProductReview(verified: VerifiedFacts, promptVersion: string): 
 
   const body = lines.join("\n");
   const title = facts.title;
-  const metaTitle = truncate(`${facts.title} — vale a pena comprar agora? | PreçoCaindo`, 70);
+  const metaTitle = truncate(
+    `${facts.title} — vale a pena comprar agora? | PreçoCaindo`,
+    70,
+  );
   const metaDescription = truncate(
     `Veja o histórico de preço, o Score PreçoCaindo e se ${facts.title} está com um preço realmente bom agora.`,
     160,
   );
 
-  return { title, metaTitle, metaDescription, body, model: "mock", promptVersion };
+  return {
+    title,
+    metaTitle,
+    metaDescription,
+    body,
+    model: "mock",
+    promptVersion,
+  };
 }
 
-function generateGenericFallback(request: ContentGenerationRequest): ContentGenerationResult {
+function generateGenericFallback(
+  request: ContentGenerationRequest,
+): ContentGenerationResult {
   const rawFacts = request.facts as Record<string, unknown>;
-  const title = typeof rawFacts.title === "string" ? rawFacts.title : request.slug;
+  const title =
+    typeof rawFacts.title === "string" ? rawFacts.title : request.slug;
   const body = [
     `## Sobre ${title}`,
     `Conteúdo gerado automaticamente para ${request.contentType.toLowerCase()} ainda não possui um template dedicado no MockContentProvider.`,

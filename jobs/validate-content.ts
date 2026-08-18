@@ -19,7 +19,9 @@ function countRealFacts(product: {
   if (product.reviewCount !== null) count += 1;
   if (product.brand) count += 1;
   if (product.specifications && typeof product.specifications === "object") {
-    count += Object.keys(product.specifications as Record<string, unknown>).length;
+    count += Object.keys(
+      product.specifications as Record<string, unknown>,
+    ).length;
   }
   return count;
 }
@@ -55,13 +57,18 @@ export async function validateContent() {
           },
         });
         if (product) {
-          sourceDescriptionLength = product.title.length + (product.description?.length ?? 0);
+          sourceDescriptionLength =
+            product.title.length + (product.description?.length ?? 0);
           sourceFactCount = countRealFacts(product);
         }
       }
 
       const publishedCorpus = await prisma.generatedContent.findMany({
-        where: { contentType: draft.contentType, status: "PUBLISHED", id: { not: draft.id } },
+        where: {
+          contentType: draft.contentType,
+          status: "PUBLISHED",
+          id: { not: draft.id },
+        },
         select: { body: true },
         take: 200,
       });
@@ -81,7 +88,11 @@ export async function validateContent() {
       });
 
       const status =
-        result.verdict === "PASS" ? "APPROVED" : result.verdict === "REVIEW" ? "VALIDATING" : "REJECTED";
+        result.verdict === "PASS"
+          ? "APPROVED"
+          : result.verdict === "REVIEW"
+            ? "VALIDATING"
+            : "REJECTED";
 
       await prisma.generatedContent.update({
         where: { id: draft.id },
@@ -89,7 +100,8 @@ export async function validateContent() {
           status,
           qualityScore: result.qualityScore,
           qualityReasons: result.reasons as unknown as Prisma.InputJsonValue,
-          qualityBreakdown: result.dimensions as unknown as Prisma.InputJsonValue,
+          qualityBreakdown:
+            result.dimensions as unknown as Prisma.InputJsonValue,
           reviewedAt: new Date(),
         },
       });

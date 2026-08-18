@@ -58,7 +58,12 @@ describe("evaluateDemand", () => {
       relatedOpportunityScore: 100,
       dataCoverageDays: 10_000,
     });
-    for (const value of [result.demandScore, result.commercialScore, result.freshnessScore, result.overallScore]) {
+    for (const value of [
+      result.demandScore,
+      result.commercialScore,
+      result.freshnessScore,
+      result.overallScore,
+    ]) {
       expect(value).not.toBeNull();
       expect(value!).toBeLessThanOrEqual(100);
       expect(value!).toBeGreaterThanOrEqual(0);

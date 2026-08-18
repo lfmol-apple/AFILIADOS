@@ -13,7 +13,10 @@ const postSchema = z.object({
 export async function GET(request: Request) {
   const subjectId = new URL(request.url).searchParams.get("subjectId");
   if (!subjectId) {
-    return NextResponse.json({ error: "subjectId is required" }, { status: 400 });
+    return NextResponse.json(
+      { error: "subjectId is required" },
+      { status: 400 },
+    );
   }
   const consent = await getConsent(subjectId);
   return NextResponse.json({ consent });
@@ -22,7 +25,10 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   const parsed = postSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid request body" },
+      { status: 400 },
+    );
   }
   const { subjectId, analytics, marketing } = parsed.data;
   const consent = await setConsent(subjectId, { analytics, marketing });

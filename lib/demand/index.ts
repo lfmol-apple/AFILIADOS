@@ -21,9 +21,14 @@ export interface DemandCandidate extends DemandEvaluationResult {
   sources: string[];
 }
 
-const DEFAULT_SOURCES: DemandSource[] = [new InternalDemandSource(), new ManualSeedDemandSource()];
+const DEFAULT_SOURCES: DemandSource[] = [
+  new InternalDemandSource(),
+  new ManualSeedDemandSource(),
+];
 
-function mergeSignals(signals: DemandSignal[]): Map<string, DemandSignal & { sources: Set<string> }> {
+function mergeSignals(
+  signals: DemandSignal[],
+): Map<string, DemandSignal & { sources: Set<string> }> {
   const merged = new Map<string, DemandSignal & { sources: Set<string> }>();
 
   for (const signal of signals) {
@@ -50,7 +55,9 @@ function mergeSignals(signals: DemandSignal[]): Map<string, DemandSignal & { sou
 export async function collectDemandCandidates(
   sources: DemandSource[] = DEFAULT_SOURCES,
 ): Promise<DemandCandidate[]> {
-  const allSignals = (await Promise.all(sources.map((s) => s.collect()))).flat();
+  const allSignals = (
+    await Promise.all(sources.map((s) => s.collect()))
+  ).flat();
   const merged = mergeSignals(allSignals);
 
   const candidates: DemandCandidate[] = [];
@@ -63,7 +70,10 @@ export async function collectDemandCandidates(
     if (signal.productId) {
       const product = await prisma.product.findUnique({
         where: { id: signal.productId },
-        select: { opportunityScore: { select: { score: true } }, priceStats: { select: { coverageDays: true } } },
+        select: {
+          opportunityScore: { select: { score: true } },
+          priceStats: { select: { coverageDays: true } },
+        },
       });
       relatedOpportunityScore = product?.opportunityScore?.score ?? null;
       dataCoverageDays = product?.priceStats?.coverageDays ?? null;

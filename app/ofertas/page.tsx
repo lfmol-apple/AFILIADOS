@@ -18,9 +18,15 @@ export const metadata: Metadata = {
 export default async function OfertasPage(props: PageProps<"/ofertas">) {
   const searchParams = await props.searchParams;
   const page = Number(searchParams?.page ?? 1) || 1;
-  const query = typeof searchParams?.q === "string" ? searchParams.q : undefined;
+  const query =
+    typeof searchParams?.q === "string" ? searchParams.q : undefined;
 
-  const { items, page: currentPage, totalPages, total } = await getOfertas({ page, query });
+  const {
+    items,
+    page: currentPage,
+    totalPages,
+    total,
+  } = await getOfertas({ page, query });
 
   if (query) {
     await recordSearchEvent(query, total);
@@ -28,19 +34,26 @@ export default async function OfertasPage(props: PageProps<"/ofertas">) {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      <AnalyticsBeacon pageType="ofertas" pageSlug={query ? `busca:${query}` : "ofertas"} />
-      <Breadcrumbs items={[{ label: "Início", href: "/" }, { label: "Ofertas" }]} />
+      <AnalyticsBeacon
+        pageType="ofertas"
+        pageSlug={query ? `busca:${query}` : "ofertas"}
+      />
+      <Breadcrumbs
+        items={[{ label: "Início", href: "/" }, { label: "Ofertas" }]}
+      />
 
       <h1 className="mt-4 text-2xl font-semibold">
         {query ? `Resultados para "${query}"` : "Boas compras agora"}
       </h1>
       <p className="text-foreground/60 mt-1 text-sm">
-        Ordenado pelo Score PreçoCaindo — preço atual comparado ao histórico coletado por nós, não
-        só ao preço de tabela.
+        Ordenado pelo Score PreçoCaindo — preço atual comparado ao histórico
+        coletado por nós, não só ao preço de tabela.
       </p>
 
       {items.length === 0 ? (
-        <p className="text-foreground/60 mt-10 text-sm">Nenhum produto encontrado.</p>
+        <p className="text-foreground/60 mt-10 text-sm">
+          Nenhum produto encontrado.
+        </p>
       ) : (
         <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {items.map((product) => (

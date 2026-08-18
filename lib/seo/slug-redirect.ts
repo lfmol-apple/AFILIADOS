@@ -18,7 +18,9 @@ export async function registerSlugRedirect(
   statusCode: 301 | 302 = 301,
 ): Promise<void> {
   if (oldPath === newPath) {
-    throw new SlugRedirectLoopError(`Refusing a redirect from a path to itself: ${oldPath}`);
+    throw new SlugRedirectLoopError(
+      `Refusing a redirect from a path to itself: ${oldPath}`,
+    );
   }
 
   // Follow any existing chain starting at newPath to its final destination.
@@ -32,7 +34,9 @@ export async function registerSlugRedirect(
     }
     visited.add(finalDestination);
 
-    const next = await prisma.slugRedirect.findUnique({ where: { oldPath: finalDestination } });
+    const next = await prisma.slugRedirect.findUnique({
+      where: { oldPath: finalDestination },
+    });
     if (!next) break;
     finalDestination = next.newPath;
   }
@@ -51,8 +55,12 @@ export async function registerSlugRedirect(
   });
 }
 
-export async function resolveSlugRedirect(pathname: string): Promise<{ newPath: string; statusCode: number } | null> {
-  const redirect = await prisma.slugRedirect.findUnique({ where: { oldPath: pathname } });
+export async function resolveSlugRedirect(
+  pathname: string,
+): Promise<{ newPath: string; statusCode: number } | null> {
+  const redirect = await prisma.slugRedirect.findUnique({
+    where: { oldPath: pathname },
+  });
   if (!redirect) return null;
   return { newPath: redirect.newPath, statusCode: redirect.statusCode };
 }

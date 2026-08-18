@@ -5,7 +5,9 @@ import { runJob } from "@/lib/jobs/automation-run";
 const TEST_JOB_PREFIX = "TEST_AUTOMATION_RUN_";
 
 afterEach(async () => {
-  await prisma.automationRun.deleteMany({ where: { job: { startsWith: TEST_JOB_PREFIX } } });
+  await prisma.automationRun.deleteMany({
+    where: { job: { startsWith: TEST_JOB_PREFIX } },
+  });
 });
 
 describe("runJob locking", () => {
@@ -23,7 +25,9 @@ describe("runJob locking", () => {
     // Let the first run actually create its RUNNING row before racing the second.
     await new Promise((r) => setTimeout(r, 50));
 
-    await expect(runJob(jobName, async () => {})).rejects.toThrow(/already running/);
+    await expect(runJob(jobName, async () => {})).rejects.toThrow(
+      /already running/,
+    );
 
     releaseFirst();
     await firstRun;
@@ -42,9 +46,14 @@ describe("runJob locking", () => {
     });
     expect(counters.processed).toBe(1);
 
-    const recovered = await prisma.automationRun.findUnique({ where: { id: stale.id } });
+    const recovered = await prisma.automationRun.findUnique({
+      where: { id: stale.id },
+    });
     expect(recovered?.status).toBe("FAILED");
-    expect((recovered?.metadata as Record<string, unknown> | null)?.staleLockRecovered).toBe(true);
+    expect(
+      (recovered?.metadata as Record<string, unknown> | null)
+        ?.staleLockRecovered,
+    ).toBe(true);
   });
 
   it("allows sequential runs of the same job once the previous one finished", async () => {
@@ -52,7 +61,9 @@ describe("runJob locking", () => {
     await runJob(jobName, async () => {});
     await expect(runJob(jobName, async () => {})).resolves.toBeDefined();
 
-    const runs = await prisma.automationRun.findMany({ where: { job: jobName } });
+    const runs = await prisma.automationRun.findMany({
+      where: { job: jobName },
+    });
     expect(runs).toHaveLength(2);
     expect(runs.every((r) => r.status === "SUCCESS")).toBe(true);
   });
@@ -65,7 +76,9 @@ describe("runJob locking", () => {
       }),
     ).rejects.toThrow("boom");
 
-    const run = await prisma.automationRun.findFirst({ where: { job: jobName } });
+    const run = await prisma.automationRun.findFirst({
+      where: { job: jobName },
+    });
     expect(run?.status).toBe("FAILED");
   });
 
@@ -75,7 +88,9 @@ describe("runJob locking", () => {
       ctx.counters.errors = 1;
     });
 
-    const run = await prisma.automationRun.findFirst({ where: { job: jobName } });
+    const run = await prisma.automationRun.findFirst({
+      where: { job: jobName },
+    });
     expect(run?.status).toBe("PARTIAL");
   });
 });

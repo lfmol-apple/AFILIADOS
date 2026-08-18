@@ -1,6 +1,11 @@
 import { describe, expect, it, afterEach, beforeAll, afterAll } from "vitest";
 import { prisma } from "@/lib/db";
-import { createPriceAlert, confirmPriceAlert, isConfirmed, cancelPriceAlert } from "@/lib/services/price-alert";
+import {
+  createPriceAlert,
+  confirmPriceAlert,
+  isConfirmed,
+  cancelPriceAlert,
+} from "@/lib/services/price-alert";
 
 let productId: string;
 
@@ -28,13 +33,21 @@ afterEach(async () => {
 });
 
 afterAll(async () => {
-  await prisma.product.deleteMany({ where: { slug: "__test-price-alert-product__" } });
-  await prisma.category.deleteMany({ where: { slug: "__test-price-alert-category__" } });
+  await prisma.product.deleteMany({
+    where: { slug: "__test-price-alert-product__" },
+  });
+  await prisma.category.deleteMany({
+    where: { slug: "__test-price-alert-category__" },
+  });
 });
 
 describe("createPriceAlert", () => {
   it("creates an unconfirmed alert with a hashed contact and a confirmation token", async () => {
-    const alert = await createPriceAlert({ productId, targetPrice: 99.9, contact: "user@example.com" });
+    const alert = await createPriceAlert({
+      productId,
+      targetPrice: 99.9,
+      contact: "user@example.com",
+    });
     expect(alert.confirmedAt).toBeNull();
     expect(alert.confirmationToken).toBeTruthy();
     expect(alert.contactHash).not.toBe("user@example.com");
@@ -42,16 +55,26 @@ describe("createPriceAlert", () => {
   });
 
   it("never grants marketing consent as a side effect", async () => {
-    await createPriceAlert({ productId, targetPrice: 99.9, contact: "user@example.com" });
+    await createPriceAlert({
+      productId,
+      targetPrice: 99.9,
+      contact: "user@example.com",
+    });
     // No ConsentRecord should be created just from a price alert signup.
-    const consent = await prisma.consentRecord.findFirst({ where: { subjectId: "user@example.com" } });
+    const consent = await prisma.consentRecord.findFirst({
+      where: { subjectId: "user@example.com" },
+    });
     expect(consent).toBeNull();
   });
 });
 
 describe("confirmPriceAlert", () => {
   it("confirms an alert given its token and consumes the token", async () => {
-    const alert = await createPriceAlert({ productId, targetPrice: 99.9, contact: "user2@example.com" });
+    const alert = await createPriceAlert({
+      productId,
+      targetPrice: 99.9,
+      contact: "user2@example.com",
+    });
     const confirmed = await confirmPriceAlert(alert.confirmationToken!);
     expect(confirmed).not.toBeNull();
     expect(isConfirmed(confirmed!)).toBe(true);
@@ -64,7 +87,11 @@ describe("confirmPriceAlert", () => {
   });
 
   it("does not allow the same token to confirm twice", async () => {
-    const alert = await createPriceAlert({ productId, targetPrice: 99.9, contact: "user3@example.com" });
+    const alert = await createPriceAlert({
+      productId,
+      targetPrice: 99.9,
+      contact: "user3@example.com",
+    });
     const token = alert.confirmationToken!;
     await confirmPriceAlert(token);
     const second = await confirmPriceAlert(token);
@@ -74,7 +101,11 @@ describe("confirmPriceAlert", () => {
 
 describe("cancelPriceAlert", () => {
   it("deactivates an alert", async () => {
-    const alert = await createPriceAlert({ productId, targetPrice: 99.9, contact: "user4@example.com" });
+    const alert = await createPriceAlert({
+      productId,
+      targetPrice: 99.9,
+      contact: "user4@example.com",
+    });
     const cancelled = await cancelPriceAlert(alert.id);
     expect(cancelled.active).toBe(false);
   });

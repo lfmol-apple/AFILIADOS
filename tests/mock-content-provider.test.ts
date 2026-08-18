@@ -31,7 +31,13 @@ const verifiedFacts: VerifiedFacts = {
   },
   editorial: {
     tone: "direto, sem hype",
-    requiredSections: ["O preço está bom?", "Para quem faz sentido", "Pontos fortes", "Pontos de atenção", "Metodologia"],
+    requiredSections: [
+      "O preço está bom?",
+      "Para quem faz sentido",
+      "Pontos fortes",
+      "Pontos de atenção",
+      "Metodologia",
+    ],
     disclosures: ["Score é do PreçoCaindo, não da Amazon"],
   },
 };
@@ -45,7 +51,11 @@ describe("MockContentProvider", () => {
       slug: "fone-bluetooth",
       facts: {
         ...verifiedFacts,
-        facts: { ...verifiedFacts.facts, rating: undefined, reviewCount: undefined },
+        facts: {
+          ...verifiedFacts.facts,
+          rating: undefined,
+          reviewCount: undefined,
+        },
       },
     });
     expect(result.body).not.toMatch(/4[.,]6/);
@@ -88,7 +98,10 @@ describe("MockContentProvider", () => {
       contentType: "PRODUCT",
       promptVersion: "product-review-v1",
       slug: "fone-bluetooth",
-      facts: { ...verifiedFacts, calculations: { ...verifiedFacts.calculations, coverageDays: 4 } },
+      facts: {
+        ...verifiedFacts,
+        calculations: { ...verifiedFacts.calculations, coverageDays: 4 },
+      },
     });
     expect(result.body).toMatch(/4 dia\(s\)/);
   });

@@ -35,13 +35,18 @@ export class InternalDemandSource implements DemandSource {
   /** Searches that consistently return nothing — a signal of unmet demand
    * worth investigating for new catalog coverage, not for content
    * generation on their own (project brief Part E). */
-  async collectZeroResultQueries(): Promise<{ normalizedQuery: string; count: number }[]> {
+  async collectZeroResultQueries(): Promise<
+    { normalizedQuery: string; count: number }[]
+  > {
     const since = new Date(Date.now() - LOOKBACK_DAYS * 24 * 60 * 60 * 1000);
     const rows = await prisma.searchEvent.groupBy({
       by: ["normalizedQuery"],
       where: { createdAt: { gte: since }, resultCount: 0 },
       _count: { _all: true },
     });
-    return rows.map((r) => ({ normalizedQuery: normalizeKeyword(r.normalizedQuery), count: r._count._all }));
+    return rows.map((r) => ({
+      normalizedQuery: normalizeKeyword(r.normalizedQuery),
+      count: r._count._all,
+    }));
   }
 }

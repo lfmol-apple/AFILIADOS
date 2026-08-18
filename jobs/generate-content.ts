@@ -15,7 +15,11 @@ function buildVerifiedFacts(product: {
   rating: number | null;
   reviewCount: number | null;
   category: { name: string } | null;
-  offers: { price: unknown; currency: string; discountPercentage: number | null }[];
+  offers: {
+    price: unknown;
+    currency: string;
+    discountPercentage: number | null;
+  }[];
   priceStats: {
     lowestPrice: unknown;
     highestPrice: unknown;
@@ -33,7 +37,9 @@ function buildVerifiedFacts(product: {
       brand: product.brand ?? undefined,
       categoryName: product.category?.name,
       description: product.description ?? undefined,
-      specifications: (product.specifications as Record<string, string | number | boolean>) ?? undefined,
+      specifications:
+        (product.specifications as Record<string, string | number | boolean>) ??
+        undefined,
       rating: product.rating ?? undefined,
       reviewCount: product.reviewCount ?? undefined,
       currency: offer.currency,
@@ -41,9 +47,15 @@ function buildVerifiedFacts(product: {
     calculations: {
       currentPrice: Number(offer.price),
       discountPercentage: offer.discountPercentage ?? undefined,
-      lowestPrice: product.priceStats ? Number(product.priceStats.lowestPrice) : undefined,
-      highestPrice: product.priceStats ? Number(product.priceStats.highestPrice) : undefined,
-      avg30d: product.priceStats?.avg30d ? Number(product.priceStats.avg30d) : undefined,
+      lowestPrice: product.priceStats
+        ? Number(product.priceStats.lowestPrice)
+        : undefined,
+      highestPrice: product.priceStats
+        ? Number(product.priceStats.highestPrice)
+        : undefined,
+      avg30d: product.priceStats?.avg30d
+        ? Number(product.priceStats.avg30d)
+        : undefined,
       coverageDays: product.priceStats?.coverageDays ?? 0,
       opportunityScore: product.opportunityScore?.score,
     },
@@ -116,7 +128,9 @@ export async function generateContent() {
         const hash = contentHash(result.body);
 
         await prisma.generatedContent.upsert({
-          where: { contentType_slug: { contentType: "PRODUCT", slug: product.slug } },
+          where: {
+            contentType_slug: { contentType: "PRODUCT", slug: product.slug },
+          },
           create: {
             contentType: "PRODUCT",
             entityId: product.id,

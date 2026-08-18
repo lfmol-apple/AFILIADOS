@@ -36,14 +36,18 @@ export async function runHealthCheck(): Promise<HealthCheckResult> {
   let automationDetail = "No automation runs in the lookback window";
 
   if (databaseStatus === "healthy") {
-    const since = new Date(Date.now() - AUTOMATION_LOOKBACK_HOURS * 60 * 60 * 1000);
+    const since = new Date(
+      Date.now() - AUTOMATION_LOOKBACK_HOURS * 60 * 60 * 1000,
+    );
     const recentRuns = await prisma.automationRun.findMany({
       where: { startedAt: { gte: since } },
       select: { status: true },
     });
 
     if (recentRuns.length > 0) {
-      const failedCount = recentRuns.filter((r) => r.status === "FAILED").length;
+      const failedCount = recentRuns.filter(
+        (r) => r.status === "FAILED",
+      ).length;
       automationDetail = `${failedCount}/${recentRuns.length} runs failed in the last ${AUTOMATION_LOOKBACK_HOURS}h`;
       if (failedCount === recentRuns.length) {
         automationStatus = "unhealthy";

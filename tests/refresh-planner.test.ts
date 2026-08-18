@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { planRefresh, type RefreshCandidate } from "@/lib/services/refresh-planner";
+import {
+  planRefresh,
+  type RefreshCandidate,
+} from "@/lib/services/refresh-planner";
 
 const now = new Date("2026-08-18T12:00:00Z");
 const DAY = 24 * 60 * 60 * 1000;
@@ -29,11 +32,14 @@ describe("planRefresh", () => {
   });
 
   it("never exceeds the rate budget", () => {
-    const candidates: RefreshCandidate[] = Array.from({ length: 50 }, (_, i) => ({
-      productId: `p${i}`,
-      priority: "HOT" as const,
-      lastRefresh: daysAgo(i),
-    }));
+    const candidates: RefreshCandidate[] = Array.from(
+      { length: 50 },
+      (_, i) => ({
+        productId: `p${i}`,
+        priority: "HOT" as const,
+        lastRefresh: daysAgo(i),
+      }),
+    );
     const result = planRefresh({ candidates, rateBudget: 5, now });
     expect(result.queue).toHaveLength(5);
   });

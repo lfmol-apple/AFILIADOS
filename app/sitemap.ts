@@ -35,7 +35,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priceStats: { select: { coverageDays: true } },
       },
     }),
-    prisma.category.findMany({ where: { active: true }, select: { slug: true, updatedAt: true } }),
+    prisma.category.findMany({
+      where: { active: true },
+      select: { slug: true, updatedAt: true },
+    }),
     prisma.generatedContent.findMany({
       where: { status: "PUBLISHED", noindex: false },
       select: { contentType: true, slug: true, updatedAt: true },
@@ -80,5 +83,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...staticEntries, ...productEntries, ...categoryEntries, ...contentEntries];
+  return [
+    ...staticEntries,
+    ...productEntries,
+    ...categoryEntries,
+    ...contentEntries,
+  ];
 }

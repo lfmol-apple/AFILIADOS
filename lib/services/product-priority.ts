@@ -29,9 +29,13 @@ function computeTargetTier(signals: PrioritySignals): Priority {
   const drop = signals.dropPercentage ?? 0;
 
   const qualifiesHot =
-    score >= T.hotScore || drop >= T.hotDropPercentage || signals.recentClicks >= T.hotRecentClicks;
+    score >= T.hotScore ||
+    drop >= T.hotDropPercentage ||
+    signals.recentClicks >= T.hotRecentClicks;
   const qualifiesWarm =
-    score >= T.warmScore || drop >= T.warmDropPercentage || signals.recentClicks >= T.warmRecentClicks;
+    score >= T.warmScore ||
+    drop >= T.warmDropPercentage ||
+    signals.recentClicks >= T.warmRecentClicks;
 
   let target: Priority = qualifiesHot ? "HOT" : qualifiesWarm ? "WARM" : "COLD";
 
@@ -60,20 +64,29 @@ function computeTargetTier(signals: PrioritySignals): Priority {
  * is demoted immediately (project brief: "Produto OUT_OF_STOCK não deve
  * permanecer indefinidamente HOT" — immediately, not "eventually").
  */
-export function decideProductPriority(signals: PrioritySignals): PriorityDecision {
+export function decideProductPriority(
+  signals: PrioritySignals,
+): PriorityDecision {
   const now = signals.now ?? new Date();
   const target = computeTargetTier(signals);
 
   if (target === signals.currentPriority) {
-    return { priority: target, changed: false, reason: "signals still support current tier" };
+    return {
+      priority: target,
+      changed: false,
+      reason: "signals still support current tier",
+    };
   }
 
-  const hoursSinceUpdate = (now.getTime() - signals.priorityUpdatedAt.getTime()) / (1000 * 60 * 60);
+  const hoursSinceUpdate =
+    (now.getTime() - signals.priorityUpdatedAt.getTime()) / (1000 * 60 * 60);
   const daysSinceUpdate = hoursSinceUpdate / 24;
 
   const isDemotion = TIER_RANK[target] < TIER_RANK[signals.currentPriority];
   const isPromotion = TIER_RANK[target] > TIER_RANK[signals.currentPriority];
-  const outOfStockForced = signals.availability === "OUT_OF_STOCK" && signals.currentPriority === "HOT";
+  const outOfStockForced =
+    signals.availability === "OUT_OF_STOCK" &&
+    signals.currentPriority === "HOT";
 
   if (!outOfStockForced && hoursSinceUpdate < T.minStabilityHours) {
     return {
@@ -84,7 +97,10 @@ export function decideProductPriority(signals: PrioritySignals): PriorityDecisio
   }
 
   if (isDemotion && !outOfStockForced) {
-    const staleAfterDays = signals.currentPriority === "HOT" ? T.hotStaleAfterDays : T.warmStaleAfterDays;
+    const staleAfterDays =
+      signals.currentPriority === "HOT"
+        ? T.hotStaleAfterDays
+        : T.warmStaleAfterDays;
     if (daysSinceUpdate < staleAfterDays) {
       return {
         priority: signals.currentPriority,
@@ -97,6 +113,10 @@ export function decideProductPriority(signals: PrioritySignals): PriorityDecisio
   return {
     priority: target,
     changed: true,
-    reason: outOfStockForced ? "out of stock cap" : isPromotion ? "signals justify promotion" : "stale, demoting",
+    reason: outOfStockForced
+      ? "out of stock cap"
+      : isPromotion
+        ? "signals justify promotion"
+        : "stale, demoting",
   };
 }

@@ -58,17 +58,29 @@ describe("decidePublication", () => {
   });
 
   it("flags an already-published page for update when it goes stale", () => {
-    const result = decidePublication({ ...base, alreadyPublished: true, isFresh: false });
+    const result = decidePublication({
+      ...base,
+      alreadyPublished: true,
+      isFresh: false,
+    });
     expect(result.decision).toBe("UPDATE");
   });
 
   it("flags an already-published page for update when it needs review", () => {
-    const result = decidePublication({ ...base, alreadyPublished: true, qualityGateVerdict: "REVIEW" });
+    const result = decidePublication({
+      ...base,
+      alreadyPublished: true,
+      qualityGateVerdict: "REVIEW",
+    });
     expect(result.decision).toBe("UPDATE");
   });
 
   it("noindexes an already-published page whose demand has dried up", () => {
-    const result = decidePublication({ ...base, alreadyPublished: true, demandScore: 2 });
+    const result = decidePublication({
+      ...base,
+      alreadyPublished: true,
+      demandScore: 2,
+    });
     expect(result.decision).toBe("NOINDEX");
   });
 });

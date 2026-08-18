@@ -3,11 +3,15 @@ import { evaluateContentQuality } from "@/lib/services/content-quality-gate";
 
 const longBody = [
   "## O preço está bom?",
-  "O preço atual está abaixo da média dos últimos 30 dias, o que indica um bom momento para compra. ".repeat(3),
+  "O preço atual está abaixo da média dos últimos 30 dias, o que indica um bom momento para compra. ".repeat(
+    3,
+  ),
   "## Para quem faz sentido",
   "Este produto atende bem quem busca praticidade no dia a dia. ".repeat(3),
   "## Metodologia",
-  "O Score PreçoCaindo usa apenas dados coletados diretamente pelo próprio site. ".repeat(3),
+  "O Score PreçoCaindo usa apenas dados coletados diretamente pelo próprio site. ".repeat(
+    3,
+  ),
 ].join("\n\n");
 
 describe("evaluateContentQuality — scaled content abuse protections", () => {
@@ -15,7 +19,8 @@ describe("evaluateContentQuality — scaled content abuse protections", () => {
     const result = evaluateContentQuality({
       title: "Produto X — vale a pena?",
       metaTitle: "Produto X — vale a pena comprar agora?",
-      metaDescription: "Veja o histórico de preço e se o Produto X está com um preço bom agora mesmo.",
+      metaDescription:
+        "Veja o histórico de preço e se o Produto X está com um preço bom agora mesmo.",
       body: longBody,
       similarityToExistingContent: 0.9,
     });
@@ -27,7 +32,8 @@ describe("evaluateContentQuality — scaled content abuse protections", () => {
     const result = evaluateContentQuality({
       title: "Produto X — vale a pena?",
       metaTitle: "Produto X — vale a pena comprar agora?",
-      metaDescription: "Veja o histórico de preço e se o Produto X está com um preço bom agora mesmo.",
+      metaDescription:
+        "Veja o histórico de preço e se o Produto X está com um preço bom agora mesmo.",
       body: longBody,
       similarityToExistingContent: 0.6,
     });
@@ -38,7 +44,8 @@ describe("evaluateContentQuality — scaled content abuse protections", () => {
     const result = evaluateContentQuality({
       title: "Produto X — vale a pena?",
       metaTitle: "Produto X — vale a pena comprar agora?",
-      metaDescription: "Veja o histórico de preço e se o Produto X está com um preço bom agora mesmo.",
+      metaDescription:
+        "Veja o histórico de preço e se o Produto X está com um preço bom agora mesmo.",
       body: `${longBody}\n\n## Como comprar\n\nBasta adicionar ao carrinho e finalizar a compra aqui mesmo.`,
     });
     expect(result.verdict).toBe("FAIL");
@@ -49,18 +56,22 @@ describe("evaluateContentQuality — scaled content abuse protections", () => {
     const withFacts = evaluateContentQuality({
       title: "Produto X — vale a pena?",
       metaTitle: "Produto X — vale a pena comprar agora?",
-      metaDescription: "Veja o histórico de preço e se o Produto X está com um preço bom agora mesmo.",
+      metaDescription:
+        "Veja o histórico de preço e se o Produto X está com um preço bom agora mesmo.",
       body: longBody,
       sourceFactCount: 8,
     });
     const withoutFacts = evaluateContentQuality({
       title: "Produto X — vale a pena?",
       metaTitle: "Produto X — vale a pena comprar agora?",
-      metaDescription: "Veja o histórico de preço e se o Produto X está com um preço bom agora mesmo.",
+      metaDescription:
+        "Veja o histórico de preço e se o Produto X está com um preço bom agora mesmo.",
       body: longBody,
       sourceFactCount: 0,
     });
-    expect(withFacts.dimensions.dataSupport).toBeGreaterThan(withoutFacts.dimensions.dataSupport);
+    expect(withFacts.dimensions.dataSupport).toBeGreaterThan(
+      withoutFacts.dimensions.dataSupport,
+    );
   });
 
   it("passes clean, low-similarity, well-supported content", () => {

@@ -15,8 +15,12 @@ export interface ConsentChoices {
  * PreçoCaindo needs to function (e.g. this very consent record) and is
  * never gated behind a banner (project brief Part M).
  */
-export async function getConsent(subjectId: string): Promise<ConsentChoices | null> {
-  const record = await prisma.consentRecord.findUnique({ where: { subjectId } });
+export async function getConsent(
+  subjectId: string,
+): Promise<ConsentChoices | null> {
+  const record = await prisma.consentRecord.findUnique({
+    where: { subjectId },
+  });
   if (!record) return null;
   return { analytics: record.analytics, marketing: record.marketing };
 }
@@ -27,7 +31,10 @@ export async function getConsent(subjectId: string): Promise<ConsentChoices | nu
  * distinction in how DENIED vs GRANTED is handled (project brief: "Recusar
  * deve ser tão funcional quanto aceitar").
  */
-export async function setConsent(subjectId: string, choices: ConsentChoices): Promise<ConsentChoices> {
+export async function setConsent(
+  subjectId: string,
+  choices: ConsentChoices,
+): Promise<ConsentChoices> {
   const record = await prisma.consentRecord.upsert({
     where: { subjectId },
     create: { subjectId, ...choices },

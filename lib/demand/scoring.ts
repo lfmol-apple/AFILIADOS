@@ -35,22 +35,42 @@ export interface DemandEvaluationResult {
  * that actually have evidence, so a keyword with no real search signal yet
  * isn't unfairly zeroed out just because that one input is missing.
  */
-export function evaluateDemand(input: DemandEvaluationInput): DemandEvaluationResult {
+export function evaluateDemand(
+  input: DemandEvaluationInput,
+): DemandEvaluationResult {
   const demandScore =
-    input.observedCount > 0 ? round2(clamp((Math.log10(input.observedCount + 1) / 2) * 100, 0, 100)) : null;
+    input.observedCount > 0
+      ? round2(clamp((Math.log10(input.observedCount + 1) / 2) * 100, 0, 100))
+      : null;
 
   const commercialScore =
-    input.relatedOpportunityScore === null ? null : clamp(input.relatedOpportunityScore, 0, 100);
+    input.relatedOpportunityScore === null
+      ? null
+      : clamp(input.relatedOpportunityScore, 0, 100);
 
   const freshnessScore =
-    input.dataCoverageDays === null ? null : round2(clamp((input.dataCoverageDays / 30) * 100, 0, 100));
+    input.dataCoverageDays === null
+      ? null
+      : round2(clamp((input.dataCoverageDays / 30) * 100, 0, 100));
 
   const contentGapScore = input.hasExistingPublishedContent ? 0 : 100;
 
-  const parts = [demandScore, commercialScore, freshnessScore, contentGapScore].filter(
-    (v): v is number => v !== null,
-  );
-  const overallScore = parts.length > 0 ? round2(parts.reduce((a, b) => a + b, 0) / parts.length) : 0;
+  const parts = [
+    demandScore,
+    commercialScore,
+    freshnessScore,
+    contentGapScore,
+  ].filter((v): v is number => v !== null);
+  const overallScore =
+    parts.length > 0
+      ? round2(parts.reduce((a, b) => a + b, 0) / parts.length)
+      : 0;
 
-  return { demandScore, commercialScore, freshnessScore, contentGapScore, overallScore };
+  return {
+    demandScore,
+    commercialScore,
+    freshnessScore,
+    contentGapScore,
+    overallScore,
+  };
 }

@@ -86,7 +86,9 @@ function findSellerMisrepresentation(body: string): string | null {
  * with ContentGenerator's no-hallucination rule and the VerifiedFacts
  * contract (see docs/CONTENT_ENGINE.md).
  */
-export function evaluateContentQuality(input: QualityCheckInput): QualityCheckResult {
+export function evaluateContentQuality(
+  input: QualityCheckInput,
+): QualityCheckResult {
   const hardFailures: string[] = [];
   const softIssues: string[] = [];
 
@@ -107,7 +109,9 @@ export function evaluateContentQuality(input: QualityCheckInput): QualityCheckRe
     input.metaDescription.trim().length < MIN_META_DESCRIPTION ||
     input.metaDescription.trim().length > MAX_META_DESCRIPTION
   ) {
-    softIssues.push("Meta description fora da faixa recomendada (50-160 caracteres)");
+    softIssues.push(
+      "Meta description fora da faixa recomendada (50-160 caracteres)",
+    );
   }
 
   if (body.length < MIN_BODY_LENGTH) {
@@ -118,7 +122,9 @@ export function evaluateContentQuality(input: QualityCheckInput): QualityCheckRe
 
   const headingCount = countHeadings(body);
   if (headingCount < MIN_HEADINGS) {
-    softIssues.push(`Estrutura editorial insuficiente (${headingCount} seções, mínimo ${MIN_HEADINGS})`);
+    softIssues.push(
+      `Estrutura editorial insuficiente (${headingCount} seções, mínimo ${MIN_HEADINGS})`,
+    );
   }
 
   let valueAddRatio: number | null = null;
@@ -137,7 +143,9 @@ export function evaluateContentQuality(input: QualityCheckInput): QualityCheckRe
 
   const misrepresentation = findSellerMisrepresentation(body);
   if (misrepresentation) {
-    hardFailures.push("Conteúdo dá a entender que o PreçoCaindo vende o produto ou processa checkout");
+    hardFailures.push(
+      "Conteúdo dá a entender que o PreçoCaindo vende o produto ou processa checkout",
+    );
   }
 
   const similarity = input.similarityToExistingContent ?? 0;
@@ -146,26 +154,44 @@ export function evaluateContentQuality(input: QualityCheckInput): QualityCheckRe
       `Conteúdo quase idêntico a uma página já existente (similaridade ${(similarity * 100).toFixed(0)}%)`,
     );
   } else if (similarity >= DUPLICATION_RISK_REVIEW_THRESHOLD) {
-    softIssues.push(`Similaridade elevada com conteúdo existente (${(similarity * 100).toFixed(0)}%)`);
+    softIssues.push(
+      `Similaridade elevada com conteúdo existente (${(similarity * 100).toFixed(0)}%)`,
+    );
   }
 
   const verdict: QualityVerdict =
-    hardFailures.length > 0 ? "FAIL" : softIssues.length > 0 ? "REVIEW" : "PASS";
+    hardFailures.length > 0
+      ? "FAIL"
+      : softIssues.length > 0
+        ? "REVIEW"
+        : "PASS";
 
   const penalty = hardFailures.length * 30 + softIssues.length * 10;
   const qualityScore = Math.max(0, Math.min(100, 100 - penalty));
 
   const dimensions: QualityDimensions = {
     originality: clamp(
-      valueAddRatio !== null ? ((valueAddRatio - 1) / (MIN_VALUE_ADD_RATIO - 1)) * 60 + 40 : 70,
+      valueAddRatio !== null
+        ? ((valueAddRatio - 1) / (MIN_VALUE_ADD_RATIO - 1)) * 60 + 40
+        : 70,
       0,
       100,
     ),
     dataSupport: clamp(((input.sourceFactCount ?? 0) / 8) * 100, 0, 100),
-    usefulness: clamp((headingCount / (MIN_HEADINGS + 2)) * 70 + (body.length >= MIN_BODY_LENGTH ? 30 : 0), 0, 100),
+    usefulness: clamp(
+      (headingCount / (MIN_HEADINGS + 2)) * 70 +
+        (body.length >= MIN_BODY_LENGTH ? 30 : 0),
+      0,
+      100,
+    ),
     duplicationRisk: clamp(similarity * 100, 0, 100),
     commercialTransparency: misrepresentation ? 0 : 100,
   };
 
-  return { verdict, reasons: [...hardFailures, ...softIssues], qualityScore, dimensions };
+  return {
+    verdict,
+    reasons: [...hardFailures, ...softIssues],
+    qualityScore,
+    dimensions,
+  };
 }

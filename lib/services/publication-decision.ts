@@ -1,6 +1,7 @@
 import type { QualityVerdict } from "./content-quality-gate";
 
-export type PublicationDecision = "CREATE" | "UPDATE" | "KEEP" | "NOINDEX" | "REJECT";
+export type PublicationDecision =
+  "CREATE" | "UPDATE" | "KEEP" | "NOINDEX" | "REJECT";
 
 /** Below this DemandEngine overallScore, content is not worth indexing yet
  * even if it's factually correct and well-written — there's no evidence
@@ -42,51 +43,89 @@ export interface PublicationDecisionResult {
  * checks the content itself; this checks whether the content should exist
  * at all, combining data sufficiency, demand, and editorial uniqueness.
  */
-export function decidePublication(input: PublicationDecisionInput): PublicationDecisionResult {
+export function decidePublication(
+  input: PublicationDecisionInput,
+): PublicationDecisionResult {
   if (!input.hasRealData) {
-    return { decision: "REJECT", reasons: ["Sem dados reais suficientes para gerar a página"] };
+    return {
+      decision: "REJECT",
+      reasons: ["Sem dados reais suficientes para gerar a página"],
+    };
   }
   if (!input.canAddRealValue) {
     return {
       decision: "REJECT",
-      reasons: ['Não agrega valor além da ficha do marketplace ("temos um ASIN" não é motivo suficiente)'],
+      reasons: [
+        'Não agrega valor além da ficha do marketplace ("temos um ASIN" não é motivo suficiente)',
+      ],
     };
   }
   if (input.qualityGateVerdict === "FAIL") {
-    return { decision: "REJECT", reasons: ["Reprovado pelo ContentQualityGate"] };
+    return {
+      decision: "REJECT",
+      reasons: ["Reprovado pelo ContentQualityGate"],
+    };
   }
   if (!input.dataQualitySufficient) {
-    return { decision: "REJECT", reasons: ["Dados insuficientes (histórico ou especificações abaixo do mínimo)"] };
+    return {
+      decision: "REJECT",
+      reasons: [
+        "Dados insuficientes (histórico ou especificações abaixo do mínimo)",
+      ],
+    };
   }
 
-  const weakDemand = input.demandScore !== null && input.demandScore < MIN_DEMAND_SCORE_FOR_INDEXING;
+  const weakDemand =
+    input.demandScore !== null &&
+    input.demandScore < MIN_DEMAND_SCORE_FOR_INDEXING;
 
   if (input.alreadyPublished) {
     if (input.qualityGateVerdict === "REVIEW") {
-      return { decision: "UPDATE", reasons: ["Conteúdo publicado precisa de revisão"] };
+      return {
+        decision: "UPDATE",
+        reasons: ["Conteúdo publicado precisa de revisão"],
+      };
     }
     if (!input.isFresh) {
-      return { decision: "UPDATE", reasons: ["Conteúdo publicado está desatualizado"] };
+      return {
+        decision: "UPDATE",
+        reasons: ["Conteúdo publicado está desatualizado"],
+      };
     }
     if (weakDemand) {
-      return { decision: "NOINDEX", reasons: ["Demanda insuficiente para manter indexado"] };
+      return {
+        decision: "NOINDEX",
+        reasons: ["Demanda insuficiente para manter indexado"],
+      };
     }
-    return { decision: "KEEP", reasons: ["Conteúdo publicado continua válido"] };
+    return {
+      decision: "KEEP",
+      reasons: ["Conteúdo publicado continua válido"],
+    };
   }
 
   if (weakDemand) {
     return {
       decision: "NOINDEX",
-      reasons: ["Dados válidos, mas sem demanda suficiente para justificar indexação agora"],
+      reasons: [
+        "Dados válidos, mas sem demanda suficiente para justificar indexação agora",
+      ],
     };
   }
 
   if (input.qualityGateVerdict === "REVIEW") {
-    return { decision: "NOINDEX", reasons: ["Conteúdo criado mas precisa de revisão humana antes de indexar"] };
+    return {
+      decision: "NOINDEX",
+      reasons: [
+        "Conteúdo criado mas precisa de revisão humana antes de indexar",
+      ],
+    };
   }
 
   return {
     decision: "CREATE",
-    reasons: ["Dados suficientes, conteúdo aprovado, demanda/intenção justificam publicação"],
+    reasons: [
+      "Dados suficientes, conteúdo aprovado, demanda/intenção justificam publicação",
+    ],
   };
 }

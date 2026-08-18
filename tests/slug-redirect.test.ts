@@ -1,12 +1,21 @@
 import { describe, expect, it, afterEach } from "vitest";
 import { prisma } from "@/lib/db";
-import { registerSlugRedirect, resolveSlugRedirect, SlugRedirectLoopError } from "@/lib/seo/slug-redirect";
+import {
+  registerSlugRedirect,
+  resolveSlugRedirect,
+  SlugRedirectLoopError,
+} from "@/lib/seo/slug-redirect";
 
 const TEST_PATH_PREFIX = "/__test_slug_redirect__";
 
 afterEach(async () => {
   await prisma.slugRedirect.deleteMany({
-    where: { OR: [{ oldPath: { startsWith: TEST_PATH_PREFIX } }, { newPath: { startsWith: TEST_PATH_PREFIX } }] },
+    where: {
+      OR: [
+        { oldPath: { startsWith: TEST_PATH_PREFIX } },
+        { newPath: { startsWith: TEST_PATH_PREFIX } },
+      ],
+    },
   });
 });
 
@@ -27,18 +36,24 @@ describe("registerSlugRedirect", () => {
   });
 
   it("rejects a redirect from a path to itself", async () => {
-    await expect(registerSlugRedirect(path("a"), path("a"))).rejects.toThrow(SlugRedirectLoopError);
+    await expect(registerSlugRedirect(path("a"), path("a"))).rejects.toThrow(
+      SlugRedirectLoopError,
+    );
   });
 
   it("blocks A -> B from later being reversed into B -> A", async () => {
     await registerSlugRedirect(path("a"), path("b"));
-    await expect(registerSlugRedirect(path("b"), path("a"))).rejects.toThrow(SlugRedirectLoopError);
+    await expect(registerSlugRedirect(path("b"), path("a"))).rejects.toThrow(
+      SlugRedirectLoopError,
+    );
   });
 
   it("blocks a longer cycle (A -> B -> C -> A)", async () => {
     await registerSlugRedirect(path("a"), path("b"));
     await registerSlugRedirect(path("b"), path("c"));
-    await expect(registerSlugRedirect(path("c"), path("a"))).rejects.toThrow(SlugRedirectLoopError);
+    await expect(registerSlugRedirect(path("c"), path("a"))).rejects.toThrow(
+      SlugRedirectLoopError,
+    );
   });
 
   it("collapses chains: registering B -> C repoints an existing A -> B to A -> C", async () => {
@@ -53,6 +68,8 @@ describe("registerSlugRedirect", () => {
 
   it("is idempotent — registering the same redirect twice does not error", async () => {
     await registerSlugRedirect(path("a"), path("b"));
-    await expect(registerSlugRedirect(path("a"), path("b"))).resolves.toBeUndefined();
+    await expect(
+      registerSlugRedirect(path("a"), path("b")),
+    ).resolves.toBeUndefined();
   });
 });

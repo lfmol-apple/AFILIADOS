@@ -63,9 +63,10 @@ export async function generateMetadata(
   const title = `${product.title} — vale a pena comprar agora?`;
   const description = `Veja o histórico de preço e o Score PreçoCaindo de ${product.title}, atualmente por ${formatCurrency(Number(offer.price), offer.currency)}.`;
 
-  const specCount = product.specifications && typeof product.specifications === "object"
-    ? Object.keys(product.specifications as Record<string, unknown>).length
-    : 0;
+  const specCount =
+    product.specifications && typeof product.specifications === "object"
+      ? Object.keys(product.specifications as Record<string, unknown>).length
+      : 0;
   const indexable = isProductPageIndexable({
     coverageDays: stats.coverageDays,
     hasDescription: Boolean(product.description),
@@ -134,7 +135,12 @@ export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
   const breadcrumbItems = [
     { label: "Início", href: "/" },
     ...(product.category
-      ? [{ label: product.category.name, href: `/categorias/${product.category.slug}` }]
+      ? [
+          {
+            label: product.category.name,
+            href: `/categorias/${product.category.slug}`,
+          },
+        ]
       : []),
     { label: product.title },
   ];
@@ -142,7 +148,11 @@ export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-      <AnalyticsBeacon pageType="product" pageSlug={product.slug} productId={product.id} />
+      <AnalyticsBeacon
+        pageType="product"
+        pageSlug={product.slug}
+        productId={product.id}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

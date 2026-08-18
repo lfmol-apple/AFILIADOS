@@ -8,7 +8,9 @@ import { buildBreadcrumbList } from "@/lib/seo/structured-data";
 
 export const revalidate = 600;
 
-export async function generateMetadata(props: PageProps<"/categorias/[slug]">): Promise<Metadata> {
+export async function generateMetadata(
+  props: PageProps<"/categorias/[slug]">,
+): Promise<Metadata> {
   const { slug } = await props.params;
   const data = await getCategoryBySlug(slug);
   if (!data) return {};
@@ -19,26 +21,33 @@ export async function generateMetadata(props: PageProps<"/categorias/[slug]">): 
   };
 }
 
-export default async function CategoryPage(props: PageProps<"/categorias/[slug]">) {
+export default async function CategoryPage(
+  props: PageProps<"/categorias/[slug]">,
+) {
   const { slug } = await props.params;
   const data = await getCategoryBySlug(slug);
   if (!data) notFound();
 
   const { category, products } = data;
-  const breadcrumbItems = [{ label: "Início", href: "/" }, { label: category.name }];
+  const breadcrumbItems = [
+    { label: "Início", href: "/" },
+    { label: category.name },
+  ];
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <AnalyticsBeacon pageType="category" pageSlug={category.slug} />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(buildBreadcrumbList(breadcrumbItems)) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(buildBreadcrumbList(breadcrumbItems)),
+        }}
       />
       <Breadcrumbs items={breadcrumbItems} />
       <h1 className="mt-4 text-2xl font-semibold">{category.name}</h1>
 
       {products.length === 0 ? (
-        <p className="mt-10 text-sm text-foreground/60">
+        <p className="text-foreground/60 mt-10 text-sm">
           Ainda não temos produtos suficientes nesta categoria.
         </p>
       ) : (

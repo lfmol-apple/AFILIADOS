@@ -3,7 +3,9 @@ import { prisma } from "@/lib/db";
 import type { PriceAlert } from "@prisma/client";
 
 function hashContact(contact: string): string {
-  return createHash("sha256").update(contact.trim().toLowerCase()).digest("hex");
+  return createHash("sha256")
+    .update(contact.trim().toLowerCase())
+    .digest("hex");
 }
 
 export interface CreatePriceAlertInput {
@@ -20,7 +22,9 @@ export interface CreatePriceAlertInput {
  * sent here — PRICE_ALERTS=false today, and even once enabled, sending the
  * confirmation email is a separate concern from this data layer.
  */
-export async function createPriceAlert(input: CreatePriceAlertInput): Promise<PriceAlert> {
+export async function createPriceAlert(
+  input: CreatePriceAlertInput,
+): Promise<PriceAlert> {
   return prisma.priceAlert.create({
     data: {
       productId: input.productId,
@@ -35,7 +39,9 @@ export async function createPriceAlert(input: CreatePriceAlertInput): Promise<Pr
 }
 
 /** Double opt-in confirmation: consumes the token so it can't be reused. */
-export async function confirmPriceAlert(token: string): Promise<PriceAlert | null> {
+export async function confirmPriceAlert(
+  token: string,
+): Promise<PriceAlert | null> {
   const alert = await prisma.priceAlert.findFirst({
     where: { confirmationToken: token, confirmedAt: null },
   });

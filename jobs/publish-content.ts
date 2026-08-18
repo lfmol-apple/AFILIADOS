@@ -16,14 +16,18 @@ const STALE_AFTER_DAYS = 60;
  */
 export async function publishContent() {
   return runJob("PUBLISH_CONTENT", async (ctx) => {
-    const approved = await prisma.generatedContent.findMany({ where: { status: "APPROVED" } });
+    const approved = await prisma.generatedContent.findMany({
+      where: { status: "APPROVED" },
+    });
     ctx.counters.processed = approved.length;
 
     const now = Date.now();
     const breakdown = { CREATE: 0, NOINDEX: 0, REJECT: 0, UPDATE: 0, KEEP: 0 };
 
     for (const content of approved) {
-      const isFresh = now - content.updatedAt.getTime() < STALE_AFTER_DAYS * 24 * 60 * 60 * 1000;
+      const isFresh =
+        now - content.updatedAt.getTime() <
+        STALE_AFTER_DAYS * 24 * 60 * 60 * 1000;
 
       const decision = decidePublication({
         hasRealData: true, // ContentQualityGate already required real facts to reach APPROVED

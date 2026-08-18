@@ -66,7 +66,8 @@ export class RetryableError extends Error {
 export async function withRetry<T>(
   fn: (attempt: number) => Promise<T>,
   config: RetryPolicyConfig = DEFAULT_RETRY_POLICY,
-  sleep: (ms: number) => Promise<void> = (ms) => new Promise((r) => setTimeout(r, ms)),
+  sleep: (ms: number) => Promise<void> = (ms) =>
+    new Promise((r) => setTimeout(r, ms)),
 ): Promise<T> {
   let attempt = 0;
   for (;;) {
@@ -74,7 +75,10 @@ export async function withRetry<T>(
     try {
       return await fn(attempt);
     } catch (err) {
-      if (err instanceof RetryableError && shouldRetry(attempt, err.reason, config)) {
+      if (
+        err instanceof RetryableError &&
+        shouldRetry(attempt, err.reason, config)
+      ) {
         await sleep(computeBackoffDelayMs(attempt, config));
         continue;
       }

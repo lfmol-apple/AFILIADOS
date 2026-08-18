@@ -17,7 +17,10 @@ describe("buildBreadcrumbList", () => {
   });
 
   it("omits `item` for the current page (no href)", () => {
-    const result = buildBreadcrumbList([{ label: "Início", href: "/" }, { label: "Produto atual" }]);
+    const result = buildBreadcrumbList([
+      { label: "Início", href: "/" },
+      { label: "Produto atual" },
+    ]);
     expect(result.itemListElement[1].item).toBeUndefined();
   });
 
@@ -29,18 +32,42 @@ describe("buildBreadcrumbList", () => {
 
 describe("isProductPageIndexable", () => {
   it("is not indexable with no description, no specs, and almost no history", () => {
-    expect(isProductPageIndexable({ coverageDays: 0, hasDescription: false, specCount: 0 })).toBe(false);
+    expect(
+      isProductPageIndexable({
+        coverageDays: 0,
+        hasDescription: false,
+        specCount: 0,
+      }),
+    ).toBe(false);
   });
 
   it("is indexable once there's a real description, even with no history", () => {
-    expect(isProductPageIndexable({ coverageDays: 0, hasDescription: true, specCount: 0 })).toBe(true);
+    expect(
+      isProductPageIndexable({
+        coverageDays: 0,
+        hasDescription: true,
+        specCount: 0,
+      }),
+    ).toBe(true);
   });
 
   it("is indexable once there are specifications", () => {
-    expect(isProductPageIndexable({ coverageDays: 0, hasDescription: false, specCount: 3 })).toBe(true);
+    expect(
+      isProductPageIndexable({
+        coverageDays: 0,
+        hasDescription: false,
+        specCount: 3,
+      }),
+    ).toBe(true);
   });
 
   it("is indexable once there's enough price history", () => {
-    expect(isProductPageIndexable({ coverageDays: 5, hasDescription: false, specCount: 0 })).toBe(true);
+    expect(
+      isProductPageIndexable({
+        coverageDays: 5,
+        hasDescription: false,
+        specCount: 0,
+      }),
+    ).toBe(true);
   });
 });

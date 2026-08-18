@@ -58,7 +58,9 @@ export function planRefresh(input: RefreshPlannerInput): RefreshPlanResult {
   });
 
   return {
-    queue: sorted.slice(0, Math.max(0, input.rateBudget)).map((c) => c.productId),
+    queue: sorted
+      .slice(0, Math.max(0, input.rateBudget))
+      .map((c) => c.productId),
     skippedBackoff,
   };
 }
