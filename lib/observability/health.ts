@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { env } from "@/lib/config/env";
+import { logger } from "./logger";
 
 export type HealthStatus = "healthy" | "degraded" | "unhealthy";
 
@@ -7,6 +8,7 @@ export interface HealthCheckResult {
   status: HealthStatus;
   checks: {
     database: { status: HealthStatus; detail?: string };
+    migrations: { status: HealthStatus; detail: string };
     automation: { status: HealthStatus; detail: string };
   };
   providerMode: "mock" | "live";
@@ -15,6 +17,43 @@ export interface HealthCheckResult {
 }
 
 const AUTOMATION_LOOKBACK_HOURS = 24;
+
+interface MigrationRow {
+  migration_name: string;
+  finished_at: Date | null;
+  rolled_back_at: Date | null;
+}
+
+/**
+ * Cheap migration-state check: a single indexed query against Prisma's own
+ * `_prisma_migrations` table, not a `prisma migrate status` subprocess —
+ * this endpoint may be polled frequently by an external monitor, and
+ * spawning a process per request would be wasteful and slow. Only flags a
+ * problem it can actually observe (a migration that never finished, or was
+ * rolled back); it does not compare against the migrations folder on disk.
+ */
+async function checkMigrations(): Promise<{ status: HealthStatus; detail: string }> {
+  try {
+    const rows = await prisma.$queryRaw<MigrationRow[]>`
+      SELECT migration_name, finished_at, rolled_back_at
+      FROM "_prisma_migrations"
+      ORDER BY started_at DESC
+      LIMIT 1
+    `;
+    const latest = rows[0];
+    if (!latest) return { status: "healthy", detail: "No migrations recorded yet" };
+    if (latest.rolled_back_at) {
+      return { status: "unhealthy", detail: `Latest migration was rolled back: ${latest.migration_name}` };
+    }
+    if (!latest.finished_at) {
+      return { status: "degraded", detail: `Latest migration never finished: ${latest.migration_name}` };
+    }
+    return { status: "healthy", detail: `Up to date: ${latest.migration_name}` };
+  } catch (err) {
+    logger.error("health.migrations_check_failed", { message: String(err) });
+    return { status: "degraded", detail: "Could not read migration state" };
+  }
+}
 
 /**
  * Server-side health check — no secrets in the response (project brief
@@ -27,10 +66,16 @@ export async function runHealthCheck(): Promise<HealthCheckResult> {
   let databaseDetail: string | undefined;
   try {
     await prisma.$queryRaw`SELECT 1`;
-  } catch {
+  } catch (err) {
     databaseStatus = "unhealthy";
     databaseDetail = "Database unreachable";
+    logger.error("health.database_unreachable", { message: String(err) });
   }
+
+  const migrations =
+    databaseStatus === "healthy"
+      ? await checkMigrations()
+      : { status: "unhealthy" as HealthStatus, detail: "Skipped — database unreachable" };
 
   let automationStatus: HealthStatus = "healthy";
   let automationDetail = "No automation runs in the lookback window";
@@ -60,7 +105,7 @@ export async function runHealthCheck(): Promise<HealthCheckResult> {
     automationDetail = "Skipped — database unreachable";
   }
 
-  const statuses = [databaseStatus, automationStatus];
+  const statuses = [databaseStatus, migrations.status, automationStatus];
   const status: HealthStatus = statuses.includes("unhealthy")
     ? "unhealthy"
     : statuses.includes("degraded")
@@ -71,6 +116,7 @@ export async function runHealthCheck(): Promise<HealthCheckResult> {
     status,
     checks: {
       database: { status: databaseStatus, detail: databaseDetail },
+      migrations,
       automation: { status: automationStatus, detail: automationDetail },
     },
     providerMode: env.AMAZON_PROVIDER,
