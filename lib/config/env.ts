@@ -87,7 +87,13 @@ const envSchema = z.object({
   // flag alone is not enough to publish mock prices to the internet.
   PUBLIC_CATALOG_ENABLED: booleanFromEnvDefault(false),
 
-  ADMIN_ACCESS_TOKEN: z.string().default(""),
+  // scrypt-hashed admin password ("scrypt:<saltHex>:<hashHex>"), generated
+  // via `npm run admin:hash-password` — never the plaintext password.
+  // Replaces the old ADMIN_ACCESS_TOKEN shared-secret-in-the-URL scheme
+  // (compared via `===`, visible in browser history/referrers/server
+  // logs), which was never real authentication. See lib/admin/auth.ts and
+  // docs/PRODUCTION_READINESS.md.
+  ADMIN_PASSWORD_HASH: z.string().default(""),
 });
 
 export type Env = z.infer<typeof envSchema>;

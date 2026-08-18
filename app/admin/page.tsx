@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { env } from "@/lib/config/env";
 import {
   getTodayStats,
@@ -16,6 +17,13 @@ import {
   checkLiveActivationReadiness,
 } from "@/lib/amazon/policy-guard";
 import { getBrazilAmazonStatus, getUsAmazonStatus } from "@/lib/amazon/status";
+import {
+  ADMIN_SESSION_COOKIE,
+  isAdminAuthConfigured,
+  isAdminRequestAuthorized,
+} from "@/lib/admin/auth";
+import { AdminLoginForm } from "@/components/admin-login-form";
+import { AdminLogoutButton } from "@/components/admin-logout-button";
 
 export const metadata: Metadata = {
   title: "Admin",
@@ -50,21 +58,13 @@ function StatusPill({ ok, label }: { ok: boolean; label: string }) {
   );
 }
 
-export default async function AdminPage(props: PageProps<"/admin">) {
-  const searchParams = await props.searchParams;
-  const token =
-    typeof searchParams?.token === "string" ? searchParams.token : undefined;
+export default async function AdminPage() {
+  const cookieStore = await cookies();
+  const sessionToken = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
+  const authorized = await isAdminRequestAuthorized(sessionToken);
 
-  if (env.ADMIN_ACCESS_TOKEN && token !== env.ADMIN_ACCESS_TOKEN) {
-    return (
-      <div className="mx-auto max-w-md px-4 py-16 text-center sm:px-6">
-        <h1 className="text-xl font-semibold">Acesso restrito</h1>
-        <p className="text-foreground/60 mt-2 text-sm">
-          Este painel exige um token de acesso. Adicione{" "}
-          <code>?token=SEU_TOKEN</code> à URL.
-        </p>
-      </div>
-    );
+  if (!authorized) {
+    return <AdminLoginForm />;
   }
 
   const [
@@ -102,13 +102,18 @@ export default async function AdminPage(props: PageProps<"/admin">) {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-      <h1 className="text-2xl font-semibold">Admin</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Admin</h1>
+        {isAdminAuthConfigured() && <AdminLogoutButton />}
+      </div>
 
-      {!env.ADMIN_ACCESS_TOKEN && (
+      {!isAdminAuthConfigured() && (
         <div className="mt-4 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm text-rose-800 dark:border-rose-800 dark:bg-rose-950 dark:text-rose-300">
-          ⚠️ ADMIN_ACCESS_TOKEN não está configurado — este painel está
-          publicamente acessível. Aceitável apenas em desenvolvimento local (ver
-          docs/PRODUCTION_READINESS.md).
+          ⚠️ ADMIN_PASSWORD_HASH não está configurado — este painel está
+          aberto sem autenticação. Aceitável apenas em desenvolvimento local
+          (bloqueado automaticamente em produção — ver
+          docs/PRODUCTION_READINESS.md e rode{" "}
+          <code>npm run admin:hash-password</code>).
         </div>
       )}
 

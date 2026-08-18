@@ -19,7 +19,9 @@
     "db:seed": "tsx prisma/seed.ts",
     "jobs:run": "tsx jobs/run.ts",
     "amazon:compliance": "tsx scripts/amazon-compliance.ts",
-    "production:readiness": "tsx scripts/production-readiness.ts"
+    "production:readiness": "tsx scripts/production-readiness.ts",
+    "admin:hash-password": "tsx scripts/generate-admin-password-hash.ts",
+    "db:backup": "bash scripts/backup-database.sh"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

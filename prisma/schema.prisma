@@ -439,6 +439,31 @@ model SlugRedirect {
   @@index([newPath])
 }
 
+/// A logged-in /admin session. Only tokenHash is stored — the raw session
+/// token lives solely in the HttpOnly cookie, so a database leak alone
+/// can never be replayed as a live session. See lib/admin/auth.ts.
+model AdminSession {
+  id         String   @id @default(cuid())
+  tokenHash  String   @unique
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+  lastSeenAt DateTime @default(now())
+
+  @@index([expiresAt])
+}
+
+/// Basic login rate limiting for /admin — see lib/admin/auth.ts.
+/// ipHash is a SHA-256 hash of the client IP, never the raw address
+/// (data minimization principle applied the same way as PriceAlert.contactHash).
+model AdminLoginAttempt {
+  id        String   @id @default(cuid())
+  ipHash    String
+  success   Boolean
+  createdAt DateTime @default(now())
+
+  @@index([ipHash, createdAt])
+}
+
 /// LGPD consent, keyed by a pseudonymous subject id (a client-generated,
 /// non-personal identifier stored in a first-party cookie — never an email
 /// or account id). One row per subject; choices are overwritten in place so
