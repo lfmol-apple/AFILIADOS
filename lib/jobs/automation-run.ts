@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import type { Prisma } from "@prisma/client";
+import type { MarketplaceCode } from "@/types/marketplace";
 
 export interface JobCounters {
   processed: number;
@@ -30,14 +31,27 @@ const STALE_LOCK_TIMEOUT_MINUTES = 60;
  * overlapping (section 17: protected against undue concurrent execution),
  * with automatic recovery from a stale lock left behind by a crashed run.
  */
-export async function runJob(jobName: string, fn: JobFn): Promise<JobCounters> {
+export interface RunJobOptions {
+  /** Tags the AutomationRun with which marketplace it processed — populates
+   * the AutomationRun.marketplace column that already existed but went
+   * unused before this sprint. Omit for jobs that aren't scoped to one
+   * marketplace (content validation/publish, cleanup, sitemap refresh). */
+  marketplace?: MarketplaceCode;
+}
+
+export async function runJob(
+  jobName: string,
+  fn: JobFn,
+  options?: RunJobOptions,
+): Promise<JobCounters> {
   const alreadyRunning = await prisma.automationRun.findFirst({
     where: { job: jobName, status: "RUNNING" },
     orderBy: { startedAt: "desc" },
   });
 
   if (alreadyRunning) {
-    const ageMinutes = (Date.now() - alreadyRunning.startedAt.getTime()) / (1000 * 60);
+    const ageMinutes =
+      (Date.now() - alreadyRunning.startedAt.getTime()) / (1000 * 60);
     if (ageMinutes < STALE_LOCK_TIMEOUT_MINUTES) {
       throw new Error(
         `Job ${jobName} is already running (AutomationRun ${alreadyRunning.id}, started ${alreadyRunning.startedAt.toISOString()})`,
@@ -50,13 +64,20 @@ export async function runJob(jobName: string, fn: JobFn): Promise<JobCounters> {
       data: {
         status: "FAILED",
         finishedAt: new Date(),
-        metadata: { ...(alreadyRunning.metadata as Record<string, unknown> | null), staleLockRecovered: true },
+        metadata: {
+          ...(alreadyRunning.metadata as Record<string, unknown> | null),
+          staleLockRecovered: true,
+        },
       },
     });
   }
 
   const run = await prisma.automationRun.create({
-    data: { job: jobName, status: "RUNNING" },
+    data: {
+      job: jobName,
+      status: "RUNNING",
+      marketplace: options?.marketplace,
+    },
   });
 
   const ctx: JobContext = {
@@ -89,7 +110,10 @@ export async function runJob(jobName: string, fn: JobFn): Promise<JobCounters> {
         created: ctx.counters.created,
         updated: ctx.counters.updated,
         errors: ctx.counters.errors + 1,
-        metadata: { ...ctx.metadata, error: String(err) } as Prisma.InputJsonValue,
+        metadata: {
+          ...ctx.metadata,
+          error: String(err),
+        } as Prisma.InputJsonValue,
       },
     });
     throw err;

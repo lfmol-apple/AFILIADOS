@@ -15,45 +15,58 @@ import { PRIORITY_THRESHOLDS } from "@/lib/config/priority";
  * than that has no effect beyond wasted DB reads (see docs/AUTOMATION.md).
  */
 export async function rebalanceProductPriorities() {
-  return runJob("REBALANCE_PRODUCT_PRIORITIES", async (ctx) => {
-    const since = new Date(Date.now() - PRIORITY_THRESHOLDS.clicksWindowDays * 24 * 60 * 60 * 1000);
+  return runJob(
+    "REBALANCE_PRODUCT_PRIORITIES",
+    async (ctx) => {
+      const since = new Date(
+        Date.now() - PRIORITY_THRESHOLDS.clicksWindowDays * 24 * 60 * 60 * 1000,
+      );
 
-    const products = await prisma.product.findMany({
-      where: { active: true },
-      select: {
-        id: true,
-        updatePriority: true,
-        priorityUpdatedAt: true,
-        opportunityScore: { select: { score: true } },
-        priceStats: { select: { dropPercentage: true } },
-        offers: { orderBy: { observedAt: "desc" }, take: 1, select: { availability: true } },
-      },
-    });
-
-    for (const product of products) {
-      ctx.counters.processed += 1;
-      const availability = product.offers[0]?.availability ?? "UNKNOWN";
-
-      const recentClicks = await prisma.affiliateClick.count({
-        where: { productId: product.id, createdAt: { gte: since } },
+      const products = await prisma.product.findMany({
+        where: { active: true },
+        select: {
+          id: true,
+          updatePriority: true,
+          priorityUpdatedAt: true,
+          opportunityScore: { select: { score: true } },
+          priceStats: { select: { dropPercentage: true } },
+          offers: {
+            orderBy: { observedAt: "desc" },
+            take: 1,
+            select: { availability: true },
+          },
+        },
       });
 
-      const decision = decideProductPriority({
-        currentPriority: product.updatePriority,
-        priorityUpdatedAt: product.priorityUpdatedAt,
-        opportunityScore: product.opportunityScore?.score ?? null,
-        dropPercentage: product.priceStats?.dropPercentage ?? null,
-        availability,
-        recentClicks,
-      });
+      for (const product of products) {
+        ctx.counters.processed += 1;
+        const availability = product.offers[0]?.availability ?? "UNKNOWN";
 
-      if (decision.changed) {
-        await prisma.product.update({
-          where: { id: product.id },
-          data: { updatePriority: decision.priority, priorityUpdatedAt: new Date() },
+        const recentClicks = await prisma.affiliateClick.count({
+          where: { productId: product.id, createdAt: { gte: since } },
         });
-        ctx.counters.updated += 1;
+
+        const decision = decideProductPriority({
+          currentPriority: product.updatePriority,
+          priorityUpdatedAt: product.priorityUpdatedAt,
+          opportunityScore: product.opportunityScore?.score ?? null,
+          dropPercentage: product.priceStats?.dropPercentage ?? null,
+          availability,
+          recentClicks,
+        });
+
+        if (decision.changed) {
+          await prisma.product.update({
+            where: { id: product.id },
+            data: {
+              updatePriority: decision.priority,
+              priorityUpdatedAt: new Date(),
+            },
+          });
+          ctx.counters.updated += 1;
+        }
       }
-    }
-  });
+    },
+    { marketplace: "BR" },
+  );
 }

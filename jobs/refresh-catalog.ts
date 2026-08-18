@@ -5,7 +5,11 @@ import { refreshProductsByPriority } from "@/lib/jobs/refresh-products";
  * upstream rate limits. Run less frequently than REFRESH_PRIORITY_PRODUCTS.
  * See docs/AUTOMATION.md. */
 export async function refreshCatalog() {
-  return runJob("REFRESH_CATALOG", async (ctx) => {
-    await refreshProductsByPriority(["WARM", "COLD"], 200, ctx);
-  });
+  return runJob(
+    "REFRESH_CATALOG",
+    async (ctx) => {
+      await refreshProductsByPriority(["WARM", "COLD"], 200, ctx);
+    },
+    { marketplace: "BR" },
+  );
 }

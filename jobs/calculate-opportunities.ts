@@ -40,85 +40,89 @@ function toStatsResult(row: {
  * REFRESH_PRIORITY_PRODUCTS keeps a closer eye on it.
  */
 export async function calculateOpportunities() {
-  return runJob("CALCULATE_OPPORTUNITIES", async (ctx) => {
-    const products = await prisma.product.findMany({
-      where: { active: true, priceStats: { isNot: null } },
-      select: {
-        id: true,
-        rating: true,
-        reviewCount: true,
-        priceStats: true,
-        offers: { orderBy: { observedAt: "desc" }, take: 1 },
-        priceHistory: { orderBy: { observedAt: "desc" }, take: 30 },
-      },
-    });
-
-    const drops: string[] = [];
-
-    for (const product of products) {
-      ctx.counters.processed += 1;
-      const offer = product.offers[0];
-      const stats = product.priceStats;
-      if (!offer || !stats) continue;
-
-      const statsResult = toStatsResult(stats);
-
-      const result = calculateOpportunityScore({
-        currentPrice: Number(offer.price),
-        listedDiscountPercentage: offer.discountPercentage,
-        rating: product.rating,
-        reviewCount: product.reviewCount,
-        availability: offer.availability,
-        stats: statsResult,
-      });
-
-      await prisma.opportunityScore.upsert({
-        where: { productId: product.id },
-        create: {
-          productId: product.id,
-          score: result.score,
-          priceScore: result.priceScore,
-          discountScore: result.discountScore,
-          popularityScore: result.popularityScore,
-          ratingScore: result.ratingScore,
-          historicalScore: result.historicalScore,
-          confidence: result.confidence,
-        },
-        update: {
-          score: result.score,
-          priceScore: result.priceScore,
-          discountScore: result.discountScore,
-          popularityScore: result.popularityScore,
-          ratingScore: result.ratingScore,
-          historicalScore: result.historicalScore,
-          confidence: result.confidence,
-          calculatedAt: new Date(),
+  return runJob(
+    "CALCULATE_OPPORTUNITIES",
+    async (ctx) => {
+      const products = await prisma.product.findMany({
+        where: { active: true, priceStats: { isNot: null } },
+        select: {
+          id: true,
+          rating: true,
+          reviewCount: true,
+          priceStats: true,
+          offers: { orderBy: { observedAt: "desc" }, take: 1 },
+          priceHistory: { orderBy: { observedAt: "desc" }, take: 30 },
         },
       });
 
-      const priorHistory = product.priceHistory.map((h) => ({
-        price: Number(h.price),
-        observedAt: h.observedAt,
-      }));
-      const dropEvent = detectPriceDrop(
-        product.id,
-        priorHistory,
-        Number(offer.price),
-        statsResult,
-      );
+      const drops: string[] = [];
 
-      if (dropEvent) {
-        drops.push(product.id);
-        await prisma.product.update({
-          where: { id: product.id },
-          data: { updatePriority: "HOT", priorityUpdatedAt: new Date() },
+      for (const product of products) {
+        ctx.counters.processed += 1;
+        const offer = product.offers[0];
+        const stats = product.priceStats;
+        if (!offer || !stats) continue;
+
+        const statsResult = toStatsResult(stats);
+
+        const result = calculateOpportunityScore({
+          currentPrice: Number(offer.price),
+          listedDiscountPercentage: offer.discountPercentage,
+          rating: product.rating,
+          reviewCount: product.reviewCount,
+          availability: offer.availability,
+          stats: statsResult,
         });
+
+        await prisma.opportunityScore.upsert({
+          where: { productId: product.id },
+          create: {
+            productId: product.id,
+            score: result.score,
+            priceScore: result.priceScore,
+            discountScore: result.discountScore,
+            popularityScore: result.popularityScore,
+            ratingScore: result.ratingScore,
+            historicalScore: result.historicalScore,
+            confidence: result.confidence,
+          },
+          update: {
+            score: result.score,
+            priceScore: result.priceScore,
+            discountScore: result.discountScore,
+            popularityScore: result.popularityScore,
+            ratingScore: result.ratingScore,
+            historicalScore: result.historicalScore,
+            confidence: result.confidence,
+            calculatedAt: new Date(),
+          },
+        });
+
+        const priorHistory = product.priceHistory.map((h) => ({
+          price: Number(h.price),
+          observedAt: h.observedAt,
+        }));
+        const dropEvent = detectPriceDrop(
+          product.id,
+          priorHistory,
+          Number(offer.price),
+          statsResult,
+        );
+
+        if (dropEvent) {
+          drops.push(product.id);
+          await prisma.product.update({
+            where: { id: product.id },
+            data: { updatePriority: "HOT", priorityUpdatedAt: new Date() },
+          });
+        }
+
+        ctx.counters.updated += 1;
       }
 
-      ctx.counters.updated += 1;
-    }
-
-    ctx.metadata.priceDropsDetected = drops.length;
-    ctx.metadata.priceDropProductIds = drops;
-  });
+      ctx.metadata.priceDropsDetected = drops.length;
+      ctx.metadata.priceDropProductIds = drops;
+    },
+    { marketplace: "BR" },
+  );
 }

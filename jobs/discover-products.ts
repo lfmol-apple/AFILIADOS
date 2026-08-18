@@ -72,22 +72,26 @@ async function upsertDiscoveredProduct(
  * pairs are left untouched here — price refreshing is REFRESH_PRIORITY_PRODUCTS
  * / REFRESH_CATALOG's job. */
 export async function discoverProducts() {
-  return runJob("DISCOVER_PRODUCTS", async (ctx) => {
-    const provider = getCommerceProvider();
-    const seen = new Set<string>();
+  return runJob(
+    "DISCOVER_PRODUCTS",
+    async (ctx) => {
+      const provider = getCommerceProvider();
+      const seen = new Set<string>();
 
-    for (const keywords of DISCOVERY_SEED_KEYWORDS) {
-      const result = await provider.searchProducts({ keywords });
-      for (const product of result.products) {
-        if (seen.has(product.asin)) continue;
-        seen.add(product.asin);
-        try {
-          await upsertDiscoveredProduct(product, ctx);
-        } catch (err) {
-          ctx.counters.errors += 1;
-          ctx.metadata[`error_${product.asin}`] = String(err);
+      for (const keywords of DISCOVERY_SEED_KEYWORDS) {
+        const result = await provider.searchProducts({ keywords });
+        for (const product of result.products) {
+          if (seen.has(product.asin)) continue;
+          seen.add(product.asin);
+          try {
+            await upsertDiscoveredProduct(product, ctx);
+          } catch (err) {
+            ctx.counters.errors += 1;
+            ctx.metadata[`error_${product.asin}`] = String(err);
+          }
         }
       }
-    }
-  });
+    },
+    { marketplace: "BR" },
+  );
 }
