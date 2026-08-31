@@ -26,10 +26,20 @@ export const AMAZON_STORE_IDS: Record<MarketplaceCode, string> = {
   US: "petmol07-20",
 };
 
+const FORBIDDEN_HISTORICAL_TAGS = new Set(Object.values(AMAZON_STORE_IDS));
+
+function normalizeOperationalAssociateTag(value: string): string {
+  const tag = value.trim();
+  if (!tag) return "";
+  return FORBIDDEN_HISTORICAL_TAGS.has(tag) ? "" : tag;
+}
+
 function resolveBrAssociateTag(): string {
-  // AMAZON_ASSOCIATE_TAG is the deprecated, pre-multi-marketplace variable
-  // — honored as a fallback only so an existing .env keeps working.
-  return env.AMAZON_BR_ASSOCIATE_TAG || env.AMAZON_ASSOCIATE_TAG || "";
+  // AMAZON_ASSOCIATE_TAG is deprecated and intentionally not used as a
+  // fallback for the current PreçoCaindo application. A new Amazon
+  // application must have its current Tracking ID confirmed by a human and
+  // set explicitly in AMAZON_BR_ASSOCIATE_TAG.
+  return normalizeOperationalAssociateTag(env.AMAZON_BR_ASSOCIATE_TAG);
 }
 
 /**
@@ -59,7 +69,7 @@ export function getAmazonMarketplaceConfig(
     host: "amazon.com",
     currency: "USD",
     // Never falls back to petmol07-20 — see AMAZON_STORE_IDS above.
-    associateTag: env.AMAZON_US_ASSOCIATE_TAG,
+    associateTag: normalizeOperationalAssociateTag(env.AMAZON_US_ASSOCIATE_TAG),
     enabled: env.AMAZON_US_ENABLED,
     apiEnabled: env.AMAZON_US_API_ENABLED,
   };
@@ -68,14 +78,13 @@ export function getAmazonMarketplaceConfig(
 export const ALL_MARKETPLACES: MarketplaceCode[] = ["BR", "US"];
 
 /**
- * The marketplace the public precocaindo.com.br site serves today (project
- * brief Sprint 4 section 8). Every public query (lib/queries/products.ts,
- * app/sitemap.ts, etc.) filters on this constant explicitly instead of a
- * bare "BR" literal, so a future decision to serve a second marketplace on
- * the public site is a one-line, greppable change — not a hunt through
- * every query for a hardcoded string.
+ * The marketplace the public site serves. Every public query
+ * (lib/queries/products.ts, app/sitemap.ts, etc.) filters on this constant
+ * explicitly instead of a bare marketplace literal, so switching the
+ * deployed property from BR to US is an env change plus reviewed data.
  */
-export const PRIMARY_PUBLIC_MARKETPLACE: MarketplaceCode = "BR";
+export const PRIMARY_PUBLIC_MARKETPLACE: MarketplaceCode =
+  env.PUBLIC_MARKETPLACE;
 
 export function isMarketplaceCode(value: string): value is MarketplaceCode {
   return (ALL_MARKETPLACES as string[]).includes(value);

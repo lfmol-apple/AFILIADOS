@@ -3,9 +3,11 @@ import { AffiliateDisclosure } from "@/components/affiliate-disclosure";
 import { siteConfig } from "@/lib/config/site";
 
 const LINKS = [
+  { href: "/guias", label: "Guias" },
   { href: "/sobre", label: "Sobre" },
   { href: "/como-funciona", label: "Como funciona" },
   { href: "/metodologia", label: "Metodologia" },
+  { href: "/politica-editorial", label: "Política editorial" },
   { href: "/transparencia", label: "Transparência" },
   { href: "/privacidade", label: "Política de privacidade" },
   { href: "/termos", label: "Termos" },
@@ -27,8 +29,8 @@ export function SiteFooter() {
         </div>
         <p className="text-foreground/40 mt-4 text-xs">
           © {new Date().getFullYear()} {siteConfig.name}. PreçoCaindo é um
-          serviço editorial e participante do Programa de Associados da Amazon;
-          a compra é sempre feita na Amazon.
+          serviço editorial e de apoio à decisão de compra; a compra é sempre
+          feita na loja parceira.
         </p>
       </div>
     </footer>

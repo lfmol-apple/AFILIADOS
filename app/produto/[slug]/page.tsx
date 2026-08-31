@@ -14,7 +14,11 @@ import { ProductCard } from "@/components/product-card";
 import { ProductImage } from "@/components/product-image";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { PetLitterCalculator } from "@/components/pet-litter-calculator";
+import { PriceAlertForm } from "@/components/price-alert-form";
 import { siteConfig } from "@/lib/config/site";
+import { env } from "@/lib/config/env";
+import { getAmazonMarketplaceConfig } from "@/lib/config/marketplaces";
+import { buildAmazonDirectProductUrl } from "@/lib/amazon/policy-guard";
 import {
   buildBreadcrumbList,
   buildFaqPage,
@@ -215,6 +219,19 @@ export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
   const isLitterProduct = isPetLitter(specs);
   const faqs = isLitterProduct ? PET_LITTER_FAQS : [];
   const similar = await getSimilarProducts(product.categoryId, product.id);
+  const amazonGoPath =
+    product.marketplace === "BR"
+      ? `/go/amazon/${product.asin}`
+      : `/go/amazon/${product.marketplace}/${product.asin}`;
+  const amazonMarketplaceConfig = getAmazonMarketplaceConfig(
+    product.marketplace,
+  );
+  const amazonProductUrl =
+    amazonMarketplaceConfig.enabled && amazonMarketplaceConfig.associateTag
+      ? `${siteConfig.url}${amazonGoPath}`
+      : buildAmazonDirectProductUrl(product.asin, product.marketplace);
+  const amazonSellerName =
+    product.marketplace === "BR" ? "Amazon.com.br" : "Amazon.com";
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -247,8 +264,8 @@ export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
               : offer.availability === "OUT_OF_STOCK"
                 ? "https://schema.org/OutOfStock"
                 : "https://schema.org/LimitedAvailability",
-          url: `${siteConfig.url}/go/amazon/${product.asin}`,
-          seller: { "@type": "Organization", name: "Amazon.com.br" },
+          url: amazonProductUrl,
+          seller: { "@type": "Organization", name: amazonSellerName },
         }
       : undefined,
   };
@@ -372,7 +389,7 @@ export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
           {unitEconomics && !offer && (
             <div className="border-border-subtle mt-4 min-w-0 rounded-xl border p-3 text-sm">
               <p className="text-foreground/50 text-xs">Unidade econômica</p>
-              <p className="break-words font-semibold">
+              <p className="font-semibold break-words">
                 {unitEconomics.quantity} {unitEconomics.label} — preço por{" "}
                 {unitEconomics.label} aguardando oferta verificada
               </p>
@@ -396,14 +413,75 @@ export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
             </Link>
           </div>
 
+          <div className="mt-6">
+            <PriceAlertForm
+              productId={product.id}
+              currentPrice={offer ? Number(offer.price) : null}
+              currency={offer?.currency ?? "BRL"}
+              enabled={env.PRICE_ALERTS}
+            />
+          </div>
+
           <AmazonCta
             asin={product.asin}
+            marketplace={product.marketplace}
             pageType="product"
             pageSlug={product.slug}
+            label={offer ? undefined : "Ver preço na Amazon →"}
             className="mt-6"
           />
         </div>
       </div>
+
+      {offer && (
+        <section className="mt-12 max-w-3xl">
+          <h2 className="text-lg font-semibold">Melhor preço hoje</h2>
+          <div className="border-border-subtle mt-4 overflow-x-auto rounded-xl border">
+            <table className="w-full min-w-[520px] border-collapse text-sm">
+              <thead className="bg-surface-muted text-foreground/60">
+                <tr>
+                  <th className="px-4 py-3 text-left font-medium">Loja</th>
+                  <th className="px-4 py-3 text-left font-medium">Preço</th>
+                  <th className="px-4 py-3 text-left font-medium">
+                    Disponibilidade
+                  </th>
+                  <th className="px-4 py-3 text-left font-medium">Ação</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-border-subtle border-t">
+                  <td className="px-4 py-3 font-medium">{amazonSellerName}</td>
+                  <td className="px-4 py-3">
+                    {formatCurrency(Number(offer.price), offer.currency)}
+                  </td>
+                  <td className="px-4 py-3">
+                    {offer.availability === "IN_STOCK"
+                      ? "Disponível"
+                      : offer.availability === "OUT_OF_STOCK"
+                        ? "Indisponível"
+                        : "A confirmar"}
+                  </td>
+                  <td className="px-4 py-3">
+                    <AmazonCta
+                      asin={product.asin}
+                      marketplace={product.marketplace}
+                      pageType="product_table"
+                      pageSlug={product.slug}
+                      label="Ver na loja →"
+                      className="[&>a]:px-4 [&>a]:py-2 [&>a]:text-xs"
+                      showDisclosure={false}
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p className="text-foreground/50 mt-2 text-xs">
+            Ordenamos por utilidade para o comprador. Comissão comercial não
+            transforma uma oferta pior em melhor.
+          </p>
+        </section>
+      )}
 
       {unitEconomics && (
         <section className="mt-12 w-full max-w-3xl">

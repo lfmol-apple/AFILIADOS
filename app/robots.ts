@@ -2,7 +2,13 @@ import type { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/config/site";
 import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 
-const CATALOG_PATHS = ["/produto/", "/ofertas", "/categorias/", "/melhores/", "/comparar/"];
+const CATALOG_PATHS = [
+  "/produto/",
+  "/ofertas",
+  "/categorias/",
+  "/melhores/",
+  "/comparar/",
+];
 
 // Without this, Next.js prerenders robots.txt once at build time and caches
 // it indefinitely — PUBLIC_CATALOG_ENABLED/MANUAL_PRODUCTS_ENABLED are
@@ -15,7 +21,7 @@ const CATALOG_PATHS = ["/produto/", "/ofertas", "/categorias/", "/melhores/", "/
 export const dynamic = "force-dynamic";
 
 export default function robots(): MetadataRoute.Robots {
-  const disallow = ["/admin", "/go/amazon/", "/api/"];
+  const disallow = ["/admin", "/go/", "/api/"];
 
   // Pre-launch (or every data-source gate closed) — see
   // lib/config/public-catalog.ts. Deliberately checks "is anything at all

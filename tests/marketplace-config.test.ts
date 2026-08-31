@@ -14,21 +14,29 @@ describe("marketplace config", () => {
     expect(config.currency).toBe("BRL");
   });
 
-  it("BR uses precocaindo-20 as its associate tag when configured", async () => {
-    vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", "precocaindo-20");
+  it("BR uses the human-confirmed associate tag when configured", async () => {
+    vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", "confirmed-preco-20");
     const { getAmazonMarketplaceConfig } =
       await import("@/lib/config/marketplaces");
     expect(getAmazonMarketplaceConfig("BR").associateTag).toBe(
-      "precocaindo-20",
+      "confirmed-preco-20",
     );
   });
 
-  it("falls back to the deprecated AMAZON_ASSOCIATE_TAG for BR when the new var is unset", async () => {
+  it("BR refuses the historical PETMOL tag as an operational PreçoCaindo tag", async () => {
+    vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", "petmol-20");
+    vi.stubEnv("AMAZON_ASSOCIATE_TAG", "");
+    const { getAmazonMarketplaceConfig } =
+      await import("@/lib/config/marketplaces");
+    expect(getAmazonMarketplaceConfig("BR").associateTag).toBe("");
+  });
+
+  it("does not fall back to the deprecated AMAZON_ASSOCIATE_TAG for the current BR application", async () => {
     vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", "");
     vi.stubEnv("AMAZON_ASSOCIATE_TAG", "legacy-tag-20");
     const { getAmazonMarketplaceConfig } =
       await import("@/lib/config/marketplaces");
-    expect(getAmazonMarketplaceConfig("BR").associateTag).toBe("legacy-tag-20");
+    expect(getAmazonMarketplaceConfig("BR").associateTag).toBe("");
   });
 
   it("US is disabled by default", async () => {
@@ -45,6 +53,13 @@ describe("marketplace config", () => {
     const config = getAmazonMarketplaceConfig("US");
     expect(config.associateTag).toBe("");
     expect(config.associateTag).not.toBe(AMAZON_STORE_IDS.US);
+  });
+
+  it("US refuses petmol07-20 even if someone puts it in AMAZON_US_ASSOCIATE_TAG", async () => {
+    vi.stubEnv("AMAZON_US_ASSOCIATE_TAG", "petmol07-20");
+    const { getAmazonMarketplaceConfig } =
+      await import("@/lib/config/marketplaces");
+    expect(getAmazonMarketplaceConfig("US").associateTag).toBe("");
   });
 
   it("documents the real Store IDs as informational only", async () => {
@@ -67,5 +82,19 @@ describe("marketplace config", () => {
     const { getEnabledMarketplaces } =
       await import("@/lib/config/marketplaces");
     expect(getEnabledMarketplaces()).toEqual(["BR"]);
+  });
+
+  it("defaults the public marketplace to BR", async () => {
+    vi.stubEnv("PUBLIC_MARKETPLACE", "");
+    const { PRIMARY_PUBLIC_MARKETPLACE } =
+      await import("@/lib/config/marketplaces");
+    expect(PRIMARY_PUBLIC_MARKETPLACE).toBe("BR");
+  });
+
+  it("allows the deployed public catalog to be switched to US by env", async () => {
+    vi.stubEnv("PUBLIC_MARKETPLACE", "US");
+    const { PRIMARY_PUBLIC_MARKETPLACE } =
+      await import("@/lib/config/marketplaces");
+    expect(PRIMARY_PUBLIC_MARKETPLACE).toBe("US");
   });
 });

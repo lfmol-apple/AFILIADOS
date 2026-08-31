@@ -14,37 +14,40 @@ Quando a coorte estiver revisada e pronta:
 1. **Cadastrar a coorte** — `npm run product:add` (ou `candidate:add` + `candidate:promote`) para
    cada produto, um a um, com ASIN real, categoria, e conteúdo editorial próprio. Ver
    docs/COHORT.md.
-2. **Revisar as páginas** — visitar `/produto/[slug]` de cada produto localmente/staging
+1. **Rodar o backfill multiloja** — depois da migration, `npm run merchant:backfill-amazon` cria
+   `CanonicalProduct`, `Merchant` e `MerchantListing` para os produtos existentes sem apagar nada.
+1. **Revisar as páginas** — visitar `/produto/[slug]` de cada produto localmente/staging
    (o produto já é visível para revisão manual com `MANUAL_PRODUCTS_ENABLED=true` só no ambiente
    de revisão, catálogo ainda fechado ao público em produção).
-3. **Validar os links** — para cada produto, abrir `/go/amazon/[asin]`, confirmar redirect para
-   `amazon.com.br/dp/<ASIN>?tag=precocaindo-20`, confirmar `AffiliateClick` gravado. Nunca
+1. **Validar os links** — para cada produto, abrir `/go/amazon/[asin]`, confirmar redirect para
+   `amazon.com.br/dp/<ASIN>?tag=<TRACKING_ID_CONFIRMADO>`, confirmar `AffiliateClick` gravado. Nunca
    comprar.
-4. **Ativar os produtos revisados** — `npm run product:activate -- --asin <ASIN>` para cada um.
-5. **`PUBLIC_CATALOG_ENABLED=true`** em produção.
-6. **`MANUAL_PRODUCTS_ENABLED=true`** em produção.
-7. **Manter `AUTO_PUBLISH=false`** — não existe publicação automática de conteúdo/produto nesta
+1. **Ativar os produtos revisados** — `npm run product:activate -- --asin <ASIN>` para cada um.
+1. **`PUBLIC_CATALOG_ENABLED=true`** em produção.
+1. **`MANUAL_PRODUCTS_ENABLED=true`** em produção.
+1. **Manter `AUTO_PUBLISH=false`** — não existe publicação automática de conteúdo/produto nesta
    fase, e não deve existir até o `ContentEngine` também operar sobre `MANUAL_VERIFIED` (fora de
    escopo desta coorte).
-8. **Rebuild/redeploy** se qualquer uma das flags acima exigir rebuild da imagem (variáveis
+1. **Rebuild/redeploy** se qualquer uma das flags acima exigir rebuild da imagem (variáveis
    `NEXT_PUBLIC_*` exigem rebuild; as quatro flags de catálogo são lidas em runtime via
    `lib/config/env.ts`, não exigem rebuild — só reiniciar o container).
-9. **Verificar `robots.txt`** — `/produto/`, `/ofertas`, `/categorias/`, `/melhores/`,
+1. **Verificar `robots.txt`** — `/produto/`, `/ofertas`, `/categorias/`, `/melhores/`,
    `/comparar/` devem ter saído do `disallow` (`app/robots.ts`).
-10. **Verificar `sitemap.xml`** — deve listar exatamente os produtos `active=true` +
-    `dataSource` visível, nenhum `MOCK`, nenhuma categoria vazia (`app/sitemap.ts`).
-11. **Verificar `canonical`** — cada página de produto aponta para sua própria URL
-    (`generateMetadata` → `alternates.canonical`).
-12. **Verificar JSON-LD** — `Product` (com `offers` só quando há preço verificado, nunca
-    inventado), `BreadcrumbList` — inspecionar com o Rich Results Test do Google antes de enviar.
-13. **Verificar as páginas publicamente** — acessar cada `/produto/[slug]` já em produção, como
-    visitante real (sem sessão admin), confirmar que carrega e que o CTA da Amazon funciona.
-14. **Configurar Search Console** — ver seção dedicada abaixo. Só depois do item 13.
-15. **Enviar o sitemap** — `https://precocaindo.com.br/sitemap.xml`, dentro do Search Console.
-16. **Acompanhar indexação** — Search Console → Cobertura, alguns dias/semanas depois.
-17. **Acompanhar `AffiliateClick`** — `/admin`, diariamente no início.
-18. **Acompanhar Amazon** — painel de Associados, relatório de pedidos/comissão (com atraso,
-    nunca em tempo real — ver docs/GROWTH_METRICS.md "Limitações de atribuição").
+1. **Verificar `sitemap.xml`** — deve listar exatamente os produtos `active=true` +
+   `dataSource` visível, nenhum `MOCK`, nenhuma categoria vazia, além de `/guias` e guias
+   editoriais estáticos (`app/sitemap.ts`).
+1. **Verificar `canonical`** — cada página de produto aponta para sua própria URL
+   (`generateMetadata` → `alternates.canonical`).
+1. **Verificar JSON-LD** — `Product` (com `offers` só quando há preço verificado, nunca
+   inventado), `BreadcrumbList` — inspecionar com o Rich Results Test do Google antes de enviar.
+1. **Verificar as páginas publicamente** — acessar cada `/produto/[slug]` já em produção, como
+   visitante real (sem sessão admin), confirmar que carrega e que o CTA da Amazon funciona.
+1. **Configurar Search Console** — ver seção dedicada abaixo. Só depois do item 13.
+1. **Enviar o sitemap** — `https://precocaindo.com.br/sitemap.xml`, dentro do Search Console.
+1. **Acompanhar indexação** — Search Console → Cobertura, alguns dias/semanas depois.
+1. **Acompanhar `AffiliateClick`** — `/admin`, diariamente no início.
+1. **Acompanhar Amazon** — painel de Associados, relatório de pedidos/comissão (com atraso,
+   nunca em tempo real — ver docs/GROWTH_METRICS.md "Limitações de atribuição").
 
 ## Google Search Console — procedimento (não executado nesta sprint)
 

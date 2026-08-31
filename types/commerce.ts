@@ -21,7 +21,8 @@ export interface NormalizedOffer {
 
 export interface NormalizedProduct {
   asin: string;
-  provider: "AMAZON";
+  provider:
+    "AMAZON" | "MERCADO_LIVRE" | "SHOPEE" | "AWIN" | "GENERIC_AFFILIATE";
   title: string;
   brand?: string;
   description?: string;
@@ -52,8 +53,15 @@ export interface ProductSearchResult {
  * results from two `CommerceProvider` instances into one `NormalizedOffer`.
  */
 export interface CommerceProvider {
-  readonly name: "AMAZON";
+  readonly name:
+    "AMAZON" | "MERCADO_LIVRE" | "SHOPEE" | "AWIN" | "GENERIC_AFFILIATE";
   readonly marketplace: MarketplaceCode;
+  readonly capabilities?: {
+    search?: boolean;
+    productLookup?: boolean;
+    offers?: boolean;
+    affiliateUrl?: boolean;
+  };
 
   searchProducts(query: ProductSearchQuery): Promise<ProductSearchResult>;
   getProduct(asin: string): Promise<NormalizedProduct | null>;

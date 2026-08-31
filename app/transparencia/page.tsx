@@ -19,11 +19,11 @@ export default function TransparenciaPage() {
             Como ganhamos dinheiro
           </h2>
           <p className="mt-2">
-            O PreçoCaindo participa do Programa de Associados da Amazon.{" "}
-            {amazonDisclosure} Isso significa que, quando você clica em um link
-            para a Amazon e compra algo, podemos receber uma comissão — sem
-            custo adicional para você. O preço que você paga é o mesmo, com ou
-            sem o nosso link.
+            O PreçoCaindo pode participar de programas de afiliados e receber
+            comissão quando uma compra acontece por determinados links. Quando
+            um link for da Amazon, usamos a declaração exigida pelo programa:{" "}
+            {amazonDisclosure} Isso não deve aumentar o preço pago por você e
+            não pode alterar artificialmente nosso histórico, score ou decisão.
           </p>
         </section>
 
@@ -35,9 +35,10 @@ export default function TransparenciaPage() {
             O Score é calculado por uma fórmula própria e determinística — não
             por inteligência artificial — que considera o preço atual em relação
             ao histórico que coletamos, a proximidade do menor preço já
-            observado, o desconto aparente, a avaliação e o número de avaliações
-            do produto na Amazon, e a disponibilidade do produto no momento.
-            Rankings e análises não são fabricados para maximizar comissão.
+            observado, o desconto aparente quando houver fonte legítima, sinais
+            de popularidade quando existirem, e a disponibilidade do produto no
+            momento. Rankings e análises não são fabricados para maximizar
+            comissão.
           </p>
         </section>
 
@@ -59,9 +60,8 @@ export default function TransparenciaPage() {
           </h2>
           <p className="mt-2">
             Os preços exibidos refletem a última verificação feita pelo
-            PreçoCaindo e podem mudar a qualquer momento na Amazon. Sempre
-            confira o preço atual na página do produto antes de finalizar a
-            compra.
+            PreçoCaindo e podem mudar a qualquer momento na loja. Sempre confira
+            o preço atual na página do produto antes de finalizar a compra.
           </p>
         </section>
 
@@ -71,8 +71,8 @@ export default function TransparenciaPage() {
           </h2>
           <p className="mt-2">
             O PreçoCaindo é um serviço editorial e de comparação de preços. Não
-            vendemos produtos diretamente — a compra sempre acontece no site da
-            Amazon.
+            vendemos produtos diretamente — a compra sempre acontece na loja
+            parceira.
           </p>
         </section>
       </div>

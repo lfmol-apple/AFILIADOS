@@ -20,7 +20,11 @@ export function SiteHeader() {
           PreçoCaindo
         </Link>
 
-        <form action="/ofertas" method="GET" className="ml-auto hidden max-w-xs flex-1 sm:block">
+        <form
+          action="/ofertas"
+          method="GET"
+          className="ml-auto hidden max-w-xs flex-1 sm:block"
+        >
           <label htmlFor="header-search" className="sr-only">
             Buscar produto
           </label>
@@ -31,8 +35,19 @@ export function SiteHeader() {
               className="text-foreground/40 pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2"
               aria-hidden
             >
-              <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.5" />
-              <path d="m14 14 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              <circle
+                cx="9"
+                cy="9"
+                r="6"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              />
+              <path
+                d="m14 14 4 4"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
             </svg>
             <input
               id="header-search"
@@ -50,15 +65,43 @@ export function SiteHeader() {
             aria-label="Buscar produto"
             className="hover:text-brand sm:hidden"
           >
-            <svg viewBox="0 0 20 20" fill="none" className="h-5 w-5" aria-hidden>
-              <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.5" />
-              <path d="m14 14 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            <svg
+              viewBox="0 0 20 20"
+              fill="none"
+              className="h-5 w-5"
+              aria-hidden
+            >
+              <circle
+                cx="9"
+                cy="9"
+                r="6"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              />
+              <path
+                d="m14 14 4 4"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
             </svg>
           </Link>
           <Link href="/ofertas" className="hover:text-brand hidden sm:inline">
             Ofertas
           </Link>
-          <Link href="/transparencia" className="hover:text-brand hidden sm:inline">
+          <Link href="/guias" className="hover:text-brand hidden sm:inline">
+            Guias
+          </Link>
+          <Link
+            href="/como-funciona"
+            className="hover:text-brand hidden sm:inline"
+          >
+            Como funciona
+          </Link>
+          <Link
+            href="/transparencia"
+            className="hover:text-brand hidden sm:inline"
+          >
             Transparência
           </Link>
         </nav>

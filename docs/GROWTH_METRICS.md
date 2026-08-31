@@ -7,21 +7,23 @@ parte dos números do PreçoCaindo já é coletada hoje; o que falta são os nú
 
 ## KPIs
 
-| KPI | Fonte | Hoje |
-| --- | --- | --- |
-| Organic Impressions | Google Search Console (Performance) | Não existe até o site ser indexado |
-| Organic Clicks | Google Search Console | Não existe até o site ser indexado |
-| Organic CTR | Search Console (cliques / impressões) | Não existe até o site ser indexado |
-| Average Position | Search Console | Não existe até o site ser indexado |
-| Indexed Product Pages | Search Console (Cobertura/Páginas) + `sitemap.xml` | `sitemap.xml` já é dataSource-aware (`app/sitemap.ts`) — só falta ter páginas para listar |
-| Product Page Views | `PageView` (`pageType="product"`) | **Já coletado** — `lib/queries/admin.ts#getTrafficOverview` |
-| Affiliate Clicks | `AffiliateClick` | **Já coletado** — `getTrafficOverview`, `getWeeklyStats` |
-| Affiliate CTR | clicks / product page views | **Já calculado** (site-wide) — `getTrafficOverview().ctr` |
-| Amazon Orders | Painel de Associados da Amazon (relatório manual, com atraso) | Não integrado — leitura manual do painel Amazon |
-| Amazon Conversion | pedidos Amazon / cliques PreçoCaindo, quando disponível | Nunca por usuário individual — só agregado por dia/categoria (ver "Limitações" abaixo) |
-| Commission Revenue | Painel de Associados da Amazon | Não integrado — leitura manual |
-| RPM (Revenue per 1.000 Sessions) | calculado, ver fórmula abaixo | Depende de Commission Revenue |
-| Revenue per Affiliate Click | calculado, ver fórmula abaixo | Depende de Commission Revenue |
+| KPI                              | Fonte                                                         | Hoje                                                                                                  |
+| -------------------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| Organic Impressions              | Google Search Console (Performance)                           | Não existe até o site ser indexado                                                                    |
+| Organic Clicks                   | Google Search Console                                         | Não existe até o site ser indexado                                                                    |
+| Organic CTR                      | Search Console (cliques / impressões)                         | Não existe até o site ser indexado                                                                    |
+| Average Position                 | Search Console                                                | Não existe até o site ser indexado                                                                    |
+| Indexed Product Pages            | Search Console (Cobertura/Páginas) + `sitemap.xml`            | `sitemap.xml` já é dataSource-aware (`app/sitemap.ts`) — só falta ter páginas para listar             |
+| Product Page Views               | `PageView` (`pageType="product"`)                             | **Já coletado** — `lib/queries/admin.ts#getTrafficOverview`                                           |
+| Affiliate Clicks                 | `AffiliateClick`                                              | **Já coletado** — `getTrafficOverview`, `getWeeklyStats`                                              |
+| Affiliate CTR                    | clicks / product page views                                   | **Já calculado** (site-wide) — `getTrafficOverview().ctr`                                             |
+| Merchant CTR                     | clicks por merchant / pageviews de produto                    | Preparado via `AffiliateClick.merchantId` após `merchant:backfill-amazon`; dashboard dedicado futuro. |
+| Alert Creation Rate              | alertas criados / pageviews de produto                        | Dados preparados em `PriceAlert`; criação pública depende de `PRICE_ALERTS=true`.                     |
+| Amazon Orders                    | Painel de Associados da Amazon (relatório manual, com atraso) | Não integrado — leitura manual do painel Amazon                                                       |
+| Amazon Conversion                | pedidos Amazon / cliques PreçoCaindo, quando disponível       | Nunca por usuário individual — só agregado por dia/categoria (ver "Limitações" abaixo)                |
+| Commission Revenue               | Painel de Associados da Amazon                                | Não integrado — leitura manual                                                                        |
+| RPM (Revenue per 1.000 Sessions) | calculado, ver fórmula abaixo                                 | Depende de Commission Revenue                                                                         |
+| Revenue per Affiliate Click      | calculado, ver fórmula abaixo                                 | Depende de Commission Revenue                                                                         |
 
 ## Fórmulas
 
@@ -85,3 +87,5 @@ Antes da Fase 4 ter volume razoável, não há dado suficiente para julgar Fases
   (docs/DEMAND_ENGINE.md).
 - `app/sitemap.ts`/`app/robots.ts` já são dataSource-aware — nenhuma ação nova necessária para a
   Fase 1 alem de ligar os flags (ver docs/LAUNCH_CHECKLIST.md).
+- `AffiliateClick` agora pode carregar `merchantId`, `merchantListingId` e `canonicalProductId`
+  depois do backfill multiloja, sem perder compatibilidade com os cliques Amazon antigos.

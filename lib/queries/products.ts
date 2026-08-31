@@ -4,11 +4,10 @@ import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 
 /**
  * The public site (/, /ofertas, /produto, /categorias, /melhores,
- * /comparar) is BR-only today (project brief Sprint 4 section 8). Every
- * query in this file filters on this constant explicitly — never "just
- * findMany Product" — so that enabling a second marketplace later can
- * never silently leak USD products onto precocaindo.com.br. Grep for
- * `PUBLIC_MARKETPLACE` before adding a new public query.
+ * /comparar) serves exactly one marketplace at a time. Every query in this
+ * file filters on this constant explicitly — never "just findMany Product"
+ * — so BR and US products never mix when the deployed catalog changes.
+ * Grep for `PUBLIC_MARKETPLACE` before adding a new public query.
  */
 const PUBLIC_MARKETPLACE = PRIMARY_PUBLIC_MARKETPLACE;
 
@@ -22,6 +21,10 @@ function visibleDataSourceFilter() {
   return { dataSource: { in: currentlyVisibleDataSources() } };
 }
 
+function localDraftProductPreviewEnabled() {
+  return process.env.NODE_ENV === "development";
+}
+
 const PRODUCT_LIST_INCLUDE = {
   category: true,
   offers: { orderBy: { observedAt: "desc" as const }, take: 1 },
@@ -32,50 +35,73 @@ const PRODUCT_LIST_INCLUDE = {
 export async function getHomeSections() {
   const dataSourceFilter = visibleDataSourceFilter();
 
-  const [pricesDropping, bestOpportunities, categories] = await Promise.all([
-    prisma.product.findMany({
-      where: {
-        marketplace: PUBLIC_MARKETPLACE,
-        active: true,
-        priceStats: { dropPercentage: { gt: 5 } },
-        ...dataSourceFilter,
-      },
-      include: PRODUCT_LIST_INCLUDE,
-      orderBy: { priceStats: { dropPercentage: "desc" } },
-      take: 8,
-    }),
-    prisma.product.findMany({
-      where: {
-        marketplace: PUBLIC_MARKETPLACE,
-        active: true,
-        opportunityScore: { score: { gte: 75 } },
-        ...dataSourceFilter,
-      },
-      include: PRODUCT_LIST_INCLUDE,
-      orderBy: { opportunityScore: { score: "desc" } },
-      take: 8,
-    }),
-    prisma.category.findMany({
-      where: {
-        active: true,
-        parentId: null,
-        // A Category is shared across marketplaces (it's PreçoCaindo's own
-        // taxonomy, not Amazon's), so only the product _count needs the
-        // marketplace filter — otherwise a category with only US products
-        // would show a nonzero count on the BR homepage.
-        products: { some: { marketplace: PUBLIC_MARKETPLACE, active: true, ...dataSourceFilter } },
-      },
-      include: {
-        _count: {
-          select: {
-            products: { where: { marketplace: PUBLIC_MARKETPLACE, active: true, ...dataSourceFilter } },
+  const [pricesDropping, bestOpportunities, popularProducts, categories] =
+    await Promise.all([
+      prisma.product.findMany({
+        where: {
+          marketplace: PUBLIC_MARKETPLACE,
+          active: true,
+          priceStats: { dropPercentage: { gt: 5 } },
+          ...dataSourceFilter,
+        },
+        include: PRODUCT_LIST_INCLUDE,
+        orderBy: { priceStats: { dropPercentage: "desc" } },
+        take: 8,
+      }),
+      prisma.product.findMany({
+        where: {
+          marketplace: PUBLIC_MARKETPLACE,
+          active: true,
+          opportunityScore: { score: { gte: 75 } },
+          ...dataSourceFilter,
+        },
+        include: PRODUCT_LIST_INCLUDE,
+        orderBy: { opportunityScore: { score: "desc" } },
+        take: 8,
+      }),
+      prisma.product.findMany({
+        where: {
+          marketplace: PUBLIC_MARKETPLACE,
+          active: true,
+          ...dataSourceFilter,
+        },
+        include: PRODUCT_LIST_INCLUDE,
+        orderBy: { createdAt: "desc" },
+        take: 8,
+      }),
+      prisma.category.findMany({
+        where: {
+          active: true,
+          parentId: null,
+          // A Category is shared across marketplaces (it's PreçoCaindo's own
+          // taxonomy, not Amazon's), so only the product _count needs the
+          // marketplace filter — otherwise a category with only US products
+          // would show a nonzero count on the BR homepage.
+          products: {
+            some: {
+              marketplace: PUBLIC_MARKETPLACE,
+              active: true,
+              ...dataSourceFilter,
+            },
           },
         },
-      },
-      orderBy: { name: "asc" },
-      take: 12,
-    }),
-  ]);
+        include: {
+          _count: {
+            select: {
+              products: {
+                where: {
+                  marketplace: PUBLIC_MARKETPLACE,
+                  active: true,
+                  ...dataSourceFilter,
+                },
+              },
+            },
+          },
+        },
+        orderBy: { name: "asc" },
+        take: 12,
+      }),
+    ]);
 
   // GeneratedContent has no marketplace column: the content/editorial
   // pipeline is hardcoded BR-only end-to-end today (see the comment in
@@ -91,7 +117,13 @@ export async function getHomeSections() {
     take: 6,
   });
 
-  return { pricesDropping, bestOpportunities, categories, guides };
+  return {
+    pricesDropping,
+    bestOpportunities,
+    popularProducts,
+    categories,
+    guides,
+  };
 }
 
 export interface OfertasFilter {
@@ -101,21 +133,37 @@ export interface OfertasFilter {
   query?: string;
 }
 
-export async function getOfertas({ page = 1, pageSize = 24, categorySlug, query }: OfertasFilter = {}) {
+export async function getOfertas({
+  page = 1,
+  pageSize = 24,
+  categorySlug,
+  query,
+}: OfertasFilter = {}) {
   const where = {
     marketplace: PUBLIC_MARKETPLACE,
     active: true,
-    opportunityScore: { isNot: null },
     ...visibleDataSourceFilter(),
     ...(categorySlug ? { category: { slug: categorySlug } } : {}),
-    ...(query ? { title: { contains: query, mode: "insensitive" as const } } : {}),
+    ...(query
+      ? {
+          OR: [
+            { title: { contains: query, mode: "insensitive" as const } },
+            { brand: { contains: query, mode: "insensitive" as const } },
+            {
+              category: {
+                name: { contains: query, mode: "insensitive" as const },
+              },
+            },
+          ],
+        }
+      : {}),
   };
 
   const [items, total] = await Promise.all([
     prisma.product.findMany({
       where,
       include: PRODUCT_LIST_INCLUDE,
-      orderBy: { opportunityScore: { score: "desc" } },
+      orderBy: [{ opportunityScore: { score: "desc" } }, { createdAt: "desc" }],
       skip: (page - 1) * pageSize,
       take: pageSize,
     }),
@@ -131,7 +179,9 @@ export async function getOfertas({ page = 1, pageSize = 24, categorySlug, query 
   };
 }
 
-export type ProductListItem = Awaited<ReturnType<typeof getOfertas>>["items"][number];
+export type ProductListItem = Awaited<
+  ReturnType<typeof getOfertas>
+>["items"][number];
 
 /** Looks up a product by slug for the public BR site. Slugs are globally
  * unique in the schema (Product.slug @unique across all marketplaces), so
@@ -141,8 +191,27 @@ export type ProductListItem = Awaited<ReturnType<typeof getOfertas>>["items"][nu
  * with its own slugged URLs (see docs/AMAZON.md "Slugs" for the future US
  * URL strategy). */
 export async function getProductBySlug(slug: string) {
+  const publicWhere = {
+    slug,
+    marketplace: PUBLIC_MARKETPLACE,
+    active: true,
+    ...visibleDataSourceFilter(),
+  };
+
   return prisma.product.findFirst({
-    where: { slug, marketplace: PUBLIC_MARKETPLACE, active: true, ...visibleDataSourceFilter() },
+    where: localDraftProductPreviewEnabled()
+      ? {
+          OR: [
+            publicWhere,
+            {
+              slug,
+              marketplace: PUBLIC_MARKETPLACE,
+              active: false,
+              dataSource: "MANUAL_VERIFIED",
+            },
+          ],
+        }
+      : publicWhere,
     include: {
       category: true,
       offers: { orderBy: { observedAt: "desc" }, take: 1 },
@@ -153,7 +222,10 @@ export async function getProductBySlug(slug: string) {
   });
 }
 
-export async function getSimilarProducts(categoryId: string | null, excludeProductId: string) {
+export async function getSimilarProducts(
+  categoryId: string | null,
+  excludeProductId: string,
+) {
   if (!categoryId) return [];
   return prisma.product.findMany({
     where: {
@@ -185,17 +257,29 @@ function sortCategoryProducts<
   const sorted = [...products];
   if (sort === "drop") {
     sorted.sort(
-      (a, b) => (b.priceStats?.dropPercentage ?? -1) - (a.priceStats?.dropPercentage ?? -1),
+      (a, b) =>
+        (b.priceStats?.dropPercentage ?? -1) -
+        (a.priceStats?.dropPercentage ?? -1),
     );
   } else if (sort === "price") {
-    sorted.sort((a, b) => Number(a.offers[0]?.price ?? Infinity) - Number(b.offers[0]?.price ?? Infinity));
+    sorted.sort(
+      (a, b) =>
+        Number(a.offers[0]?.price ?? Infinity) -
+        Number(b.offers[0]?.price ?? Infinity),
+    );
   } else {
-    sorted.sort((a, b) => (b.opportunityScore?.score ?? -1) - (a.opportunityScore?.score ?? -1));
+    sorted.sort(
+      (a, b) =>
+        (b.opportunityScore?.score ?? -1) - (a.opportunityScore?.score ?? -1),
+    );
   }
   return sorted;
 }
 
-export async function getCategoryBySlug(slug: string, sort: CategorySort = "score") {
+export async function getCategoryBySlug(
+  slug: string,
+  sort: CategorySort = "score",
+) {
   const category = await prisma.category.findUnique({ where: { slug } });
   if (!category) return null;
 
@@ -221,7 +305,10 @@ export async function getAllActiveCategories() {
   });
 }
 
-export async function getPublishedContent(contentType: "BEST_OF" | "COMPARISON" | "CATEGORY", slug: string) {
+export async function getPublishedContent(
+  contentType: "BEST_OF" | "COMPARISON" | "CATEGORY",
+  slug: string,
+) {
   return prisma.generatedContent.findUnique({
     where: { contentType_slug: { contentType, slug } },
   });

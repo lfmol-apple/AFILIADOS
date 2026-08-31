@@ -4,6 +4,9 @@
 
 - **Metadata dinâmica** por página via `generateMetadata` (produto, categoria, melhores,
   comparações), com `title`, `description`, `alternates.canonical` e Open Graph.
+- **Guias editoriais estáticos** (`/guias` e `/guias/[slug]`): fonte central em
+  `lib/editorial/guides.ts`, `generateStaticParams`, metadata própria, canonical, Open Graph,
+  Twitter metadata, `Article` JSON-LD e `BreadcrumbList`.
 - **Open Graph dinâmico** por produto: `app/produto/[slug]/opengraph-image.tsx` gera uma imagem
   1200×630 com título, preço e o rótulo do Score no momento do request.
 - **Sitemap** (`app/sitemap.ts`): inclui páginas estáticas, produtos **BR** ativos e **indexáveis**
@@ -13,7 +16,7 @@
   estiver seguro para mostrar (`isPublicCatalogSafeToShow()` — ver docs/AMAZON.md
   "Pré-lançamento"), o sitemap lista só as rotas estáticas institucionais, nenhum produto/categoria/
   conteúdo. Revalida a cada hora.
-- **Robots** (`app/robots.ts`): libera tudo exceto `/admin`, `/go/amazon/` e `/api/`. Quando o
+- **Robots** (`app/robots.ts`): libera tudo exceto `/admin`, `/go/` e `/api/`. Quando o
   catálogo não está seguro para mostrar, também bloqueia `/produto/`, `/ofertas`, `/categorias/`,
   `/melhores/` e `/comparar/` — mesma função `isPublicCatalogSafeToShow()` que o sitemap usa, então
   os dois nunca podem discordar sobre o que é seguro indexar.

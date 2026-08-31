@@ -6,14 +6,34 @@ describe("Amazon readiness checks (BR/US)", () => {
     vi.unstubAllEnvs();
   });
 
-  it("BR_TRACKING_ID passes once precocaindo-20 is configured", async () => {
-    vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", "precocaindo-20");
+  it("BR_TRACKING_ID is PENDING until a human-confirmed current tag is configured", async () => {
+    vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", "");
+    const { getBrazilReadinessChecks } =
+      await import("@/lib/amazon/readiness-checks");
+    const check = getBrazilReadinessChecks().find(
+      (c) => c.key === "amazon_br_tracking_id",
+    );
+    expect(check?.value).toBe("PENDING");
+  });
+
+  it("BR_TRACKING_ID passes once a current PreçoCaindo tag is configured", async () => {
+    vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", "confirmed-preco-20");
     const { getBrazilReadinessChecks } =
       await import("@/lib/amazon/readiness-checks");
     const check = getBrazilReadinessChecks().find(
       (c) => c.key === "amazon_br_tracking_id",
     );
     expect(check?.value).toBe("PASS");
+  });
+
+  it("BR_TRACKING_ID stays PENDING if someone configures the historical PETMOL tag", async () => {
+    vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", "petmol-20");
+    const { getBrazilReadinessChecks } =
+      await import("@/lib/amazon/readiness-checks");
+    const check = getBrazilReadinessChecks().find(
+      (c) => c.key === "amazon_br_tracking_id",
+    );
+    expect(check?.value).toBe("PENDING");
   });
 
   it("BR_ACCOUNT_APPROVED is PENDING by default, not FAIL — Amazon's own page still shows the account unapproved", async () => {
@@ -81,7 +101,7 @@ describe("Amazon admin status — never exposes secrets", () => {
   it("getBrazilAmazonStatus never includes the Creators API key/secret values", async () => {
     vi.stubEnv("AMAZON_CREATORS_API_KEY", "super-secret-key-value");
     vi.stubEnv("AMAZON_CREATORS_API_SECRET", "super-secret-secret-value");
-    vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", "precocaindo-20");
+    vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", "confirmed-preco-20");
     const { getBrazilAmazonStatus } = await import("@/lib/amazon/status");
     const serialized = JSON.stringify(getBrazilAmazonStatus());
     expect(serialized).not.toContain("super-secret-key-value");
@@ -89,10 +109,10 @@ describe("Amazon admin status — never exposes secrets", () => {
   });
 
   it("getBrazilAmazonStatus exposes the tracking tag (a public identifier, not a secret) but no key/secret fields", async () => {
-    vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", "precocaindo-20");
+    vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", "confirmed-preco-20");
     const { getBrazilAmazonStatus } = await import("@/lib/amazon/status");
     const status = getBrazilAmazonStatus();
-    expect(status.trackingId).toBe("precocaindo-20");
+    expect(status.trackingId).toBe("confirmed-preco-20");
     expect(Object.keys(status)).not.toContain("creatorsApiKey");
     expect(Object.keys(status)).not.toContain("creatorsApiSecret");
   });

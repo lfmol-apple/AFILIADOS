@@ -48,41 +48,50 @@ export function ProductCard({ product }: { product: ProductListItem }) {
           {product.title}
         </h3>
 
-        {offer && (
-          <div className="mt-auto pt-1">
-            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-              <span className="text-lg font-semibold">
-                {formatCurrency(Number(offer.price), offer.currency)}
-              </span>
-              {offer.originalPrice &&
-                Number(offer.originalPrice) > Number(offer.price) && (
-                  <span className="text-foreground/40 text-xs line-through">
-                    {formatCurrency(Number(offer.originalPrice), offer.currency)}
-                  </span>
-                )}
-              {offer.discountPercentage != null &&
-                offer.discountPercentage > 0 && (
-                  <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
-                    ↓{Math.round(offer.discountPercentage)}%
-                  </span>
-                )}
-            </div>
-
-            {score && (
-              <div className="mt-2">
-                <OpportunityBadge
-                  score={score.score}
-                  insufficientHistory={insufficientHistory}
-                  size="sm"
-                />
+        <div className="mt-auto pt-1">
+          {offer ? (
+            <>
+              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                <span className="text-lg font-semibold">
+                  {formatCurrency(Number(offer.price), offer.currency)}
+                </span>
+                {offer.originalPrice &&
+                  Number(offer.originalPrice) > Number(offer.price) && (
+                    <span className="text-foreground/40 text-xs line-through">
+                      {formatCurrency(
+                        Number(offer.originalPrice),
+                        offer.currency,
+                      )}
+                    </span>
+                  )}
+                {offer.discountPercentage != null &&
+                  offer.discountPercentage > 0 && (
+                    <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                      ↓{Math.round(offer.discountPercentage)}%
+                    </span>
+                  )}
               </div>
-            )}
 
-            {evidence && (
-              <p className="text-foreground/50 mt-1.5 text-xs">{evidence}</p>
-            )}
-          </div>
-        )}
+              {score && (
+                <div className="mt-2">
+                  <OpportunityBadge
+                    score={score.score}
+                    insufficientHistory={insufficientHistory}
+                    size="sm"
+                  />
+                </div>
+              )}
+
+              {evidence && (
+                <p className="text-foreground/50 mt-1.5 text-xs">{evidence}</p>
+              )}
+            </>
+          ) : (
+            <p className="text-foreground/60 text-sm font-medium">
+              Ver decisão de compra
+            </p>
+          )}
+        </div>
       </div>
     </Link>
   );

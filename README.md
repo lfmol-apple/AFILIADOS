@@ -4,10 +4,11 @@
 
 PreçoCaindo é uma plataforma brasileira de inteligência de compra. Ela compara o preço atual de
 um produto ao seu próprio histórico coletado — não apenas ao preço de tabela — e traduz isso em
-um Score explicável (0-100) que responde: *vale a pena comprar agora?*
+um Score explicável (0-100) que responde: _vale a pena comprar agora?_
 
-Hoje o único marketplace suportado é a Amazon Brasil, via Programa de Associados. A arquitetura
-foi desenhada para acrescentar outros marketplaces sem reescrever o núcleo (veja
+Hoje o projeto está preparado para operar com marketplaces parceiros, começando pela arquitetura
+Amazon Brasil quando a candidatura e o Tracking ID forem confirmados. A arquitetura
+foi desenhada para acrescentar outros varejistas sem reescrever o núcleo (veja
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)).
 
 O objetivo do produto é ficar disponível em **https://precocaindo.com.br**.
@@ -18,6 +19,9 @@ O objetivo do produto é ficar disponível em **https://precocaindo.com.br**.
 - [docs/AUTOMATION.md](docs/AUTOMATION.md) — os 13 jobs do ciclo de automação, priorização, locking
 - [docs/DEMAND_ENGINE.md](docs/DEMAND_ENGINE.md) — como a demanda real (nunca inventada) decide o que publicar
 - [docs/SEO.md](docs/SEO.md) — metadata, sitemap, structured data, controle de qualidade, redirects
+- [docs/MULTI_MERCHANT.md](docs/MULTI_MERCHANT.md) — base multiloja backward-compatible
+- [docs/PRICE_ALERTS.md](docs/PRICE_ALERTS.md) — fluxo de alertas e dependência de e-mail
+- [docs/LAUNCH_V1.md](docs/LAUNCH_V1.md) — checklist da V1 pública
 - [docs/CONTENT_ENGINE.md](docs/CONTENT_ENGINE.md) — geração de conteúdo, regra de zero alucinação
 - [docs/ANALYTICS.md](docs/ANALYTICS.md) — o que é medido, o que nunca é coletado
 - [docs/PRIVACY.md](docs/PRIVACY.md) — consentimento LGPD, o que cada categoria controla
@@ -99,22 +103,25 @@ Veja a lista completa de jobs em [docs/AUTOMATION.md](docs/AUTOMATION.md).
 
 ## Rotas principais
 
-| Rota | Descrição |
-| --- | --- |
-| `/` | Home — preços caindo, boas compras, categorias, guias |
-| `/produto/[slug]` | Ficha de produto com histórico, Score e CTA para a Amazon |
-| `/ofertas` | Listagem de oportunidades, com busca |
-| `/categorias/[slug]` | Produtos por categoria |
-| `/melhores/[slug]` | Conteúdo editorial "melhores produtos" (gerado + validado) |
-| `/comparar/[slug]` | Comparação entre produtos (gerado + validado) |
-| `/transparencia` | Como ganhamos dinheiro e como calculamos o Score |
-| `/go/amazon/[asin]` | Redirecionamento afiliado controlado (rastreado, sem redirect automático) |
-| `/admin` | Dashboard interno — login por sessão (cookie HttpOnly), ver docs/PRODUCTION_READINESS.md "Admin security" |
-| `/api/admin/login` | `POST` — autentica com a senha configurada (`ADMIN_PASSWORD_HASH`), define o cookie de sessão |
-| `/api/admin/logout` | `POST` — encerra a sessão |
-| `/api/health` | Health check (banco, migrations, automação, modo do provider) — nunca expõe secrets |
-| `/api/consent` | Persistência do consentimento LGPD (`GET`/`POST`) |
-| `/api/analytics/pageview` | Recebe pageviews first-party, só quando o visitante consentiu com Analytics |
+| Rota                          | Descrição                                                                                                 |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `/`                           | Home — busca e decisão de compra                                                                          |
+| `/produto/[slug]`             | Ficha de produto com histórico, Score e CTA para loja parceira quando houver destino válido               |
+| `/ofertas`                    | Listagem de oportunidades, com busca                                                                      |
+| `/guias`                      | Hub editorial público                                                                                     |
+| `/guias/[slug]`               | Guia editorial estático com metadata e Article JSON-LD                                                    |
+| `/categorias/[slug]`          | Produtos por categoria                                                                                    |
+| `/melhores/[slug]`            | Conteúdo editorial "melhores produtos" (gerado + validado)                                                |
+| `/comparar/[slug]`            | Comparação entre produtos (gerado + validado)                                                             |
+| `/transparencia`              | Como ganhamos dinheiro e como calculamos o Score                                                          |
+| `/go/amazon/[asin]`           | Redirecionamento afiliado controlado (rastreado, sem redirect automático)                                 |
+| `/go/[merchant]/[externalId]` | Rota comercial genérica preparada, com whitelist por merchant                                             |
+| `/admin`                      | Dashboard interno — login por sessão (cookie HttpOnly), ver docs/PRODUCTION_READINESS.md "Admin security" |
+| `/api/admin/login`            | `POST` — autentica com a senha configurada (`ADMIN_PASSWORD_HASH`), define o cookie de sessão             |
+| `/api/admin/logout`           | `POST` — encerra a sessão                                                                                 |
+| `/api/health`                 | Health check (banco, migrations, automação, modo do provider) — nunca expõe secrets                       |
+| `/api/consent`                | Persistência do consentimento LGPD (`GET`/`POST`)                                                         |
+| `/api/analytics/pageview`     | Recebe pageviews first-party, só quando o visitante consentiu com Analytics                               |
 
 ## Qualidade e testes
 

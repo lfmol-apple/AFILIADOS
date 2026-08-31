@@ -64,6 +64,24 @@ export function buildAmazonProductUrl(
 }
 
 /**
+ * Builds a plain Amazon product URL, without an Associates tag. This is
+ * intentionally NOT a Special Link and earns no commission; it exists for
+ * pre-approval editorial pages where the US account/tag is not operational
+ * yet but the visitor should still land on the official Amazon detail page.
+ */
+export function buildAmazonDirectProductUrl(
+  asin: string,
+  marketplace: MarketplaceCode = "BR",
+): string {
+  if (!isValidAsin(asin)) {
+    throw new AmazonPolicyViolation(`Invalid ASIN: ${asin}`);
+  }
+
+  const config = getAmazonMarketplaceConfig(marketplace);
+  return `https://www.${config.host}/dp/${asin}`;
+}
+
+/**
  * Validates that a destination URL points at an official Amazon host for
  * the given (enabled) marketplace before it is ever used as a redirect
  * target. This is the only function allowed to authorize /go/amazon

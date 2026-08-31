@@ -23,8 +23,10 @@
     "admin:hash-password": "tsx scripts/generate-admin-password-hash.ts",
     "db:backup": "bash scripts/backup-database.sh",
     "product:add": "tsx scripts/product-add.ts",
+    "product:import-csv": "tsx scripts/product-import-csv.ts",
     "product:list": "tsx scripts/product-list.ts",
     "product:activate": "tsx scripts/product-activate.ts",
+    "merchant:backfill-amazon": "tsx scripts/merchant-backfill-amazon.ts",
     "candidate:add": "tsx scripts/candidate-add.ts",
     "candidate:list": "tsx scripts/candidate-list.ts",
     "candidate:promote": "tsx scripts/candidate-promote.ts"

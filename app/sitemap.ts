@@ -4,6 +4,7 @@ import { siteConfig } from "@/lib/config/site";
 import { isProductPageIndexable } from "@/lib/seo/indexability";
 import { PRIMARY_PUBLIC_MARKETPLACE } from "@/lib/config/marketplaces";
 import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
+import { GUIDES } from "@/lib/editorial/guides";
 
 // force-dynamic (not just `revalidate`) because PUBLIC_CATALOG_ENABLED/
 // MANUAL_PRODUCTS_ENABLED are runtime-only env vars, never set during
@@ -16,10 +17,12 @@ export const dynamic = "force-dynamic";
 const STATIC_ROUTES = [
   "",
   "/ofertas",
+  "/guias",
   "/transparencia",
   "/sobre",
   "/como-funciona",
   "/metodologia",
+  "/politica-editorial",
   "/privacidade",
   "/termos",
 ];
@@ -41,12 +44,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // in production), so we must ask what's *actually* visible, not just
   // whether the mock-provider catalog is.
   const visibleDataSources = currentlyVisibleDataSources();
+  const staticEntries: MetadataRoute.Sitemap = STATIC_ROUTES.map((path) => ({
+    url: `${siteConfig.url}${path}`,
+    changeFrequency: path === "" || path === "/ofertas" ? "daily" : "monthly",
+    priority: path === "" ? 1 : 0.5,
+  }));
+  const guideEntries: MetadataRoute.Sitemap = GUIDES.map((guide) => ({
+    url: `${siteConfig.url}/guias/${guide.slug}`,
+    lastModified: guide.updatedAt,
+    changeFrequency: "monthly",
+    priority: 0.7,
+  }));
+
   if (visibleDataSources.length === 0) {
-    return STATIC_ROUTES.map((path) => ({
-      url: `${siteConfig.url}${path}`,
-      changeFrequency: path === "" ? "daily" : "monthly",
-      priority: path === "" ? 1 : 0.5,
-    }));
+    return [...staticEntries, ...guideEntries];
   }
 
   const [products, categories, content] = await Promise.all([
@@ -85,12 +96,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }),
   ]);
 
-  const staticEntries: MetadataRoute.Sitemap = STATIC_ROUTES.map((path) => ({
-    url: `${siteConfig.url}${path}`,
-    changeFrequency: path === "" || path === "/ofertas" ? "daily" : "monthly",
-    priority: path === "" ? 1 : 0.5,
-  }));
-
   const productEntries: MetadataRoute.Sitemap = products
     .filter((p) =>
       isProductPageIndexable({
@@ -125,6 +130,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...staticEntries,
+    ...guideEntries,
     ...productEntries,
     ...categoryEntries,
     ...contentEntries,

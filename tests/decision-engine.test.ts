@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { calculateDecision, labelForVerdict } from "@/lib/services/decision-engine";
+import {
+  calculateDecision,
+  labelForVerdict,
+} from "@/lib/services/decision-engine";
 import type { OpportunityScoreResult } from "@/lib/services/opportunity-score";
 import type { PriceStatsResult } from "@/lib/services/price-stats";
 
@@ -28,7 +31,9 @@ function stats(overrides: Partial<PriceStatsResult> = {}): PriceStatsResult {
   };
 }
 
-function opportunity(overrides: Partial<OpportunityScoreResult> = {}): OpportunityScoreResult {
+function opportunity(
+  overrides: Partial<OpportunityScoreResult> = {},
+): OpportunityScoreResult {
   return {
     score: 70,
     priceScore: 70,
@@ -45,7 +50,11 @@ function opportunity(overrides: Partial<OpportunityScoreResult> = {}): Opportuni
 
 describe("calculateDecision — no verified price at all", () => {
   it("returns score null and verdict INSUFFICIENT_DATA when there is no offer", () => {
-    const decision = calculateDecision({ hasOffer: false, stats: null, opportunity: null });
+    const decision = calculateDecision({
+      hasOffer: false,
+      stats: null,
+      opportunity: null,
+    });
     expect(decision.score).toBeNull();
     expect(decision.verdict).toBe("INSUFFICIENT_DATA");
     expect(decision.confidence).toBe("LOW");
@@ -68,40 +77,68 @@ describe("calculateDecision — offer exists but history is too thin", () => {
 
 describe("calculateDecision — verdict bands, mirrored from a real OpportunityScoreResult", () => {
   it("score >= 80 -> BUY_NOW", () => {
-    const decision = calculateDecision({ hasOffer: true, stats: stats(), opportunity: opportunity({ score: 85 }) });
+    const decision = calculateDecision({
+      hasOffer: true,
+      stats: stats(),
+      opportunity: opportunity({ score: 85 }),
+    });
     expect(decision.verdict).toBe("BUY_NOW");
     expect(decision.score).toBe(85);
   });
 
   it("score >= 65 and < 80 -> GOOD_TIME", () => {
-    const decision = calculateDecision({ hasOffer: true, stats: stats(), opportunity: opportunity({ score: 70 }) });
+    const decision = calculateDecision({
+      hasOffer: true,
+      stats: stats(),
+      opportunity: opportunity({ score: 70 }),
+    });
     expect(decision.verdict).toBe("GOOD_TIME");
   });
 
   it("score >= 40 and < 65 -> NEUTRAL", () => {
-    const decision = calculateDecision({ hasOffer: true, stats: stats(), opportunity: opportunity({ score: 50 }) });
+    const decision = calculateDecision({
+      hasOffer: true,
+      stats: stats(),
+      opportunity: opportunity({ score: 50 }),
+    });
     expect(decision.verdict).toBe("NEUTRAL");
   });
 
   it("score < 40 -> WAIT", () => {
-    const decision = calculateDecision({ hasOffer: true, stats: stats(), opportunity: opportunity({ score: 20 }) });
+    const decision = calculateDecision({
+      hasOffer: true,
+      stats: stats(),
+      opportunity: opportunity({ score: 20 }),
+    });
     expect(decision.verdict).toBe("WAIT");
   });
 });
 
 describe("calculateDecision — confidence bucketing", () => {
   it("opportunity.confidence >= 0.66 -> HIGH", () => {
-    const decision = calculateDecision({ hasOffer: true, stats: stats(), opportunity: opportunity({ confidence: 0.9 }) });
+    const decision = calculateDecision({
+      hasOffer: true,
+      stats: stats(),
+      opportunity: opportunity({ confidence: 0.9 }),
+    });
     expect(decision.confidence).toBe("HIGH");
   });
 
   it("opportunity.confidence between 0.33 and 0.66 -> MEDIUM", () => {
-    const decision = calculateDecision({ hasOffer: true, stats: stats(), opportunity: opportunity({ confidence: 0.5 }) });
+    const decision = calculateDecision({
+      hasOffer: true,
+      stats: stats(),
+      opportunity: opportunity({ confidence: 0.5 }),
+    });
     expect(decision.confidence).toBe("MEDIUM");
   });
 
   it("opportunity.confidence < 0.33 -> LOW", () => {
-    const decision = calculateDecision({ hasOffer: true, stats: stats(), opportunity: opportunity({ confidence: 0.1 }) });
+    const decision = calculateDecision({
+      hasOffer: true,
+      stats: stats(),
+      opportunity: opportunity({ confidence: 0.1 }),
+    });
     expect(decision.confidence).toBe("LOW");
   });
 });
@@ -113,7 +150,9 @@ describe("calculateDecision — structured reasons, never freeform/fabricated", 
       stats: stats({ dropPercentage: 15, distanceFromLow: 0.5 }),
       opportunity: opportunity(),
     });
-    expect(decision.reasons.some((r) => r.code === "BELOW_BASELINE")).toBe(true);
+    expect(decision.reasons.some((r) => r.code === "BELOW_BASELINE")).toBe(
+      true,
+    );
   });
 
   it("flags a price above the historical baseline", () => {
@@ -122,7 +161,9 @@ describe("calculateDecision — structured reasons, never freeform/fabricated", 
       stats: stats({ dropPercentage: -10, distanceFromLow: 0.5 }),
       opportunity: opportunity(),
     });
-    expect(decision.reasons.some((r) => r.code === "ABOVE_BASELINE")).toBe(true);
+    expect(decision.reasons.some((r) => r.code === "ABOVE_BASELINE")).toBe(
+      true,
+    );
   });
 
   it("flags proximity to the historic low", () => {
@@ -131,7 +172,9 @@ describe("calculateDecision — structured reasons, never freeform/fabricated", 
       stats: stats({ distanceFromLow: 0.02 }),
       opportunity: opportunity(),
     });
-    expect(decision.reasons.some((r) => r.code === "NEAR_HISTORIC_LOW")).toBe(true);
+    expect(decision.reasons.some((r) => r.code === "NEAR_HISTORIC_LOW")).toBe(
+      true,
+    );
   });
 
   it("falls back to WITHIN_NORMAL_RANGE when nothing else stands out", () => {
@@ -140,22 +183,41 @@ describe("calculateDecision — structured reasons, never freeform/fabricated", 
       stats: stats({ dropPercentage: 0, distanceFromLow: 0.5 }),
       opportunity: opportunity(),
     });
-    expect(decision.reasons.map((r) => r.code)).toEqual(["WITHIN_NORMAL_RANGE"]);
+    expect(decision.reasons.map((r) => r.code)).toEqual([
+      "WITHIN_NORMAL_RANGE",
+    ]);
   });
 });
 
 describe("labelForVerdict — single source of truth for verdict copy", () => {
-  it("every verdict has a distinct, non-empty label", () => {
-    const verdicts = ["BUY_NOW", "GOOD_TIME", "NEUTRAL", "WAIT", "INSUFFICIENT_DATA"] as const;
+  it("uses the public V1 decision vocabulary", () => {
+    const verdicts = [
+      "BUY_NOW",
+      "GOOD_TIME",
+      "NEUTRAL",
+      "WAIT",
+      "INSUFFICIENT_DATA",
+    ] as const;
     const labels = verdicts.map(labelForVerdict);
-    expect(new Set(labels).size).toBe(verdicts.length);
+    expect(new Set(labels)).toEqual(
+      new Set([
+        "COMPRE AGORA",
+        "PREÇO RAZOÁVEL",
+        "MELHOR ESPERAR",
+        "DADOS INSUFICIENTES",
+      ]),
+    );
     for (const label of labels) expect(label.length).toBeGreaterThan(0);
   });
 });
 
 describe("Decision Engine output never collapses into OpportunityScore's own vocabulary", () => {
   it("DecisionResult has no 'label' or business sub-score fields — those belong to OpportunityScoreResult only", () => {
-    const decision = calculateDecision({ hasOffer: true, stats: stats(), opportunity: opportunity() });
+    const decision = calculateDecision({
+      hasOffer: true,
+      stats: stats(),
+      opportunity: opportunity(),
+    });
     expect(decision).not.toHaveProperty("label");
     expect(decision).not.toHaveProperty("priceScore");
     expect(decision).not.toHaveProperty("popularityScore");

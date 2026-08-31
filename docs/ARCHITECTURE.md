@@ -42,37 +42,37 @@ uma mudança de configuração (`AMAZON_PROVIDER`, `CONTENT_GENERATION`), não u
 
 ## Pastas
 
-| Pasta | Responsabilidade |
-| --- | --- |
-| `app/` | Rotas Next.js (App Router) — Server Components, metadata, route handlers |
-| `components/` | UI reutilizável, sem lógica de negócio Amazon-específica |
-| `lib/config/` | `env.ts` (parse Zod de `process.env`), feature flags, thresholds de prioridade |
-| `lib/providers/` | `CommerceProvider` e suas implementações (Mock, Amazon) |
-| `lib/content/` | `ContentProvider` e suas implementações (Mock, OpenAI, Anthropic) |
-| `lib/services/` | Lógica de domínio pura e testável (score, stats, slug, quality gate, priority, publication decision, price alert, decision engine, cadastro/promoção manual de produto) |
-| `lib/demand/` | Demand Engine — fontes de demanda e scoring (docs/DEMAND_ENGINE.md) |
-| `lib/analytics/` | Registro de eventos de busca interna |
-| `lib/privacy/` | `ConsentManager` — LGPD (docs/PRIVACY.md) |
-| `lib/remarketing/` | `RemarketingProvider` (Noop hoje — docs/REMARKETING.md) |
-| `lib/observability/` | `health.ts` (banco, migrations, automação — `/api/health`), `metrics.ts`, `logger.ts` (log estruturado mínimo, com redação automática de campos sensíveis — ver docs/OPERATIONS.md) |
-| `lib/admin/auth.ts` | Autenticação por sessão do `/admin` (scrypt + cookie HttpOnly + rate limiting) — ver docs/PRODUCTION_READINESS.md "Admin security" |
-| `lib/seo/` | Structured data, indexabilidade, redirects de slug |
-| `lib/http/` | `RetryPolicy` genérica para chamadas externas futuras |
-| `lib/config/marketplaces.ts` | `AmazonMarketplaceConfig` por marketplace (BR/US) — host, moeda, tag, enabled/apiEnabled; `PRIMARY_PUBLIC_MARKETPLACE` (BR) — o marketplace que o site público serve hoje |
-| `lib/config/public-catalog.ts` | `isPublicCatalogSafeToShow()` — gate único de "é seguro mostrar o catálogo publicamente agora" (ver seção "Pré-lançamento" abaixo) |
-| `lib/amazon/` | `AmazonPolicyGuard` (marketplace-aware) — única fonte de verdade sobre regras Amazon; `readiness-checks.ts`/`status.ts` para admin e production:readiness |
-| `lib/queries/` | Acesso a dados usado pelas páginas (mantém Prisma fora dos componentes) — `products.ts` (público, sempre BR) e `admin.ts` (inclui `getCatalogSnapshot`/`getUnexpectedCatalogAlerts` por marketplace) |
-| `lib/jobs/` | Infraestrutura compartilhada de jobs (`AutomationRun` com locking/stale recovery, `mergeJobCounters`) |
-| `lib/readiness/report.ts` | `buildReadinessReport()` — lógica pura por trás de `production:readiness` (três vereditos: `SITE_LAUNCH_READY`/`CATALOG_LAUNCH_READY`/`PRODUCTION`), testável sem spawnar um processo |
-| `instrumentation.ts` | Hook `register()` do Next.js — log estruturado de startup (modo do provider, geração de conteúdo, flags), sem segredos |
-| `jobs/` | Os 13 jobs de automação, um arquivo por job |
-| `proxy.ts` | Redirects permanentes de slug (renomeado de `middleware` no Next 16) |
-| `prisma/` | Schema, migrations, seed |
-| `prompts/` | Prompts versionados para geração de conteúdo |
-| `types/` | Tipos compartilhados entre camadas (`commerce.ts`, `content.ts`, `marketplace.ts`) |
-| `scripts/` | `amazon-compliance.ts`, `production-readiness.ts`, `generate-admin-password-hash.ts`, e o CLI operacional de cadastro (`product-add/list/activate.ts`, `candidate-add/list/promote.ts` — ver docs/COHORT.md) |
-| `docs/` | Esta documentação |
-| `tests/` | Testes Vitest, um arquivo por serviço testado |
+| Pasta                          | Responsabilidade                                                                                                                                                                                             |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `app/`                         | Rotas Next.js (App Router) — Server Components, metadata, route handlers                                                                                                                                     |
+| `components/`                  | UI reutilizável, sem lógica de negócio Amazon-específica                                                                                                                                                     |
+| `lib/config/`                  | `env.ts` (parse Zod de `process.env`), feature flags, thresholds de prioridade                                                                                                                               |
+| `lib/providers/`               | `CommerceProvider` e suas implementações (Mock, Amazon)                                                                                                                                                      |
+| `lib/content/`                 | `ContentProvider` e suas implementações (Mock, OpenAI, Anthropic)                                                                                                                                            |
+| `lib/services/`                | Lógica de domínio pura e testável (score, stats, slug, quality gate, priority, publication decision, price alert, decision engine, cadastro/promoção manual de produto)                                      |
+| `lib/demand/`                  | Demand Engine — fontes de demanda e scoring (docs/DEMAND_ENGINE.md)                                                                                                                                          |
+| `lib/analytics/`               | Registro de eventos de busca interna                                                                                                                                                                         |
+| `lib/privacy/`                 | `ConsentManager` — LGPD (docs/PRIVACY.md)                                                                                                                                                                    |
+| `lib/remarketing/`             | `RemarketingProvider` (Noop hoje — docs/REMARKETING.md)                                                                                                                                                      |
+| `lib/observability/`           | `health.ts` (banco, migrations, automação — `/api/health`), `metrics.ts`, `logger.ts` (log estruturado mínimo, com redação automática de campos sensíveis — ver docs/OPERATIONS.md)                          |
+| `lib/admin/auth.ts`            | Autenticação por sessão do `/admin` (scrypt + cookie HttpOnly + rate limiting) — ver docs/PRODUCTION_READINESS.md "Admin security"                                                                           |
+| `lib/seo/`                     | Structured data, indexabilidade, redirects de slug                                                                                                                                                           |
+| `lib/http/`                    | `RetryPolicy` genérica para chamadas externas futuras                                                                                                                                                        |
+| `lib/config/marketplaces.ts`   | `AmazonMarketplaceConfig` por marketplace (BR/US) — host, moeda, tag, enabled/apiEnabled; `PRIMARY_PUBLIC_MARKETPLACE` (BR) — o marketplace que o site público serve hoje                                    |
+| `lib/config/public-catalog.ts` | `isPublicCatalogSafeToShow()` — gate único de "é seguro mostrar o catálogo publicamente agora" (ver seção "Pré-lançamento" abaixo)                                                                           |
+| `lib/amazon/`                  | `AmazonPolicyGuard` (marketplace-aware) — única fonte de verdade sobre regras Amazon; `readiness-checks.ts`/`status.ts` para admin e production:readiness                                                    |
+| `lib/queries/`                 | Acesso a dados usado pelas páginas (mantém Prisma fora dos componentes) — `products.ts` (público, sempre BR) e `admin.ts` (inclui `getCatalogSnapshot`/`getUnexpectedCatalogAlerts` por marketplace)         |
+| `lib/jobs/`                    | Infraestrutura compartilhada de jobs (`AutomationRun` com locking/stale recovery, `mergeJobCounters`)                                                                                                        |
+| `lib/readiness/report.ts`      | `buildReadinessReport()` — lógica pura por trás de `production:readiness` (três vereditos: `SITE_LAUNCH_READY`/`CATALOG_LAUNCH_READY`/`PRODUCTION`), testável sem spawnar um processo                        |
+| `instrumentation.ts`           | Hook `register()` do Next.js — log estruturado de startup (modo do provider, geração de conteúdo, flags), sem segredos                                                                                       |
+| `jobs/`                        | Os 13 jobs de automação, um arquivo por job                                                                                                                                                                  |
+| `proxy.ts`                     | Redirects permanentes de slug (renomeado de `middleware` no Next 16)                                                                                                                                         |
+| `prisma/`                      | Schema, migrations, seed                                                                                                                                                                                     |
+| `prompts/`                     | Prompts versionados para geração de conteúdo                                                                                                                                                                 |
+| `types/`                       | Tipos compartilhados entre camadas (`commerce.ts`, `content.ts`, `marketplace.ts`)                                                                                                                           |
+| `scripts/`                     | `amazon-compliance.ts`, `production-readiness.ts`, `generate-admin-password-hash.ts`, e o CLI operacional de cadastro (`product-add/list/activate.ts`, `candidate-add/list/promote.ts` — ver docs/COHORT.md) |
+| `docs/`                        | Esta documentação                                                                                                                                                                                            |
+| `tests/`                       | Testes Vitest, um arquivo por serviço testado                                                                                                                                                                |
 
 ## Por que essa separação
 
@@ -128,6 +128,18 @@ redirects permanentes. `AdminSession` guarda só o hash do token de sessão do `
 existe apenas no cookie HttpOnly); `AdminLoginAttempt` guarda tentativas de login por hash de IP,
 para rate limiting — nenhuma das duas tabelas guarda dado sensível em texto puro. Veja
 `prisma/schema.prisma` para os campos completos.
+
+### Fundação multiloja V1
+
+A V1 adiciona `CanonicalProduct`, `Merchant` e `MerchantListing` sem substituir `Product`. Essa é
+a etapa expand da migração: `Product` continua operacional e compatível com Amazon/ASIN, enquanto
+novos registros podem apontar para um produto canônico e um listing de loja. `AffiliateClick`
+também mantém `productId` obrigatório e adiciona campos opcionais para produto canônico, merchant
+e listing, permitindo métricas por loja quando o backfill existir.
+
+`/go/amazon/[asin]` permanece intocado como rota pública compatível. A rota genérica
+`/go/[merchant]/[externalId]` usa `lib/merchants/config.ts` para whitelist e falha fechada para
+merchants preparados sem integração legítima. Ver `docs/MULTI_MERCHANT.md`.
 
 ### Isolamento por marketplace (Sprint 4)
 

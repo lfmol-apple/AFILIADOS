@@ -15,27 +15,36 @@ describe("AmazonPolicyGuard", () => {
     );
   });
 
-  it("builds a valid amazon.com.br special link using precocaindo-20 for BR", async () => {
+  it("builds a valid amazon.com.br special link using the configured BR tag", async () => {
     vi.stubEnv("AMAZON_BR_ENABLED", "true");
-    vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", "precocaindo-20");
+    vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", "confirmed-preco-20");
     const { buildAmazonProductUrl } = await import("@/lib/amazon/policy-guard");
     const url = buildAmazonProductUrl("B0MOCK0001", "BR");
     expect(url).toContain("amazon.com.br");
-    expect(url).toContain("tag=precocaindo-20");
+    expect(url).toContain("tag=confirmed-preco-20");
   });
 
   it("defaults to BR when no marketplace is given (backward compatible call sites)", async () => {
     vi.stubEnv("AMAZON_BR_ENABLED", "true");
-    vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", "precocaindo-20");
+    vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", "confirmed-preco-20");
     const { buildAmazonProductUrl } = await import("@/lib/amazon/policy-guard");
     expect(buildAmazonProductUrl("B0MOCK0001")).toContain("amazon.com.br");
   });
 
   it("rejects an invalid ASIN", async () => {
-    vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", "precocaindo-20");
+    vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", "confirmed-preco-20");
     const { buildAmazonProductUrl } = await import("@/lib/amazon/policy-guard");
     expect(() => buildAmazonProductUrl("not-an-asin", "BR")).toThrow(
       /Invalid ASIN/,
+    );
+  });
+
+  it("rejects PETMOL historical tags as PreçoCaindo Special Link tags", async () => {
+    vi.stubEnv("AMAZON_BR_ENABLED", "true");
+    vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", "petmol-20");
+    const { buildAmazonProductUrl } = await import("@/lib/amazon/policy-guard");
+    expect(() => buildAmazonProductUrl("B0MOCK0001", "BR")).toThrow(
+      /No associate tag configured/,
     );
   });
 
@@ -46,6 +55,16 @@ describe("AmazonPolicyGuard", () => {
     expect(() => buildAmazonProductUrl("B0MOCK0001", "US")).toThrow(
       /not enabled/,
     );
+  });
+
+  it("builds a plain US product link before the affiliate tag is operational", async () => {
+    vi.stubEnv("AMAZON_US_ENABLED", "false");
+    vi.stubEnv("AMAZON_US_ASSOCIATE_TAG", "");
+    const { buildAmazonDirectProductUrl } =
+      await import("@/lib/amazon/policy-guard");
+    const url = buildAmazonDirectProductUrl("B0MOCK0001", "US");
+    expect(url).toBe("https://www.amazon.com/dp/B0MOCK0001");
+    expect(url).not.toContain("tag=");
   });
 
   it("allows redirects to amazon.com.br for BR", async () => {

@@ -1,4 +1,8 @@
-import { labelForVerdict, type DecisionResult, type DecisionVerdict } from "@/lib/services/decision-engine";
+import {
+  labelForVerdict,
+  type DecisionResult,
+  type DecisionVerdict,
+} from "@/lib/services/decision-engine";
 import type { ScoreTone } from "@/components/opportunity-tone";
 
 /**
@@ -58,11 +62,19 @@ export function ScorePanel({
 }) {
   const label = labelForVerdict(decision.verdict);
   const tone = VERDICT_TONE[decision.verdict];
+  const confidenceLabel: Record<typeof decision.confidence, string> = {
+    LOW: "confiança baixa",
+    MEDIUM: "confiança média",
+    HIGH: "confiança alta",
+  };
 
   if (decision.score === null) {
     return (
       <div className={`rounded-2xl border p-5 ${tone.bg} ${tone.border}`}>
-        <p className={`text-sm font-semibold ${tone.fg}`}>{label}</p>
+        <p className="text-foreground/60 text-xs font-medium tracking-wide uppercase">
+          Vale a pena comprar agora?
+        </p>
+        <p className={`mt-1 text-lg font-semibold ${tone.fg}`}>{label}</p>
         <p className="text-foreground/60 mt-1 text-sm">
           {decision.reasons[0]?.message ??
             "Ainda não temos dados suficientes para dizer se este é um bom momento para comprar."}
@@ -73,12 +85,19 @@ export function ScorePanel({
 
   return (
     <div className={`rounded-2xl border p-5 ${tone.bg} ${tone.border}`}>
+      <p className="text-foreground/60 text-xs font-medium tracking-wide uppercase">
+        Vale a pena comprar agora?
+      </p>
       <div className="flex items-baseline gap-2">
-        <span className={`text-4xl font-bold tabular-nums ${tone.fg}`}>{decision.score}</span>
+        <span className={`text-4xl font-bold tabular-nums ${tone.fg}`}>
+          {decision.score}
+        </span>
         <span className="text-foreground/40 text-lg">/100</span>
       </div>
-      <p className={`mt-1 text-sm font-semibold tracking-wide uppercase ${tone.fg}`}>
-        {label}
+      <p
+        className={`mt-1 text-sm font-semibold tracking-wide uppercase ${tone.fg}`}
+      >
+        {label} — {confidenceLabel[decision.confidence]}
       </p>
       {evidence && (
         <p className="text-foreground/60 mt-2 text-sm">{evidence}</p>

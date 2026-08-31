@@ -5,6 +5,7 @@ import {
   confirmPriceAlert,
   isConfirmed,
   cancelPriceAlert,
+  validatePriceAlertInput,
 } from "@/lib/services/price-alert";
 
 let productId: string;
@@ -42,6 +43,19 @@ afterAll(async () => {
 });
 
 describe("createPriceAlert", () => {
+  it("validates contact and target price before persistence", () => {
+    expect(
+      validatePriceAlertInput({ contact: "user@example.com", targetPrice: 99 }),
+    ).toEqual({ ok: true });
+    expect(
+      validatePriceAlertInput({ contact: "not-email", targetPrice: 99 }).ok,
+    ).toBe(false);
+    expect(
+      validatePriceAlertInput({ contact: "user@example.com", targetPrice: 0 })
+        .ok,
+    ).toBe(false);
+  });
+
   it("creates an unconfirmed alert with a hashed contact and a confirmation token", async () => {
     const alert = await createPriceAlert({
       productId,

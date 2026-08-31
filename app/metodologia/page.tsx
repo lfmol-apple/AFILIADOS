@@ -21,11 +21,11 @@ const FACTORS = [
   },
   {
     name: "Desconto aparente (15%)",
-    body: "Desconto informado pela Amazon em relação ao preço de tabela do produto.",
+    body: "Desconto informado pela loja parceira em relação ao preço de referência do produto, quando houver fonte legítima.",
   },
   {
     name: "Avaliação (10%)",
-    body: "Nota média de avaliações de compradores na Amazon, quando disponível.",
+    body: "Nota média de avaliações de compradores no varejista de origem, quando disponível por fonte permitida.",
   },
   {
     name: "Número de avaliações (10%)",

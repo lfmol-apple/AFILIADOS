@@ -3,8 +3,61 @@ import { getHomeSections } from "@/lib/queries/products";
 import { ProductCard } from "@/components/product-card";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
+import { GUIDES } from "@/lib/editorial/guides";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
+
+const LAUNCH_PILLARS = [
+  {
+    label: "Guias práticos",
+    title: "Aprenda antes de comprar",
+    body: "Conteúdo editorial útil mesmo quando não existe link comercial disponível.",
+  },
+  {
+    label: "Preço + histórico",
+    title: "Decisão clara",
+    body: "O site mostra se o preço atual parece bom, comum ou melhor esperar.",
+  },
+  {
+    label: "Links oficiais",
+    title: "Compra fora do site",
+    body: "O usuário decide aqui e finaliza direto na loja parceira.",
+  },
+  {
+    label: "Alertas",
+    title: "Voltar quando cair",
+    body: "Quem ainda não quer comprar pode acompanhar a próxima queda.",
+  },
+];
+
+type HomeSections = Awaited<ReturnType<typeof getHomeSections>>;
+
+const EMPTY_HOME_SECTIONS: HomeSections = {
+  pricesDropping: [],
+  bestOpportunities: [],
+  popularProducts: [],
+  categories: [],
+  guides: [],
+};
+
+async function loadHomeSections(catalogSafe: boolean): Promise<{
+  sections: HomeSections;
+  catalogUnavailable: boolean;
+}> {
+  if (!catalogSafe) {
+    return { sections: EMPTY_HOME_SECTIONS, catalogUnavailable: true };
+  }
+
+  try {
+    return {
+      sections: await getHomeSections(),
+      catalogUnavailable: false,
+    };
+  } catch (error) {
+    console.error("home.catalog_unavailable", error);
+    return { sections: EMPTY_HOME_SECTIONS, catalogUnavailable: true };
+  }
+}
 
 export default async function Home() {
   // Pre-launch (or every data-source gate closed) — see
@@ -15,53 +68,116 @@ export default async function Home() {
   // in an institutional shell either way; only the catalog-derived sections
   // are withheld when nothing is currently visible.
   const catalogSafe = currentlyVisibleDataSources().length > 0;
-  const { pricesDropping, bestOpportunities, categories, guides } = catalogSafe
-    ? await getHomeSections()
-    : { pricesDropping: [], bestOpportunities: [], categories: [], guides: [] };
+  const { sections, catalogUnavailable } = await loadHomeSections(catalogSafe);
+  const {
+    pricesDropping,
+    bestOpportunities,
+    popularProducts,
+    categories,
+    guides,
+  } = sections;
 
   return (
     <div>
       <AnalyticsBeacon pageType="home" pageSlug="/" />
       <section className="border-border-subtle bg-surface-muted border-b">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <h1 className="max-w-2xl text-3xl font-semibold tracking-tight sm:text-4xl">
-            Descubra se está barato de verdade.
-          </h1>
-          <p className="text-foreground/70 mt-4 max-w-xl">
-            Acompanhamos preços e o histórico de cada produto para mostrar se
-            vale comprar agora ou esperar — com metodologia própria e
-            independente, não uma recomendação da Amazon.
-          </p>
-          <form action="/ofertas" method="GET" className="mt-8 max-w-xl">
-            <label htmlFor="hero-search" className="sr-only">
-              O que você está pensando em comprar?
-            </label>
-            <div className="flex gap-2">
-              <input
-                id="hero-search"
-                type="search"
-                name="q"
-                placeholder="O que você está pensando em comprar?"
-                className="border-border-subtle bg-background focus:border-brand w-full rounded-full border px-5 py-3 text-sm outline-none"
-              />
-              <button
-                type="submit"
-                className="bg-brand text-brand-foreground rounded-full px-5 py-3 text-sm font-semibold hover:opacity-90"
-              >
-                Buscar
-              </button>
+        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-center lg:py-16">
+          <div>
+            <div className="border-border-subtle bg-background text-brand inline-flex rounded-full border px-3 py-1 text-xs font-semibold">
+              Inteligência de compra independente
             </div>
-          </form>
+            <h1 className="mt-5 max-w-3xl text-3xl font-semibold tracking-tight sm:text-5xl">
+              Descubra se está barato de verdade.
+            </h1>
+            <p className="text-foreground/70 mt-4 max-w-2xl text-base leading-relaxed">
+              O PreçoCaindo ajuda você a entender se vale comprar agora ou
+              esperar, combinando histórico, custo real, critérios editoriais e
+              ferramentas simples de comparação.
+            </p>
+            <form action="/ofertas" method="GET" className="mt-8 max-w-xl">
+              <label htmlFor="hero-search" className="sr-only">
+                O que você está pensando em comprar?
+              </label>
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <input
+                  id="hero-search"
+                  type="search"
+                  name="q"
+                  placeholder="Busque produto, marca, modelo ou categoria"
+                  className="border-border-subtle bg-background focus:border-brand min-h-12 w-full rounded-full border px-5 py-3 text-sm outline-none"
+                />
+                <button
+                  type="submit"
+                  className="bg-brand text-brand-foreground min-h-12 rounded-full px-6 py-3 text-sm font-semibold hover:opacity-90"
+                >
+                  Buscar
+                </button>
+              </div>
+            </form>
+            <div className="mt-6 flex flex-wrap gap-2 text-xs font-medium">
+              {[
+                "Promoção real",
+                "Custo por unidade",
+                "À vista vs. parcelado",
+                "Histórico explicado",
+              ].map((item) => (
+                <span
+                  key={item}
+                  className="border-border-subtle bg-background text-foreground/70 rounded-full border px-3 py-1.5"
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div
+            id="valor-editorial"
+            className="border-border-subtle bg-background rounded-lg border p-5"
+          >
+            <p className="text-brand text-sm font-semibold">
+              Útil mesmo sem link afiliado
+            </p>
+            <div className="mt-4 space-y-3">
+              {LAUNCH_PILLARS.map((pillar, index) => (
+                <div
+                  key={pillar.label}
+                  className="border-border-subtle flex gap-3 border-t pt-3 first:border-t-0 first:pt-0"
+                >
+                  <span className="bg-surface-muted flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold">
+                    {index + 1}
+                  </span>
+                  <div>
+                    <p className="text-foreground/50 text-xs font-semibold tracking-wide uppercase">
+                      {pillar.label}
+                    </p>
+                    <h2 className="text-sm font-semibold">{pillar.title}</h2>
+                    <p className="text-foreground/60 mt-1 text-sm leading-relaxed">
+                      {pillar.body}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Link
+              href="/guias"
+              className="bg-brand text-brand-foreground mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-full px-4 text-sm font-semibold"
+            >
+              Ver guias de compra
+            </Link>
+          </div>
         </div>
       </section>
 
-      {!catalogSafe && (
+      {catalogUnavailable && (
         <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
           <div className="border-border-subtle bg-surface-muted rounded-lg border p-6 text-sm">
-            <p className="font-semibold">Estamos em fase de pré-lançamento.</p>
+            <p className="font-semibold">
+              O catálogo público ainda não está disponível.
+            </p>
             <p className="text-foreground/70 mt-1">
-              O catálogo de produtos ainda não está disponível publicamente.
-              Volte em breve para comparar preços reais da Amazon.
+              Mesmo assim, os guias e ferramentas já ajudam a comparar custo
+              real, desconto e momento de compra.
             </p>
           </div>
         </section>
@@ -82,6 +198,46 @@ export default async function Home() {
           ))}
         </HomeSection>
       )}
+
+      {popularProducts.length > 0 &&
+        pricesDropping.length === 0 &&
+        bestOpportunities.length === 0 && (
+          <HomeSection title="Produtos populares monitorados" href="/ofertas">
+            {popularProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </HomeSection>
+        )}
+
+      <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+        <h2 className="text-lg font-semibold">Motor de decisão de compra</h2>
+        <div className="mt-4 grid gap-4 sm:grid-cols-3">
+          {[
+            {
+              title: "1. Ranking",
+              body: "Começamos pelos produtos com maior demanda e categorias com mais intenção de compra.",
+            },
+            {
+              title: "2. Verificação",
+              body: "Cada produto precisa ter preço, imagem, loja de destino e evidências antes de ganhar destaque.",
+            },
+            {
+              title: "3. Decisão",
+              body: "O usuário vê o veredito, compra na loja parceira ou cria alerta para acompanhar queda.",
+            },
+          ].map((step) => (
+            <div
+              key={step.title}
+              className="border-border-subtle rounded-lg border p-4"
+            >
+              <h3 className="text-sm font-semibold">{step.title}</h3>
+              <p className="text-foreground/70 mt-2 text-sm leading-relaxed">
+                {step.body}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       {categories.length > 0 && (
         <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
@@ -105,25 +261,37 @@ export default async function Home() {
 
       <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <h2 className="text-lg font-semibold">Guias para comprar melhor</h2>
-        {guides.length === 0 ? (
-          <p className="text-foreground/60 mt-3 text-sm">
-            Ainda estamos preparando os primeiros guias de compra. Volte em
-            breve.
-          </p>
-        ) : (
-          <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-            {guides.map((guide) => (
-              <li key={guide.id}>
-                <Link
-                  href={`/${guide.contentType === "BEST_OF" ? "melhores" : "comparar"}/${guide.slug}`}
-                  className="border-border-subtle hover:border-brand block rounded-lg border p-4 text-sm"
-                >
-                  {guide.title}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
+        <ul className="mt-4 grid gap-3 sm:grid-cols-2">
+          {GUIDES.slice(0, 4).map((guide) => (
+            <li key={guide.slug}>
+              <Link
+                href={`/guias/${guide.slug}`}
+                className="border-border-subtle hover:border-brand block rounded-lg border p-4 text-sm"
+              >
+                <span className="text-foreground/50 block text-xs tracking-wide uppercase">
+                  {guide.category}
+                </span>
+                <span className="mt-1 block font-medium">{guide.title}</span>
+              </Link>
+            </li>
+          ))}
+          {guides.map((guide) => (
+            <li key={guide.id}>
+              <Link
+                href={`/${guide.contentType === "BEST_OF" ? "melhores" : "comparar"}/${guide.slug}`}
+                className="border-border-subtle hover:border-brand block rounded-lg border p-4 text-sm"
+              >
+                {guide.title}
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <Link
+          href="/guias"
+          className="text-brand mt-4 inline-block text-sm hover:underline"
+        >
+          Ver todos os guias
+        </Link>
       </section>
     </div>
   );

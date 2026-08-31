@@ -10,11 +10,11 @@ export const metadata: Metadata = {
 const STEPS = [
   {
     title: "Acompanhamento",
-    body: "Passamos a observar o preço de um produto a partir do momento em que ele entra no nosso catálogo, e seguimos registrando esse histórico ao longo do tempo.",
+    body: "Passamos a observar o preço de um produto a partir do momento em que ele entra no nosso catálogo, e seguimos registrando esse histórico legítimo ao longo do tempo.",
   },
   {
-    title: "Cálculo do Score",
-    body: "Uma fórmula própria e determinística compara o preço atual ao histórico, ao menor preço já visto, ao desconto aparente, à avaliação e à disponibilidade — sem usar inteligência artificial para decidir o número.",
+    title: "Decisão de compra",
+    body: "Uma fórmula própria e determinística traduz preço atual, histórico, disponibilidade e confiança em uma resposta clara: comprar agora, preço razoável, melhor esperar ou dados insuficientes.",
   },
   {
     title: "Conteúdo editorial",
@@ -22,7 +22,7 @@ const STEPS = [
   },
   {
     title: "Você decide",
-    body: "Mostramos os dados e a análise; a decisão de compra é sempre sua, e a compra sempre acontece no site da Amazon.",
+    body: "Mostramos dados e análise; a decisão final é sua. Se o preço não estiver bom, a evolução natural é criar um alerta quando o envio estiver habilitado.",
   },
 ];
 

@@ -12,9 +12,9 @@ export const revalidate = 300;
 export function generateMetadata(): Metadata {
   const catalogSafe = currentlyVisibleDataSources().length > 0;
   return {
-    title: "Ofertas",
+    title: "Buscar produtos",
     description:
-      "Produtos com o melhor Score PreçoCaindo agora — preços comparados ao histórico, não só ao preço de tabela.",
+      "Pesquise produtos e veja se o preço atual está bom em relação ao histórico disponível.",
     alternates: { canonical: "/ofertas" },
     // Pre-launch (or every data-source gate closed) — the page stays
     // reachable (it's a listing, not a specific fabricated price), but must
@@ -54,19 +54,18 @@ export default async function OfertasPage(props: PageProps<"/ofertas">) {
       />
 
       <h1 className="mt-4 text-2xl font-semibold">
-        {query ? `Resultados para "${query}"` : "Boas compras agora"}
+        {query ? `Resultados para "${query}"` : "Compare antes de comprar"}
       </h1>
       <p className="text-foreground/60 mt-1 text-sm">
-        Ordenado pelo Score PreçoCaindo — preço atual comparado ao histórico
-        coletado por nós, não só ao preço de tabela.
+        Busque por produto, marca, modelo ou categoria. Quando há histórico
+        suficiente, o PreçoCaindo mostra se vale comprar agora ou esperar.
       </p>
 
       {!catalogSafe ? (
         <div className="border-border-subtle bg-surface-muted mt-10 rounded-lg border p-6 text-sm">
           <p className="font-semibold">Estamos em fase de pré-lançamento.</p>
           <p className="text-foreground/70 mt-1">
-            As ofertas ainda não estão disponíveis publicamente. Volte em
-            breve.
+            As ofertas ainda não estão disponíveis publicamente. Volte em breve.
           </p>
         </div>
       ) : items.length === 0 ? (

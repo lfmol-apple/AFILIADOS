@@ -14,6 +14,21 @@ enum CommerceProviderName {
   AMAZON
 }
 
+enum MerchantCode {
+  AMAZON
+  MERCADO_LIVRE
+  SHOPEE
+  AWIN
+  GENERIC_AFFILIATE
+}
+
+enum ExternalIdType {
+  ASIN
+  SKU
+  URL
+  MERCHANT_PRODUCT_ID
+}
+
 /// Kept intentionally small — see lib/config/marketplaces.ts for the
 /// runtime config each code maps to (host, currency, enabled, tag).
 enum Marketplace {
@@ -134,11 +149,80 @@ model Category {
   active   Boolean @default(true)
 
   products Product[]
+  canonicalProducts CanonicalProduct[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([parentId])
+}
+
+model CanonicalProduct {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  title          String
+  brand          String?
+  model          String?
+  gtin           String?
+  description    String?
+  imageUrl       String?
+  categoryId     String?
+  category       Category? @relation(fields: [categoryId], references: [id])
+  specifications Json?
+  active         Boolean  @default(true)
+
+  legacyProducts Product[]
+  listings       MerchantListing[]
+  affiliateClicks AffiliateClick[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([categoryId])
+  @@index([active])
+}
+
+model Merchant {
+  id               String       @id @default(cuid())
+  code             MerchantCode @unique
+  name             String
+  homepageUrl      String?
+  active           Boolean      @default(false)
+  affiliateEnabled Boolean      @default(false)
+  metadata         Json?
+
+  listings MerchantListing[]
+  affiliateClicks AffiliateClick[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MerchantListing {
+  id                 String          @id @default(cuid())
+  canonicalProductId String?
+  canonicalProduct   CanonicalProduct? @relation(fields: [canonicalProductId], references: [id])
+  merchantId         String
+  merchant           Merchant        @relation(fields: [merchantId], references: [id])
+  legacyProductId    String?
+  legacyProduct      Product?        @relation(fields: [legacyProductId], references: [id])
+  externalId         String
+  externalIdType     ExternalIdType
+  marketplace        Marketplace?
+  productUrl         String
+  source             DataSource      @default(MANUAL_VERIFIED)
+  availability       Availability    @default(UNKNOWN)
+  active             Boolean         @default(true)
+
+  affiliateClicks AffiliateClick[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([merchantId, marketplace, externalId])
+  @@index([canonicalProductId])
+  @@index([legacyProductId])
+  @@index([merchantId, active])
 }
 
 /// A Product is a listing within ONE marketplace — the BR listing and a
@@ -162,6 +246,8 @@ model Product {
   imageUrl       String?
   categoryId     String?
   category       Category? @relation(fields: [categoryId], references: [id])
+  canonicalProductId String?
+  canonicalProduct   CanonicalProduct? @relation(fields: [canonicalProductId], references: [id])
   specifications Json?
   rating         Float?
   reviewCount    Int?
@@ -187,9 +273,11 @@ model Product {
   searchOpportunities SearchOpportunity[]
   pageViews       PageView[]
   candidate       ProductCandidate?
+  merchantListings MerchantListing[]
 
   @@unique([provider, marketplace, asin])
   @@index([categoryId])
+  @@index([canonicalProductId])
   @@index([updatePriority])
   @@index([active])
   @@index([marketplace, active])
@@ -320,6 +408,12 @@ model AffiliateClick {
   id        String  @id @default(cuid())
   productId String
   product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  canonicalProductId String?
+  canonicalProduct   CanonicalProduct? @relation(fields: [canonicalProductId], references: [id])
+  merchantId         String?
+  merchant           Merchant? @relation(fields: [merchantId], references: [id])
+  merchantListingId  String?
+  merchantListing    MerchantListing? @relation(fields: [merchantListingId], references: [id])
   provider  CommerceProviderName @default(AMAZON)
   pageType  String
   pageSlug  String
@@ -329,6 +423,9 @@ model AffiliateClick {
   createdAt DateTime @default(now())
 
   @@index([productId, createdAt])
+  @@index([canonicalProductId, createdAt])
+  @@index([merchantId, createdAt])
+  @@index([merchantListingId, createdAt])
   @@index([createdAt])
 }
 

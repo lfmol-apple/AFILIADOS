@@ -42,9 +42,14 @@ export async function POST(request: Request) {
 
   const { referrer, ...rest } = parsed.data;
 
-  await prisma.pageView.create({
-    data: { ...rest, referrerDomain: extractHostname(referrer) },
-  });
+  try {
+    await prisma.pageView.create({
+      data: { ...rest, referrerDomain: extractHostname(referrer) },
+    });
+  } catch (error) {
+    console.error("analytics.pageview_not_persisted", error);
+    return NextResponse.json({ ok: true, stored: false }, { status: 202 });
+  }
 
   return NextResponse.json({ ok: true });
 }

@@ -1,7 +1,19 @@
-import { describe, expect, it, vi, beforeAll, afterAll, afterEach } from "vitest";
+import {
+  describe,
+  expect,
+  it,
+  vi,
+  beforeAll,
+  afterAll,
+  afterEach,
+} from "vitest";
 import { prisma } from "@/lib/db";
 import { getCommerceProvider, MockAmazonProvider } from "@/lib/providers";
-import { getOfertas, getProductBySlug, getHomeSections } from "@/lib/queries/products";
+import {
+  getOfertas,
+  getProductBySlug,
+  getHomeSections,
+} from "@/lib/queries/products";
 import { handleGoAmazonRequest } from "@/lib/services/go-amazon-handler";
 import { isPublicCatalogSafeToShow } from "@/lib/config/public-catalog";
 import { buildReadinessReport } from "@/lib/readiness/report";
@@ -27,14 +39,21 @@ let usSlug: string;
 beforeAll(async () => {
   const category = await prisma.category.upsert({
     where: { slug: "__test-mkt-iso-category__" },
-    create: { name: "Test Marketplace Isolation", slug: "__test-mkt-iso-category__" },
+    create: {
+      name: "Test Marketplace Isolation",
+      slug: "__test-mkt-iso-category__",
+    },
     update: {},
   });
   categoryId = category.id;
 
   const brProduct = await prisma.product.upsert({
     where: {
-      provider_marketplace_asin: { provider: "AMAZON", marketplace: "BR", asin: SHARED_ASIN },
+      provider_marketplace_asin: {
+        provider: "AMAZON",
+        marketplace: "BR",
+        asin: SHARED_ASIN,
+      },
     },
     create: {
       asin: SHARED_ASIN,
@@ -52,7 +71,11 @@ beforeAll(async () => {
 
   const usProduct = await prisma.product.upsert({
     where: {
-      provider_marketplace_asin: { provider: "AMAZON", marketplace: "US", asin: SHARED_ASIN },
+      provider_marketplace_asin: {
+        provider: "AMAZON",
+        marketplace: "US",
+        asin: SHARED_ASIN,
+      },
     },
     create: {
       asin: SHARED_ASIN,
@@ -68,25 +91,55 @@ beforeAll(async () => {
   usProductId = usProduct.id;
   usSlug = usProduct.slug;
 
-  await prisma.priceHistory.deleteMany({ where: { productId: { in: [brProductId, usProductId] } } });
+  await prisma.priceHistory.deleteMany({
+    where: { productId: { in: [brProductId, usProductId] } },
+  });
   await prisma.priceHistory.createMany({
     data: [
-      { productId: brProductId, provider: "AMAZON", price: 100, observedAt: new Date(Date.now() - 10 * DAY) },
-      { productId: brProductId, provider: "AMAZON", price: 90, observedAt: new Date(Date.now() - 5 * DAY) },
-      { productId: brProductId, provider: "AMAZON", price: 80, observedAt: new Date(Date.now() - 1 * DAY) },
-      { productId: usProductId, provider: "AMAZON", price: 25, observedAt: new Date(Date.now() - 5 * DAY) },
-      { productId: usProductId, provider: "AMAZON", price: 20, observedAt: new Date(Date.now() - 1 * DAY) },
+      {
+        productId: brProductId,
+        provider: "AMAZON",
+        price: 100,
+        observedAt: new Date(Date.now() - 10 * DAY),
+      },
+      {
+        productId: brProductId,
+        provider: "AMAZON",
+        price: 90,
+        observedAt: new Date(Date.now() - 5 * DAY),
+      },
+      {
+        productId: brProductId,
+        provider: "AMAZON",
+        price: 80,
+        observedAt: new Date(Date.now() - 1 * DAY),
+      },
+      {
+        productId: usProductId,
+        provider: "AMAZON",
+        price: 25,
+        observedAt: new Date(Date.now() - 5 * DAY),
+      },
+      {
+        productId: usProductId,
+        provider: "AMAZON",
+        price: 20,
+        observedAt: new Date(Date.now() - 1 * DAY),
+      },
     ],
   });
 
-  await prisma.offer.deleteMany({ where: { productId: { in: [brProductId, usProductId] } } });
+  await prisma.offer.deleteMany({
+    where: { productId: { in: [brProductId, usProductId] } },
+  });
   await prisma.offer.create({
     data: {
       productId: brProductId,
       provider: "AMAZON",
       price: 80,
       currency: "BRL",
-      affiliateUrl: "https://www.amazon.com.br/dp/MKTISO0001?tag=precocaindo-test-20",
+      affiliateUrl:
+        "https://www.amazon.com.br/dp/MKTISO0001?tag=precocaindo-test-20",
       availability: "IN_STOCK",
     },
   });
@@ -96,39 +149,63 @@ beforeAll(async () => {
       provider: "AMAZON",
       price: 20,
       currency: "USD",
-      affiliateUrl: "https://www.amazon.com/dp/MKTISO0001?tag=petmol07-20",
+      affiliateUrl: "https://www.amazon.com/dp/MKTISO0001?tag=some-us-tag-20",
       availability: "IN_STOCK",
     },
   });
 });
 
 afterAll(async () => {
-  await prisma.affiliateClick.deleteMany({ where: { productId: { in: [brProductId, usProductId] } } });
-  await prisma.opportunityScore.deleteMany({ where: { productId: { in: [brProductId, usProductId] } } });
-  await prisma.priceStats.deleteMany({ where: { productId: { in: [brProductId, usProductId] } } });
-  await prisma.priceHistory.deleteMany({ where: { productId: { in: [brProductId, usProductId] } } });
-  await prisma.offer.deleteMany({ where: { productId: { in: [brProductId, usProductId] } } });
-  await prisma.product.deleteMany({ where: { id: { in: [brProductId, usProductId] } } });
+  await prisma.affiliateClick.deleteMany({
+    where: { productId: { in: [brProductId, usProductId] } },
+  });
+  await prisma.opportunityScore.deleteMany({
+    where: { productId: { in: [brProductId, usProductId] } },
+  });
+  await prisma.priceStats.deleteMany({
+    where: { productId: { in: [brProductId, usProductId] } },
+  });
+  await prisma.priceHistory.deleteMany({
+    where: { productId: { in: [brProductId, usProductId] } },
+  });
+  await prisma.offer.deleteMany({
+    where: { productId: { in: [brProductId, usProductId] } },
+  });
+  await prisma.product.deleteMany({
+    where: { id: { in: [brProductId, usProductId] } },
+  });
   await prisma.category.deleteMany({ where: { id: categoryId } });
 });
 
 describe("1. Same ASIN can exist for BR and US without conflict", () => {
   it("both rows exist, with distinct ids, under the same ASIN", async () => {
     expect(brProductId).not.toBe(usProductId);
-    const rows = await prisma.product.findMany({ where: { asin: SHARED_ASIN } });
+    const rows = await prisma.product.findMany({
+      where: { asin: SHARED_ASIN },
+    });
     expect(rows).toHaveLength(2);
-    expect(new Set(rows.map((r) => r.marketplace))).toEqual(new Set(["BR", "US"]));
+    expect(new Set(rows.map((r) => r.marketplace))).toEqual(
+      new Set(["BR", "US"]),
+    );
   });
 });
 
 describe("2. BR/US price history is isolated", () => {
   it("querying by productId never crosses marketplaces", async () => {
-    const brHistory = await prisma.priceHistory.findMany({ where: { productId: brProductId } });
-    const usHistory = await prisma.priceHistory.findMany({ where: { productId: usProductId } });
+    const brHistory = await prisma.priceHistory.findMany({
+      where: { productId: brProductId },
+    });
+    const usHistory = await prisma.priceHistory.findMany({
+      where: { productId: usProductId },
+    });
 
     const numericSort = (a: number, b: number) => a - b;
-    expect(brHistory.map((h) => Number(h.price)).sort(numericSort)).toEqual([80, 90, 100]);
-    expect(usHistory.map((h) => Number(h.price)).sort(numericSort)).toEqual([20, 25]);
+    expect(brHistory.map((h) => Number(h.price)).sort(numericSort)).toEqual([
+      80, 90, 100,
+    ]);
+    expect(usHistory.map((h) => Number(h.price)).sort(numericSort)).toEqual([
+      20, 25,
+    ]);
 
     const brPrices = brHistory.map((h) => Number(h.price));
     expect(brPrices).not.toContain(20);
@@ -154,11 +231,16 @@ describe("3 & 4. PriceStats and OpportunityScore never mix marketplace/currency 
     vi.stubEnv("AMAZON_BR_ENABLED", "true");
     vi.stubEnv("AMAZON_US_ENABLED", "true");
 
-    const { calculatePriceStatsJob } = await import("@/jobs/calculate-price-stats");
+    const { calculatePriceStatsJob } =
+      await import("@/jobs/calculate-price-stats");
     await calculatePriceStatsJob();
 
-    const brStats = await prisma.priceStats.findUniqueOrThrow({ where: { productId: brProductId } });
-    const usStats = await prisma.priceStats.findUniqueOrThrow({ where: { productId: usProductId } });
+    const brStats = await prisma.priceStats.findUniqueOrThrow({
+      where: { productId: brProductId },
+    });
+    const usStats = await prisma.priceStats.findUniqueOrThrow({
+      where: { productId: usProductId },
+    });
 
     // BR average must land in the BRL range (80-100), never pulled toward
     // the USD range (20-25) — and vice versa. A combined/blended average
@@ -170,11 +252,16 @@ describe("3 & 4. PriceStats and OpportunityScore never mix marketplace/currency 
     expect(Number(brStats.lowestPrice)).toBe(80);
     expect(Number(usStats.lowestPrice)).toBe(20);
 
-    const { calculateOpportunities } = await import("@/jobs/calculate-opportunities");
+    const { calculateOpportunities } =
+      await import("@/jobs/calculate-opportunities");
     await calculateOpportunities();
 
-    const brScore = await prisma.opportunityScore.findUniqueOrThrow({ where: { productId: brProductId } });
-    const usScore = await prisma.opportunityScore.findUniqueOrThrow({ where: { productId: usProductId } });
+    const brScore = await prisma.opportunityScore.findUniqueOrThrow({
+      where: { productId: brProductId },
+    });
+    const usScore = await prisma.opportunityScore.findUniqueOrThrow({
+      where: { productId: usProductId },
+    });
 
     // Both scores exist independently and neither computation touched the
     // other product's row — proven by each existing with its own
@@ -194,7 +281,8 @@ describe("5. Requesting the US provider while AMAZON_US_ENABLED=false fails expl
   it("throws instead of silently falling back to BR or mock", async () => {
     vi.resetModules();
     vi.stubEnv("AMAZON_US_ENABLED", "");
-    const { getCommerceProvider: freshGetCommerceProvider } = await import("@/lib/providers");
+    const { getCommerceProvider: freshGetCommerceProvider } =
+      await import("@/lib/providers");
     expect(() => freshGetCommerceProvider("US")).toThrow(/not enabled/i);
   });
 
@@ -262,19 +350,41 @@ describe("6. Public queries (home, ofertas, product) return BR only", () => {
 
 describe("7. Affiliate clicks are separable by marketplace", () => {
   afterAll(async () => {
-    await prisma.affiliateClick.deleteMany({ where: { productId: { in: [brProductId, usProductId] } } });
+    await prisma.affiliateClick.deleteMany({
+      where: { productId: { in: [brProductId, usProductId] } },
+    });
   });
 
   it("a click recorded against a BR product never counts toward US, and vice versa", async () => {
     await prisma.affiliateClick.create({
-      data: { productId: brProductId, provider: "AMAZON", pageType: "test", pageSlug: brSlug },
+      data: {
+        productId: brProductId,
+        provider: "AMAZON",
+        pageType: "test",
+        pageSlug: brSlug,
+      },
     });
     await prisma.affiliateClick.create({
-      data: { productId: usProductId, provider: "AMAZON", pageType: "test", pageSlug: usSlug },
+      data: {
+        productId: usProductId,
+        provider: "AMAZON",
+        pageType: "test",
+        pageSlug: usSlug,
+      },
     });
 
-    const brClicks = await prisma.affiliateClick.count({ where: { product: { marketplace: "BR" }, productId: { in: [brProductId, usProductId] } } });
-    const usClicks = await prisma.affiliateClick.count({ where: { product: { marketplace: "US" }, productId: { in: [brProductId, usProductId] } } });
+    const brClicks = await prisma.affiliateClick.count({
+      where: {
+        product: { marketplace: "BR" },
+        productId: { in: [brProductId, usProductId] },
+      },
+    });
+    const usClicks = await prisma.affiliateClick.count({
+      where: {
+        product: { marketplace: "US" },
+        productId: { in: [brProductId, usProductId] },
+      },
+    });
 
     expect(brClicks).toBe(1);
     expect(usClicks).toBe(1);
@@ -306,7 +416,8 @@ describe("9. production + mock never indexes the fictional catalog", () => {
   it("is unsafe when the flag is off, even in dev", async () => {
     vi.resetModules();
     vi.stubEnv("PUBLIC_CATALOG_ENABLED", "false");
-    const { isPublicCatalogSafeToShow: fresh } = await import("@/lib/config/public-catalog");
+    const { isPublicCatalogSafeToShow: fresh } =
+      await import("@/lib/config/public-catalog");
     expect(fresh()).toBe(false);
   });
 
@@ -315,7 +426,8 @@ describe("9. production + mock never indexes the fictional catalog", () => {
     vi.stubEnv("PUBLIC_CATALOG_ENABLED", "true");
     vi.stubEnv("AMAZON_PROVIDER", "mock");
     vi.stubEnv("NODE_ENV", "production");
-    const { isPublicCatalogSafeToShow: fresh } = await import("@/lib/config/public-catalog");
+    const { isPublicCatalogSafeToShow: fresh } =
+      await import("@/lib/config/public-catalog");
     expect(fresh()).toBe(false);
   });
 
@@ -324,7 +436,8 @@ describe("9. production + mock never indexes the fictional catalog", () => {
     vi.stubEnv("PUBLIC_CATALOG_ENABLED", "true");
     vi.stubEnv("AMAZON_PROVIDER", "live");
     vi.stubEnv("NODE_ENV", "production");
-    const { isPublicCatalogSafeToShow: fresh } = await import("@/lib/config/public-catalog");
+    const { isPublicCatalogSafeToShow: fresh } =
+      await import("@/lib/config/public-catalog");
     expect(fresh()).toBe(true);
   });
 
@@ -346,22 +459,32 @@ describe("10. US pendencies never block BR launch readiness", () => {
   });
 
   it("SITE_LAUNCH_READY is computed purely from site/local blockers, never from US lines", async () => {
-    const { lines, siteLaunchReady } = await buildReadinessReport({ infrastructureReady: true });
+    const { lines, siteLaunchReady } = await buildReadinessReport({
+      infrastructureReady: true,
+    });
     const siteBlockers = lines.filter((l) => l.blocksSiteLaunch);
     expect(siteLaunchReady).toBe(siteBlockers.length === 0);
-    expect(siteBlockers.every((l) => !l.label.startsWith("AMAZON_US"))).toBe(true);
+    expect(siteBlockers.every((l) => !l.label.startsWith("AMAZON_US"))).toBe(
+      true,
+    );
   });
 
   it("SITE_LAUNCH_READY never requires the public catalog to actually be shown", async () => {
     const { lines } = await buildReadinessReport({ infrastructureReady: true });
-    const catalogSafeLine = lines.find((l) => l.label === "PUBLIC_CATALOG_SAFE");
+    const catalogSafeLine = lines.find(
+      (l) => l.label === "PUBLIC_CATALOG_SAFE",
+    );
     expect(catalogSafeLine?.blocksSiteLaunch).toBe(false);
   });
 });
 
 describe("11. BR affiliate links keep working even with a same-ASIN US row present", () => {
   it("handleGoAmazonRequest('BR', asin) still resolves the BR product, not the US one", async () => {
-    const result = await handleGoAmazonRequest("BR", SHARED_ASIN, new URLSearchParams());
+    const result = await handleGoAmazonRequest(
+      "BR",
+      SHARED_ASIN,
+      new URLSearchParams(),
+    );
     expect(result.status).toBe("redirect");
     if (result.status === "redirect") {
       expect(result.destination).toContain("amazon.com.br");

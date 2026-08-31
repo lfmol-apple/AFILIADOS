@@ -18,9 +18,9 @@ export default function SobrePage() {
           próprio histórico — não apenas ao preço de tabela.
         </p>
         <p>
-          Hoje trabalhamos com a Amazon Brasil como parceira via Programa de
-          Associados. A compra sempre acontece no site da Amazon; o PreçoCaindo
-          não vende produtos diretamente.
+          A compra sempre acontece na loja parceira. O PreçoCaindo não vende
+          produtos diretamente e não deve transformar uma relação comercial em
+          argumento de qualidade.
         </p>
         <p>
           Nossas análises e o Score PreçoCaindo são calculados com metodologia

@@ -13,8 +13,8 @@ export default function TermosPage() {
       <div className="text-foreground/80 mt-6 space-y-4 text-sm leading-relaxed">
         <p>
           O PreçoCaindo é um serviço editorial e de comparação de preços. Não
-          vendemos produtos diretamente; a compra sempre acontece no site do
-          marketplace parceiro (atualmente, Amazon Brasil).
+          vendemos produtos diretamente; a compra sempre acontece no site da
+          loja parceira.
         </p>
         <p>
           Preços, disponibilidade e informações de produtos podem mudar a
@@ -33,9 +33,10 @@ export default function TermosPage() {
           futuro.
         </p>
         <p>
-          Como associado da Amazon, o PreçoCaindo pode ganhar comissão sobre
-          compras qualificadas feitas a partir dos nossos links, sem custo
-          adicional para você.
+          O PreçoCaindo pode ganhar comissão sobre compras feitas a partir de
+          links comerciais identificados, sem custo adicional para você. Essa
+          comissão não deve alterar artificialmente preço, histórico, score ou
+          decisão editorial.
         </p>
       </div>
     </div>

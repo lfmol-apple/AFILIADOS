@@ -1,11 +1,24 @@
 import { prisma } from "@/lib/db";
-import { resolveAffiliateRedirect, AffiliateRedirectError } from "@/lib/services/affiliate-redirect";
+import {
+  resolveAffiliateRedirect,
+  AffiliateRedirectError,
+} from "@/lib/services/affiliate-redirect";
 import { logger } from "@/lib/observability/logger";
 import type { MarketplaceCode } from "@/types/marketplace";
 
 export type GoAmazonResult =
   | { status: "redirect"; destination: string }
   | { status: "error"; errorStatus: number; errorMessage: string };
+
+function isLocalManualVerifiedDraft(
+  product: { active: boolean; dataSource: string } | null,
+) {
+  return (
+    process.env.NODE_ENV === "development" &&
+    product?.dataSource === "MANUAL_VERIFIED" &&
+    !product.active
+  );
+}
 
 /**
  * Shared implementation behind app/go/amazon/[...segments]/route.ts, which
@@ -27,16 +40,22 @@ export async function handleGoAmazonRequest(
   searchParams: URLSearchParams,
 ): Promise<GoAmazonResult> {
   const product = await prisma.product.findUnique({
-    where: { provider_marketplace_asin: { provider: "AMAZON", marketplace, asin } },
-    include: { offers: { orderBy: { observedAt: "desc" }, take: 1 } },
+    where: {
+      provider_marketplace_asin: { provider: "AMAZON", marketplace, asin },
+    },
+    include: {
+      offers: { orderBy: { observedAt: "desc" }, take: 1 },
+      merchantListings: { take: 1 },
+    },
   });
+  const localDraftPreview = isLocalManualVerifiedDraft(product);
 
   let destination: string;
   try {
     destination = resolveAffiliateRedirect({
       asin,
       marketplace,
-      productActive: product?.active ?? false,
+      productActive: Boolean(product?.active || localDraftPreview),
       affiliateUrl: product?.offers[0]?.affiliateUrl ?? null,
     });
   } catch (err) {
@@ -46,17 +65,32 @@ export async function handleGoAmazonRequest(
         asin,
         status: err.status,
       });
-      return { status: "error", errorStatus: err.status, errorMessage: err.message };
+      return {
+        status: "error",
+        errorStatus: err.status,
+        errorMessage: err.message,
+      };
     }
     throw err;
   }
 
-  logger.info("affiliate.redirect", { marketplace, asin, productFound: Boolean(product) });
+  logger.info("affiliate.redirect", {
+    marketplace,
+    asin,
+    productFound: Boolean(product),
+  });
 
-  if (product) {
+  if (product && !localDraftPreview) {
+    const merchant = await prisma.merchant.findUnique({
+      where: { code: "AMAZON" },
+    });
+    const listing = product.merchantListings[0];
     await prisma.affiliateClick.create({
       data: {
         productId: product.id,
+        canonicalProductId: product.canonicalProductId,
+        merchantId: merchant?.id,
+        merchantListingId: listing?.id,
         provider: "AMAZON",
         pageType: searchParams.get("pageType") ?? "unknown",
         pageSlug: searchParams.get("pageSlug") ?? product.slug,

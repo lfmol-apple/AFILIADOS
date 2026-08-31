@@ -9,10 +9,14 @@ preparada. Ver `lib/config/marketplaces.ts` para a implementação.
 
 ### Amazon Brasil
 
-- **Store ID da conta PETMOL:** `petmol-20` (a tag da própria PETMOL, não do PreçoCaindo).
-- **Tracking ID do PreçoCaindo: `precocaindo-20` — já criado e configurado.** Não é mais
-  pendente; qualquer documentação antiga afirmando o contrário estava desatualizada. É a tag
-  usada em `AMAZON_BR_ASSOCIATE_TAG`.
+- **LEGACY / histórico PETMOL:** `petmol-20` pertence à propriedade/candidatura PETMOL e foi
+  rejeitado em 22/08/2026 no contexto anterior. É informação histórica, não configuração
+  operacional do PreçoCaindo.
+- **Candidatura atual PreçoCaindo:** Tracking ID/Store ID operacional =
+  `PENDING_HUMAN_CONFIRMATION`. A documentação histórica mencionava `precocaindo-20`, mas esse
+  valor não deve ser tratado como confirmado para a nova candidatura até o proprietário validar
+  diretamente na Central de Associados. `AMAZON_BR_ASSOCIATE_TAG` deve ficar vazio até essa
+  confirmação.
 - **Elegibilidade para a Creators API: PENDENTE.** A página oficial da Creators API para a conta
   BR atualmente mostra a conta como **não aprovada** para a Creators API (checkbox desmarcado).
   Isso é independente de o Tracking ID existir — são dois fatos diferentes.
@@ -45,17 +49,18 @@ como" — nenhum outro código lê as variáveis `AMAZON_BR_*`/`AMAZON_US_*` dir
 interface AmazonMarketplaceConfig {
   marketplace: "BR" | "US";
   country: string;
-  host: string;          // amazon.com.br | amazon.com
-  currency: string;       // BRL | USD
-  associateTag: string;   // vazio = "não construir links para este marketplace ainda"
+  host: string; // amazon.com.br | amazon.com
+  currency: string; // BRL | USD
+  associateTag: string; // vazio = "não construir links para este marketplace ainda"
   enabled: boolean;
   apiEnabled: boolean;
 }
 ```
 
-`AMAZON_ASSOCIATE_TAG` (variável antiga, pré-multi-marketplace) continua funcionando como
-fallback silencioso para `AMAZON_BR_ASSOCIATE_TAG` quando esta não está definida — mantido só por
-compatibilidade; configuração nova deve usar `AMAZON_BR_ASSOCIATE_TAG` diretamente.
+`AMAZON_ASSOCIATE_TAG` (variável antiga, pré-multi-marketplace) é mantida apenas para parsing de
+ambiente legado, mas **não** é usada como fallback operacional para a candidatura atual. A tag
+vigente precisa ser confirmada por uma pessoa e configurada explicitamente em
+`AMAZON_BR_ASSOCIATE_TAG`.
 
 `AmazonPolicyGuard` (`lib/amazon/policy-guard.ts`) é totalmente marketplace-aware:
 `buildAmazonProductUrl(asin, marketplace)` e `assertAllowedAmazonDestination(url, marketplace)`
@@ -81,6 +86,30 @@ fictício (`lib/providers/mock-catalog.ts`) — sem nenhuma chamada de rede. Iss
 e demonstrar o produto inteiro (banco, score, SEO, páginas, jobs) antes de qualquer credencial
 real da Amazon existir, para qualquer marketplace.
 
+## Revisão oficial Amazon — 2026-08-31
+
+Fontes oficiais consultadas nesta revisão:
+
+- Contrato Operacional do Programa de Associados Amazon Brasil:
+  `https://associados.amazon.com.br/help/operating/agreement`
+- Políticas do Programa de Associados:
+  `https://associados.amazon.com.br/help/operating/policies/`
+- FAQ de candidaturas:
+  `https://associados.amazon.com.br/help/node/topic/G8TW5AE9XL2VX9VM`
+- Ajuda sobre marcação/Store ID em Links Especiais:
+  `https://associados.amazon.com.br/help/node/topic/G6253GFSARDQENZR`
+
+Impacto no projeto:
+
+- Links Especiais precisam usar a Identificação/Tracking ID atribuída pela Amazon e devem permitir
+  rastreamento correto da origem. O PreçoCaindo, portanto, não constrói Link Especial quando não
+  há tag operacional confirmada.
+- A Amazon passou a explicitar que Conteúdo Original precisa conter comentários, análises ou
+  transformações com valor adicional. Por isso `/guias`, `/metodologia`, `/politica-editorial` e
+  as ferramentas editoriais existem independentemente de qualquer link afiliado.
+- Dados, imagens, preços e conteúdo de produto Amazon só podem vir de mecanismos permitidos pelo
+  programa/API. Não há scraping nem cópia de imagens Amazon no projeto.
+
 ## Elegibilidade para a Creators API (segundo a Amazon)
 
 De acordo com a página oficial de FAQ da Creators API:
@@ -96,10 +125,10 @@ De acordo com a página oficial de FAQ da Creators API:
 - É possível criar até duas aplicações, cada uma com dois conjuntos de credenciais (para
   rotação, mas utilizáveis de forma independente).
 
-Isso significa que ativar `AMAZON_PROVIDER=live` para o BR depende de duas coisas fora do nosso
+Isso significa que ativar `AMAZON_PROVIDER=live` para o BR depende de coisas fora do nosso
 controle de engenharia, que só a Amazon confirma: (a) aprovação da conta para a Creators API, e
-(b) volume de vendas qualificadas suficiente. O Tracking ID **não é mais** um bloqueador — já
-existe (`precocaindo-20`) — mas isso sozinho não desbloqueia a API.
+(b) volume de vendas qualificadas suficiente. O Tracking ID da candidatura atual também permanece
+`PENDING_HUMAN_CONFIRMATION` até validação explícita pelo proprietário.
 
 ## O que falta para `AMAZON_PROVIDER=live`
 
@@ -139,11 +168,10 @@ risco. Se a Creators API estiver indisponível, o comportamento correto é falha
 
 ## Tag de afiliado
 
-Nunca hardcoded no sentido de "chutada" — mas o Tracking ID BR confirmado (`precocaindo-20`) É o
-valor padrão documentado em `.env.example`, porque é um identificador público (aparece em toda URL
-de saída), não um segredo, e já foi confirmado pelo dono do negócio. `buildAmazonProductUrl()`
-(`lib/amazon/policy-guard.ts`) recusa-se a construir um link se a tag do marketplace pedido não
-estiver configurada ou se esse marketplace não estiver habilitado.
+Nunca hardcoded/chutada. `petmol-20` e `petmol07-20` são IDs históricos/informativos e
+`lib/config/marketplaces.ts` os trata como proibidos para a tag operacional do PreçoCaindo.
+`buildAmazonProductUrl()` (`lib/amazon/policy-guard.ts`) recusa-se a construir um link se a tag do
+marketplace pedido não estiver configurada ou se esse marketplace não estiver habilitado.
 
 ## Pré-lançamento: catálogo público desligado por padrão
 

@@ -20,18 +20,25 @@ const envSchema = z.object({
 
   AMAZON_PROVIDER: z.enum(["mock", "live"]).default("mock"),
 
+  // Which marketplace the public site renders. Defaults to BR for the
+  // existing production behavior; set PUBLIC_MARKETPLACE=US only when the
+  // US Associate account, tracking tag, and product source are ready.
+  PUBLIC_MARKETPLACE: z
+    .enum(["BR", "US", ""])
+    .default("BR")
+    .transform((v) => (v === "" ? "BR" : v)),
+
   // DEPRECATED — kept only so an existing .env from before the
   // multi-marketplace config (see lib/config/marketplaces.ts) keeps
-  // working. New code should never read this directly; it's folded into
-  // AMAZON_BR_ASSOCIATE_TAG as a fallback if that's unset. Prefer setting
-  // AMAZON_BR_ASSOCIATE_TAG explicitly.
+  // working. New code should never read this directly, and the current
+  // Amazon application deliberately does not use it as a fallback. Prefer
+  // setting AMAZON_BR_ASSOCIATE_TAG explicitly after human confirmation.
   AMAZON_ASSOCIATE_TAG: z.string().default(""),
 
-  // --- Amazon Brasil (amazon.com.br) — PETMOL, Store ID petmol-20 ---
-  // PreçoCaindo's own Tracking ID under that account is precocaindo-20
-  // (confirmed, already created — see docs/AMAZON.md). Whether the account
-  // is *approved for the Creators API* is a separate, still-pending fact —
-  // see AMAZON_BR_CREATORS_API_ACCOUNT_APPROVED below.
+  // --- Amazon Brasil (amazon.com.br) ---
+  // petmol-20 is historical/PETMOL-only. Older project notes mentioned
+  // precocaindo-20, but the current PreçoCaindo application tag must be
+  // confirmed by a human in Associates Central before being configured.
   AMAZON_BR_ENABLED: booleanFromEnvDefault(true),
   AMAZON_BR_API_ENABLED: booleanFromEnvDefault(false),
   AMAZON_BR_ASSOCIATE_TAG: z.string().default(""),

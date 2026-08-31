@@ -12,11 +12,7 @@ import type { OpportunityScoreResult } from "./opportunity-score";
  * Score".
  */
 export type DecisionVerdict =
-  | "BUY_NOW"
-  | "GOOD_TIME"
-  | "NEUTRAL"
-  | "WAIT"
-  | "INSUFFICIENT_DATA";
+  "BUY_NOW" | "GOOD_TIME" | "NEUTRAL" | "WAIT" | "INSUFFICIENT_DATA";
 
 export type DecisionConfidence = "LOW" | "MEDIUM" | "HIGH";
 
@@ -55,11 +51,11 @@ export interface DecisionInput {
 }
 
 const VERDICT_LABEL: Record<DecisionVerdict, string> = {
-  BUY_NOW: "Excelente momento para comprar",
-  GOOD_TIME: "Bom momento para comprar",
-  NEUTRAL: "Preço dentro do esperado",
-  WAIT: "Talvez valha esperar",
-  INSUFFICIENT_DATA: "Ainda estamos acompanhando este preço.",
+  BUY_NOW: "COMPRE AGORA",
+  GOOD_TIME: "COMPRE AGORA",
+  NEUTRAL: "PREÇO RAZOÁVEL",
+  WAIT: "MELHOR ESPERAR",
+  INSUFFICIENT_DATA: "DADOS INSUFICIENTES",
 };
 
 /** Single source of truth for verdict copy — anywhere that shows a
@@ -131,13 +127,15 @@ export function calculateDecision(input: DecisionInput): DecisionResult {
   if (stats.distanceFromLow <= NEAR_LOW_THRESHOLD) {
     reasons.push({
       code: "NEAR_HISTORIC_LOW",
-      message: "Preço próximo do menor valor que já observamos para este produto.",
+      message:
+        "Preço próximo do menor valor que já observamos para este produto.",
     });
   }
   if (reasons.length === 0) {
     reasons.push({
       code: "WITHIN_NORMAL_RANGE",
-      message: "Preço dentro da faixa que costumamos observar para este produto.",
+      message:
+        "Preço dentro da faixa que costumamos observar para este produto.",
     });
   }
 

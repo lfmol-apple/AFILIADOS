@@ -14,6 +14,22 @@ export interface CreatePriceAlertInput {
   contact: string;
 }
 
+export type PriceAlertValidationResult =
+  { ok: true } | { ok: false; message: string };
+
+export function validatePriceAlertInput(input: {
+  targetPrice: number;
+  contact: string;
+}): PriceAlertValidationResult {
+  if (!Number.isFinite(input.targetPrice) || input.targetPrice <= 0) {
+    return { ok: false, message: "Informe um preço-alvo válido." };
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input.contact.trim())) {
+    return { ok: false, message: "Informe um e-mail válido." };
+  }
+  return { ok: true };
+}
+
 /**
  * Creates a price alert in the unconfirmed state. Even though
  * `active=true`, an alert only actually triggers once `confirmedAt` is set
@@ -25,12 +41,29 @@ export interface CreatePriceAlertInput {
 export async function createPriceAlert(
   input: CreatePriceAlertInput,
 ): Promise<PriceAlert> {
+  const validation = validatePriceAlertInput(input);
+  if (!validation.ok) {
+    throw new Error(validation.message);
+  }
+
+  const contactHash = hashContact(input.contact);
+  const existing = await prisma.priceAlert.findFirst({
+    where: {
+      productId: input.productId,
+      contactHash,
+      targetPrice: input.targetPrice,
+      active: true,
+      triggeredAt: null,
+    },
+  });
+  if (existing) return existing;
+
   return prisma.priceAlert.create({
     data: {
       productId: input.productId,
       targetPrice: input.targetPrice,
       contact: input.contact,
-      contactHash: hashContact(input.contact),
+      contactHash,
       confirmationToken: randomBytes(24).toString("hex"),
       confirmedAt: null,
       active: true,
