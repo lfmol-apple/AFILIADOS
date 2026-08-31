@@ -1,4 +1,4 @@
-import { describe, expect, it, afterAll } from "vitest";
+import { describe, expect, it, afterAll, afterEach, vi } from "vitest";
 import { prisma } from "@/lib/db";
 import { registerManualVerifiedProduct } from "@/lib/services/manual-product-registration";
 import { promoteCandidateToProduct } from "@/lib/services/candidate-promotion";
@@ -16,6 +16,7 @@ import { promoteCandidateToProduct } from "@/lib/services/candidate-promotion";
 const CATEGORY_SLUG = "__test-manual-registration-category__";
 const ASIN_A = "TSTASINA01";
 const ASIN_B = "TSTASINB02";
+const ASIN_NO_TAG = "TSTASIND04";
 const ASIN_CANDIDATE = "TSTASINC03";
 
 let categoryId: string;
@@ -29,6 +30,10 @@ afterAll(async () => {
   await prisma.product.deleteMany({ where: { id: { in: createdProductIds } } });
   await cleanupCandidate(ASIN_CANDIDATE);
   await prisma.category.deleteMany({ where: { id: categoryId } });
+});
+
+afterEach(() => {
+  vi.unstubAllEnvs();
 });
 
 describe("registerManualVerifiedProduct", () => {
@@ -106,8 +111,21 @@ describe("registerManualVerifiedProduct", () => {
     }
   });
 
-  it("creates a draft, MANUAL_VERIFIED Product end-to-end and previews the correct affiliate URL", async () => {
-    const result = await registerManualVerifiedProduct({
+  it("creates a draft, MANUAL_VERIFIED Product end-to-end and previews the correct affiliate URL when a tracking tag is confirmed", async () => {
+    // The real AMAZON_BR_ASSOCIATE_TAG is intentionally empty until a human
+    // reconfirms the current Amazon application — never assume it's set.
+    // This test explicitly stubs a fake, clearly-test-only tag rather than
+    // relying on the ambient .env, exactly like tests/amazon-cta.test.tsx
+    // and tests/amazon-policy-guard.test.ts already do.
+    vi.resetModules();
+    vi.stubEnv("AMAZON_BR_ENABLED", "true");
+    vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", "test-preview-tag-20");
+    const { registerManualVerifiedProduct: registerWithTag } = await import(
+      "@/lib/services/manual-product-registration"
+    );
+    const { prisma: freshPrisma } = await import("@/lib/db");
+
+    const result = await registerWithTag({
       asin: ASIN_A,
       marketplace: "BR",
       title: "Produto de teste do dry-run",
@@ -118,7 +136,7 @@ describe("registerManualVerifiedProduct", () => {
     if (!result.ok) throw new Error("expected success");
     createdProductIds.push(result.product.id);
 
-    const stored = await prisma.product.findUnique({ where: { id: result.product.id } });
+    const stored = await freshPrisma.product.findUnique({ where: { id: result.product.id } });
     expect(stored?.dataSource).toBe("MANUAL_VERIFIED");
     expect(stored?.active).toBe(false);
     expect(stored?.asin).toBe(ASIN_A);
@@ -128,7 +146,29 @@ describe("registerManualVerifiedProduct", () => {
     // /go/amazon/[asin] uses, without a manual per-product affiliate link.
     expect(result.affiliateUrlPreview).toContain("amazon.com.br");
     expect(result.affiliateUrlPreview).toContain(`/dp/${ASIN_A}`);
-    expect(result.affiliateUrlPreview).toMatch(/tag=/);
+    expect(result.affiliateUrlPreview).toMatch(/tag=test-preview-tag-20/);
+  });
+
+  it("returns a null affiliate URL preview (never a fabricated/malformed link) when no tracking tag is confirmed yet", async () => {
+    vi.resetModules();
+    vi.stubEnv("AMAZON_BR_ENABLED", "true");
+    vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", "");
+    vi.stubEnv("AMAZON_ASSOCIATE_TAG", "");
+    const { registerManualVerifiedProduct: registerWithoutTag } = await import(
+      "@/lib/services/manual-product-registration"
+    );
+
+    const result = await registerWithoutTag({
+      asin: ASIN_NO_TAG,
+      marketplace: "BR",
+      title: "Produto de teste sem tag confirmada",
+      description: "Conteúdo editorial de teste, nunca copiado da Amazon.",
+      categorySlug: CATEGORY_SLUG,
+    });
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error("expected success");
+    createdProductIds.push(result.product.id);
+    expect(result.affiliateUrlPreview).toBeNull();
   });
 
   it("refuses to create a second Product for the same ASIN/marketplace", async () => {
