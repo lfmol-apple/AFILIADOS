@@ -130,6 +130,13 @@ describe("isAdminRequestAuthorized policy", () => {
   });
 
   it("without ADMIN_PASSWORD_HASH configured, allows access outside production", async () => {
+    // resetModules() first: this file's top-level static import of
+    // @/lib/admin/auth already evaluated @/lib/config/env once, against
+    // whatever ADMIN_PASSWORD_HASH happens to be in the real .env — a
+    // dynamic import without resetting first would silently return that
+    // same cached (potentially non-empty) module instead of a fresh one
+    // that actually reflects the stub below.
+    vi.resetModules();
     vi.stubEnv("ADMIN_PASSWORD_HASH", "");
     vi.stubEnv("NODE_ENV", "development");
     const { isAdminRequestAuthorized: fresh } = await import("@/lib/admin/auth");
@@ -137,6 +144,7 @@ describe("isAdminRequestAuthorized policy", () => {
   });
 
   it("without ADMIN_PASSWORD_HASH configured, hard-blocks access in production", async () => {
+    vi.resetModules();
     vi.stubEnv("ADMIN_PASSWORD_HASH", "");
     vi.stubEnv("NODE_ENV", "production");
     const { isAdminRequestAuthorized: fresh } = await import("@/lib/admin/auth");
@@ -145,6 +153,7 @@ describe("isAdminRequestAuthorized policy", () => {
   });
 
   it("with ADMIN_PASSWORD_HASH configured, a valid session is required even outside production", async () => {
+    vi.resetModules();
     vi.stubEnv("ADMIN_PASSWORD_HASH", "scrypt:aa:bb");
     vi.stubEnv("NODE_ENV", "development");
     const { isAdminRequestAuthorized: fresh } = await import("@/lib/admin/auth");
