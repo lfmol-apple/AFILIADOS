@@ -10,6 +10,7 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { buildBreadcrumbList } from "@/lib/seo/structured-data";
 import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
+import type { PagePropsWithParams } from "@/lib/next-route-types";
 
 export const revalidate = 600;
 
@@ -36,7 +37,7 @@ async function loadCategory(slug: string, sort: CategorySort) {
 }
 
 export async function generateMetadata(
-  props: PageProps<"/categorias/[slug]">,
+  props: PagePropsWithParams<{ slug: string }>,
 ): Promise<Metadata> {
   const { slug } = await props.params;
   const data = await loadCategory(slug, "score");
@@ -49,7 +50,7 @@ export async function generateMetadata(
 }
 
 export default async function CategoryPage(
-  props: PageProps<"/categorias/[slug]">,
+  props: PagePropsWithParams<{ slug: string }>,
 ) {
   const { slug } = await props.params;
   const searchParams = await props.searchParams;

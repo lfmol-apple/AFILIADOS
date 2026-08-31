@@ -4,6 +4,7 @@ import { getPublishedContent } from "@/lib/queries/products";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { renderSimpleMarkdown } from "@/lib/markdown";
 import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
+import type { RouteParams } from "@/lib/next-route-types";
 
 export const revalidate = 3600;
 
@@ -17,7 +18,7 @@ async function loadComparison(slug: string) {
 }
 
 export async function generateMetadata(
-  props: PageProps<"/comparar/[slug]">,
+  props: RouteParams<{ slug: string }>,
 ): Promise<Metadata> {
   const { slug } = await props.params;
   const content = await loadComparison(slug);
@@ -30,7 +31,7 @@ export async function generateMetadata(
 }
 
 export default async function ComparisonPage(
-  props: PageProps<"/comparar/[slug]">,
+  props: RouteParams<{ slug: string }>,
 ) {
   const { slug } = await props.params;
   const content = await loadComparison(slug);

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { isMarketplaceCode } from "@/lib/config/marketplaces";
 import { handleGoAmazonRequest } from "@/lib/services/go-amazon-handler";
+import type { RouteParams } from "@/lib/next-route-types";
 
 /**
  * Handles both:
@@ -17,7 +18,7 @@ import { handleGoAmazonRequest } from "@/lib/services/go-amazon-handler";
  */
 export async function GET(
   request: Request,
-  context: RouteContext<"/go/amazon/[...segments]">,
+  context: RouteParams<{ segments: string[] }>,
 ) {
   const { segments } = await context.params;
 

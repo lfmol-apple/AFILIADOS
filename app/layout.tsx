@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ConsentBanner } from "@/components/consent-banner";
 import { siteConfig } from "@/lib/config/site";
+import type { AppLayoutProps } from "@/lib/next-route-types";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -63,7 +64,7 @@ const jsonLd = {
   ],
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: AppLayoutProps) {
   return (
     <html
       lang="pt-BR"
