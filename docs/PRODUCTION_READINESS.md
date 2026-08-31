@@ -92,7 +92,7 @@ and can sit `PENDING` forever without affecting any verdict.
 | `MOCK_DATA_PUBLICLY_HIDDEN`  | NOT (production AND mock provider AND catalog flag on)                              | See `lib/config/public-catalog.ts`'s `isMockDataPubliclyHidden()`. Always `PASS` while `PUBLIC_CATALOG_ENABLED=false` (the default) — this is the narrow, always-achievable safety bar that only `SITE_LAUNCH_READY` needs. Contrast with `PUBLIC_CATALOG_SAFE` below.                                                                                                                        |
 | `AMAZON_PROVIDER`            | Informational (MOCK/LIVE)                                                           | Not a pass/fail — just current mode.                                                                                                                                                                                                                                                                                                                                                          |
 | `AUTO_PUBLISH`               | Informational (ON/OFF)                                                              | Not a pass/fail — `OFF` is the correct default, not a blocker.                                                                                                                                                                                                                                                                                                                                |
-| `AMAZON_BR_TRACKING_ID`      | `AMAZON_BR_ASSOCIATE_TAG` is set                                                    | Tracking ID da candidatura atual do PreçoCaindo, pendente de confirmação humana na Central de Associados. Nunca usar `petmol-20` ou qualquer ID histórico.                                                                                                                                                                                                                                    |
+| `AMAZON_BR_TRACKING_ID`      | `AMAZON_BR_ASSOCIATE_TAG` is set                                                    | Tracking ID confirmado pelo proprietário em 2026-08-31: `precocaindo0c-20`. Ainda precisa ser configurado explicitamente em cada `.env` real (o schema nunca assume esse valor). Nunca usar `petmol-20` ou qualquer ID histórico.                                                                                                                                                             |
 | `PUBLIC_CATALOG_SAFE`        | `isPublicCatalogSafeToShow()` is `true`                                             | Requires `PUBLIC_CATALOG_ENABLED=true` (a deliberate human decision) and forbids production+mock. `PENDING` here is the honest pre-launch state — it blocks `CATALOG_LAUNCH_READY` only, never `SITE_LAUNCH_READY`.                                                                                                                                                                           |
 | `REAL_CATALOG_AVAILABLE`     | `AMAZON_PROVIDER=live` **and** at least one active BR product has real `PriceStats` | Always `PENDING` while mock — there's no such thing as "real" catalog data from a mock provider, by definition.                                                                                                                                                                                                                                                                               |
 | `AMAZON_BR_ACCOUNT_APPROVED` | `AMAZON_BR_CREATORS_API_ACCOUNT_APPROVED=true`                                      | Only a human can set this, after Amazon itself shows the account as approved for the Creators API — not inferable from panel activity. Blocks `PRODUCTION` only.                                                                                                                                                                                                                              |
@@ -105,15 +105,15 @@ and can sit `PENDING` forever without affecting any verdict.
 
 These items are intentionally not guessed by code:
 
-- **Institutional contact:** no real public support/contact email was found
-  in the repository during the Amazon approval-readiness sprint on
-  2026-08-31. Do not create `/contato` with a fake address or a form that
-  does not deliver messages. Add the page only after the owner confirms the
-  real contact channel.
-- **Current Amazon BR Tracking ID:** remains
-  `PENDING_HUMAN_CONFIRMATION` until the owner confirms the active Tracking
-  ID/Store ID inside Associates Central for the current PreçoCaindo
-  application.
+- **Institutional contact:** confirmed by the owner on 2026-08-31 —
+  `lfmol@yahoo.com.br`. `/contato` now exists and points to this address.
+- **Current Amazon BR Tracking ID:** confirmed by the owner on 2026-08-31,
+  directly from the "Vincular lojas" screen in Associates Central:
+  **`precocaindo0c-20`**. Earlier project notes had guessed `precocaindo-20`
+  (missing the `0c`) — that guess was wrong and must not be reused anywhere.
+  `AMAZON_BR_ASSOCIATE_TAG` must still be set explicitly per environment
+  (local `.env`, production `.env`) — this confirmation does not change the
+  schema default, which stays empty on purpose.
 
 ## Admin security
 

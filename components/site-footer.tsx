@@ -9,6 +9,7 @@ const LINKS = [
   { href: "/metodologia", label: "Metodologia" },
   { href: "/politica-editorial", label: "Política editorial" },
   { href: "/transparencia", label: "Transparência" },
+  { href: "/contato", label: "Contato" },
   { href: "/privacidade", label: "Política de privacidade" },
   { href: "/termos", label: "Termos" },
 ];

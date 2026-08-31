@@ -4,6 +4,7 @@ import { getPublishedContent } from "@/lib/queries/products";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { renderSimpleMarkdown } from "@/lib/markdown";
 import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
+import type { RouteParams } from "@/lib/next-route-types";
 
 export const revalidate = 3600;
 
@@ -17,7 +18,7 @@ async function loadBestOf(slug: string) {
 }
 
 export async function generateMetadata(
-  props: PageProps<"/melhores/[slug]">,
+  props: RouteParams<{ slug: string }>,
 ): Promise<Metadata> {
   const { slug } = await props.params;
   const content = await loadBestOf(slug);
@@ -34,7 +35,9 @@ export async function generateMetadata(
  * — this route never renders anything the ContentQualityGate hasn't
  * approved and PUBLISH_CONTENT hasn't published (project brief section 13).
  */
-export default async function BestOfPage(props: PageProps<"/melhores/[slug]">) {
+export default async function BestOfPage(
+  props: RouteParams<{ slug: string }>,
+) {
   const { slug } = await props.params;
   const content = await loadBestOf(slug);
   if (!content) notFound();

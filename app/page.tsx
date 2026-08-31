@@ -30,6 +30,28 @@ const LAUNCH_PILLARS = [
   },
 ];
 
+const FEATURED_GUIDE_SLUGS = [
+  "como-saber-se-uma-promocao-e-realmente-boa",
+  "como-saber-se-vale-a-pena-comprar-agora",
+  "como-funciona-o-historico-de-precos",
+  "parcelado-ou-a-vista-como-comparar-corretamente",
+  "como-escolher-uma-air-fryer-sem-olhar-apenas-o-preco",
+  "como-comparar-celulares-alem-do-preco",
+];
+
+const FEATURED_TOOL_SLUGS = [
+  "como-comparar-preco-por-kg-litro-ou-unidade",
+  "parcelado-ou-a-vista-como-comparar-corretamente",
+  "como-comparar-precos-sem-cair-em-falso-desconto",
+];
+
+const EDITORIAL_CATEGORIES = [
+  "Decisão de compra",
+  "Histórico de preços",
+  "Comparação",
+  "Planejamento",
+];
+
 type HomeSections = Awaited<ReturnType<typeof getHomeSections>>;
 
 const EMPTY_HOME_SECTIONS: HomeSections = {
@@ -76,6 +98,12 @@ export default async function Home() {
     categories,
     guides,
   } = sections;
+  const featuredGuides = FEATURED_GUIDE_SLUGS.map((slug) =>
+    GUIDES.find((guide) => guide.slug === slug),
+  ).filter((guide): guide is (typeof GUIDES)[number] => Boolean(guide));
+  const featuredTools = FEATURED_TOOL_SLUGS.map((slug) =>
+    GUIDES.find((guide) => guide.slug === slug),
+  ).filter((guide): guide is (typeof GUIDES)[number] => Boolean(guide));
 
   return (
     <div>
@@ -171,13 +199,13 @@ export default async function Home() {
 
       {catalogUnavailable && (
         <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-          <div className="border-border-subtle bg-surface-muted rounded-lg border p-6 text-sm">
-            <p className="font-semibold">
-              O catálogo público ainda não está disponível.
-            </p>
+          <div className="border-border-subtle rounded-lg border p-6 text-sm">
+            <p className="font-semibold">Comece pela decisão, não pelo link.</p>
             <p className="text-foreground/70 mt-1">
-              Mesmo assim, os guias e ferramentas já ajudam a comparar custo
-              real, desconto e momento de compra.
+              Enquanto o catálogo comercial não é publicado, o PreçoCaindo
+              concentra o que já dá para avaliar com segurança: método de
+              comparação, custo real, histórico, parcelamento e sinais de falsa
+              promoção.
             </p>
           </div>
         </section>
@@ -239,6 +267,86 @@ export default async function Home() {
         </div>
       </section>
 
+      <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+        <div className="grid gap-8 lg:grid-cols-[0.75fr_1.25fr]">
+          <div>
+            <h2 className="text-lg font-semibold">Categorias editoriais</h2>
+            <p className="text-foreground/70 mt-2 text-sm leading-relaxed">
+              O conteúdo é organizado por tipo de decisão, para o usuário
+              encontrar rapidamente como comparar antes de comprar.
+            </p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {EDITORIAL_CATEGORIES.map((category) => (
+              <div
+                key={category}
+                className="border-border-subtle rounded-lg border p-4"
+              >
+                <p className="text-sm font-semibold">{category}</p>
+                <p className="text-foreground/60 mt-1 text-sm">
+                  Guias independentes para avaliar preço, momento e custo real.
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+        <h2 className="text-lg font-semibold">Ferramentas rápidas</h2>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          {featuredTools.map((guide) => (
+            <Link
+              key={guide.slug}
+              href={`/guias/${guide.slug}`}
+              className="border-border-subtle hover:border-brand block rounded-lg border p-4"
+            >
+              <p className="text-sm font-semibold">{guide.title}</p>
+              <p className="text-foreground/60 mt-2 text-sm leading-relaxed">
+                Inclui calculadora para transformar a comparação em decisão
+                objetiva.
+              </p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+        <h2 className="text-lg font-semibold">Metodologia</h2>
+        <div className="mt-4 grid gap-4 md:grid-cols-3">
+          {[
+            {
+              title: "Evidência antes do destaque",
+              body: "Uma recomendação precisa explicar o sinal usado: histórico, custo por unidade, preço final ou critério editorial.",
+            },
+            {
+              title: "Independência comercial",
+              body: "Comissão não compra posição editorial, score nem conclusão. Se faltar evidência, a página deve dizer isso.",
+            },
+            {
+              title: "Utilidade sem afiliado",
+              body: "Cada guia precisa ajudar mesmo quando não há botão de compra disponível.",
+            },
+          ].map((item) => (
+            <div
+              key={item.title}
+              className="border-border-subtle rounded-lg border p-4"
+            >
+              <h3 className="text-sm font-semibold">{item.title}</h3>
+              <p className="text-foreground/70 mt-2 text-sm leading-relaxed">
+                {item.body}
+              </p>
+            </div>
+          ))}
+        </div>
+        <Link
+          href="/metodologia"
+          className="text-brand mt-4 inline-block text-sm hover:underline"
+        >
+          Ver metodologia completa
+        </Link>
+      </section>
+
       {categories.length > 0 && (
         <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
           <h2 className="text-lg font-semibold">Mais procurados</h2>
@@ -261,8 +369,8 @@ export default async function Home() {
 
       <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <h2 className="text-lg font-semibold">Guias para comprar melhor</h2>
-        <ul className="mt-4 grid gap-3 sm:grid-cols-2">
-          {GUIDES.slice(0, 4).map((guide) => (
+        <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {featuredGuides.map((guide) => (
             <li key={guide.slug}>
               <Link
                 href={`/guias/${guide.slug}`}
@@ -272,6 +380,9 @@ export default async function Home() {
                   {guide.category}
                 </span>
                 <span className="mt-1 block font-medium">{guide.title}</span>
+                <span className="text-foreground/50 mt-3 block text-xs">
+                  {guide.readingTime} de leitura
+                </span>
               </Link>
             </li>
           ))}

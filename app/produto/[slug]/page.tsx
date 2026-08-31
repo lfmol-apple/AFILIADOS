@@ -18,7 +18,7 @@ import { PriceAlertForm } from "@/components/price-alert-form";
 import { siteConfig } from "@/lib/config/site";
 import { env } from "@/lib/config/env";
 import { getAmazonMarketplaceConfig } from "@/lib/config/marketplaces";
-import { buildAmazonDirectProductUrl } from "@/lib/amazon/policy-guard";
+import type { RouteParams } from "@/lib/next-route-types";
 import {
   buildBreadcrumbList,
   buildFaqPage,
@@ -153,7 +153,7 @@ async function loadProduct(slug: string) {
 }
 
 export async function generateMetadata(
-  props: PageProps<"/produto/[slug]">,
+  props: RouteParams<{ slug: string }>,
 ): Promise<Metadata> {
   const { slug } = await props.params;
   const data = await loadProduct(slug);
@@ -199,7 +199,9 @@ export async function generateMetadata(
   };
 }
 
-export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
+export default async function ProductPage(
+  props: RouteParams<{ slug: string }>,
+) {
   const { slug } = await props.params;
   const data = await loadProduct(slug);
   if (!data) notFound();
@@ -226,10 +228,13 @@ export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
   const amazonMarketplaceConfig = getAmazonMarketplaceConfig(
     product.marketplace,
   );
-  const amazonProductUrl =
-    amazonMarketplaceConfig.enabled && amazonMarketplaceConfig.associateTag
-      ? `${siteConfig.url}${amazonGoPath}`
-      : buildAmazonDirectProductUrl(product.asin, product.marketplace);
+  const canUseAmazonAffiliate = Boolean(
+    amazonMarketplaceConfig.enabled && amazonMarketplaceConfig.associateTag,
+  );
+  const productPageUrl = `${siteConfig.url}/produto/${product.slug}`;
+  const offerUrl = canUseAmazonAffiliate
+    ? `${siteConfig.url}${amazonGoPath}`
+    : productPageUrl;
   const amazonSellerName =
     product.marketplace === "BR" ? "Amazon.com.br" : "Amazon.com";
 
@@ -264,7 +269,7 @@ export default async function ProductPage(props: PageProps<"/produto/[slug]">) {
               : offer.availability === "OUT_OF_STOCK"
                 ? "https://schema.org/OutOfStock"
                 : "https://schema.org/LimitedAvailability",
-          url: amazonProductUrl,
+          url: offerUrl,
           seller: { "@type": "Organization", name: amazonSellerName },
         }
       : undefined,

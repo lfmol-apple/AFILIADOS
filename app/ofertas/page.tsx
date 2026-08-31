@@ -6,6 +6,7 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { recordSearchEvent } from "@/lib/analytics/search-event";
 import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
+import type { PagePropsWithSearch } from "@/lib/next-route-types";
 
 export const revalidate = 300;
 
@@ -23,7 +24,7 @@ export function generateMetadata(): Metadata {
   };
 }
 
-export default async function OfertasPage(props: PageProps<"/ofertas">) {
+export default async function OfertasPage(props: PagePropsWithSearch) {
   const searchParams = await props.searchParams;
   const page = Number(searchParams?.page ?? 1) || 1;
   const query =

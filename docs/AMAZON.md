@@ -12,11 +12,13 @@ preparada. Ver `lib/config/marketplaces.ts` para a implementação.
 - **LEGACY / histórico PETMOL:** `petmol-20` pertence à propriedade/candidatura PETMOL e foi
   rejeitado em 22/08/2026 no contexto anterior. É informação histórica, não configuração
   operacional do PreçoCaindo.
-- **Candidatura atual PreçoCaindo:** Tracking ID/Store ID operacional =
-  `PENDING_HUMAN_CONFIRMATION`. A documentação histórica mencionava `precocaindo-20`, mas esse
-  valor não deve ser tratado como confirmado para a nova candidatura até o proprietário validar
-  diretamente na Central de Associados. `AMAZON_BR_ASSOCIATE_TAG` deve ficar vazio até essa
-  confirmação.
+- **Candidatura atual PreçoCaindo: CONFIRMADO.** Tracking ID/Store ID operacional =
+  **`precocaindo0c-20`** — confirmado pelo próprio proprietário diretamente na tela "Vincular
+  lojas" da Central de Associados (2026-08-31). A documentação histórica mencionava
+  `precocaindo-20` (sem o `0c`) como suposição — isso estava **errado** e nunca deve ser reusado.
+  `AMAZON_BR_ASSOCIATE_TAG` deve ser configurado explicitamente como `precocaindo0c-20` em cada
+  `.env` real (local/produção) — o valor nunca é assumido pelo schema (`lib/config/env.ts`), só
+  documentado aqui para referência humana.
 - **Elegibilidade para a Creators API: PENDENTE.** A página oficial da Creators API para a conta
   BR atualmente mostra a conta como **não aprovada** para a Creators API (checkbox desmarcado).
   Isso é independente de o Tracking ID existir — são dois fatos diferentes.
