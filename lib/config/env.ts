@@ -36,9 +36,14 @@ const envSchema = z.object({
   AMAZON_ASSOCIATE_TAG: z.string().default(""),
 
   // --- Amazon Brasil (amazon.com.br) ---
-  // petmol-20 is historical/PETMOL-only. Older project notes mentioned
-  // precocaindo-20, but the current PreçoCaindo application tag must be
-  // confirmed by a human in Associates Central before being configured.
+  // petmol-20 is historical/PETMOL-only, never used here (see
+  // FORBIDDEN_HISTORICAL_TAGS in lib/config/marketplaces.ts, which actively
+  // refuses it even if someone sets it by mistake). Older project notes
+  // mentioned precocaindo-20 as a guess — that was wrong. The account owner
+  // confirmed the real, current Store ID directly in Associates Central
+  // ("Vincular lojas"): precocaindo0c-20. This schema default stays empty on
+  // purpose — a human must still set AMAZON_BR_ASSOCIATE_TAG explicitly in
+  // each real .env (local/production), never inferred here.
   AMAZON_BR_ENABLED: booleanFromEnvDefault(true),
   AMAZON_BR_API_ENABLED: booleanFromEnvDefault(false),
   AMAZON_BR_ASSOCIATE_TAG: z.string().default(""),

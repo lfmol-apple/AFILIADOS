@@ -6,9 +6,10 @@ variável de ambiente _e_ esta data sempre que revisar as políticas oficiais.
 
 **Contas (PETMOL NEGOCIOS DIGITAIS LTDA):**
 
-- **BR legacy** — `petmol-20` pertence ao PETMOL/candidatura anterior e não deve ser usado pelo
-  PreçoCaindo. Tracking ID da candidatura atual do PreçoCaindo:
-  **`PENDING_HUMAN_CONFIRMATION`** até validação direta na Central de Associados.
+- **BR legacy** — `petmol-20` pertence ao PETMOL/candidatura anterior (rejeitada em 22/08/2026) e
+  não deve ser usado pelo PreçoCaindo. Tracking ID da candidatura atual do PreçoCaindo:
+  **`precocaindo0c-20`** — confirmado pelo proprietário em 2026-08-31, direto da tela "Vincular
+  lojas" da Central de Associados.
 - **US** — Associate ID `petmol07-20`, vinculado a `petmol.com.br`. `precocaindo.com.br` **não**
   cadastrado nessa conta. Pagamento pendente. Marketplace desabilitado no PreçoCaindo.
 
@@ -53,8 +54,9 @@ confirma com a Amazon e ajusta o `.env` correspondente.
 
 **BR:**
 
-- [ ] Novo Tracking ID/Store ID da candidatura atual confirmado na Central de Associados
-      (`AMAZON_BR_ASSOCIATE_TAG`) — `PENDING_HUMAN_CONFIRMATION`
+- [x] Novo Tracking ID/Store ID da candidatura atual confirmado na Central de Associados
+      (`AMAZON_BR_ASSOCIATE_TAG`) — **`precocaindo0c-20`**, confirmado em 2026-08-31. Ainda
+      precisa ser configurado explicitamente em cada `.env` real (local, produção).
 - [ ] Conta aprovada para a Creators API (`AMAZON_BR_CREATORS_API_ACCOUNT_APPROVED`) — a própria
       página da Amazon mostra esse item como não cumprido hoje
 - [ ] Volume de vendas qualificadas da conta atinge o mínimo exigido (10 vendas qualificadas nos
