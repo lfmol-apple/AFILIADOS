@@ -23,6 +23,7 @@ const STATIC_ROUTES = [
   "/como-funciona",
   "/metodologia",
   "/politica-editorial",
+  "/contato",
   "/privacidade",
   "/termos",
 ];
