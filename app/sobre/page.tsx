@@ -23,14 +23,39 @@ export default function SobrePage() {
           argumento de qualidade.
         </p>
         <p>
-          Nossas análises e o Score PreçoCaindo são calculados com metodologia
-          própria e transparente — veja os detalhes em{" "}
+          O problema que resolvemos é simples de descrever e difícil de
+          resolver bem: um preço riscado na vitrine não diz se aquele valor é
+          realmente bom. Para responder isso de verdade é preciso acompanhar
+          o comportamento real de cada produto ao longo do tempo — não apenas
+          o instante em que alguém olha a página. É esse histórico, coletado
+          diretamente por nós, que sustenta o Score e as comparações que
+          publicamos.
+        </p>
+        <p>
+          Além do histórico de preço, o PreçoCaindo mantém guias editoriais
+          próprios — sobre como comparar embalagens, parcelamento, promoções
+          sazonais e categorias específicas como air fryer, celular, TV e
+          robô aspirador — pensados para continuar úteis mesmo quando não há
+          nenhum produto específico para comprar naquele momento. Também
+          publicamos ferramentas simples (comparador de preço por unidade,
+          simulador de parcelamento, calculadora de desconto real) que qualquer
+          pessoa pode usar sem depender do nosso catálogo.
+        </p>
+        <p>
+          Independência comercial é uma decisão de arquitetura, não uma
+          promessa vaga: comissão de afiliado, quando existe, nunca altera o
+          histórico registrado, o cálculo do Score ou o conteúdo editorial de
+          um guia. Veja os detalhes em{" "}
           <a className="text-brand underline" href="/transparencia">
             Transparência
-          </a>{" "}
-          e{" "}
+          </a>
+          ,{" "}
           <a className="text-brand underline" href="/metodologia">
             Metodologia
+          </a>{" "}
+          e{" "}
+          <a className="text-brand underline" href="/politica-editorial">
+            Política editorial
           </a>
           .
         </p>
