@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getHomeSections } from "@/lib/queries/products";
 import { ProductCard } from "@/components/product-card";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
+import { AmazonBrShowcase } from "@/components/amazon-br-showcase";
 import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 import { GUIDES } from "@/lib/editorial/guides";
 
@@ -310,6 +311,8 @@ export default async function Home() {
           ))}
         </div>
       </section>
+
+      <AmazonBrShowcase />
 
       <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
         <h2 className="text-lg font-semibold">Metodologia</h2>
