@@ -12,6 +12,29 @@ datasource db {
 
 enum CommerceProviderName {
   AMAZON
+  MERCADO_LIVRE
+  SHOPEE
+}
+
+/// How confident a ProductMatchEvidence row is, in priority order (project
+/// brief: GTIN/EAN -> manufacturer/model id -> brand+model -> textual
+/// candidate). TEXTUAL_CANDIDATE alone never promotes a match to CONFIRMED —
+/// see MatchStatus below.
+enum MatchMethod {
+  GTIN
+  MANUFACTURER_ID
+  BRAND_MODEL
+  TEXTUAL_CANDIDATE
+}
+
+/// CANDIDATE: logged, not applied (MerchantListing.canonicalProductId
+/// untouched). CONFIRMED: strong enough evidence that the match was applied.
+/// REJECTED: explicitly reviewed and ruled out, kept so ProductMatcher never
+/// re-proposes the same pair. See lib/services/product-matcher.ts.
+enum MatchStatus {
+  CANDIDATE
+  CONFIRMED
+  REJECTED
 }
 
 enum MerchantCode {
@@ -174,6 +197,7 @@ model CanonicalProduct {
   legacyProducts Product[]
   listings       MerchantListing[]
   affiliateClicks AffiliateClick[]
+  matchEvidence  ProductMatchEvidence[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -215,6 +239,10 @@ model MerchantListing {
   active             Boolean         @default(true)
 
   affiliateClicks AffiliateClick[]
+  signals          MerchantListingSignal[]
+  monetizationScore MonetizationScore?
+  matchEvidenceAsA ProductMatchEvidence[] @relation("MatchListingA")
+  matchEvidenceAsB ProductMatchEvidence[] @relation("MatchListingB")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -223,6 +251,96 @@ model MerchantListing {
   @@index([canonicalProductId])
   @@index([legacyProductId])
   @@index([merchantId, active])
+}
+
+/// One decision the ProductMatcher made (or is proposing) about whether two
+/// MerchantListing rows represent the same real-world product. Every
+/// candidate is logged here, not just confirmed matches — project brief:
+/// "matching textual isolado nunca deve produzir associação definitiva
+/// silenciosa". Only CONFIRMED rows should ever cause
+/// MerchantListing.canonicalProductId to be set; CANDIDATE/REJECTED rows
+/// exist purely as an audit trail and to stop re-proposing the same pair.
+model ProductMatchEvidence {
+  id         String      @id @default(cuid())
+  listingAId String
+  listingA   MerchantListing @relation("MatchListingA", fields: [listingAId], references: [id], onDelete: Cascade)
+  listingBId String
+  listingB   MerchantListing @relation("MatchListingB", fields: [listingBId], references: [id], onDelete: Cascade)
+  method     MatchMethod
+  confidence Float
+  status     MatchStatus @default(CANDIDATE)
+  /// What actually supported this decision — e.g. the compared GTIN values,
+  /// or the normalized brand/model tokens, or the textual similarity score
+  /// and the two titles compared. Never opaque — always enough to audit the
+  /// decision without re-running the matcher.
+  evidence   Json
+  canonicalProductId String?
+  canonicalProduct   CanonicalProduct? @relation(fields: [canonicalProductId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([listingAId, listingBId])
+  @@index([status])
+  @@index([canonicalProductId])
+}
+
+/// A time-stamped observation of commercial/demand signals for one listing
+/// — mirrors the Offer -> PriceHistory split already used for Product: this
+/// table is the append-only history, never overwritten in place. Every
+/// field is optional; a source that doesn't provide a given signal simply
+/// leaves it null, never a fabricated 0. `raw` keeps the source payload
+/// that produced this row, for audit and future reprocessing.
+model MerchantListingSignal {
+  id                 String   @id @default(cuid())
+  merchantListingId  String
+  merchantListing    MerchantListing @relation(fields: [merchantListingId], references: [id], onDelete: Cascade)
+  /// e.g. "mercado_livre_highlights", "mercado_livre_trends" — matches
+  /// DemandSource.name / provider naming, never a bare marketplace literal.
+  source             String
+
+  commissionRate            Float?
+  estimatedCommissionAmount Decimal? @db.Decimal(10, 2)
+  sellerExtraCommission     Decimal? @db.Decimal(10, 2)
+  soldQuantity              Int?
+  trendRank                 Int?
+  bestsellerRank             Int?
+  rating                    Float?
+  reviewCount               Int?
+
+  raw Json?
+
+  observedAt DateTime @default(now())
+
+  @@index([merchantListingId, observedAt])
+  @@index([source, observedAt])
+}
+
+/// "Vale a pena investirmos tráfego/conteúdo neste listing?" — for
+/// PreçoCaindo internally, never the consumer. Deliberately NOT related to
+/// Product or OpportunityScore by any FK (project brief rule #10: never mix
+/// them). Scoped to one MerchantListing, not CanonicalProduct, because
+/// commission/demand are merchant-specific — the "same" canonical product
+/// can score differently per store. score/confidence are nullable on
+/// purpose: insufficient evidence must produce null, never a fabricated
+/// number (see lib/services/monetization-score.ts).
+model MonetizationScore {
+  id                String          @id @default(cuid())
+  merchantListingId String          @unique
+  merchantListing   MerchantListing @relation(fields: [merchantListingId], references: [id], onDelete: Cascade)
+
+  score      Int?
+  confidence Float?
+  /// Per-dimension breakdown, each tagged with its EvidenceQuality
+  /// (OBSERVED / DERIVED_FROM_OBSERVED / HISTORICAL_INTERNAL / UNKNOWN) —
+  /// see types/monetization.ts for the exact shape.
+  components Json
+  reasons    Json
+  missingSignals Json
+
+  calculatedAt DateTime @default(now())
+
+  @@index([score])
 }
 
 /// A Product is a listing within ONE marketplace — the BR listing and a
