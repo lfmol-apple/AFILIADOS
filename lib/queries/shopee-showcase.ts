@@ -4,6 +4,7 @@ export interface ShopeeShowcaseItem {
   merchantListingId: string;
   externalId: string;
   title: string;
+  imageUrl: string | null;
   affiliateUrl: string;
   monetizationScore: number | null;
 }
@@ -41,12 +42,15 @@ export async function getShopeeShowcase(
   return listings
     .map((listing): ShopeeShowcaseItem | null => {
       if (!listing.affiliateLink?.affiliateUrl) return null;
-      const raw = listing.signals[0]?.raw as { productName?: string } | null;
+      const raw = listing.signals[0]?.raw as
+        | { productName?: string; imageUrl?: string }
+        | null;
       const title = raw?.productName ?? listing.externalId;
       return {
         merchantListingId: listing.id,
         externalId: listing.externalId,
         title,
+        imageUrl: raw?.imageUrl ?? null,
         affiliateUrl: listing.affiliateLink.affiliateUrl,
         monetizationScore: listing.monetizationScore?.score ?? null,
       };

@@ -12,6 +12,7 @@ async function makeListing(input: {
   title: string;
   score: number;
   linkStatus: "ACTIVE" | "PENDING" | null;
+  imageUrl?: string;
 }) {
   const listing = await prisma.merchantListing.create({
     data: {
@@ -28,7 +29,7 @@ async function makeListing(input: {
     data: {
       merchantListingId: listing.id,
       source: "test",
-      raw: { productName: input.title },
+      raw: { productName: input.title, imageUrl: input.imageUrl },
     },
   });
 
@@ -76,7 +77,12 @@ afterAll(async () => {
 describe("getShopeeShowcase", () => {
   it("includes a listing with an ACTIVE link and a MonetizationScore, ordered by score desc", async () => {
     const low = await makeListing({ title: "Item baixo", score: 40, linkStatus: "ACTIVE" });
-    const high = await makeListing({ title: "Item alto", score: 90, linkStatus: "ACTIVE" });
+    const high = await makeListing({
+      title: "Item alto",
+      score: 90,
+      linkStatus: "ACTIVE",
+      imageUrl: "https://cf.shopee.com.br/file/test-image",
+    });
 
     const items = await getShopeeShowcase(50);
     const filtered = items.filter(
@@ -84,6 +90,8 @@ describe("getShopeeShowcase", () => {
     );
     expect(filtered.map((i) => i.merchantListingId)).toEqual([high.id, low.id]);
     expect(filtered[0]!.title).toBe("Item alto");
+    expect(filtered[0]!.imageUrl).toBe("https://cf.shopee.com.br/file/test-image");
+    expect(filtered[1]!.imageUrl).toBeNull();
   });
 
   it("excludes a listing whose link is PENDING, not ACTIVE — never shows a commercial CTA without a working link", async () => {
@@ -125,6 +133,7 @@ describe("ShopeeShowcase component", () => {
           merchantListingId: "x",
           externalId: "12345",
           title: "Produto Teste",
+          imageUrl: null,
           affiliateUrl: "https://s.shopee.com.br/should-not-appear",
           monetizationScore: 80,
         },
@@ -137,5 +146,44 @@ describe("ShopeeShowcase component", () => {
     );
     expect(anchors[0]!.target).toBe("_blank");
     expect(anchors[0]!.rel).toBe("sponsored nofollow noopener noreferrer");
+  });
+
+  it("renders an <img> when imageUrl is present, and none when it's null", () => {
+    function collectImgs(node: ReactNode): Array<{ src?: unknown }> {
+      if (node == null || typeof node === "boolean") return [];
+      if (typeof node === "string" || typeof node === "number") return [];
+      if (Array.isArray(node)) return node.flatMap(collectImgs);
+      if (!isValidElement<Record<string, unknown>>(node)) return [];
+      const self = node.type === "img" ? [{ src: node.props.src }] : [];
+      return [...self, ...collectImgs(node.props.children as ReactNode)];
+    }
+
+    const withImage = ShopeeShowcase({
+      items: [
+        {
+          merchantListingId: "x",
+          externalId: "12345",
+          title: "Produto Teste",
+          imageUrl: "https://cf.shopee.com.br/file/test-image",
+          affiliateUrl: "https://s.shopee.com.br/x",
+          monetizationScore: 80,
+        },
+      ],
+    });
+    expect(collectImgs(withImage)).toEqual([{ src: "https://cf.shopee.com.br/file/test-image" }]);
+
+    const withoutImage = ShopeeShowcase({
+      items: [
+        {
+          merchantListingId: "y",
+          externalId: "67890",
+          title: "Produto Sem Imagem",
+          imageUrl: null,
+          affiliateUrl: "https://s.shopee.com.br/y",
+          monetizationScore: 80,
+        },
+      ],
+    });
+    expect(collectImgs(withoutImage)).toEqual([]);
   });
 });

@@ -150,7 +150,7 @@ export class ShopeeProvider implements CommerceProvider {
     if (input.itemId !== undefined) args.push(`itemId:${input.itemId}`);
     if (input.keyword) args.push(`keyword:"${escapeGraphqlString(input.keyword)}"`);
 
-    const query = `{productOfferV2(${args.join(",")}){nodes{itemId productName productLink offerLink priceMin priceMax priceDiscountRate commissionRate sellerCommissionRate shopeeCommissionRate commission sales ratingStar shopId shopName shopType}}}`;
+    const query = `{productOfferV2(${args.join(",")}){nodes{itemId productName imageUrl productLink offerLink priceMin priceMax priceDiscountRate commissionRate sellerCommissionRate shopeeCommissionRate commission sales ratingStar shopId shopName shopType}}}`;
 
     const body = await this.executeGraphql<{
       productOfferV2: { nodes: ShopeeProductOfferNode[] };
@@ -211,6 +211,11 @@ function escapeGraphqlString(value: string): string {
 export interface ShopeeProductOfferNode {
   itemId: number;
   productName: string;
+  // Confirmed via a real live productOfferV2 call (2026-09-07): a plain
+  // https:// CDN URL string, not a wrapper object — added because the
+  // showcase went live with no product images (the query never asked for
+  // this field).
+  imageUrl?: string;
   productLink: string;
   offerLink: string;
   priceMin: string;

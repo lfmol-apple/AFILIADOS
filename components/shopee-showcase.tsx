@@ -33,7 +33,19 @@ export function ShopeeShowcase({ items }: { items: ShopeeShowcaseItem[] }) {
             key={item.merchantListingId}
             className="border-border-subtle flex h-full flex-col rounded-lg border p-4"
           >
-            <span className="text-foreground/50 text-xs font-semibold tracking-wide uppercase">
+            {item.imageUrl ? (
+              // Plain <img>, matching the rest of this codebase (no
+              // next/image remote pattern is configured for external
+              // merchant CDNs) — real URL from Shopee's own
+              // productOfferV2.imageUrl, confirmed live 2026-09-07.
+              <img
+                src={item.imageUrl}
+                alt={item.title}
+                loading="lazy"
+                className="aspect-square w-full rounded-md object-cover"
+              />
+            ) : null}
+            <span className="text-foreground/50 mt-3 text-xs font-semibold tracking-wide uppercase">
               Shopee
             </span>
             <h3 className="mt-1 text-sm font-semibold">{item.title}</h3>
