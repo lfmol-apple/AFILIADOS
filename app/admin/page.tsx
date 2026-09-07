@@ -26,6 +26,8 @@ import { AdminLoginForm } from "@/components/admin-login-form";
 import { AdminLogoutButton } from "@/components/admin-logout-button";
 import { MlAffiliateQueueItem } from "@/components/ml-affiliate-queue-item";
 import { getMlAffiliateQueue } from "@/lib/queries/ml-affiliate-queue";
+import { OperationsOpportunityList } from "@/components/operations-opportunity-list";
+import { getTodaysOpportunities, getOperationsSummary } from "@/lib/queries/operations-center";
 
 export const metadata: Metadata = {
   title: "Admin",
@@ -122,6 +124,8 @@ export default async function AdminPage() {
     catalogUs,
     unexpectedCatalogAlerts,
     mlAffiliateQueue,
+    todaysOpportunities,
+    operationsSummary,
   ] = await Promise.all([
     getTodayStats(),
     getWeeklyStats(),
@@ -137,6 +141,8 @@ export default async function AdminPage() {
     getCatalogSnapshot("US"),
     getUnexpectedCatalogAlerts(),
     getMlAffiliateQueue(),
+    getTodaysOpportunities(),
+    getOperationsSummary(),
   ]);
   const brCompliancePass = checkLiveActivationReadiness("BR").every(
     (c) => c.pass,
@@ -177,6 +183,44 @@ export default async function AdminPage() {
           AMAZON_POLICY_REVIEW_DATE após revisar docs/AMAZON_COMPLIANCE.md.
         </div>
       )}
+
+      {/* ---------------- CENTRO DE OPERAÇÕES ---------------- */}
+      <DashboardGroup
+        title="Centro de operações"
+        description="O que fazer hoje para ganhar mais comissão — oportunidades priorizadas por MonetizationScore em todos os merchants."
+      >
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+          <StatCard label="Novos listings hoje" value={operationsSummary.newListingsToday} />
+          <StatCard label="Links ativos" value={operationsSummary.activeLinks} />
+          <StatCard label="Links pendentes" value={operationsSummary.pendingLinks} />
+          <StatCard label="Cliques afiliados hoje" value={operationsSummary.affiliateClicksToday} />
+          <StatCard label="Merchants ativos" value={operationsSummary.activeMerchants.length} />
+        </div>
+
+        <SubSection title="Oportunidades de hoje">
+          <OperationsOpportunityList items={todaysOpportunities} />
+        </SubSection>
+
+        <SubSection title="Pendências de receita — Mercado Livre">
+          <p className="text-foreground/60 mb-3 text-xs">
+            Demanda forte já detectada, sem link afiliado ainda. Cole o link
+            gerado no painel oficial ML (etiqueta &quot;precocaindo&quot;) e o
+            item sai da fila automaticamente.
+          </p>
+          {mlAffiliateQueue.length === 0 ? (
+            <p className="text-foreground/50 text-sm">
+              Nenhum item na fila agora — ou não há oportunidade ML acima do
+              corte econômico, ou todas já têm link ativo.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {mlAffiliateQueue.map((item) => (
+                <MlAffiliateQueueItem key={item.merchantListingId} {...item} />
+              ))}
+            </div>
+          )}
+        </SubSection>
+      </DashboardGroup>
 
       {/* ---------------- SAÚDE DO SISTEMA ---------------- */}
       <DashboardGroup
@@ -509,25 +553,6 @@ export default async function AdminPage() {
             </div>
           </SubSection>
         </div>
-      </DashboardGroup>
-
-      {/* ---------------- MERCADO LIVRE — LINKS PENDENTES ---------------- */}
-      <DashboardGroup
-        title="Mercado Livre — links pendentes"
-        description="Oportunidades que o Monetization Engine aprovou mas ainda não têm link afiliado. Cole o link gerado no painel oficial ML (etiqueta 'precocaindo') e o item sai da fila."
-      >
-        {mlAffiliateQueue.length === 0 ? (
-          <p className="text-foreground/50 text-sm">
-            Nenhum item na fila agora — ou não há oportunidade ML acima do
-            corte econômico, ou todas já têm link ativo.
-          </p>
-        ) : (
-          <div className="space-y-3">
-            {mlAffiliateQueue.map((item) => (
-              <MlAffiliateQueueItem key={item.merchantListingId} {...item} />
-            ))}
-          </div>
-        )}
       </DashboardGroup>
 
       {/* ---------------- PRIVACIDADE ---------------- */}

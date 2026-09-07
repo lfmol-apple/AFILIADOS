@@ -23,6 +23,8 @@ import { env } from "@/lib/config/env";
 import { MercadoLivreProvider } from "@/lib/providers/mercado-livre-provider";
 import { MercadoLivreTrendsDemandSource } from "@/lib/demand/sources/mercado-livre-trends-demand-source";
 import { MercadoLivreBestsellerDemandSource } from "@/lib/demand/sources/mercado-livre-bestseller-demand-source";
+import { calculateMonetizationScore } from "@/lib/services/monetization-score";
+import type { MonetizationScoreInput } from "@/types/monetization";
 
 function parseArgs() {
   const args = process.argv.slice(2);
@@ -85,7 +87,51 @@ async function persistHighlightSignal(input: {
     },
   });
 
+  // Without this, a highlighted product never gets a MonetizationScore
+  // row and therefore never clears getMlAffiliateQueue's threshold — it
+  // was silently invisible in /admin despite being real, persisted data
+  // (found 2026-09-07). Demand-only: a highlights rank is real observed
+  // demand, but this source has no commission/price/rating field at all
+  // (that only exists once a link is generated), so every other
+  // component stays UNKNOWN rather than guessed.
+  const input_: MonetizationScoreInput = {
+    demandSignal: { value: bestsellerRankToScore(input.position), quality: "OBSERVED" },
+    commissionSignal: null,
+    trendSignal: null,
+    historicalConversionSignal: null,
+    offerQualitySignal: null,
+  };
+  const score = calculateMonetizationScore(input_);
+  await prisma.monetizationScore.upsert({
+    where: { merchantListingId: listing.id },
+    create: {
+      merchantListingId: listing.id,
+      score: score.score,
+      confidence: score.confidence,
+      components: score.components as unknown as object,
+      reasons: score.reasons,
+      missingSignals: score.missingSignals,
+    },
+    update: {
+      score: score.score,
+      confidence: score.confidence,
+      components: score.components as unknown as object,
+      reasons: score.reasons,
+      missingSignals: score.missingSignals,
+    },
+  });
+
   return listing;
+}
+
+// Rank 1 (top highlight) -> 100, decaying linearly to a floor of 40 by
+// rank 20+ — a highlighted product is never "low demand" (it's already
+// among a category's best), so the floor is deliberately not near 0.
+// Same category of judgment call as shopee-first-cycle.ts's
+// commissionToScore/salesToScore: the input (real rank) is real, only
+// this mapping curve is a documented, explicit choice.
+function bestsellerRankToScore(position: number): number {
+  return Math.max(40, 100 - (position - 1) * 3);
 }
 
 async function main() {

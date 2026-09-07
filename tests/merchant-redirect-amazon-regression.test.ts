@@ -43,13 +43,22 @@ describe("resolveMerchantRedirect — amazon regression", () => {
   });
 
   it("never queries MerchantListing/AffiliateLinkRegistry for the amazon path", async () => {
-    const listingCountBefore = await prisma.merchantListing.count();
+    // Scoped to this test's own externalId rather than a global count —
+    // other test files legitimately create/delete MerchantListing rows
+    // concurrently (vitest runs files in parallel), which made a raw
+    // `prisma.merchantListing.count()` before/after comparison flaky
+    // (found 2026-09-07 once tests/operations-center.test.ts added more
+    // concurrent MerchantListing writes). The actual behavior asserted —
+    // the amazon path never creates a MerchantListing — is unaffected by
+    // what other tests do to the table.
     await resolveMerchantRedirect({
       merchant: "amazon",
       externalId: "B0UNKNOWN1",
       searchParams: new URLSearchParams(),
     });
-    const listingCountAfter = await prisma.merchantListing.count();
-    expect(listingCountAfter).toBe(listingCountBefore);
+    const listing = await prisma.merchantListing.findFirst({
+      where: { externalId: "B0UNKNOWN1" },
+    });
+    expect(listing).toBeNull();
   });
 });
