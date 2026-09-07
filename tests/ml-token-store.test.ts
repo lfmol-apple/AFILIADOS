@@ -9,36 +9,38 @@ afterEach(async () => {
 });
 
 describe("getValidMercadoLivreAccessToken", () => {
-  it("bootstraps a row from env when none exists, and — since a bootstrapped token's real remaining lifetime is unknown — immediately refreshes rather than guessing it's still valid", async () => {
-    vi.stubEnv("MERCADO_LIVRE_ACCESS_TOKEN", "stale-env-token");
+  it("bootstraps a row from env when none exists — verifies the token with one real, cheap call (GET /users/me) rather than assuming it's expired (found live, 2026-09-07: assuming 'already expired' forced an immediate refresh on first use, which fails loudly with no MERCADO_LIVRE_CLIENT_ID/SECRET configured, even though the existing token was still perfectly valid)", async () => {
+    vi.stubEnv("MERCADO_LIVRE_ACCESS_TOKEN", "still-good-env-token");
     vi.stubEnv("MERCADO_LIVRE_REFRESH_TOKEN", "env-refresh-token");
-    vi.stubEnv("MERCADO_LIVRE_CLIENT_ID", "client-id");
-    vi.stubEnv("MERCADO_LIVRE_CLIENT_SECRET", "client-secret");
+    // Deliberately NOT stubbing CLIENT_ID/SECRET — proves bootstrap alone
+    // never needs them when the env token is still actually valid.
 
-    const fetchSpy = vi.fn(async () => ({
-      ok: true,
-      status: 200,
-      json: async () => ({
-        access_token: "fresh-access-token",
-        refresh_token: "fresh-refresh-token",
-        expires_in: 21600,
-      }),
-    }));
+    const fetchSpy = vi.fn(async (url: string) => {
+      expect(url).toContain("/users/me");
+      return { ok: true, status: 200, json: async () => ({ id: 1 }) };
+    });
     vi.stubGlobal("fetch", fetchSpy);
 
     const { getValidMercadoLivreAccessToken } = await import("@/lib/services/ml-token-store");
     const token = await getValidMercadoLivreAccessToken();
 
-    expect(fetchSpy).toHaveBeenCalledWith(
-      "https://api.mercadolibre.com/oauth/token",
-      expect.objectContaining({ method: "POST" }),
-    );
-    expect(token).toBe("fresh-access-token");
+    expect(fetchSpy).toHaveBeenCalledTimes(1); // only the probe — no refresh call
+    expect(token).toBe("still-good-env-token");
 
     const row = await prisma.integrationCredential.findUnique({ where: { provider: "MERCADO_LIVRE" } });
-    expect(row?.accessToken).toBe("fresh-access-token");
-    expect(row?.refreshToken).toBe("fresh-refresh-token");
+    expect(row?.accessToken).toBe("still-good-env-token");
     expect(row!.expiresAt.getTime()).toBeGreaterThan(Date.now());
+  });
+
+  it("fails clearly on bootstrap when the env token is actually invalid, rather than silently persisting a dead token", async () => {
+    vi.stubEnv("MERCADO_LIVRE_ACCESS_TOKEN", "dead-token");
+    vi.stubEnv("MERCADO_LIVRE_REFRESH_TOKEN", "env-refresh-token");
+    vi.stubGlobal("fetch", vi.fn(async () => ({ ok: false, status: 401, json: async () => ({}) })));
+
+    const { getValidMercadoLivreAccessToken } = await import("@/lib/services/ml-token-store");
+    await expect(getValidMercadoLivreAccessToken()).rejects.toThrow(/no longer valid/i);
+
+    expect(await prisma.integrationCredential.findUnique({ where: { provider: "MERCADO_LIVRE" } })).toBeNull();
   });
 
   it("returns the cached token without calling the network when it's still valid well beyond the refresh margin", async () => {

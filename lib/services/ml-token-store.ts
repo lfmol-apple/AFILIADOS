@@ -87,17 +87,37 @@ async function getOrBootstrapCredential() {
     );
   }
 
-  // Bootstrapped from .env exactly once — expiresAt set to "already
-  // expired" rather than guessed, since this process has no way to know
-  // the real remaining lifetime of a token that was issued outside of it.
-  // The very next read immediately refreshes and gets ML's own real
-  // expires_in from then on.
+  // Bootstrapped from .env exactly once. This process has no way to know
+  // the real remaining lifetime of a token issued outside of it — but
+  // treating it as "already expired" is its own real bug (found live,
+  // 2026-09-07): it forces an immediate refresh on the very first call,
+  // which fails loudly if MERCADO_LIVRE_CLIENT_ID/SECRET aren't
+  // configured yet, even though the existing access token is still
+  // perfectly valid. So: actually check, with one cheap real call
+  // (GET /users/me — confirmed working, unauthenticated-safe endpoint),
+  // rather than guessing either direction.
+  const probe = await fetch("https://api.mercadolibre.com/users/me", {
+    headers: { Authorization: `Bearer ${env.MERCADO_LIVRE_ACCESS_TOKEN}` },
+  });
+  if (!probe.ok) {
+    throw new Error(
+      `The env-sourced MERCADO_LIVRE_ACCESS_TOKEN is no longer valid (HTTP ${probe.status}) and ` +
+        "there's no IntegrationCredential row to fall back to — a human needs to redo the OAuth " +
+        "flow (docs/MONETIZATION_SCORE.md).",
+    );
+  }
+  // Confirmed valid right now; ML's real grant lifetime is ~6h
+  // (confirmed live, this project's own OAuth testing) — used as the
+  // bootstrap estimate since the token's own issuance time is unknown to
+  // this process. The next refresh (10 minutes before this estimate
+  // expires) gets ML's own real expires_in from then on, no more
+  // estimating.
   return prisma.integrationCredential.create({
     data: {
       provider: "MERCADO_LIVRE",
       accessToken: env.MERCADO_LIVRE_ACCESS_TOKEN,
       refreshToken: env.MERCADO_LIVRE_REFRESH_TOKEN,
-      expiresAt: new Date(0),
+      expiresAt: new Date(Date.now() + 6 * 60 * 60 * 1000),
     },
   });
 }
