@@ -60,11 +60,14 @@ describe("ShopeeProvider", () => {
                   productName: "Fone Bluetooth ABC",
                   productLink: "https://shopee.com.br/product/1/123456",
                   offerLink: "https://s.shopee.com.br/abc123",
-                  priceMin: 89.9,
-                  priceMax: 89.9,
-                  commissionRate: 0.08,
+                  // Matches the real API shape (confirmed via a live call,
+                  // 2026-09-07): these arrive as strings, not JSON numbers —
+                  // sales is the one that's genuinely numeric.
+                  priceMin: "89.9",
+                  priceMax: "89.9",
+                  commissionRate: "0.08",
                   sales: 340,
-                  ratingStar: 4.7,
+                  ratingStar: "4.7",
                 },
               ],
             },
@@ -158,5 +161,30 @@ describe("ShopeeProvider", () => {
     const { ShopeeProvider } = await import("@/lib/providers/shopee-provider");
     const provider = new ShopeeProvider();
     await expect(provider.getProduct("123456")).rejects.toThrow(/invalid signature|GraphQL/);
+  });
+});
+
+describe("shopeeNumeric", () => {
+  // Deliberately dynamic-imported like every other test in this file
+  // (never a static top-level import of shopee-provider.ts) — see this
+  // file's history: a static import here previously caused a stale
+  // module-cache collision with the "not configured" tests' own dynamic
+  // re-imports (the exact bug class this project hit before in
+  // tests/admin-auth.test.ts).
+  it("coerces Shopee's string-typed numeric fields (real API shape, confirmed 2026-09-07)", async () => {
+    const { shopeeNumeric } = await import("@/lib/providers/shopee-provider");
+    expect(shopeeNumeric("0.29")).toBe(0.29);
+    expect(shopeeNumeric("38.9")).toBe(38.9);
+  });
+
+  it("passes a real number through unchanged", async () => {
+    const { shopeeNumeric } = await import("@/lib/providers/shopee-provider");
+    expect(shopeeNumeric(7774)).toBe(7774);
+  });
+
+  it("returns undefined for undefined or unparseable input — never NaN, never a fabricated 0", async () => {
+    const { shopeeNumeric } = await import("@/lib/providers/shopee-provider");
+    expect(shopeeNumeric(undefined)).toBeUndefined();
+    expect(shopeeNumeric("not-a-number")).toBeUndefined();
   });
 });
