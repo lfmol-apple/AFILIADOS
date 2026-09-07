@@ -20,7 +20,7 @@
  */
 import { prisma } from "@/lib/db";
 import { env } from "@/lib/config/env";
-import { MercadoLivreProvider } from "@/lib/providers/mercado-livre-provider";
+import { createMercadoLivreProvider } from "@/lib/services/ml-token-store";
 import { MercadoLivreTrendsDemandSource } from "@/lib/demand/sources/mercado-livre-trends-demand-source";
 import { MercadoLivreBestsellerDemandSource } from "@/lib/demand/sources/mercado-livre-bestseller-demand-source";
 import { calculateMonetizationScore } from "@/lib/services/monetization-score";
@@ -145,7 +145,14 @@ async function main() {
   }
 
   const { categories, item, persist } = parseArgs();
-  const provider = new MercadoLivreProvider();
+  // Auto-refreshing token for the provider-based calls below (catalog
+  // product name resolution, single-item lookup). The trends/highlights
+  // demand sources still read the static MERCADO_LIVRE_ACCESS_TOKEN env
+  // var directly (unchanged, lib/demand/sources/*) — not migrated to the
+  // auto-refresh path in this pass, since they make far fewer calls per
+  // run and are lower-risk of hitting mid-run expiry; see
+  // docs/MONETIZATION_SCORE.md for this documented scope boundary.
+  const provider = await createMercadoLivreProvider();
   const merchant = persist ? await ensureMercadoLivreMerchant() : null;
 
   console.log("=== Trends (site-wide) ===");

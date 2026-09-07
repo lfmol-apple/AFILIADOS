@@ -48,7 +48,18 @@ export class MercadoLivreProvider implements CommerceProvider {
   private readonly siteId: string;
   private readonly accessToken: string;
 
-  constructor() {
+  /**
+   * `overrideAccessToken` — pass a freshly-refreshed token (from
+   * `lib/services/ml-token-store.ts`'s `getValidMercadoLivreAccessToken()`,
+   * DB-backed and auto-refreshing) instead of the static
+   * `MERCADO_LIVRE_ACCESS_TOKEN` env var, which goes stale ~6h after OAuth
+   * issuance. Optional and purely additive — `new MercadoLivreProvider()`
+   * with no argument keeps working exactly as before (every existing
+   * caller/test). New long-running code (radar detection, the enrichment
+   * scripts) should prefer `createMercadoLivreProvider()` in
+   * lib/services/ml-token-store.ts instead of calling this directly.
+   */
+  constructor(overrideAccessToken?: string) {
     if (!env.MERCADO_LIVRE_ENABLED) {
       throw new Error(
         "MercadoLivreProvider requires MERCADO_LIVRE_ENABLED=true. See docs/MONETIZATION_SCORE.md.",
@@ -59,14 +70,14 @@ export class MercadoLivreProvider implements CommerceProvider {
         "MercadoLivreProvider requires MERCADO_LIVRE_API_ENABLED=true. See docs/MONETIZATION_SCORE.md.",
       );
     }
-    if (!env.MERCADO_LIVRE_ACCESS_TOKEN) {
+    if (!overrideAccessToken && !env.MERCADO_LIVRE_ACCESS_TOKEN) {
       throw new Error(
         "MercadoLivreProvider requires MERCADO_LIVRE_ACCESS_TOKEN — register an application in " +
           "Mercado Livre's DevCenter and complete their OAuth flow first. See docs/MONETIZATION_SCORE.md.",
       );
     }
     this.siteId = env.MERCADO_LIVRE_SITE_ID;
-    this.accessToken = env.MERCADO_LIVRE_ACCESS_TOKEN;
+    this.accessToken = overrideAccessToken ?? env.MERCADO_LIVRE_ACCESS_TOKEN;
   }
 
   async searchProducts(_query: ProductSearchQuery): Promise<ProductSearchResult> {

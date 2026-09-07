@@ -47,10 +47,10 @@
 import { prisma } from "@/lib/db";
 import { env } from "@/lib/config/env";
 import {
-  MercadoLivreProvider,
   findAttribute,
   type MercadoLivreSellerReputation,
 } from "@/lib/providers/mercado-livre-provider";
+import { createMercadoLivreProvider } from "@/lib/services/ml-token-store";
 import { calculateMonetizationScore } from "@/lib/services/monetization-score";
 import { offerQualityScore, getDiscountPercent } from "@/lib/services/ml-offer-quality";
 import type { MonetizationScoreInput } from "@/types/monetization";
@@ -64,7 +64,11 @@ async function main() {
     return;
   }
 
-  const provider = new MercadoLivreProvider();
+  // Auto-refreshing token (lib/services/ml-token-store.ts) — the static
+  // env token expires ~6h after OAuth issuance, and this script's real
+  // runs (181 offers, dozens of sequential API calls) can genuinely take
+  // long enough to matter.
+  const provider = await createMercadoLivreProvider();
   const merchant = await prisma.merchant.upsert({
     where: { code: "MERCADO_LIVRE" },
     create: { code: "MERCADO_LIVRE", name: "Mercado Livre", active: true },

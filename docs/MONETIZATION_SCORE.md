@@ -238,13 +238,40 @@ escopo desta fase — **não alterado**.
 ### Automação — risco operacional real, não implementado nesta fase
 
 Os 13 jobs em `jobs/index.ts` são todos Amazon-only; nenhum lock/cron novo foi criado para Shopee/ML
-nesta fase (o briefing pediu explicitamente para não duplicar cron). Risco real encontrado: **não
-existe refresh automático de `MERCADO_LIVRE_ACCESS_TOKEN`** em lugar nenhum do código — o token
-expira em ~6h após emissão. Solução mínima proposta e implementada: `scripts/ml-refresh-token.ts`,
-utilitário manual (nunca chamado por cron) que troca `MERCADO_LIVRE_REFRESH_TOKEN` por um par
-access/refresh novo via `POST /oauth/token` e grava no `.env` local sem nunca imprimir os valores.
-Continua exigindo que um humano rode o script (ou repita o fluxo OAuth completo) periodicamente —
-automatizar isso com segurança (rotação atômica, sem downtime, sem vazar o refresh_token em log de
+nesta fase (o briefing pediu explicitamente para não duplicar cron).
+
+**Atualização (2026-09-07, Prompt 3) — refresh automático resolvido.** O risco descrito abaixo
+(token ML expira em ~6h, sem refresh automático) foi corrigido de verdade: `lib/services/ml-token-store.ts`
+agora renova o token sozinho, sob demanda, sem cron novo. Por que não dava para só mexer no
+`.env`: `lib/config/env.ts` lê `process.env` uma única vez, na primeira importação — nada no
+processo já em execução volta a reler o arquivo depois, então gravar um token novo no `.env`
+nunca chegaria ao app rodando. A correção usa a mesma infraestrutura que já existe (o Postgres
+deste projeto): uma tabela nova e pequena, `IntegrationCredential` (uma linha por provider,
+migration puramente aditiva), guarda `accessToken`/`refreshToken`/`expiresAt` reais.
+`getValidMercadoLivreAccessToken()` lê essa linha, renova via `grant_type=refresh_token` quando
+faltam menos de 10 minutos para expirar, e devolve um token sempre válido — chamado sob demanda
+por quem precisa (hoje: `scripts/ml-enrich-offers.ts` e `scripts/ml-demand-e2e-check.ts`, via
+`createMercadoLivreProvider()`), nunca por um timer novo. Concorrência: uma Promise em memória
+deduplica chamadas simultâneas no mesmo processo; no banco, o `UPDATE` só aplica se o
+`accessToken` ainda for o que este processo leu — se outro processo já renovou primeiro (o
+`refresh_token` da Mercado Livre é rotativo, de uso único), este processo simplesmente relê a
+linha vencedora em vez de gastar o `refresh_token` já invalidado. Nunca loga
+`accessToken`/`refreshToken`/`client_secret` (6 testes cobrindo bootstrap, cache, renovação,
+concorrência e falha — `tests/ml-token-store.test.ts`). `scripts/ml-refresh-token.ts` (manual)
+continua existindo como ferramenta de recuperação/bootstrap inicial, mas deixa de ser necessário
+para operação rotineira. `MercadoLivreProvider` ganhou um parâmetro opcional no construtor
+(`overrideAccessToken`) — puramente aditivo, `new MercadoLivreProvider()` sem argumento continua
+funcionando exatamente como antes para todo código/teste existente.
+
+*(Texto original abaixo, mantido para contexto histórico do que foi corrigido.)*
+
+Risco real encontrado: **não existia refresh automático de `MERCADO_LIVRE_ACCESS_TOKEN`** em lugar
+nenhum do código — o token expira em ~6h após emissão. Solução mínima proposta e implementada
+naquele momento: `scripts/ml-refresh-token.ts`, utilitário manual (nunca chamado por cron) que
+troca `MERCADO_LIVRE_REFRESH_TOKEN` por um par access/refresh novo via `POST /oauth/token` e grava
+no `.env` local sem nunca imprimir os valores. Continuava exigindo que um humano rodasse o script
+periodicamente — automatizar isso com segurança (rotação atômica, sem downtime, sem vazar o
+refresh_token em log de
 cron) fica para uma fase futura, quando fizer sentido decidir isso junto com os outros 13 jobs.
 
 ### Correção urgente — `productUrl` das ofertas não é um permalink verificado (2026-09-07)

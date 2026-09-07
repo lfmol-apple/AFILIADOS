@@ -28,6 +28,7 @@ import { MlAffiliateQueueItem } from "@/components/ml-affiliate-queue-item";
 import { getMlAffiliateQueue } from "@/lib/queries/ml-affiliate-queue";
 import { OperationsOpportunityList } from "@/components/operations-opportunity-list";
 import { getTodaysOpportunities, getOperationsSummary } from "@/lib/queries/operations-center";
+import { getAdminRadarFeed } from "@/lib/queries/radar-events";
 
 export const metadata: Metadata = {
   title: "Admin",
@@ -126,6 +127,7 @@ export default async function AdminPage() {
     mlAffiliateQueue,
     todaysOpportunities,
     operationsSummary,
+    radarFeed,
   ] = await Promise.all([
     getTodayStats(),
     getWeeklyStats(),
@@ -143,6 +145,7 @@ export default async function AdminPage() {
     getMlAffiliateQueue(),
     getTodaysOpportunities(),
     getOperationsSummary(),
+    getAdminRadarFeed(200),
   ]);
   const brCompliancePass = checkLiveActivationReadiness("BR").every(
     (c) => c.pass,
@@ -196,6 +199,40 @@ export default async function AdminPage() {
           <StatCard label="Cliques afiliados hoje" value={operationsSummary.affiliateClicksToday} />
           <StatCard label="Merchants ativos" value={operationsSummary.activeMerchants.length} />
         </div>
+
+        <SubSection title="Radar hoje">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <StatCard label="Eventos detectados" value={radarFeed.length} />
+            <StatCard
+              label="Publicáveis (com link ativo)"
+              value={radarFeed.filter((i) => i.ctaHref !== null).length}
+            />
+            <StatCard
+              label="Monetizáveis sem link"
+              value={radarFeed.filter((i) => i.ctaHref === null && i.merchant === "MERCADO_LIVRE").length}
+            />
+            <StatCard
+              label="Quedas de preço reais"
+              value={radarFeed.filter((i) => i.event.type === "PRICE_DROP").length}
+            />
+          </div>
+          <ul className="mt-3 space-y-1.5 text-xs">
+            {radarFeed.length === 0 && (
+              <li className="text-foreground/50">
+                Nenhum evento detectado ainda — rode os scripts de coleta
+                (Shopee/Mercado Livre) para gerar sinais reais.
+              </li>
+            )}
+            {radarFeed.slice(0, 8).map((item, i) => (
+              <li key={i} className="flex justify-between gap-3">
+                <span className="truncate">
+                  [{item.event.type}] {item.title}
+                </span>
+                <span className="text-foreground/60 shrink-0">{item.event.headline}</span>
+              </li>
+            ))}
+          </ul>
+        </SubSection>
 
         <SubSection title="Oportunidades de hoje">
           <OperationsOpportunityList items={todaysOpportunities} />

@@ -5,6 +5,8 @@ import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { AmazonBrShowcase } from "@/components/amazon-br-showcase";
 import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 import { GUIDES } from "@/lib/editorial/guides";
+import { RadarFeed } from "@/components/radar-feed";
+import { getPublicRadarFeed } from "@/lib/queries/radar-events";
 
 export const dynamic = "force-dynamic";
 
@@ -92,6 +94,16 @@ export default async function Home() {
   // are withheld when nothing is currently visible.
   const catalogSafe = currentlyVisibleDataSources().length > 0;
   const { sections, catalogUnavailable } = await loadHomeSections(catalogSafe);
+  // Shopee/Mercado Livre radar — independent of catalogSafe (Amazon-only
+  // gate above): each event already requires its own real
+  // MonetizationScore/signal evidence, and the CTA is separately
+  // fail-closed on AffiliateLinkRegistry.status === "ACTIVE"
+  // (lib/queries/radar-events.ts). Resilient the same way
+  // loadHomeSections is — a query failure never breaks the homepage.
+  const radarItems = await getPublicRadarFeed(8).catch((error) => {
+    console.error("home.radar_unavailable", error);
+    return [];
+  });
   const {
     pricesDropping,
     bestOpportunities,
@@ -197,6 +209,8 @@ export default async function Home() {
           </div>
         </div>
       </section>
+
+      <RadarFeed items={radarItems} />
 
       {catalogUnavailable && (
         <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
