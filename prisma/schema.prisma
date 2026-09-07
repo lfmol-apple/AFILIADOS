@@ -601,8 +601,14 @@ model OpportunityScore {
 
 model AffiliateClick {
   id        String  @id @default(cuid())
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  /// Nullable as of 2026-09-07: was required, which made it impossible to
+  /// log a click for a Mercado Livre/Shopee listing that has no legacy
+  /// Product row (by design — see docs/MULTI_MERCHANT.md, Product stays
+  /// Amazon-only). Every Amazon click still always sets this — see
+  /// lib/services/merchant-redirect.ts's amazon branch (unchanged) and its
+  /// explicit regression test.
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
   canonicalProductId String?
   canonicalProduct   CanonicalProduct? @relation(fields: [canonicalProductId], references: [id])
   merchantId         String?

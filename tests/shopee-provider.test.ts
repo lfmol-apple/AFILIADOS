@@ -7,18 +7,28 @@ afterEach(() => {
 });
 
 describe("ShopeeProvider", () => {
-  it("fails explicitly when SHOPEE_AFFILIATE_ENABLED is not set (default)", async () => {
+  // Every "not configured" test below explicitly stubs the relevant vars
+  // to empty — the ambient .env now has real Shopee credentials
+  // (2026-09-07), so relying on the default/ambient environment being
+  // empty would be exactly the test-isolation bug this project has hit
+  // before (see tests/admin-auth.test.ts's history).
+  it("fails explicitly when SHOPEE_AFFILIATE_ENABLED is not set", async () => {
+    vi.stubEnv("SHOPEE_AFFILIATE_ENABLED", "");
     const { ShopeeProvider } = await import("@/lib/providers/shopee-provider");
     expect(() => new ShopeeProvider()).toThrow(/SHOPEE_AFFILIATE_ENABLED/);
   });
 
   it("fails explicitly when enabled but no app id / secret key is configured", async () => {
     vi.stubEnv("SHOPEE_AFFILIATE_ENABLED", "true");
+    vi.stubEnv("SHOPEE_AFFILIATE_API_ENABLED", "");
+    vi.stubEnv("SHOPEE_APP_ID", "");
+    vi.stubEnv("SHOPEE_SECRET_KEY", "");
     const { ShopeeProvider } = await import("@/lib/providers/shopee-provider");
     expect(() => new ShopeeProvider()).toThrow(/SHOPEE_APP_ID|SHOPEE_SECRET_KEY/);
   });
 
   it("never calls the network when not configured", async () => {
+    vi.stubEnv("SHOPEE_AFFILIATE_ENABLED", "");
     const fetchSpy = vi.fn();
     vi.stubGlobal("fetch", fetchSpy);
     const { ShopeeProvider } = await import("@/lib/providers/shopee-provider");
