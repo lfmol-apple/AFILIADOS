@@ -24,6 +24,8 @@ import {
 } from "@/lib/admin/auth";
 import { AdminLoginForm } from "@/components/admin-login-form";
 import { AdminLogoutButton } from "@/components/admin-logout-button";
+import { MlAffiliateQueueItem } from "@/components/ml-affiliate-queue-item";
+import { getMlAffiliateQueue } from "@/lib/queries/ml-affiliate-queue";
 
 export const metadata: Metadata = {
   title: "Admin",
@@ -119,6 +121,7 @@ export default async function AdminPage() {
     catalogBr,
     catalogUs,
     unexpectedCatalogAlerts,
+    mlAffiliateQueue,
   ] = await Promise.all([
     getTodayStats(),
     getWeeklyStats(),
@@ -133,6 +136,7 @@ export default async function AdminPage() {
     getCatalogSnapshot("BR"),
     getCatalogSnapshot("US"),
     getUnexpectedCatalogAlerts(),
+    getMlAffiliateQueue(),
   ]);
   const brCompliancePass = checkLiveActivationReadiness("BR").every(
     (c) => c.pass,
@@ -505,6 +509,25 @@ export default async function AdminPage() {
             </div>
           </SubSection>
         </div>
+      </DashboardGroup>
+
+      {/* ---------------- MERCADO LIVRE — LINKS PENDENTES ---------------- */}
+      <DashboardGroup
+        title="Mercado Livre — links pendentes"
+        description="Oportunidades que o Monetization Engine aprovou mas ainda não têm link afiliado. Cole o link gerado no painel oficial ML (etiqueta 'precocaindo') e o item sai da fila."
+      >
+        {mlAffiliateQueue.length === 0 ? (
+          <p className="text-foreground/50 text-sm">
+            Nenhum item na fila agora — ou não há oportunidade ML acima do
+            corte econômico, ou todas já têm link ativo.
+          </p>
+        ) : (
+          <div className="space-y-3">
+            {mlAffiliateQueue.map((item) => (
+              <MlAffiliateQueueItem key={item.merchantListingId} {...item} />
+            ))}
+          </div>
+        )}
       </DashboardGroup>
 
       {/* ---------------- PRIVACIDADE ---------------- */}

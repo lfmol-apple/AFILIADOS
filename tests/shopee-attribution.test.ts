@@ -1,7 +1,7 @@
 import { describe, expect, it, vi, afterEach } from "vitest";
 import { createHash } from "node:crypto";
 import { buildShopeeAuthorizationHeader } from "@/lib/shopee/signature";
-import { normalizeSubId, buildShopeeSubIds } from "@/lib/services/shopee-attribution";
+import { normalizeSubId } from "@/lib/services/shopee-attribution";
 
 afterEach(() => {
   vi.unstubAllEnvs();
