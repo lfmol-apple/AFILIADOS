@@ -80,6 +80,38 @@ const envSchema = z.object({
     .default("Como associado da Amazon, eu ganho com compras qualificadas."),
   AMAZON_POLICY_REVIEW_DATE: z.string().default("2026-08-17"),
 
+  // --- Mercado Livre (lib/providers/mercado-livre-provider.ts) ---
+  // Real, confirmed endpoints (2026-09-07 research — see
+  // docs/MONETIZATION_SCORE.md): GET /items/{id}, GET /trends/{site_id}
+  // [/{category_id}], GET /highlights/{site_id}/category/{category_id}.
+  // Empirically confirmed these all require Authorization: Bearer — even
+  // historically-public endpoints like /sites now return 403
+  // PA_UNAUTHORIZED_RESULT_FROM_POLICIES without one. Obtaining a token
+  // requires registering an application in Mercado Livre's DevCenter
+  // (Client ID + Secret) and completing their OAuth flow — a human step
+  // outside this codebase. MERCADO_LIVRE_ACCESS_TOKEN stays empty by
+  // default; every provider/demand-source method fails explicitly and
+  // loudly until a human supplies a real token, exactly like AmazonProvider
+  // does for AMAZON_BR_API_ENABLED.
+  MERCADO_LIVRE_ENABLED: booleanFromEnvDefault(false),
+  MERCADO_LIVRE_API_ENABLED: booleanFromEnvDefault(false),
+  MERCADO_LIVRE_SITE_ID: z.string().default("MLB"),
+  MERCADO_LIVRE_ACCESS_TOKEN: z.string().default(""),
+
+  // --- Shopee (lib/providers/shopee-provider.ts) ---
+  // CREDENTIALS_PENDING_OFFICIAL_CONFIGURATION — unlike Mercado Livre,
+  // there is no public/anonymous Shopee catalog API at all (confirmed
+  // 2026-09-07): Shopee Open Platform requires an approved partner
+  // application (Partner ID + Partner Key) and per-request signing for
+  // every endpoint, including read-only ones. Nothing here has a confirmed
+  // request/response shape yet, so ShopeeProvider implements no real HTTP
+  // call — every method fails loudly regardless of these values until a
+  // human confirms real partner credentials and the exact API contract.
+  SHOPEE_ENABLED: booleanFromEnvDefault(false),
+  SHOPEE_API_ENABLED: booleanFromEnvDefault(false),
+  SHOPEE_PARTNER_ID: z.string().default(""),
+  SHOPEE_PARTNER_KEY: z.string().default(""),
+
   CONTENT_GENERATION: z
     .enum(["mock", "openai", "anthropic", "off"])
     .default("mock"),

@@ -39,8 +39,21 @@ npm run merchant:backfill-amazon
 O script cria o merchant Amazon, produtos canônicos e listings Amazon a partir
 dos `Product` existentes. Ele é idempotente e não apaga dados.
 
+## Monetization Engine (2026-09-07)
+
+Ver docs/MONETIZATION_SCORE.md e docs/PRODUCT_MATCHING.md. Resumo: `MonetizationScore` (interno,
+nunca o `OpportunityScore` do consumidor) e `ProductMatcher` (decide se dois `MerchantListing` são
+o mesmo produto real) foram implementados como serviços puros, com `ProductMatchEvidence` e
+`MerchantListingSignal` como novas tabelas aditivas. `MercadoLivreProvider` chama endpoints reais
+e confirmados (`/items`, `/trends`, `/highlights`), mas exige `MERCADO_LIVRE_ACCESS_TOKEN` — sem
+ele, falha explicitamente, sem chamar a rede. `ShopeeProvider` continua sem nenhuma chamada real
+implementada (sem API pública confirmada).
+
 ## O que ainda não existe
 
-Não há integração real com Mercado Livre, Shopee, AWIN ou outro parceiro. Não
-há scraping. Um provider só deve virar `live` quando houver API/contrato real,
-host validado e testes de redirect.
+Nenhuma integração *ativa* com Mercado Livre, Shopee, AWIN ou outro parceiro — nenhuma delas está
+habilitada por padrão, e nenhum job/rota pública usa esses providers ainda. Não há scraping. Um
+provider só deve virar `live` de verdade quando houver credencial confirmada, host validado e
+testes de redirect. As fontes de demanda da Mercado Livre não estão em
+`lib/demand/index.ts`'s `DEFAULT_SOURCES` — isso é uma decisão explícita a ser tomada depois,
+não uma omissão.
