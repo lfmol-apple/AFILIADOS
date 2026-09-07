@@ -41,6 +41,15 @@ export interface MlAffiliateQueueItem {
     sellerNickname: string | null;
     sellerReputationLevel: string | null;
     sellerPowerSellerStatus: string | null;
+    /** ALWAYS false today — no Mercado Livre endpoint reachable with this
+     * app's current permissions confirms a real public permalink for a
+     * third-party item (investigated exhaustively 2026-09-07: GET
+     * /items/{id}, multiget, unauthenticated, field-restricted, site
+     * search, buy_box_winner, pickers[].permalink — all blocked or empty).
+     * `publicUrl` is a best-effort, item_id-based reference on Mercado
+     * Livre's own domain, NEVER a confirmed clickable link — the UI must
+     * never claim otherwise while this stays false. */
+    permalinkVerified: boolean;
   } | null;
 }
 
@@ -189,6 +198,7 @@ async function enrichWithBestOffer(listing: CandidateListing): Promise<MlAffilia
           levelId?: string | null;
           powerSellerStatus?: string | null;
         } | null;
+        permalinkVerified?: boolean;
       }
     | null;
 
@@ -208,6 +218,10 @@ async function enrichWithBestOffer(listing: CandidateListing): Promise<MlAffilia
           sellerNickname: raw.seller?.nickname ?? null,
           sellerReputationLevel: raw.seller?.levelId ?? null,
           sellerPowerSellerStatus: raw.seller?.powerSellerStatus ?? null,
+          // Defaults to false (never true) when a signal predates this
+          // field, per the same "never claim verified without evidence"
+          // rule as everything else here.
+          permalinkVerified: raw.permalinkVerified ?? false,
         }
       : null,
   };

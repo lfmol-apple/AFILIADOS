@@ -34,6 +34,13 @@ export interface MlAffiliateQueueItemProps {
     sellerNickname: string | null;
     sellerReputationLevel: string | null;
     sellerPowerSellerStatus: string | null;
+    /** ALWAYS false today — no Mercado Livre endpoint this app can reach
+     * confirms a real permalink for a third-party item (see
+     * scripts/ml-enrich-offers.ts's doc comment for the full
+     * investigation, 2026-09-07). Drives the caveat below — publicUrl must
+     * never be presented as a confirmed clickable link while this is
+     * false. */
+    permalinkVerified: boolean;
   } | null;
 }
 
@@ -45,9 +52,9 @@ export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
   const [copied, setCopied] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  async function handleCopy() {
+  async function handleCopy(text: string) {
     try {
-      await navigator.clipboard.writeText(props.publicUrl);
+      await navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
@@ -55,6 +62,12 @@ export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
       // is still visible in the field below, so this is a soft failure.
     }
   }
+
+  // The item's own title + seller nickname — the recommended search terms
+  // for the official affiliate portal (proven, working flow), used because
+  // publicUrl is not a confirmed clickable link (permalinkVerified: false
+  // today — see MlAffiliateQueueItemProps.bestOffer's doc comment).
+  const searchTerms = [props.title, props.bestOffer?.sellerNickname].filter(Boolean).join(" — ");
 
   async function handleSave() {
     setPending(true);
@@ -121,7 +134,18 @@ export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
               ` (reputação: ${props.bestOffer.sellerReputationLevel})`}
           </div>
         </dl>
-      ) : (
+      ) : null}
+
+      {props.bestOffer && !props.bestOffer.permalinkVerified && (
+        <p className="mt-2 text-xs font-medium text-amber-700 dark:text-amber-400">
+          ⚠️ A API do Mercado Livre não confirma um link público para esta
+          oferta específica (investigado — ver docs/MONETIZATION_SCORE.md).
+          Use os termos de busca abaixo no portal oficial, não confie no
+          endereço copiado como um link direto.
+        </p>
+      )}
+
+      {!props.bestOffer && (
         <p className="text-foreground/50 mt-2 text-xs">
           Ainda sem oferta de vendedor enriquecida — mostrando apenas o sinal
           de demanda. Rode scripts/ml-enrich-offers.ts para investigar ofertas
@@ -157,13 +181,23 @@ export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
       )}
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          onClick={handleCopy}
-          className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
-        >
-          {copied ? "Copiado!" : "Copiar URL pública"}
-        </button>
+        {props.bestOffer && !props.bestOffer.permalinkVerified ? (
+          <button
+            type="button"
+            onClick={() => handleCopy(searchTerms)}
+            className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
+          >
+            {copied ? "Copiado!" : "Copiar termo de busca"}
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => handleCopy(props.publicUrl)}
+            className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
+          >
+            {copied ? "Copiado!" : "Copiar URL pública"}
+          </button>
+        )}
         <a
           href={ML_LINK_GENERATOR_URL}
           target="_blank"

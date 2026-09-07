@@ -246,3 +246,66 @@ access/refresh novo via `POST /oauth/token` e grava no `.env` local sem nunca im
 Continua exigindo que um humano rode o script (ou repita o fluxo OAuth completo) periodicamente —
 automatizar isso com segurança (rotação atômica, sem downtime, sem vazar o refresh_token em log de
 cron) fica para uma fase futura, quando fizer sentido decidir isso junto com os outros 13 jobs.
+
+### Correção urgente — `productUrl` das ofertas não é um permalink verificado (2026-09-07)
+
+Detectado em produção: o `productUrl` gerado por `scripts/ml-enrich-offers.ts`
+(`https://produto.mercadolivre.com.br/${item_id}`) nunca foi confirmado como link público
+navegável — era montado manualmente, sem checar a API.
+
+**Investigação exaustiva feita antes de corrigir** (todas chamadas reais, autenticadas):
+
+| Tentativa | Resultado |
+| --- | --- |
+| `GET /items/{id}` (autenticado, item de terceiro) | 403 `PA_UNAUTHORIZED_RESULT_FROM_POLICIES` |
+| `GET /items/{id}` (sem autenticação) | 403, mesmo código |
+| `GET /items/{id}?attributes=id,permalink` | 403 `access_denied` (subsistema diferente, ainda bloqueado) |
+| `GET /items?ids=...` (multiget) | 200, mas cada item individual retorna 403 dentro do array |
+| `GET /sites/MLB/search?q=...` | 403 forbidden |
+| `GET /products/{id}` `.permalink` | sempre `""` (vazio) — confirmado em 5 produtos reais diferentes |
+| `GET /products/{id}` `.buy_box_winner` | sempre `null` — confirmado nos mesmos 5 produtos |
+| `GET /products/{id}` `.pickers[].permalink` | sempre `""` |
+| `GET /reviews/item/{id}?catalog_product_id=...` (formato sugerido pela doc) | 403 `PA_UNAUTHORIZED_RESULT_FROM_POLICIES` — mesmo bloqueio |
+
+**Conclusão real**: nenhum endpoint acessível com as permissões atuais deste app confirma um
+permalink público para um item de terceiro. Não é um bug de código a corrigir tentando mais
+endpoints — é uma limitação real de permissão/plataforma, documentada explicitamente em vez de
+contornada com scraping ou slug inventado.
+
+**Correção aplicada** (honesta, não cosmética):
+
+1. `productUrl` continua sendo construído a partir do `item_id` real (não é mais um "permalink
+   confirmado" — é a melhor referência disponível: domínio oficial da Mercado Livre, id real, nunca
+   um slug inventado ou busca genérica).
+2. Cada oferta agora carrega `permalinkVerified: false` em `MerchantListingSignal.raw` — nada a
+   jusante (fila, `/admin`, testes) pode tratar esse endereço como link confirmado enquanto isso for
+   `false`.
+3. `getMlAffiliateQueue` e o componente `MlAffiliateQueueItem` mudaram de "clique aqui, é a oferta
+   real" para: aviso explícito de que o link não é confirmado + botão "Copiar termo de busca"
+   (título + vendedor) para colar no portal oficial de afiliados (`afiliados.mercadolivre.com.br`) —
+   o único fluxo comprovadamente funcional hoje, inalterado desde a Fase 1.
+4. **Bug real de persistência corrigido**: o `upsert` só atualizava `canonicalProductId` em
+   registros existentes, nunca `productUrl` — uma reexecução nunca corrigia dados antigos. Agora o
+   `update` também reescreve `productUrl` a cada rerun.
+
+**Validação real feita** (não apenas nos testes):
+- Corrompi deliberadamente o `productUrl` de uma oferta real persistida e reexecutei
+  `scripts/ml-enrich-offers.ts` — confirmado: o valor foi corrigido de volta ao padrão real
+  baseado em `item_id`.
+- 5 ofertas reais de 5 produtos diferentes (`MLB7590566500`, `MLB7246441750`, `MLB4975328747`,
+  `MLB6635306902`, `MLB4828837193`) tiveram `item_id`/`seller_id` conferidos contra uma chamada
+  ao vivo de `GET /products/{id}/items` no momento da validação — 5/5 correspondem exatamente,
+  sem contaminação cruzada entre produtos.
+- Navegabilidade via `curl` **não pôde ser confirmada** — `produto.mercadolivre.com.br` bloqueia
+  requisições sem User-Agent de navegador (403) e, mesmo com um UA real, redireciona para um
+  gate anti-bot (`/gz/account-verification`) antes de qualquer página de produto — inconclusivo
+  por definição, e por isso não usado como prova (seria efetivamente scraping para validar, o que
+  o briefing pediu para evitar).
+
+### Extra — reviews com `catalog_product_id` (só investigação, sem mudar scoring)
+
+Testado `GET /reviews/item/{itemId}?catalog_product_id={catalogId}` (formato sugerido pela
+documentação atual da Mercado Livre) — retorna o mesmo `403 PA_UNAUTHORIZED_RESULT_FROM_POLICIES`
+de antes. `GET /reviews/catalog_product/{id}` (variação alternativa testada por hipótese) retorna
+`404 resource not found`. Rating/reviews continuam `UNKNOWN` — nenhuma mudança em
+`offerQualityScore`.

@@ -193,6 +193,7 @@ describe("getMlAffiliateQueue", () => {
             condition: "new",
             shipping: { free_shipping: true },
             seller: { nickname: "LOJAOFICIAL", levelId: "5_green", powerSellerStatus: "gold" },
+            permalinkVerified: false,
           },
         },
       });
@@ -214,12 +215,77 @@ describe("getMlAffiliateQueue", () => {
         sellerNickname: "LOJAOFICIAL",
         sellerReputationLevel: "5_green",
         sellerPowerSellerStatus: "gold",
+        permalinkVerified: false,
       });
 
       // The worse offer is a real MerchantListing in its own right, but
       // was never the recommended one and must never leak into the
       // catalog row's displayed identity.
       expect(item!.publicUrl).not.toBe("https://produto.mercadolivre.com.br/worse-item");
+    });
+
+    it("URGENT FIX (2026-09-07): never claims a permalink is verified, even for a stale signal predating this field — an exhaustive real-API investigation found no endpoint that confirms a public permalink for a third-party Mercado Livre item (GET /items/{id}, multiget, unauthenticated, site search, buy_box_winner, pickers[].permalink — all blocked or empty)", async () => {
+      const canonical = await prisma.canonicalProduct.create({
+        data: {
+          slug: `test-canonical-legacy-${runId}`,
+          title: "Produto Legado Teste",
+          specifications: { catalogProductId: `TEST-CATALOG-LEGACY-${runId}` },
+        },
+      });
+      const catalogListing = await prisma.merchantListing.create({
+        data: {
+          merchantId,
+          externalId: `TEST-CATALOG-LEGACY-${runId}`,
+          externalIdType: "MERCHANT_PRODUCT_ID",
+          productUrl: "https://produto.mercadolivre.com.br/catalog-page",
+          canonicalProductId: canonical.id,
+        },
+      });
+      listingIds.push(catalogListing.id);
+      await prisma.monetizationScore.create({
+        data: {
+          merchantListingId: catalogListing.id,
+          score: 70,
+          confidence: 0.6,
+          components: {},
+          reasons: [],
+          missingSignals: [],
+        },
+      });
+
+      const legacyOffer = await prisma.merchantListing.create({
+        data: {
+          merchantId,
+          externalId: `TEST-OFFER-LEGACY-${runId}`,
+          externalIdType: "MERCHANT_PRODUCT_ID",
+          productUrl: "https://produto.mercadolivre.com.br/legacy-item",
+          canonicalProductId: canonical.id,
+        },
+      });
+      listingIds.push(legacyOffer.id);
+      await prisma.monetizationScore.create({
+        data: {
+          merchantListingId: legacyOffer.id,
+          score: 80,
+          confidence: 0.7,
+          components: {},
+          reasons: [],
+          missingSignals: [],
+        },
+      });
+      // Simulates a row persisted by the pre-fix version of
+      // scripts/ml-enrich-offers.ts — no permalinkVerified field at all.
+      await prisma.merchantListingSignal.create({
+        data: {
+          merchantListingId: legacyOffer.id,
+          source: "mercado_livre_catalog_items",
+          raw: { price: 99.9, original_price: null, condition: "new", shipping: { free_shipping: false } },
+        },
+      });
+
+      const queue = await getMlAffiliateQueue(50);
+      const item = queue.find((i) => i.merchantListingId === catalogListing.id);
+      expect(item?.bestOffer?.permalinkVerified).toBe(false);
     });
 
     it("falls back to demand-only display (bestOffer: null) for a catalog listing with no enriched real offers yet — never a fabricated offer", async () => {

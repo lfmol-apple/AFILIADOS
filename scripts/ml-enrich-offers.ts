@@ -16,6 +16,25 @@
  * items with this app's current DevCenter permissions. sold_quantity and
  * rating stay UNKNOWN; never guessed.
  *
+ * IMPORTANT — no verified public permalink exists (investigated 2026-09-07,
+ * urgent correction after a real productUrl bug — see git log for the full
+ * matrix). Every candidate was tested for real and rejected:
+ *   - GET /items/{id} (single, multiget, field-restricted, unauthenticated)
+ *     -> 403 for every variant tried.
+ *   - GET /products/{id}'s own `permalink` and every `pickers[].permalink`
+ *     -> always "" (empty) across 5 different real catalog products.
+ *   - `buy_box_winner` -> always null across the same 5 products.
+ *   - GET /sites/{site}/search (keyword or catalog_product_id) -> 403.
+ * MERCHANTLISTING.PRODUCTURL IS THEREFORE NOT A CONFIRMED NAVIGABLE LINK —
+ * it's a best-effort reference built from the real item_id on Mercado
+ * Livre's own produto.mercadolivre.com.br redirector domain (not a guessed
+ * slug/path), kept only because the schema requires a non-null URL and an
+ * item-specific reference beats a generic one. Every offer's
+ * MerchantListingSignal.raw carries `permalinkVerified: false` so nothing
+ * downstream (queue, admin UI, tests) is allowed to present it as a
+ * confirmed link — the operator's real, working path stays the official
+ * Mercado Livre affiliate portal search (unchanged since Phase 1).
+ *
  * Manual, human-run — not wired into jobs/ (same category as
  * scripts/shopee-first-cycle.ts and scripts/ml-demand-e2e-check.ts).
  * Idempotent: MerchantListing/CanonicalProduct rows are upserted by a
@@ -120,6 +139,13 @@ async function main() {
       }
       const seller = sellerCache.get(item.seller_id) ?? null;
 
+      // Not a confirmed permalink — see the file-level doc comment above
+      // for the full, real investigation. Item-specific (real item_id, ML's
+      // own redirector domain), but genuinely unverified: never presented
+      // as "the real link" downstream without permalinkVerified: false
+      // alongside it.
+      const bestEffortUrl = `https://produto.mercadolivre.com.br/${item.item_id}`;
+
       const offerListing = await prisma.merchantListing.upsert({
         where: {
           merchantId_marketplace_externalId: {
@@ -133,11 +159,16 @@ async function main() {
           externalId: item.item_id,
           externalIdType: "MERCHANT_PRODUCT_ID",
           marketplace: "BR",
-          productUrl: `https://produto.mercadolivre.com.br/${item.item_id}`,
+          productUrl: bestEffortUrl,
           source: "MANUAL_VERIFIED",
           canonicalProductId: canonical.id,
         },
-        update: { canonicalProductId: canonical.id },
+        // productUrl included here too — a rerun must correct any listing
+        // persisted by an earlier, buggier version of this script (the
+        // original bug this fix addresses: the upsert only ever touched
+        // canonicalProductId, so a stale/wrong productUrl from a prior run
+        // survived forever).
+        update: { canonicalProductId: canonical.id, productUrl: bestEffortUrl },
       });
       offersCreated++;
 
@@ -149,6 +180,7 @@ async function main() {
             ...item,
             discountPercent: getDiscountPercent(item),
             seller,
+            permalinkVerified: false,
           } as unknown as object,
         },
       });
