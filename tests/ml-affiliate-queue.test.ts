@@ -99,4 +99,134 @@ describe("getMlAffiliateQueue", () => {
       (await getMlAffiliateQueue(50)).map((i) => i.merchantListingId),
     ).toContain(listing.id);
   });
+
+  describe("Phase 2 — commercial enrichment (scripts/ml-enrich-offers.ts)", () => {
+    it("surfaces the best real seller offer's price/condition/seller for an enriched catalog product, and never a fictitious offer for a listing with no real offers", async () => {
+      const canonical = await prisma.canonicalProduct.create({
+        data: {
+          slug: `test-canonical-${runId}`,
+          title: "Produto Enriquecido Teste",
+          specifications: { catalogProductId: `TEST-CATALOG-${runId}` },
+        },
+      });
+
+      const catalogListing = await prisma.merchantListing.create({
+        data: {
+          merchantId,
+          externalId: `TEST-CATALOG-${runId}`,
+          externalIdType: "MERCHANT_PRODUCT_ID",
+          productUrl: "https://produto.mercadolivre.com.br/catalog-page",
+          canonicalProductId: canonical.id,
+        },
+      });
+      listingIds.push(catalogListing.id);
+      await prisma.monetizationScore.create({
+        data: {
+          merchantListingId: catalogListing.id,
+          score: 70,
+          confidence: 0.6,
+          components: {},
+          reasons: [],
+          missingSignals: [],
+        },
+      });
+
+      // Two real offers under the same canonical product — a worse one and
+      // a better one. The queue must pick the higher-scoring one, never
+      // average or fabricate a blended result.
+      const worseOffer = await prisma.merchantListing.create({
+        data: {
+          merchantId,
+          externalId: `TEST-OFFER-WORSE-${runId}`,
+          externalIdType: "MERCHANT_PRODUCT_ID",
+          productUrl: "https://produto.mercadolivre.com.br/worse-item",
+          canonicalProductId: canonical.id,
+        },
+      });
+      listingIds.push(worseOffer.id);
+      await prisma.monetizationScore.create({
+        data: {
+          merchantListingId: worseOffer.id,
+          score: 55,
+          confidence: 0.5,
+          components: {},
+          reasons: [],
+          missingSignals: [],
+        },
+      });
+      await prisma.merchantListingSignal.create({
+        data: {
+          merchantListingId: worseOffer.id,
+          source: "mercado_livre_catalog_items",
+          raw: { price: 199.9, original_price: null, condition: "used", shipping: { free_shipping: false } },
+        },
+      });
+
+      const betterOffer = await prisma.merchantListing.create({
+        data: {
+          merchantId,
+          externalId: `TEST-OFFER-BETTER-${runId}`,
+          externalIdType: "MERCHANT_PRODUCT_ID",
+          productUrl: "https://produto.mercadolivre.com.br/better-item",
+          canonicalProductId: canonical.id,
+        },
+      });
+      listingIds.push(betterOffer.id);
+      await prisma.monetizationScore.create({
+        data: {
+          merchantListingId: betterOffer.id,
+          score: 85,
+          confidence: 0.9,
+          components: {},
+          reasons: [],
+          missingSignals: [],
+        },
+      });
+      await prisma.merchantListingSignal.create({
+        data: {
+          merchantListingId: betterOffer.id,
+          source: "mercado_livre_catalog_items",
+          raw: {
+            price: 179.9,
+            original_price: 249.9,
+            discountPercent: 0.28,
+            condition: "new",
+            shipping: { free_shipping: true },
+            seller: { nickname: "LOJAOFICIAL", levelId: "5_green", powerSellerStatus: "gold" },
+          },
+        },
+      });
+
+      const queue = await getMlAffiliateQueue(50);
+      const item = queue.find((i) => i.merchantListingId === catalogListing.id);
+      expect(item).toBeDefined();
+      // The queue item's identity (merchantListingId) stays the catalog
+      // row — only its DISPLAYED data is upgraded to the best offer.
+      expect(item!.merchantListingId).toBe(catalogListing.id);
+      expect(item!.publicUrl).toBe("https://produto.mercadolivre.com.br/better-item");
+      expect(item!.monetizationScore).toBe(85);
+      expect(item!.bestOffer).toEqual({
+        price: 179.9,
+        originalPrice: 249.9,
+        discountPercent: 0.28,
+        condition: "new",
+        freeShipping: true,
+        sellerNickname: "LOJAOFICIAL",
+        sellerReputationLevel: "5_green",
+        sellerPowerSellerStatus: "gold",
+      });
+
+      // The worse offer is a real MerchantListing in its own right, but
+      // was never the recommended one and must never leak into the
+      // catalog row's displayed identity.
+      expect(item!.publicUrl).not.toBe("https://produto.mercadolivre.com.br/worse-item");
+    });
+
+    it("falls back to demand-only display (bestOffer: null) for a catalog listing with no enriched real offers yet — never a fabricated offer", async () => {
+      const listing = await makeListing({ score: 60, hasActiveLink: false });
+      const queue = await getMlAffiliateQueue(50);
+      const item = queue.find((i) => i.merchantListingId === listing.id);
+      expect(item?.bestOffer).toBeNull();
+    });
+  });
 });

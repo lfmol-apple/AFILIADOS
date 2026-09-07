@@ -152,4 +152,117 @@ describe("MercadoLivreProvider", () => {
     const provider = new MercadoLivreProvider();
     expect(await provider.getCatalogProductName("MLB000000")).toBeNull();
   });
+
+  it("getCatalogProductDetail returns the full real shape and tolerates a product with no GTIN attribute (confirmed live: not always present)", async () => {
+    vi.stubEnv("MERCADO_LIVRE_ENABLED", "true");
+    vi.stubEnv("MERCADO_LIVRE_API_ENABLED", "true");
+    vi.stubEnv("MERCADO_LIVRE_ACCESS_TOKEN", "test-token-123");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          id: "MLB78878512",
+          name: "Smartphone Samsung Galaxy A17",
+          domain_id: "MLB-CELLPHONES",
+          pictures: [{ url: "https://http2.mlstatic.com/x.jpg" }],
+          attributes: [
+            { id: "BRAND", value_name: "Samsung" },
+            { id: "MODEL", value_name: "Galaxy A17" },
+            // no GTIN entry — must not throw or fabricate one.
+          ],
+        }),
+      })),
+    );
+    const { MercadoLivreProvider, findAttribute } = await import(
+      "@/lib/providers/mercado-livre-provider"
+    );
+    const provider = new MercadoLivreProvider();
+    const detail = await provider.getCatalogProductDetail("MLB78878512");
+    expect(detail?.name).toBe("Smartphone Samsung Galaxy A17");
+    expect(findAttribute(detail!, "BRAND")).toBe("Samsung");
+    expect(findAttribute(detail!, "GTIN")).toBeUndefined();
+  });
+
+  it("getCatalogProductItems calls GET /products/{id}/items and returns real seller offers, tolerating a null original_price (no discount)", async () => {
+    vi.stubEnv("MERCADO_LIVRE_ENABLED", "true");
+    vi.stubEnv("MERCADO_LIVRE_API_ENABLED", "true");
+    vi.stubEnv("MERCADO_LIVRE_ACCESS_TOKEN", "test-token-123");
+    const fetchSpy = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        paging: { total: 1, offset: 0, limit: 100 },
+        results: [
+          {
+            item_id: "MLB7594574392",
+            seller_id: 127987360,
+            price: 949,
+            original_price: null,
+            currency_id: "BRL",
+            condition: "new",
+            shipping: { free_shipping: true },
+          },
+        ],
+      }),
+    }));
+    vi.stubGlobal("fetch", fetchSpy);
+    const { MercadoLivreProvider } = await import(
+      "@/lib/providers/mercado-livre-provider"
+    );
+    const provider = new MercadoLivreProvider();
+    const items = await provider.getCatalogProductItems("MLB78878512");
+    expect(fetchSpy).toHaveBeenCalledWith(
+      expect.stringContaining("/products/MLB78878512/items"),
+      expect.anything(),
+    );
+    expect(items).toHaveLength(1);
+    expect(items[0]!.item_id).toBe("MLB7594574392");
+    expect(items[0]!.original_price).toBeNull();
+  });
+
+  it("getCatalogProductItems returns an empty array for a 404 rather than throwing", async () => {
+    vi.stubEnv("MERCADO_LIVRE_ENABLED", "true");
+    vi.stubEnv("MERCADO_LIVRE_API_ENABLED", "true");
+    vi.stubEnv("MERCADO_LIVRE_ACCESS_TOKEN", "test-token-123");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({ ok: false, status: 404, json: async () => ({}) })),
+    );
+    const { MercadoLivreProvider } = await import(
+      "@/lib/providers/mercado-livre-provider"
+    );
+    const provider = new MercadoLivreProvider();
+    expect(await provider.getCatalogProductItems("MLB000000")).toEqual([]);
+  });
+
+  it("getSellerReputation maps the real response shape and tolerates a seller with no reputation history yet (level_id: null — a real, confirmed shape for a NEWBIE seller)", async () => {
+    vi.stubEnv("MERCADO_LIVRE_ENABLED", "true");
+    vi.stubEnv("MERCADO_LIVRE_API_ENABLED", "true");
+    vi.stubEnv("MERCADO_LIVRE_ACCESS_TOKEN", "test-token-123");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          nickname: "SOMESELLER",
+          seller_reputation: { level_id: null, power_seller_status: null, transactions: { total: 0 } },
+        }),
+      })),
+    );
+    const { MercadoLivreProvider } = await import(
+      "@/lib/providers/mercado-livre-provider"
+    );
+    const provider = new MercadoLivreProvider();
+    const reputation = await provider.getSellerReputation(123);
+    expect(reputation).toEqual({
+      sellerId: 123,
+      nickname: "SOMESELLER",
+      levelId: null,
+      powerSellerStatus: null,
+      transactionsTotal: 0,
+    });
+  });
 });

@@ -109,6 +109,106 @@ export class MercadoLivreProvider implements CommerceProvider {
     return body.name ?? null;
   }
 
+  /**
+   * Full catalog product detail — brand/model/GTIN/domain/images. Confirmed
+   * live (2026-09-07) against a real highlighted product: `attributes[]`
+   * carries BRAND/LINE/MODEL (GTIN present only sometimes — never assumed).
+   * Used for commercial enrichment (Phase 2), not by the demand sources
+   * (which only need the display name via getCatalogProductName above).
+   */
+  async getCatalogProductDetail(productId: string): Promise<MercadoLivreCatalogProduct | null> {
+    const response = await fetch(`${API_BASE}/products/${encodeURIComponent(productId)}`, {
+      headers: { Authorization: `Bearer ${this.accessToken}` },
+    });
+    if (response.status === 404) return null;
+    if (!response.ok) {
+      logger.error("mercado_livre.fetch_catalog_product_detail_failed", {
+        productId,
+        status: response.status,
+      });
+      throw new Error(
+        `MercadoLivreProvider.getCatalogProductDetail(${productId}) failed: HTTP ${response.status}`,
+      );
+    }
+    return (await response.json()) as MercadoLivreCatalogProduct;
+  }
+
+  /**
+   * GET /products/{id}/items — the real, working, API-native association
+   * between a catalog product and the sellers' actual offers/listings for
+   * it. Confirmed live (2026-09-07): returns real item_id/seller_id/price/
+   * original_price/condition/shipping/sale_terms per offer. This is the
+   * relationship itself asserted by Mercado Livre, not inferred/guessed —
+   * every item returned here genuinely belongs to this catalog product.
+   *
+   * Deliberately NOT followed by a GET /items/{id} call per item: that
+   * endpoint returned 403 PA_UNAUTHORIZED_RESULT_FROM_POLICIES for every
+   * other seller's item tested (this app's own items would presumably
+   * work, but there are none) — this app's current DevCenter permissions
+   * don't cover reading other sellers' full item detail. Everything this
+   * phase needs (price, discount, condition, shipping, seller id) is
+   * already inline in this endpoint's response, so no second call is
+   * needed. sold_quantity and rating/reviews are NOT available here or via
+   * GET /reviews/item/{id} (also 403) — left as UNKNOWN, never guessed.
+   */
+  async getCatalogProductItems(productId: string): Promise<MercadoLivreCatalogItem[]> {
+    const response = await fetch(
+      `${API_BASE}/products/${encodeURIComponent(productId)}/items`,
+      { headers: { Authorization: `Bearer ${this.accessToken}` } },
+    );
+    if (response.status === 404) return [];
+    if (!response.ok) {
+      logger.error("mercado_livre.fetch_catalog_product_items_failed", {
+        productId,
+        status: response.status,
+      });
+      throw new Error(
+        `MercadoLivreProvider.getCatalogProductItems(${productId}) failed: HTTP ${response.status}`,
+      );
+    }
+    const body = (await response.json()) as { results: MercadoLivreCatalogItem[] };
+    return body.results;
+  }
+
+  /**
+   * GET /users/{sellerId} — confirmed live (2026-09-07): works for any
+   * seller id (not just this app's own account), returns real
+   * seller_reputation (level_id, power_seller_status, transactions.total).
+   * A real, legitimate trust signal — never confused with affiliate
+   * commission, which this project has no programmatic access to at all
+   * (see docs/AFFILIATE_LINK_REGISTRY.md).
+   */
+  async getSellerReputation(sellerId: number): Promise<MercadoLivreSellerReputation | null> {
+    const response = await fetch(`${API_BASE}/users/${sellerId}`, {
+      headers: { Authorization: `Bearer ${this.accessToken}` },
+    });
+    if (response.status === 404) return null;
+    if (!response.ok) {
+      logger.error("mercado_livre.fetch_seller_reputation_failed", {
+        sellerId,
+        status: response.status,
+      });
+      throw new Error(
+        `MercadoLivreProvider.getSellerReputation(${sellerId}) failed: HTTP ${response.status}`,
+      );
+    }
+    const body = (await response.json()) as {
+      nickname?: string;
+      seller_reputation?: {
+        level_id: string | null;
+        power_seller_status: string | null;
+        transactions?: { total?: number };
+      };
+    };
+    return {
+      sellerId,
+      nickname: body.nickname ?? null,
+      levelId: body.seller_reputation?.level_id ?? null,
+      powerSellerStatus: body.seller_reputation?.power_seller_status ?? null,
+      transactionsTotal: body.seller_reputation?.transactions?.total ?? null,
+    };
+  }
+
   async getProducts(externalIds: string[]): Promise<NormalizedProduct[]> {
     // GET /items/{id} is the only item-lookup shape confirmed by research;
     // a bulk `/items?ids=...` variant is commonly referenced elsewhere but
@@ -179,12 +279,15 @@ interface MercadoLivreItem {
   attributes?: Array<{ id: string; value_name: string | null }>;
 }
 
-function findAttribute(
-  item: MercadoLivreItem,
+/** Shared by toNormalizedProduct (items) and the enrichment script
+ * (catalog products) — both shapes carry the same `{id, value_name}[]`
+ * attributes array. */
+export function findAttribute(
+  entity: { attributes?: Array<{ id: string; value_name: string | null }> },
   attributeId: string,
 ): string | undefined {
   return (
-    item.attributes?.find((a) => a.id === attributeId)?.value_name ?? undefined
+    entity.attributes?.find((a) => a.id === attributeId)?.value_name ?? undefined
   );
 }
 
@@ -218,4 +321,44 @@ function toNormalizedProduct(item: MercadoLivreItem): NormalizedProduct {
       : undefined,
     offer,
   };
+}
+
+// Shapes confirmed against real live responses (2026-09-07) — only the
+// fields this codebase actually reads are typed, not a full schema.
+
+/** GET /products/{id}. `attributes` intentionally left as the raw
+ * id/value_name pairs (not narrowed) — callers pick out BRAND/LINE/MODEL/
+ * GTIN via findAttribute, same helper toNormalizedProduct already uses,
+ * since which attributes exist varies by domain_id and isn't guessed here. */
+export interface MercadoLivreCatalogProduct {
+  id: string;
+  name: string;
+  domain_id?: string;
+  family_name?: string;
+  status?: string;
+  pictures?: Array<{ url: string }>;
+  attributes?: Array<{ id: string; value_name: string | null }>;
+}
+
+/** One entry of GET /products/{id}/items's `results[]` — a real seller
+ * offer for that catalog product. `original_price` is null when there is
+ * no discount (confirmed: both shapes seen live). sold_quantity is NOT
+ * part of this response — never assumed present. */
+export interface MercadoLivreCatalogItem {
+  item_id: string;
+  seller_id: number;
+  price: number;
+  original_price: number | null;
+  currency_id: string;
+  condition: string;
+  category_id?: string;
+  shipping?: { free_shipping?: boolean };
+}
+
+export interface MercadoLivreSellerReputation {
+  sellerId: number;
+  nickname: string | null;
+  levelId: string | null;
+  powerSellerStatus: string | null;
+  transactionsTotal: number | null;
 }

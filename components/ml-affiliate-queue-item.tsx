@@ -25,6 +25,16 @@ export interface MlAffiliateQueueItemProps {
     commissionRate: number | null;
     estimatedCommissionAmount: string | null;
   } | null;
+  bestOffer: {
+    price: number;
+    originalPrice: number | null;
+    discountPercent: number | null;
+    condition: string | null;
+    freeShipping: boolean | null;
+    sellerNickname: string | null;
+    sellerReputationLevel: string | null;
+    sellerPowerSellerStatus: string | null;
+  } | null;
 }
 
 export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
@@ -91,6 +101,33 @@ export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
           </p>
         </div>
       </div>
+
+      {props.bestOffer ? (
+        <dl className="text-foreground/60 mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+          <div>
+            Preço:{" "}
+            {props.bestOffer.price.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })}
+            {props.bestOffer.discountPercent !== null &&
+              ` (−${Math.round(props.bestOffer.discountPercent * 100)}%)`}
+          </div>
+          <div>Condição: {props.bestOffer.condition ?? "—"}</div>
+          <div>Frete grátis: {props.bestOffer.freeShipping ? "sim" : "não"}</div>
+          <div>
+            Vendedor: {props.bestOffer.sellerNickname ?? "—"}
+            {props.bestOffer.sellerReputationLevel &&
+              ` (reputação: ${props.bestOffer.sellerReputationLevel})`}
+          </div>
+        </dl>
+      ) : (
+        <p className="text-foreground/50 mt-2 text-xs">
+          Ainda sem oferta de vendedor enriquecida — mostrando apenas o sinal
+          de demanda. Rode scripts/ml-enrich-offers.ts para investigar ofertas
+          reais.
+        </p>
+      )}
 
       {props.monetizationReasons.length > 0 && (
         <ul className="text-foreground/60 mt-2 list-disc pl-4 text-xs">

@@ -149,3 +149,100 @@ reais configurados.
 5. Nenhum job ainda chama `ShopeeProvider`/`MercadoLivreProvider` automaticamente para popular
    `MerchantListing`/`MerchantListingSignal` em escala — hoje isso só acontece via
    `scripts/ml-demand-e2e-check.ts` (manual) ou a fila `/admin` (manual, só Mercado Livre).
+
+## Fase 2 — enriquecimento comercial do Mercado Livre (2026-09-07)
+
+### Matriz de capacidades (investigação real, app "Preço Caindo")
+
+Toda linha abaixo foi confirmada com uma chamada real e autenticada contra `api.mercadolibre.com`
+— nada foi assumido a partir de documentação sem testar.
+
+| Sinal | Disponível? | Endpoint/Fonte | Qualidade | Persistência | Ação |
+| --- | --- | --- | --- | --- | --- |
+| Título do catalog product | SIM | `GET /products/{id}` `.name` | OBSERVED | `CanonicalProduct.title` | reutilizado |
+| Imagem do catalog product | SIM | `GET /products/{id}` `.pictures[]` | OBSERVED | `CanonicalProduct.imageUrl` | novo |
+| Marca/Modelo/Linha | SIM | `.attributes[BRAND\|MODEL\|LINE]` | OBSERVED | `CanonicalProduct.brand/model/specifications` | novo |
+| GTIN/EAN | PARCIAL — nem todo produto tem | `.attributes[GTIN]` | OBSERVED quando presente | `CanonicalProduct.gtin` | novo, `null` quando ausente |
+| domain_id/categoria | SIM | `.domain_id` | OBSERVED | `CanonicalProduct.specifications` | novo |
+| **Ofertas/itens do catalog product** | **SIM** | `GET /products/{id}/items` — associação nativa da própria API, não inferida | OBSERVED | 1 `MerchantListing` por oferta real | novo |
+| Preço da oferta | SIM | `.results[].price` | OBSERVED | `MerchantListingSignal.raw` | novo |
+| Preço anterior/desconto real | PARCIAL — só quando existe | `.results[].original_price` | OBSERVED quando presente | `MerchantListingSignal.raw` | novo |
+| Condição (novo/usado) | SIM | `.results[].condition` | OBSERVED | `MerchantListingSignal.raw` | novo |
+| Frete grátis | SIM | `.results[].shipping.free_shipping` | OBSERVED | `MerchantListingSignal.raw` | novo |
+| Vendedor (id) | SIM | `.results[].seller_id` | OBSERVED | `MerchantListingSignal.raw` | novo |
+| Reputação do vendedor | SIM | `GET /users/{sellerId}` `.seller_reputation` | OBSERVED | `MerchantListingSignal.raw.seller` | novo |
+| **Sold quantity por oferta** | **NÃO** — `GET /items/{id}` retorna 403 `PA_UNAUTHORIZED_RESULT_FROM_POLICIES` para itens de outros vendedores com as permissões atuais do app; não vem em `/products/{id}/items` | — | UNKNOWN | — | nunca inventado |
+| **Rating/reviews da oferta** | **NÃO** — `GET /reviews/item/{id}` retorna o mesmo 403 | — | UNKNOWN | — | nunca inventado |
+| **Comissão de afiliado** | **NÃO** — nenhum endpoint de afiliados no escopo desta aplicação; a única via oficial continua o portal manual (`afiliados.mercadolivre.com.br`) | — | UNKNOWN | — | nunca estimado a partir de taxas do vendedor (que são uma coisa diferente) |
+
+Achado estrutural: `GET /items/{id}` (usado por `MercadoLivreProvider.getProduct`) funciona para
+qualquer id, mas retorna 403 para itens de **outros vendedores** — não é necessário para o
+enriquecimento, porque `GET /products/{id}/items` já traz preço/condição/frete/vendedor inline.
+
+### Modelagem — por que sem migration e sem nova entidade
+
+Cada oferta real vira um `MerchantListing` de verdade (não uma "oferta fictícia" — é o modelo
+semântico correto para "isto é o que um vendedor real está cobrando"). A ligação
+catalog-product → CanonicalProduct → ofertas usa `MerchantListing.canonicalProductId` diretamente,
+**sem** passar por `ProductMatchEvidence`: esse mecanismo existe para correlacionar duas ofertas de
+**merchants diferentes** com evidência heurística (GTIN/marca+modelo/textual) que precisa ser
+auditável porque pode estar errada. Aqui a relação catalog-product↔oferta é **afirmada pela própria
+API da Mercado Livre** (`GET /products/{id}/items`), não inferida — não há "candidato" a registrar.
+`ProductMatcher`/`ProductMatchEvidence` continuam intactos e prontos para o próximo passo real desta
+arquitetura: cruzar esse `CanonicalProduct` (agora com marca/modelo/GTIN reais) contra ofertas da
+Shopee.
+
+`CanonicalProduct.specifications.catalogProductId` guarda o id do catalog product que originou cada
+grupo — é assim que `getMlAffiliateQueue`/`getTodaysOpportunities` distinguem "a linha de demanda
+abstrata" de "uma oferta real" sem precisar de uma migration nova (`ExternalIdType` não ganhou um
+valor `CATALOG_PRODUCT_ID`; não havia necessidade real).
+
+### Fila inteligente — o que mudou
+
+`getMlAffiliateQueue` (evoluída, não recriada) agora, para cada produto com demanda aprovada, busca
+a melhor oferta real entre as persistidas por `scripts/ml-enrich-offers.ts` (maior
+`MonetizationScore`) e troca os campos exibidos (preço, desconto, condição, frete, vendedor,
+reputação, URL) pelos dela — mas o `merchantListingId` continua sendo o da linha de demanda, então
+salvar um link continua funcionando exatamente como antes. Sem oferta enriquecida ainda, cai de
+volta no comportamento anterior (só demanda), nunca quebra.
+
+**Bug real encontrado e corrigido durante esta fase**: a primeira versão deixava cada oferta real
+concorrer como sua própria linha de fila — com 179 ofertas reais persistidas para 18 produtos, a
+fila (e a lista unificada `/admin`) ficou inundada de ofertas individuais e nenhum produto-catálogo
+apareceu. Corrigido excluindo explicitamente (`signals: { none: { source:
+"mercado_livre_catalog_items" } }`) linhas de oferta da consulta de candidatos — elas só aparecem
+como o `bestOffer` embutido do produto, nunca como sua própria oportunidade.
+
+### `MonetizationScore` da oferta
+
+`demandSignal` = o score de demanda já calculado da linha de catálogo (herdado, `DERIVED_FROM_OBSERVED`
+— é demanda do produto, não desta oferta específica). `offerQualitySignal` = `offerQualityScore()`
+(`lib/services/ml-offer-quality.ts`), função pura e documentada: condição nova (+20), frete grátis
+(+15), desconto real (até +15), reputação do vendedor (−10 a +15, `null`/nível não reconhecido = 0,
+nunca penalizado por falta de dado). `commissionSignal`/`trendSignal`/`historicalConversionSignal`
+ficam `null` (UNKNOWN) — nenhum dado real existe para eles ainda.
+
+### `providerMode` (health) — investigado, não é o que parecia
+
+`providerMode`/`contentGenerationMode` no `/api/health` refletem **exclusivamente**
+`AMAZON_PROVIDER`/`CONTENT_GENERATION` (`lib/providers/index.ts`) — controlam só se
+`AmazonProvider` (real) ou `MockAmazonProvider` (fake) é instanciado para a Amazon, e só a geração
+de conteúdo por IA. **Não têm nenhuma relação com Shopee ou Mercado Livre** — essas duas integrações
+não têm modo mock: cada método falha explicitamente sem token/credencial real, nunca substitui por
+dado fake (ver `ShopeeProvider`/`MercadoLivreProvider`). `MerchantListing`/`MerchantListingSignal`
+(onde Shopee/ML escrevem) são tabelas completamente separadas de `Product`/`Offer` (onde
+Amazon/mock escreve) — não há como misturar dado mock com dado real entre eles. Mudar
+`AMAZON_PROVIDER` para `live` é uma decisão separada, gated por `docs/AMAZON_COMPLIANCE.md`, fora do
+escopo desta fase — **não alterado**.
+
+### Automação — risco operacional real, não implementado nesta fase
+
+Os 13 jobs em `jobs/index.ts` são todos Amazon-only; nenhum lock/cron novo foi criado para Shopee/ML
+nesta fase (o briefing pediu explicitamente para não duplicar cron). Risco real encontrado: **não
+existe refresh automático de `MERCADO_LIVRE_ACCESS_TOKEN`** em lugar nenhum do código — o token
+expira em ~6h após emissão. Solução mínima proposta e implementada: `scripts/ml-refresh-token.ts`,
+utilitário manual (nunca chamado por cron) que troca `MERCADO_LIVRE_REFRESH_TOKEN` por um par
+access/refresh novo via `POST /oauth/token` e grava no `.env` local sem nunca imprimir os valores.
+Continua exigindo que um humano rode o script (ou repita o fluxo OAuth completo) periodicamente —
+automatizar isso com segurança (rotação atômica, sem downtime, sem vazar o refresh_token em log de
+cron) fica para uma fase futura, quando fizer sentido decidir isso junto com os outros 13 jobs.

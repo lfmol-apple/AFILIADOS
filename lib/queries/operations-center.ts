@@ -48,17 +48,29 @@ const MERCHANT_TO_CTA_SEGMENT: Record<"SHOPEE" | "MERCADO_LIVRE", string> = {
 export async function getTodaysOpportunities(
   limit: number = 20,
 ): Promise<OperationsOpportunity[]> {
+  // Excludes real per-seller offer rows (scripts/ml-enrich-offers.ts,
+  // MerchantListingSignal.source "mercado_livre_catalog_items") at the DB
+  // level — a catalog product can have dozens of those, and none of them
+  // is its own separate "opportunity" here (they're surfaced only as the
+  // catalog row's enriched bestOffer via the ML pending-link queue,
+  // lib/queries/ml-affiliate-queue.ts). A JS-side post-filter after a
+  // fixed `take` was tried first and was wrong: with enough real offers
+  // outranking the catalog rows by score, the buffer could fill entirely
+  // with offers, filtering every catalog row away before it was even
+  // fetched (found 2026-09-07: 179 real offers outranked all 18 catalog
+  // rows). Harmless no-op for Shopee, which never writes that source.
   const listings = await prisma.merchantListing.findMany({
     where: {
       active: true,
       merchant: { code: { in: ["SHOPEE", "MERCADO_LIVRE"] } },
       monetizationScore: { isNot: null },
+      signals: { none: { source: "mercado_livre_catalog_items" } },
     },
     include: {
       merchant: { select: { code: true } },
       affiliateLink: true,
       monetizationScore: true,
-      canonicalProduct: { select: { title: true } },
+      canonicalProduct: { select: { title: true, imageUrl: true, specifications: true } },
       signals: { orderBy: { observedAt: "desc" }, take: 1 },
     },
     orderBy: { monetizationScore: { score: "desc" } },
@@ -70,11 +82,12 @@ export async function getTodaysOpportunities(
       (l): l is typeof l & { merchant: { code: "SHOPEE" | "MERCADO_LIVRE" } } =>
         l.merchant.code === "SHOPEE" || l.merchant.code === "MERCADO_LIVRE",
     )
+    .slice(0, limit)
     .map((listing) => {
       const merchant = listing.merchant.code;
       const signal = listing.signals[0];
       const raw = signal?.raw as
-        | { productName?: string; imageUrl?: string; priceMin?: string }
+        | { productName?: string; imageUrl?: string; priceMin?: string; price?: number }
         | null;
 
       const linkStatus: OpportunityLinkStatus =
@@ -84,13 +97,13 @@ export async function getTodaysOpportunities(
             ? "PENDING_HUMAN"
             : "NONE";
 
-      const price = raw?.priceMin ? Number(raw.priceMin) : null;
+      const price = raw?.priceMin ? Number(raw.priceMin) : (raw?.price ?? null);
 
       return {
         merchantListingId: listing.id,
         merchant,
         title: listing.canonicalProduct?.title ?? raw?.productName ?? listing.externalId,
-        imageUrl: raw?.imageUrl ?? null,
+        imageUrl: listing.canonicalProduct?.imageUrl ?? raw?.imageUrl ?? null,
         price: price !== null && !Number.isNaN(price) ? price : null,
         commissionRate: signal?.commissionRate ?? null,
         soldQuantity: signal?.soldQuantity ?? null,

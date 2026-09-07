@@ -97,6 +97,14 @@ const envSchema = z.object({
   MERCADO_LIVRE_API_ENABLED: booleanFromEnvDefault(false),
   MERCADO_LIVRE_SITE_ID: z.string().default("MLB"),
   MERCADO_LIVRE_ACCESS_TOKEN: z.string().default(""),
+  // Only used by scripts/ml-refresh-token.ts (a manual, human-run utility
+  // — never called by the app itself). MERCADO_LIVRE_ACCESS_TOKEN expires
+  // ~6h after OAuth issuance; no automated refresh job exists yet (see
+  // docs/MONETIZATION_SCORE.md's "Automação" section for the operational
+  // risk this represents and why it wasn't built into jobs/ this phase).
+  MERCADO_LIVRE_CLIENT_ID: z.string().default(""),
+  MERCADO_LIVRE_CLIENT_SECRET: z.string().default(""),
+  MERCADO_LIVRE_REFRESH_TOKEN: z.string().default(""),
 
   // --- Shopee Affiliate API (lib/providers/shopee-provider.ts) ---
   // Corrected 2026-09-07: earlier research looked at Shopee Open Platform
