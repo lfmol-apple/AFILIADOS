@@ -32,7 +32,17 @@ const MERCHANTS: Record<MerchantCode, MerchantPublicConfig> = {
     code: "mercado-livre",
     name: "Mercado Livre",
     status: "prepared",
-    allowedHosts: ["mercadolivre.com.br", "www.mercadolivre.com.br"],
+    // .com.br hosts are the plain product pages; .com/sec/... and
+    // .com.br/social/... are the short-link formats their affiliate link
+    // generator produces (confirmed via research, 2026-09-07 — see
+    // docs/AFFILIATE_LINK_REGISTRY.md) — both must validate for a human to
+    // paste a real generated link into the admin queue.
+    allowedHosts: [
+      "mercadolivre.com.br",
+      "www.mercadolivre.com.br",
+      "mercadolivre.com",
+      "www.mercadolivre.com",
+    ],
     affiliateEnabled: false,
   },
   shopee: {

@@ -51,4 +51,39 @@ describe("merchant routing config", () => {
       }),
     ).toThrow(/ainda não possui integração/);
   });
+
+  it("mercado-livre accepts both the plain product host and the affiliate short-link hosts (.com/sec, .com.br/social)", async () => {
+    const { assertAllowedMerchantDestination } =
+      await import("@/lib/merchants/config");
+    expect(() =>
+      assertAllowedMerchantDestination(
+        "https://www.mercadolivre.com.br/produto/p/MLB1",
+        "mercado-livre",
+      ),
+    ).not.toThrow();
+    expect(() =>
+      assertAllowedMerchantDestination(
+        "https://mercadolivre.com/sec/1AbCdEf",
+        "mercado-livre",
+      ),
+    ).not.toThrow();
+    expect(() =>
+      assertAllowedMerchantDestination(
+        "https://not-mercadolivre.example.com/sec/1AbCdEf",
+        "mercado-livre",
+      ),
+    ).toThrow(/não autorizado/);
+  });
+
+  it("amazon's allowed hosts and live status are unaffected by the mercado-livre host list change", async () => {
+    const { getMerchantConfig } = await import("@/lib/merchants/config");
+    const amazon = getMerchantConfig("amazon");
+    expect(amazon.status).toBe("live");
+    expect(amazon.allowedHosts).toEqual([
+      "amazon.com.br",
+      "www.amazon.com.br",
+      "amazon.com",
+      "www.amazon.com",
+    ]);
+  });
 });
