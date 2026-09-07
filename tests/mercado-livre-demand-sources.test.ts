@@ -116,4 +116,33 @@ describe("MercadoLivreBestsellerDemandSource", () => {
 
     expect(signals).toEqual([]);
   });
+
+  it("collectRaw() preserves the real itemId — needed by anything that persists a MerchantListing row (scripts/ml-demand-e2e-check.ts)", async () => {
+    vi.stubEnv("MERCADO_LIVRE_ENABLED", "true");
+    vi.stubEnv("MERCADO_LIVRE_API_ENABLED", "true");
+    vi.stubEnv("MERCADO_LIVRE_ACCESS_TOKEN", "test-token");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          content: [{ id: "MLB1", position: 1, type: "ITEM" }],
+        }),
+      })),
+    );
+
+    const { MercadoLivreBestsellerDemandSource } = await import(
+      "@/lib/demand/sources/mercado-livre-bestseller-demand-source"
+    );
+    const source = new MercadoLivreBestsellerDemandSource(
+      "MLB1051",
+      async () => "Air Fryer XPTO",
+    );
+    const raw = await source.collectRaw();
+
+    expect(raw).toEqual([
+      { itemId: "MLB1", position: 1, title: "Air Fryer XPTO" },
+    ]);
+  });
 });

@@ -4,6 +4,12 @@ import type { DemandSignal, DemandSource } from "../types";
 
 const API_BASE = "https://api.mercadolibre.com";
 
+export interface ResolvedHighlight {
+  itemId: string;
+  position: number;
+  title: string;
+}
+
 /**
  * GET /highlights/{site_id}/category/{category_id} — confirmed via
  * developers.mercadolibre.com research on 2026-09-07: returns the top 20
@@ -12,17 +18,23 @@ const API_BASE = "https://api.mercadolibre.com";
  * (e.g. "MLB1481736854"), not a natural-language keyword. Requires
  * Authorization: Bearer, same as trends.
  *
- * A DemandSignal needs a real keyword, so this source resolves each item's
- * title via `resolveTitle` (inject `MercadoLivreProvider.getProduct` in
- * real use; a fake resolver in tests) rather than using the raw item id as
- * a fabricated "keyword". An item that fails to resolve is skipped, never
- * given a placeholder title.
+ * `collectRaw()` is the source of truth (real item id + real position +
+ * resolved title); `collect()` maps it to the DemandSignal shape the wider
+ * DemandEngine expects (keyword-only — see lib/demand/types.ts, a shared
+ * interface this file must not change just for its own convenience). Any
+ * caller that needs the actual item id (e.g. to persist a
+ * MerchantListing/MerchantListingSignal row — see
+ * scripts/ml-demand-e2e-check.ts) must use `collectRaw()`, not `collect()`.
  *
- * `observedCount` is the same rank-inversion as
- * MercadoLivreTrendsDemandSource, derived from the real `position` field —
- * never a fabricated volume. Also not wired into
- * lib/demand/index.ts's DEFAULT_SOURCES — see that file's sibling
- * trends source for why.
+ * Each item's title is resolved via `resolveTitle` (inject
+ * `MercadoLivreProvider.getProduct` in real use; a fake resolver in tests)
+ * rather than using the raw item id as a fabricated "keyword". An item
+ * that fails to resolve is skipped, never given a placeholder title.
+ *
+ * `observedCount`/position-derived weight: rank-inverted from the real
+ * `position` field, never a fabricated volume. Also not wired into
+ * lib/demand/index.ts's DEFAULT_SOURCES — see that file's sibling trends
+ * source for why.
  */
 export class MercadoLivreBestsellerDemandSource implements DemandSource {
   readonly name = "mercado_livre_highlights";
@@ -33,6 +45,18 @@ export class MercadoLivreBestsellerDemandSource implements DemandSource {
   ) {}
 
   async collect(): Promise<DemandSignal[]> {
+    const highlights = await this.collectRaw();
+    const total = highlights.length;
+    return highlights.map((h) => ({
+      keyword: h.title,
+      intent: "BEST_OF",
+      source: this.name,
+      category: this.categoryId,
+      observedCount: Math.max(1, total - h.position + 1),
+    }));
+  }
+
+  async collectRaw(): Promise<ResolvedHighlight[]> {
     if (
       !env.MERCADO_LIVRE_ENABLED ||
       !env.MERCADO_LIVRE_API_ENABLED ||
@@ -63,23 +87,16 @@ export class MercadoLivreBestsellerDemandSource implements DemandSource {
       content: Array<{ id: string; position: number; type: string }>;
     };
 
-    const signals = await Promise.all(
+    const resolved = await Promise.all(
       body.content
         .filter((entry) => entry.type === "ITEM")
-        .map(async (entry) => {
+        .map(async (entry): Promise<ResolvedHighlight | null> => {
           const title = await this.resolveTitle(entry.id);
           if (!title) return null;
-          const signal: DemandSignal = {
-            keyword: title,
-            intent: "BEST_OF",
-            source: this.name,
-            category: this.categoryId,
-            observedCount: Math.max(1, body.content.length - entry.position + 1),
-          };
-          return signal;
+          return { itemId: entry.id, position: entry.position, title };
         }),
     );
 
-    return signals.filter((s): s is DemandSignal => s !== null);
+    return resolved.filter((h): h is ResolvedHighlight => h !== null);
   }
 }

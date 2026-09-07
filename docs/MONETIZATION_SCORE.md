@@ -86,15 +86,16 @@ rede — nunca um fallback silencioso, nunca scraping.
 (busca de catálogo) e um endpoint de multi-lookup de itens (`getProducts` chama `/items/{id}`
 individualmente ao invés de assumir um formato de lote não confirmado).
 
-## Shopee — por que continua 100% NOT_CONFIGURED
+## Shopee — corrigido: API de Afiliados real (não mais NOT_CONFIGURED incondicional)
 
-Pesquisa confirmou: não existe API pública/anônima da Shopee. O Open Platform deles exige
-aplicação de parceiro aprovada (Partner ID + Partner Key) e assinatura HMAC em toda requisição,
-inclusive as de leitura. `ShopeeProvider` não implementa nenhuma chamada real — todo método lança
-`NotConfiguredError` incondicionalmente. A arquitetura (`MerchantListingSignal` com
-`commissionRate`/`sellerExtraCommission`/`soldQuantity`/`rating`/etc., todos opcionais) já está
-pronta para receber dados reais assim que houver credencial confirmada — sem precisar
-reconstruir nada.
+**Esta seção estava errada na primeira versão deste documento.** A pesquisa original olhou pra
+Shopee Open Platform (sellers/ERPs), que de fato exige aplicação de parceiro aprovada e não tem
+nada público. Mas a conta deste projeto tem acesso a um produto diferente: a **Shopee Affiliate
+API** (GraphQL, App ID + Secret Key). `ShopeeProvider` agora implementa chamadas reais
+(`productOfferV2` para catálogo/comissão, `generateShortLink` para gerar link de afiliado) —
+ver docs/AFFILIATE_LINK_REGISTRY.md para o formato completo confirmado (endpoint, assinatura,
+campos). Continua falhando explícito e sem chamar rede sem `SHOPEE_APP_ID`/`SHOPEE_SECRET_KEY`
+reais configurados.
 
 ## O que ainda falta para isto virar produção
 
@@ -108,4 +109,10 @@ reconstruir nada.
 3. Job(s) que efetivamente chamem `calculateMonetizationScore()` e persistam em
    `MonetizationScore` — não criados nesta fase (o briefing pediu só o motor puro, sem
    publicação/job novo).
-4. Confiança de dado da Shopee/comissão real permanece bloqueada até credencial confirmada.
+4. Um humano confirmar `SHOPEE_APP_ID`/`SHOPEE_SECRET_KEY` reais e validar o formato da API
+   (documentado a partir de fontes de terceiros, não do Playground da própria conta — ver
+   docs/AFFILIATE_LINK_REGISTRY.md) contra uma chamada real antes de confiar nela para dinheiro
+   de verdade.
+5. Nenhum job ainda chama `ShopeeProvider`/`MercadoLivreProvider` automaticamente para popular
+   `MerchantListing`/`MerchantListingSignal` em escala — hoje isso só acontece via
+   `scripts/ml-demand-e2e-check.ts` (manual) ou a fila `/admin` (manual, só Mercado Livre).
