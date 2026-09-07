@@ -96,7 +96,12 @@ export async function getWeeklyStats(marketplace: MarketplaceCode = PRIMARY_PUBL
       }),
     ]);
 
-  const productIds = clicksByProduct.map((c) => c.productId);
+  // productId is nullable as of 2026-09-07 (Mercado Livre/Shopee clicks
+  // never had a legacy Product row to begin with) — filter those out
+  // rather than querying for a null id.
+  const productIds = clicksByProduct
+    .map((c) => c.productId)
+    .filter((id): id is string => id !== null);
   const products = await prisma.product.findMany({
     where: { id: { in: productIds } },
     select: { id: true, title: true, slug: true },
@@ -112,7 +117,7 @@ export async function getWeeklyStats(marketplace: MarketplaceCode = PRIMARY_PUBL
 
   return {
     topProductsByClicks: clicksByProduct.map((c) => ({
-      product: productMap.get(c.productId),
+      product: c.productId ? productMap.get(c.productId) : undefined,
       clicks: c._count._all,
     })),
     topPagesByClicks: clicksByPage.map((c) => ({

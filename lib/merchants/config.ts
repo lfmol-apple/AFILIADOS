@@ -48,9 +48,12 @@ const MERCHANTS: Record<MerchantCode, MerchantPublicConfig> = {
   shopee: {
     code: "shopee",
     name: "Shopee",
-    status: "prepared",
-    allowedHosts: ["shopee.com.br", "www.shopee.com.br"],
-    affiliateEnabled: false,
+    status: "live",
+    // shopee.com.br/www: plain product pages. s.shopee.com.br: the actual
+    // affiliate short-link host generateShortLink produces (confirmed via
+    // a real live API call, 2026-09-07 — see docs/AFFILIATE_LINK_REGISTRY.md).
+    allowedHosts: ["shopee.com.br", "www.shopee.com.br", "s.shopee.com.br"],
+    affiliateEnabled: true,
   },
   awin: {
     code: "awin",

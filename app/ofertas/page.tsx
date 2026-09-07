@@ -7,6 +7,8 @@ import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { recordSearchEvent } from "@/lib/analytics/search-event";
 import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 import type { PagePropsWithSearch } from "@/lib/next-route-types";
+import { ShopeeShowcase } from "@/components/shopee-showcase";
+import { getShopeeShowcase } from "@/lib/queries/shopee-showcase";
 
 export const revalidate = 300;
 
@@ -43,6 +45,10 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
   if (query && catalogSafe) {
     await recordSearchEvent(query, total);
   }
+
+  // Only on the default (no search, page 1) view — a search result page
+  // shouldn't show unrelated Shopee items mixed into the results.
+  const shopeeItems = !query && page === 1 ? await getShopeeShowcase() : [];
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
@@ -94,6 +100,8 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
           ))}
         </nav>
       )}
+
+      <ShopeeShowcase items={shopeeItems} />
     </div>
   );
 }

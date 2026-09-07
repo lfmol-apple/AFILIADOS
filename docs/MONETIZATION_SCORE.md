@@ -82,6 +82,36 @@ DevCenter da Mercado Livre e completar o fluxo OAuth deles, um passo humano fora
 método de `MercadoLivreProvider` e das duas fontes de demanda falha explicitamente, sem chamar a
 rede — nunca um fallback silencioso, nunca scraping.
 
+### Confirmado contra a API real (2026-09-07) — aplicação dedicada "Preço Caindo"
+
+Um app dedicado do PreçoCaindo foi criado no DevCenter da Mercado Livre (não o app PETMOL
+pré-existente — deliberadamente isolado, ver histórico do PR) e um token real foi obtido via
+OAuth 2.0 + PKCE. Dois achados corrigiram suposições da pesquisa só-documentação acima:
+
+1. **Causa real do `403 PA_UNAUTHORIZED_RESULT_FROM_POLICIES` mesmo com token válido**: não é a
+   "certificação" formal do Developer Partner Program da Mercado Livre (processo real, lento,
+   com elegibilidade por volume de usuários recorrentes ao longo de 3 meses — pesquisado e
+   confirmado como programa real, mas **não é o bloqueio deste caso**). A causa real: a
+   permissão **"Publicação e sincronização"** da aplicação, em "Permissões" no DevCenter, vem
+   como **"Sem acesso"** por padrão. Mudar para **"Leitura"** e salvar, seguido de um **novo**
+   fluxo `authorization_code` (o escopo de um token já emitido não é reavaliado — fica fixo no
+   momento da emissão, então um token antigo continua falhando mesmo depois do ajuste de
+   permissão), desbloqueou `/items`, `/sites` e `/trends` imediatamente.
+2. **`GET /highlights/.../category/{id}` retorna `type: "PRODUCT"`, não `"ITEM"`** como a
+   pesquisa de documentação original assumiu. O `id` de cada entrada é um **id de produto de
+   catálogo**, resolvido via `GET /products/{id}` (`MercadoLivreProvider.getCatalogProductName`),
+   **não** `GET /items/{id}` — confirmado empiricamente: o mesmo id real 404 em `/items` e
+   resolve corretamente em `/products`. `MercadoLivreBestsellerDemandSource` aceita ambos os
+   tipos (`"PRODUCT"` e `"ITEM"`) para nunca descartar silenciosamente um tipo não previsto.
+
+**Execução real, ponta a ponta** (`npx tsx scripts/ml-demand-e2e-check.ts --category MLB1051
+--persist`): 50 keywords reais de `/trends` e 18/18 produtos reais resolvidos de
+`/highlights` + `/products` (títulos reais em português, ex. "Smartphone Samsung Galaxy A17
+128GB...", "iPhone 17 de 256 GB - Lavanda..."), todos persistidos como `MerchantListing` +
+`MerchantListingSignal` (`source: "mercado_livre_highlights"`). Nenhum link de afiliado da
+Mercado Livre foi gerado ou é necessário para esta coleta de demanda — por design (ver
+docs/AFFILIATE_LINK_REGISTRY.md).
+
 **Não implementado nesta fase, por falta de confirmação com o mesmo rigor**: `searchProducts`
 (busca de catálogo) e um endpoint de multi-lookup de itens (`getProducts` chama `/items/{id}`
 individualmente ao invés de assumir um formato de lote não confirmado).
@@ -99,7 +129,10 @@ reais configurados.
 
 ## O que ainda falta para isto virar produção
 
-1. Um humano registrar a aplicação no DevCenter da Mercado Livre e confirmar `MERCADO_LIVRE_ACCESS_TOKEN`.
+1. ~~Um humano registrar a aplicação no DevCenter da Mercado Livre e confirmar
+   `MERCADO_LIVRE_ACCESS_TOKEN`.~~ **Feito em 2026-09-07** — ver seção "Confirmado contra a API
+   real" acima. Nota operacional: o token expira em ~6h (`expires_in: 21600`); renovação via
+   `refresh_token` ainda não automatizada (passo manual/fora do escopo desta fase).
 2. Decidir explicitamente se/quando as fontes de demanda da Mercado Livre entram em
    `lib/demand/index.ts`'s `DEFAULT_SOURCES` — **deliberadamente não fiz isso nesta fase**, para
    não arriscar quebrar o pipeline existente de demanda (`DEFAULT_SOURCES` hoje assume que toda

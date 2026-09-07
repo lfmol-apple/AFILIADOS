@@ -111,8 +111,11 @@ async function main() {
 
   for (const categoryId of categories) {
     console.log(`\n=== Highlights: ${categoryId} ===`);
+    // Highlights entries are catalog products (GET /products/{id}), not
+    // items (GET /items/{id}) — confirmed 2026-09-07 (see
+    // lib/demand/sources/mercado-livre-bestseller-demand-source.ts).
     const source = new MercadoLivreBestsellerDemandSource(categoryId, (id) =>
-      provider.getProduct(id).then((p) => p?.title ?? null),
+      provider.getCatalogProductName(id),
     );
     const highlights = await source.collectRaw();
     console.log(`${highlights.length} resolved items.`);

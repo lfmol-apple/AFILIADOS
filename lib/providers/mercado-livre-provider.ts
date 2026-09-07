@@ -81,6 +81,34 @@ export class MercadoLivreProvider implements CommerceProvider {
     return item ? toNormalizedProduct(item) : null;
   }
 
+  /**
+   * GET /products/{id} — a DIFFERENT resource than GET /items/{id}, both
+   * confusingly using the same "MLB..." id format. Confirmed via a real
+   * highlights response (2026-09-07): /highlights returns entries with
+   * `type: "PRODUCT"` (catalog-level canonical product, e.g. "Samsung
+   * Galaxy A17" with variation `pickers`), not `type: "ITEM"` as first
+   * assumed — GET /items/{id} 404s on these ids; GET /products/{id} is
+   * the one that actually resolves them. Returns just the display name,
+   * since that's all MercadoLivreBestsellerDemandSource's resolver needs.
+   */
+  async getCatalogProductName(productId: string): Promise<string | null> {
+    const response = await fetch(`${API_BASE}/products/${encodeURIComponent(productId)}`, {
+      headers: { Authorization: `Bearer ${this.accessToken}` },
+    });
+    if (response.status === 404) return null;
+    if (!response.ok) {
+      logger.error("mercado_livre.fetch_catalog_product_failed", {
+        productId,
+        status: response.status,
+      });
+      throw new Error(
+        `MercadoLivreProvider.getCatalogProductName(${productId}) failed: HTTP ${response.status}`,
+      );
+    }
+    const body = (await response.json()) as { name?: string };
+    return body.name ?? null;
+  }
+
   async getProducts(externalIds: string[]): Promise<NormalizedProduct[]> {
     // GET /items/{id} is the only item-lookup shape confirmed by research;
     // a bulk `/items?ids=...` variant is commonly referenced elsewhere but

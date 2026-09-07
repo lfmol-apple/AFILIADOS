@@ -97,6 +97,29 @@ export class ShopeeProvider implements CommerceProvider {
   }
 
   /**
+   * The full commercial-signal-bearing offer nodes — commissionRate,
+   * sales, ratingStar, etc. — that NormalizedProduct/NormalizedOffer
+   * deliberately don't carry (project brief: don't force affiliate-specific
+   * fields into the provider-agnostic shape). Not part of CommerceProvider;
+   * used by anything that needs the real commercial fields to compute a
+   * MonetizationScore (see scripts/shopee-first-cycle.ts), instead of
+   * reaching into this class's private query method.
+   */
+  async listOffers(input: {
+    itemId?: number;
+    keyword?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<ShopeeProductOfferNode[]> {
+    return this.queryProductOffers({
+      itemId: input.itemId,
+      keyword: input.keyword,
+      page: input.page ?? 1,
+      limit: input.limit ?? 20,
+    });
+  }
+
+  /**
    * Generates a real, tracked affiliate short link via the confirmed
    * `generateShortLink` mutation. Not part of the CommerceProvider
    * interface — this is Shopee-specific commercial functionality, called
@@ -177,30 +200,48 @@ function escapeGraphqlString(value: string): string {
   return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
 
-// Response fields confirmed via research (2026-09-07) — see class doc
-// comment. Only fields this provider actually reads are typed.
-interface ShopeeProductOfferNode {
+// Response fields confirmed via research (2026-09-07) AND corrected
+// against a real live response the same day: GraphQL returns priceMin/
+// priceMax/commissionRate/sellerCommissionRate/shopeeCommissionRate/
+// commission/ratingStar as STRINGS (a precision-preserving custom scalar,
+// not a JSON number), while sales/shopId/priceDiscountRate come back as
+// real numbers, and shopType as an array of numbers, not a string. Getting
+// this wrong crashed the first real Prisma write (Decimal/Float columns
+// rejecting a string) — fixed here from the actual response, not guessed.
+export interface ShopeeProductOfferNode {
   itemId: number;
   productName: string;
   productLink: string;
   offerLink: string;
-  priceMin: number;
-  priceMax: number;
+  priceMin: string;
+  priceMax: string;
   priceDiscountRate?: number;
-  commissionRate?: number;
-  sellerCommissionRate?: number;
-  shopeeCommissionRate?: number;
-  commission?: number;
+  commissionRate?: string;
+  sellerCommissionRate?: string;
+  shopeeCommissionRate?: string;
+  commission?: string;
   sales?: number;
-  ratingStar?: number;
+  ratingStar?: string;
   shopId?: number;
   shopName?: string;
-  shopType?: string;
+  shopType?: number[];
+}
+
+/** Shopee's numeric-looking fields arrive as strings (see
+ * ShopeeProductOfferNode's doc comment) — this is the one place that
+ * coerces them, so every caller (toNormalizedProduct, scripts/
+ * shopee-first-cycle.ts) works with real numbers, never re-implementing
+ * the same parseFloat. Returns undefined for undefined/unparseable input,
+ * never NaN or a fabricated 0. */
+export function shopeeNumeric(value: string | number | undefined): number | undefined {
+  if (value === undefined) return undefined;
+  const n = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(n) ? n : undefined;
 }
 
 function toNormalizedProduct(node: ShopeeProductOfferNode): NormalizedProduct {
   const offer: NormalizedOffer = {
-    price: node.priceMin,
+    price: shopeeNumeric(node.priceMin) ?? 0,
     currency: "BRL",
     // offerLink already carries Shopee's own default affiliate tracking;
     // it is NOT the same as a generateShortLink result with our own
