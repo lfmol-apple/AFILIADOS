@@ -57,7 +57,7 @@ describe("MercadoLivreBestsellerDemandSource", () => {
     await expect(source.collect()).rejects.toThrow(/MERCADO_LIVRE_ENABLED/);
   });
 
-  it("resolves each item id to a real title via the injected resolver, never using the raw id as a keyword", async () => {
+  it("resolves each id to a real title via the injected resolver, never using the raw id as a keyword — real API returns type: PRODUCT, not ITEM (confirmed 2026-09-07)", async () => {
     vi.stubEnv("MERCADO_LIVRE_ENABLED", "true");
     vi.stubEnv("MERCADO_LIVRE_API_ENABLED", "true");
     vi.stubEnv("MERCADO_LIVRE_ACCESS_TOKEN", "test-token");
@@ -68,8 +68,8 @@ describe("MercadoLivreBestsellerDemandSource", () => {
         status: 200,
         json: async () => ({
           content: [
-            { id: "MLB1", position: 1, type: "ITEM" },
-            { id: "MLB2", position: 2, type: "ITEM" },
+            { id: "MLB1", position: 1, type: "PRODUCT" },
+            { id: "MLB2", position: 2, type: "PRODUCT" },
           ],
         }),
       })),
@@ -144,5 +144,27 @@ describe("MercadoLivreBestsellerDemandSource", () => {
     expect(raw).toEqual([
       { itemId: "MLB1", position: 1, title: "Air Fryer XPTO" },
     ]);
+  });
+
+  it("filters out an entry whose type is neither PRODUCT nor ITEM, rather than guessing how to resolve it", async () => {
+    vi.stubEnv("MERCADO_LIVRE_ENABLED", "true");
+    vi.stubEnv("MERCADO_LIVRE_API_ENABLED", "true");
+    vi.stubEnv("MERCADO_LIVRE_ACCESS_TOKEN", "test-token");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          content: [{ id: "MLB1", position: 1, type: "BRAND" }],
+        }),
+      })),
+    );
+
+    const { MercadoLivreBestsellerDemandSource } = await import(
+      "@/lib/demand/sources/mercado-livre-bestseller-demand-source"
+    );
+    const source = new MercadoLivreBestsellerDemandSource("MLB1051", async () => "should not be called");
+    expect(await source.collectRaw()).toEqual([]);
   });
 });

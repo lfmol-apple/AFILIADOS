@@ -110,4 +110,46 @@ describe("MercadoLivreProvider", () => {
       provider.searchProducts({ keywords: "fone" }),
     ).rejects.toThrow(/not implemented/i);
   });
+
+  it("getCatalogProductName calls GET /products/{id} — a different endpoint than getProduct's GET /items/{id} — confirmed via a real highlighted id 404ing on /items but resolving on /products (2026-09-07)", async () => {
+    vi.stubEnv("MERCADO_LIVRE_ENABLED", "true");
+    vi.stubEnv("MERCADO_LIVRE_API_ENABLED", "true");
+    vi.stubEnv("MERCADO_LIVRE_ACCESS_TOKEN", "test-token-123");
+    const fetchSpy = vi.fn(async () => ({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        id: "MLB78821532",
+        name: "Celular Samsung Galaxy A17 128GB",
+      }),
+    }));
+    vi.stubGlobal("fetch", fetchSpy);
+
+    const { MercadoLivreProvider } = await import(
+      "@/lib/providers/mercado-livre-provider"
+    );
+    const provider = new MercadoLivreProvider();
+    const name = await provider.getCatalogProductName("MLB78821532");
+
+    expect(fetchSpy).toHaveBeenCalledWith(
+      expect.stringContaining("/products/MLB78821532"),
+      expect.anything(),
+    );
+    expect(name).toBe("Celular Samsung Galaxy A17 128GB");
+  });
+
+  it("getCatalogProductName returns null for a 404 rather than throwing", async () => {
+    vi.stubEnv("MERCADO_LIVRE_ENABLED", "true");
+    vi.stubEnv("MERCADO_LIVRE_API_ENABLED", "true");
+    vi.stubEnv("MERCADO_LIVRE_ACCESS_TOKEN", "test-token-123");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({ ok: false, status: 404, json: async () => ({}) })),
+    );
+    const { MercadoLivreProvider } = await import(
+      "@/lib/providers/mercado-livre-provider"
+    );
+    const provider = new MercadoLivreProvider();
+    expect(await provider.getCatalogProductName("MLB000000")).toBeNull();
+  });
 });

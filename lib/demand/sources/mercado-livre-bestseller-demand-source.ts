@@ -11,11 +11,19 @@ export interface ResolvedHighlight {
 }
 
 /**
- * GET /highlights/{site_id}/category/{category_id} — confirmed via
- * developers.mercadolibre.com research on 2026-09-07: returns the top 20
- * best-selling items in a category as
- * `{ content: [{ id, position, type }] }`, `id` being an ML item id
- * (e.g. "MLB1481736854"), not a natural-language keyword. Requires
+ * GET /highlights/{site_id}/category/{category_id} — path/shape confirmed
+ * via developers.mercadolibre.com research (2026-09-07), corrected against
+ * a REAL response the same day: returns
+ * `{ content: [{ id, position, type }] }`, but `type` is `"PRODUCT"`
+ * (catalog-level canonical product — e.g. "Samsung Galaxy A17"), not
+ * `"ITEM"` as first assumed from the docs. `id` is a catalog product id,
+ * resolved via GET /products/{id} (MercadoLivreProvider.getCatalogProductName),
+ * NOT GET /items/{id} — the two are different resources that both use
+ * "MLB..." ids, confirmed by GET /items/{highlightId} 404ing on a real
+ * highlighted id while GET /products/{highlightId} resolved it correctly.
+ * Accepts both "PRODUCT" and "ITEM" as a type, in case a category ever
+ * highlights an item-type entry instead — never silently drops a type this
+ * file hasn't seen without at least trying to resolve it. Requires
  * Authorization: Bearer, same as trends.
  *
  * `collectRaw()` is the source of truth (real item id + real position +
@@ -26,10 +34,10 @@ export interface ResolvedHighlight {
  * MerchantListing/MerchantListingSignal row — see
  * scripts/ml-demand-e2e-check.ts) must use `collectRaw()`, not `collect()`.
  *
- * Each item's title is resolved via `resolveTitle` (inject
- * `MercadoLivreProvider.getProduct` in real use; a fake resolver in tests)
- * rather than using the raw item id as a fabricated "keyword". An item
- * that fails to resolve is skipped, never given a placeholder title.
+ * Each entry's title is resolved via `resolveTitle` (inject
+ * `MercadoLivreProvider.getCatalogProductName` in real use; a fake resolver
+ * in tests) rather than using the raw id as a fabricated "keyword". An
+ * entry that fails to resolve is skipped, never given a placeholder title.
  *
  * `observedCount`/position-derived weight: rank-inverted from the real
  * `position` field, never a fabricated volume. Also not wired into
@@ -89,7 +97,7 @@ export class MercadoLivreBestsellerDemandSource implements DemandSource {
 
     const resolved = await Promise.all(
       body.content
-        .filter((entry) => entry.type === "ITEM")
+        .filter((entry) => entry.type === "PRODUCT" || entry.type === "ITEM")
         .map(async (entry): Promise<ResolvedHighlight | null> => {
           const title = await this.resolveTitle(entry.id);
           if (!title) return null;
