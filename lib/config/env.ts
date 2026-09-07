@@ -98,19 +98,26 @@ const envSchema = z.object({
   MERCADO_LIVRE_SITE_ID: z.string().default("MLB"),
   MERCADO_LIVRE_ACCESS_TOKEN: z.string().default(""),
 
-  // --- Shopee (lib/providers/shopee-provider.ts) ---
-  // CREDENTIALS_PENDING_OFFICIAL_CONFIGURATION — unlike Mercado Livre,
-  // there is no public/anonymous Shopee catalog API at all (confirmed
-  // 2026-09-07): Shopee Open Platform requires an approved partner
-  // application (Partner ID + Partner Key) and per-request signing for
-  // every endpoint, including read-only ones. Nothing here has a confirmed
-  // request/response shape yet, so ShopeeProvider implements no real HTTP
-  // call — every method fails loudly regardless of these values until a
-  // human confirms real partner credentials and the exact API contract.
-  SHOPEE_ENABLED: booleanFromEnvDefault(false),
-  SHOPEE_API_ENABLED: booleanFromEnvDefault(false),
-  SHOPEE_PARTNER_ID: z.string().default(""),
-  SHOPEE_PARTNER_KEY: z.string().default(""),
+  // --- Shopee Affiliate API (lib/providers/shopee-provider.ts) ---
+  // Corrected 2026-09-07: earlier research looked at Shopee Open Platform
+  // (seller/ERP API), the wrong product. The account this project actually
+  // has access to is the Shopee AFFILIATE API — a separate GraphQL API at
+  // open-api.affiliate.shopee.com.br, authenticated with an App ID +
+  // Secret Key (found on the Shopee Affiliate homepage under "Open API"),
+  // not a Partner ID/Key. See docs/AFFILIATE_LINK_REGISTRY.md for the full
+  // research trail (endpoint, signature formula, confirmed fields) — sourced
+  // from third-party technical documentation of the official API, not
+  // browsed directly against this account's own docs, so verify against
+  // the account's Playground before relying on it for real money.
+  SHOPEE_AFFILIATE_ENABLED: booleanFromEnvDefault(false),
+  SHOPEE_AFFILIATE_API_ENABLED: booleanFromEnvDefault(false),
+  SHOPEE_APP_ID: z.string().default(""),
+  SHOPEE_SECRET_KEY: z.string().default(""),
+  // sub_id1 on every link PreçoCaindo generates — how Shopee-side revenue
+  // is distinguished from any other project sharing this same affiliate
+  // account. Alphanumeric only (Shopee's sub_id constraint) — see
+  // lib/services/shopee-attribution.ts.
+  SHOPEE_SUB_ID1: z.string().default("precocaindo"),
 
   CONTENT_GENERATION: z
     .enum(["mock", "openai", "anthropic", "off"])
