@@ -5,6 +5,7 @@ import { logger } from "@/lib/observability/logger";
 import { runMlDemandJob } from "./ml-demand";
 import { runMlEnrichmentJob } from "./ml-enrichment";
 import { runShopeeRefreshJob } from "./shopee-refresh";
+import { runShopeeDemandDrivenJob } from "./shopee-demand-driven";
 import { runProductMatcherShadowJob } from "./product-matcher-shadow";
 
 /**
@@ -16,18 +17,18 @@ import { runProductMatcherShadowJob } from "./product-matcher-shadow";
  * when the next one fires, while each step (ML_DEMAND, ML_ENRICHMENT,
  * SHOPEE_REFRESH) still gets its own AutomationRun row exactly as before.
  *
- * Order matters: ML_ENRICHMENT reads the catalog products ML_DEMAND just
- * persisted (mercado_livre_highlights/trends signals) — running it first
- * would just find nothing new. SHOPEE_REFRESH is independent of both (its
- * own API, own merchant) and runs last only to keep the log/metadata
- * order matching "ML primeiro, Shopee depois" from the project brief —
- * not a real dependency. PRODUCT_MATCHER_SHADOW (2026-09-08) runs last,
- * after every collector — it only reads what they just persisted
- * (MerchantListing/CanonicalProduct/MerchantListingSignal), so it needs
- * the freshest possible data; added to this cycle only after a manual,
- * human-audited shadow run in production came back healthy (0 false
- * CONFIRMED, 0 duplication, 0 public-surface change — see
- * docs/PRODUCT_MATCHER.md).
+ * Order (General Market Scanner V1, 2026-09-08): ML_DEMAND (now a
+ * rotating multi-category scan, lib/config/ml-demand-categories.ts) ->
+ * ML_ENRICHMENT (reads the catalog products ML_DEMAND just persisted —
+ * running it first would just find nothing new) -> SHOPEE_REFRESH
+ * (general/undirected discovery, unchanged) -> SHOPEE_DEMAND_DRIVEN (a
+ * second, complementary Shopee path using real ML brand+model terms —
+ * project brief section 4: "não substituir totalmente por keyword
+ * demand-driven") -> PRODUCT_MATCHER_SHADOW last, after every collector,
+ * since it only reads what they just persisted and needs the freshest
+ * data; added to this cycle only after a manual, human-audited shadow run
+ * in production came back healthy (0 false CONFIRMED, 0 duplication, 0
+ * public-surface change — see docs/PRODUCT_MATCHER.md).
  *
  * One marketplace's step failing must not stop the others: each step is
  * already wrapped in its own runJob() (own try/catch, own AutomationRun),
@@ -44,6 +45,7 @@ export async function runMlShopeeCycle(): Promise<void> {
       { name: "ML_DEMAND", run: runMlDemandJob },
       { name: "ML_ENRICHMENT", run: runMlEnrichmentJob },
       { name: "SHOPEE_REFRESH", run: runShopeeRefreshJob },
+      { name: "SHOPEE_DEMAND_DRIVEN", run: runShopeeDemandDrivenJob },
       { name: "PRODUCT_MATCHER_SHADOW", run: runProductMatcherShadowJob },
     ];
 

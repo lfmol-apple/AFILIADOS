@@ -105,7 +105,12 @@ export class MercadoLivreBestsellerDemandSource implements DemandSource {
 
     const resolved = await Promise.all(
       body.content
-        .filter((entry) => entry.type === "PRODUCT" || entry.type === "ITEM")
+        // "USER_PRODUCT" confirmed real (General Market Scanner V1,
+        // 2026-09-08 — live in the Beleza e Cuidado Pessoal category,
+        // MLB1246) alongside "PRODUCT" — same GET /products/{id}
+        // resolution attempt applies; an id that doesn't resolve there
+        // is simply skipped by resolveTitle below, never a crash.
+        .filter((entry) => entry.type === "PRODUCT" || entry.type === "ITEM" || entry.type === "USER_PRODUCT")
         .map(async (entry): Promise<ResolvedHighlight | null> => {
           const title = await this.resolveTitle(entry.id);
           if (!title) return null;

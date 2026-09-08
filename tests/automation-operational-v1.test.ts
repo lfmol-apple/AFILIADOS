@@ -139,7 +139,10 @@ describe("ML_DEMAND job", () => {
     });
     vi.stubGlobal("fetch", fetchSpy);
 
-    vi.doMock("@/lib/config/ml-demand-categories", () => ({ ML_DEMAND_CATEGORY_IDS: ["FAKECAT"] }));
+    vi.doMock("@/lib/config/ml-demand-categories", () => ({
+      pickRotationGroup: () => [{ id: "FAKECAT", name: "Fake Category" }],
+      ML_GENERAL_SCAN_CATEGORY_GROUPS: [[{ id: "FAKECAT", name: "Fake Category" }]],
+    }));
     const { runMlDemandJob } = await import("@/jobs/ml-demand");
 
     const counters = await runMlDemandJob();
@@ -200,7 +203,16 @@ describe("ML_DEMAND job", () => {
     vi.stubGlobal("fetch", fetchSpy);
 
     vi.doMock("@/lib/config/ml-demand-categories", () => ({
-      ML_DEMAND_CATEGORY_IDS: [badCat, goodCat],
+      pickRotationGroup: () => [
+        { id: badCat, name: "Bad Category" },
+        { id: goodCat, name: "Good Category" },
+      ],
+      ML_GENERAL_SCAN_CATEGORY_GROUPS: [
+        [
+          { id: badCat, name: "Bad Category" },
+          { id: goodCat, name: "Good Category" },
+        ],
+      ],
     }));
     const { runMlDemandJob } = await import("@/jobs/ml-demand");
 
@@ -465,7 +477,9 @@ describe("SHOPEE_REFRESH job", () => {
 describe("ML_SHOPEE_CYCLE lock", () => {
   afterEach(async () => {
     await prisma.automationRun.deleteMany({
-      where: { job: { in: ["ML_SHOPEE_CYCLE", "ML_DEMAND", "ML_ENRICHMENT", "SHOPEE_REFRESH", "PRODUCT_MATCHER_SHADOW"] } },
+      where: {
+        job: { in: ["ML_SHOPEE_CYCLE", "ML_DEMAND", "ML_ENRICHMENT", "SHOPEE_REFRESH", "SHOPEE_DEMAND_DRIVEN", "PRODUCT_MATCHER_SHADOW"] },
+      },
     });
   });
 
@@ -510,11 +524,11 @@ describe("ML_SHOPEE_CYCLE lock", () => {
     // Every step still got its own AutomationRun row — the outer cycle
     // recorded, not swallowed, each one, and none is left stuck RUNNING.
     const stepRuns = await prisma.automationRun.findMany({
-      where: { job: { in: ["ML_DEMAND", "ML_ENRICHMENT", "SHOPEE_REFRESH", "PRODUCT_MATCHER_SHADOW"] } },
+      where: { job: { in: ["ML_DEMAND", "ML_ENRICHMENT", "SHOPEE_REFRESH", "SHOPEE_DEMAND_DRIVEN", "PRODUCT_MATCHER_SHADOW"] } },
       orderBy: { startedAt: "desc" },
-      take: 4,
+      take: 5,
     });
-    expect(stepRuns).toHaveLength(4);
+    expect(stepRuns).toHaveLength(5);
     for (const stepRun of stepRuns) expect(stepRun.status).not.toBe("RUNNING");
 
     const shopeeRun = stepRuns.find((r) => r.job === "SHOPEE_REFRESH");

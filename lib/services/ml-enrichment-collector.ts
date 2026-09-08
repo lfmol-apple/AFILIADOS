@@ -36,6 +36,21 @@ export async function enrichCatalogListing(
   const detail = await provider.getCatalogProductDetail(catalogProductId);
   if (!detail) return null; // 404 — not an error, just nothing to enrich yet.
 
+  // General Market Scanner V1 (2026-09-08): MANUFACTURER and
+  // ALPHANUMERIC_MODELS (real ML attributes, confirmed live — 77% and
+  // 80% coverage respectively across the 35 real catalog products
+  // checked) were already inside `detail.attributes` every cycle but
+  // never extracted. Neither is a GTIN and neither confirms a
+  // cross-merchant match by itself (Shopee exposes nothing comparable) —
+  // stored in `specifications` (already free-form Json, no migration)
+  // purely to strengthen intra-ML identity confidence for a future phase.
+  // Never used by ProductMatcher's GTIN/MANUFACTURER_ID tiers as-is —
+  // that would require deciding these are safe cross-listing identifiers
+  // first, which this phase does not do.
+  const manufacturer = findAttribute(detail, "MANUFACTURER") ?? null;
+  const alphanumericModel =
+    findAttribute(detail, "ALPHANUMERIC_MODELS") ?? findAttribute(detail, "ALPHANUMERIC_MODEL") ?? null;
+
   const canonical = await prisma.canonicalProduct.upsert({
     where: { slug: `ml-catalog-${catalogProductId}` },
     create: {
@@ -50,6 +65,8 @@ export async function enrichCatalogListing(
         domainId: detail.domain_id ?? null,
         familyName: detail.family_name ?? null,
         line: findAttribute(detail, "LINE") ?? null,
+        manufacturer,
+        alphanumericModel,
       },
     },
     update: {
@@ -58,6 +75,14 @@ export async function enrichCatalogListing(
       model: findAttribute(detail, "MODEL") ?? null,
       gtin: findAttribute(detail, "GTIN") ?? null,
       imageUrl: detail.pictures?.[0]?.url ?? null,
+      specifications: {
+        catalogProductId,
+        domainId: detail.domain_id ?? null,
+        familyName: detail.family_name ?? null,
+        line: findAttribute(detail, "LINE") ?? null,
+        manufacturer,
+        alphanumericModel,
+      },
     },
   });
 
@@ -126,6 +151,7 @@ export async function enrichCatalogListing(
           discountPercent: getDiscountPercent(item),
           seller,
           permalinkVerified: false,
+          discoverySource: "ML_ENRICHMENT",
         } as unknown as object,
       },
     });

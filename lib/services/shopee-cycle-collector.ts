@@ -109,7 +109,13 @@ export async function processShopeeOffer(
       sellerExtraCommission: shopeeNumeric(offer.sellerCommissionRate),
       soldQuantity: offer.sales,
       rating: shopeeNumeric(offer.ratingStar),
-      raw: offer as unknown as object,
+      // General Market Scanner V1 (2026-09-08): `source` (already passed
+      // in for the affiliate link's sub_ids — "shopee_refresh" for
+      // general discovery, "shopee_demand_driven" for the ML-term-driven
+      // path) is also tagged onto the real signal itself, reusing the
+      // existing free-form `raw` column — every listing now knows which
+      // scan actually found it, no schema change needed.
+      raw: { ...offer, discoverySource: source } as unknown as object,
     },
   });
 

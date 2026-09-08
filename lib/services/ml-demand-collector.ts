@@ -33,6 +33,16 @@ export async function persistHighlightSignal(input: {
   merchantId: string;
   itemId: string;
   position: number;
+  /** Which real ML category this highlight came from, and which scan
+   * produced it — General Market Scanner V1 (2026-09-08). Stored inside
+   * the signal's existing free-form `raw` column (no migration): every
+   * MerchantListingSignal already reuses `raw` this way (Shopee's own
+   * payload, ML catalog_items' payload) — this is the same pattern,
+   * applied to a signal that previously set no `raw` at all. Optional so
+   * the manual script (scripts/ml-demand-e2e-check.ts) keeps working
+   * unchanged when it doesn't have this context. */
+  categoryId?: string;
+  discoverySource?: "ML_GENERAL" | "ML_DEMAND";
 }) {
   const listing = await prisma.merchantListing.upsert({
     where: {
@@ -58,6 +68,10 @@ export async function persistHighlightSignal(input: {
       merchantListingId: listing.id,
       source: "mercado_livre_highlights",
       bestsellerRank: input.position,
+      raw:
+        input.categoryId || input.discoverySource
+          ? { categoryId: input.categoryId, discoverySource: input.discoverySource }
+          : undefined,
     },
   });
 

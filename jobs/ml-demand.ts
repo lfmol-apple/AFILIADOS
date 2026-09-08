@@ -7,15 +7,22 @@ import { getValidMercadoLivreAccessToken, createMercadoLivreProvider } from "@/l
 import { MercadoLivreTrendsDemandSource } from "@/lib/demand/sources/mercado-livre-trends-demand-source";
 import { MercadoLivreBestsellerDemandSource } from "@/lib/demand/sources/mercado-livre-bestseller-demand-source";
 import { ensureMercadoLivreMerchant, persistHighlightSignal } from "@/lib/services/ml-demand-collector";
-import { ML_DEMAND_CATEGORY_IDS } from "@/lib/config/ml-demand-categories";
+import { pickRotationGroup, ML_GENERAL_SCAN_CATEGORY_GROUPS } from "@/lib/config/ml-demand-categories";
 
 /**
- * Automação Operacional V1 (2026-09-08) — the automated counterpart of
- * scripts/ml-demand-e2e-check.ts's `--persist` mode. Same real API calls
- * (GET /trends, GET /highlights, GET /products/{id} for title resolution),
- * same persistence (lib/services/ml-demand-collector.ts, shared with the
- * manual script — never a second copy of this logic), same category scope
- * (lib/config/ml-demand-categories.ts's documented, human-curated list).
+ * General Market Scanner V1 (2026-09-08) — extends what was originally
+ * Automação Operacional V1's single-category ML_DEMAND into a rotating,
+ * multi-category scan. Same real API calls (GET /trends, GET /highlights,
+ * GET /products/{id} for title resolution), same persistence
+ * (lib/services/ml-demand-collector.ts, shared with the manual script —
+ * never a second copy of this logic).
+ *
+ * Rotation (project brief section 20/21 — call budget, no "scan
+ * everything every cycle"): which categories run THIS execution is
+ * derived from how many ML_DEMAND runs already happened
+ * (`pickRotationGroup(cycleCount)`, lib/config/ml-demand-categories.ts) —
+ * a deterministic function of real, already-persisted state
+ * (AutomationRun rows), not a random pick or new counter table.
  *
  * What's different from the manual script, and why:
  *  - Uses the auto-refreshing token (ml-token-store.ts) instead of the
@@ -69,15 +76,20 @@ export async function runMlDemandJob(): Promise<JobCounters> {
       const provider = await createMercadoLivreProvider();
       const categoryResults: Record<string, unknown> = {};
 
-      for (const categoryId of ML_DEMAND_CATEGORY_IDS) {
+      const priorRuns = await prisma.automationRun.count({ where: { job: "ML_DEMAND" } });
+      const categoriesThisCycle = pickRotationGroup(priorRuns);
+      ctx.metadata.rotationGroupIndex = priorRuns % ML_GENERAL_SCAN_CATEGORY_GROUPS.length;
+      ctx.metadata.categoriesScannedThisCycle = categoriesThisCycle.map((c) => `${c.id} (${c.name})`);
+
+      for (const category of categoriesThisCycle) {
         try {
           const source = new MercadoLivreBestsellerDemandSource(
-            categoryId,
+            category.id,
             (id) => provider.getCatalogProductName(id),
             getAccessToken,
           );
           const highlights = await withRetry(() => source.collectRaw(), {
-            label: `ml_demand.highlights.${categoryId}`,
+            label: `ml_demand.highlights.${category.id}`,
           });
 
           let created = 0;
@@ -97,6 +109,8 @@ export async function runMlDemandJob(): Promise<JobCounters> {
               merchantId: merchant.id,
               itemId: h.itemId,
               position: h.position,
+              categoryId: category.id,
+              discoverySource: "ML_GENERAL",
             });
             if (existing) updated++;
             else created++;
@@ -105,11 +119,11 @@ export async function runMlDemandJob(): Promise<JobCounters> {
           ctx.counters.processed += highlights.length;
           ctx.counters.created += created;
           ctx.counters.updated += updated;
-          categoryResults[categoryId] = { resolved: highlights.length, created, updated };
+          categoryResults[category.id] = { name: category.name, resolved: highlights.length, created, updated };
         } catch (err) {
-          logger.error("ml_demand.category_failed", { categoryId, message: String(err) });
+          logger.error("ml_demand.category_failed", { categoryId: category.id, message: String(err) });
           ctx.counters.errors += 1;
-          categoryResults[categoryId] = { error: String(err) };
+          categoryResults[category.id] = { name: category.name, error: String(err) };
         }
       }
 
