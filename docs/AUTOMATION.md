@@ -77,6 +77,63 @@ janela de estabilidade (evita oscilar HOT/WARM por ruído) e uma janela de "stal
 de demover. Um produto que fica `OUT_OF_STOCK` é rebaixado abaixo de `HOT` imediatamente, sem
 esperar a janela de estabilidade (ver `tests/product-priority.test.ts`).
 
+## Automação Operacional V1 — Mercado Livre e Shopee (2026-09-08)
+
+Antes desta seção, a coleta de dados Mercado Livre/Shopee era 100% manual: um humano rodava
+`scripts/ml-demand-e2e-check.ts`, `scripts/ml-enrich-offers.ts` e `scripts/shopee-first-cycle.ts`
+à mão. Esses três scripts continuam existindo, inalterados no comportamento, para diagnóstico e
+recuperação manual — mas agora reutilizam a mesma lógica de persistência que os jobs automáticos
+abaixo, extraída para `lib/services/ml-demand-collector.ts`,
+`lib/services/ml-enrichment-collector.ts` e `lib/services/shopee-cycle-collector.ts` (nunca duas
+cópias divergentes do mesmo código real).
+
+```bash
+npm run jobs:run-ml-shopee    # roda ML_DEMAND -> ML_ENRICHMENT -> SHOPEE_REFRESH, nesta ordem
+```
+
+| Job | O que faz de real | Frequência |
+| --- | --- | --- |
+| `ML_DEMAND` (`jobs/ml-demand.ts`) | `GET /trends` (observabilidade) + `GET /highlights` para cada categoria de `lib/config/ml-demand-categories.ts` (hoje só `MLB1051` — a única verificada ponta a ponta contra a API real; ver o doc comment do arquivo para o porquê de não expandir a lista sem verificação humana), resolve o nome real via `GET /products/{id}` e persiste `MerchantListing`+`MerchantListingSignal`+`MonetizationScore`. | A cada ciclo (ver abaixo) |
+| `ML_ENRICHMENT` (`jobs/ml-enrichment.ts`) | Para cada produto de catálogo que `ML_DEMAND` já persistiu, busca ofertas reais de vendedores (`GET /products/{id}/items`) e reputação real (`GET /users/{sellerId}`), persiste uma `MerchantListing` por oferta real + `MonetizationScore`. Nunca gera link de afiliado — isso seria a fila humana (`getMlAffiliateQueue`, abaixo). | A cada ciclo, logo após `ML_DEMAND` |
+| `SHOPEE_REFRESH` (`jobs/shopee-refresh.ts`) | `productOfferV2` (até 15 ofertas, mesmo padrão de `scripts/shopee-first-cycle.ts`) e, quando a oferta ainda não tem um `AffiliateLinkRegistry` `ACTIVE`, gera um link real via `generateShortLink` — `sub_id1=precocaindo` preservado (`buildShopeeSubIds`, inalterado). Diferente de Mercado Livre: aqui o ciclo completo "descobrir -> pontuar -> gerar link" roda sozinho, porque a API da Shopee gera o link de verdade (nunca scraping/RPA). | A cada ciclo |
+
+Cada job roda dentro de `runJob()` — mesmo mecanismo de locking/`AutomationRun`/observabilidade
+dos 13 jobs da Amazon, sem um segundo sistema. `jobs/run-ml-shopee-cycle.ts` (`ML_SHOPEE_CYCLE`)
+envolve os três num lock externo, mesmo padrão de `jobs/run.ts`'s `runFullCycle()` — impede que
+dois disparos de cron sobrepostos rodem ao mesmo tempo, e a falha de um step nunca derruba os
+outros dois (cada `step.run()` tem seu próprio try/catch no runner do ciclo).
+
+**Retry/backoff**: `lib/jobs/retry.ts` — até 3 tentativas com backoff exponencial (500ms, 1s, 2s)
+para erros transitórios (timeout, 429, 5xx, falha de conexão); erros explícitos (401, token
+inválido, config faltando, schema inesperado) nunca são retentados — falham na primeira tentativa,
+visíveis no `AutomationRun` como `FAILED` com a mensagem sanitizada (nunca um segredo).
+
+**Token Mercado Livre**: os dois jobs usam `getValidMercadoLivreAccessToken()`
+(`lib/services/ml-token-store.ts`, auto-refresh via `IntegrationCredential`) em vez do
+`MERCADO_LIVRE_ACCESS_TOKEN` estático — `MercadoLivreTrendsDemandSource` e
+`MercadoLivreBestsellerDemandSource` agora aceitam um provedor de token injetável (terceiro
+parâmetro opcional, default = env estático, comportamento manual inalterado) para isso. Sem essa
+mudança, um ciclo automático pararia de funcionar silenciosamente ~6h depois do bootstrap, sem
+nunca renovar — exatamente o tipo de falha que só apareceria depois de rodar sozinho por um tempo.
+
+**Fila humana (geração de link Mercado Livre)**: continua manual, por design — não existe scraping
+nem RPA. `getMlAffiliateQueue()` (`lib/queries/ml-affiliate-queue.ts`, threshold real
+`DEFAULT_MIN_MONETIZATION_SCORE = 50`, já existente antes desta automação) já filtra
+automaticamente quais das ofertas reais que `ML_ENRICHMENT` persiste merecem a atenção de um
+humano — a automação nunca precisou adicionar uma fila própria: alimentar mais `MerchantListing`/
+`MonetizationScore` reais é suficiente, a consulta existente já reordena e já filtra.
+
+**Frequência real escolhida**: a cada 4 horas (`0 */6 * * *` seria "algumas vezes ao dia" também;
+4h foi escolhido por dar folga confortável antes da janela de expiração do token de ~6h, sem ser
+agressivo contra os limites reais — ainda não documentados publicamente — da Shopee Affiliate API
+nem do Mercado Livre). **Isto não é uma obrigação rígida** — ajustável no crontab do VPS sem
+alterar código, conforme a duração real observada dos jobs e qualquer limite de taxa que apareça.
+
+**Painel `/admin`**: nenhuma mudança de UI foi necessária — a seção "Automação — última execução
+por job" (`lib/queries/admin.ts`'s `getLatestJobRuns()`, já existente) já é derivada dos nomes de
+job reais em `AutomationRun`, não de uma lista fixa — `ML_DEMAND`/`ML_ENRICHMENT`/
+`SHOPEE_REFRESH`/`ML_SHOPEE_CYCLE` aparecem ali automaticamente assim que rodam pela primeira vez.
+
 ## Orçamento de coleta (`RefreshPlanner`)
 
 `lib/services/refresh-planner.ts` decide **quais** produtos entram no lote de um refresh e em que

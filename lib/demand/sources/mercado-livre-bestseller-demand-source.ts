@@ -50,6 +50,12 @@ export class MercadoLivreBestsellerDemandSource implements DemandSource {
   constructor(
     private readonly categoryId: string,
     private readonly resolveTitle: (itemId: string) => Promise<string | null>,
+    /** Same rationale as MercadoLivreTrendsDemandSource's sibling
+     * parameter — defaults to the static env token (unchanged behavior),
+     * overridden by the automated job with the auto-refreshing token
+     * store so an unattended run doesn't die after ~6h. */
+    private readonly getAccessToken: () => Promise<string> | string = () =>
+      env.MERCADO_LIVRE_ACCESS_TOKEN,
   ) {}
 
   async collect(): Promise<DemandSignal[]> {
@@ -65,20 +71,22 @@ export class MercadoLivreBestsellerDemandSource implements DemandSource {
   }
 
   async collectRaw(): Promise<ResolvedHighlight[]> {
-    if (
-      !env.MERCADO_LIVRE_ENABLED ||
-      !env.MERCADO_LIVRE_API_ENABLED ||
-      !env.MERCADO_LIVRE_ACCESS_TOKEN
-    ) {
+    if (!env.MERCADO_LIVRE_ENABLED || !env.MERCADO_LIVRE_API_ENABLED) {
       throw new Error(
-        "MercadoLivreBestsellerDemandSource requires MERCADO_LIVRE_ENABLED, MERCADO_LIVRE_API_ENABLED " +
-          "and MERCADO_LIVRE_ACCESS_TOKEN. See docs/MONETIZATION_SCORE.md.",
+        "MercadoLivreBestsellerDemandSource requires MERCADO_LIVRE_ENABLED and MERCADO_LIVRE_API_ENABLED. " +
+          "See docs/MONETIZATION_SCORE.md.",
+      );
+    }
+    const accessToken = await this.getAccessToken();
+    if (!accessToken) {
+      throw new Error(
+        "MercadoLivreBestsellerDemandSource has no access token available. See docs/MONETIZATION_SCORE.md.",
       );
     }
 
     const path = `/highlights/${env.MERCADO_LIVRE_SITE_ID}/category/${this.categoryId}`;
     const response = await fetch(`${API_BASE}${path}`, {
-      headers: { Authorization: `Bearer ${env.MERCADO_LIVRE_ACCESS_TOKEN}` },
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
 
     if (!response.ok) {

@@ -24,17 +24,30 @@ const API_BASE = "https://api.mercadolibre.com";
 export class MercadoLivreTrendsDemandSource implements DemandSource {
   readonly name = "mercado_livre_trends";
 
-  constructor(private readonly categoryId?: string) {}
+  /** `getAccessToken` defaults to the static env token (unchanged behavior
+   * for every existing caller/test). The automated job
+   * (jobs/ml-demand.ts, Automação Operacional V1, 2026-09-08) injects
+   * `getValidMercadoLivreAccessToken` (lib/services/ml-token-store.ts)
+   * instead, so an unattended run past the static token's ~6h lifetime
+   * still works — the static-token path alone would silently start
+   * failing every run after the first refresh. */
+  constructor(
+    private readonly categoryId?: string,
+    private readonly getAccessToken: () => Promise<string> | string = () =>
+      env.MERCADO_LIVRE_ACCESS_TOKEN,
+  ) {}
 
   async collect(): Promise<DemandSignal[]> {
-    if (
-      !env.MERCADO_LIVRE_ENABLED ||
-      !env.MERCADO_LIVRE_API_ENABLED ||
-      !env.MERCADO_LIVRE_ACCESS_TOKEN
-    ) {
+    if (!env.MERCADO_LIVRE_ENABLED || !env.MERCADO_LIVRE_API_ENABLED) {
       throw new Error(
-        "MercadoLivreTrendsDemandSource requires MERCADO_LIVRE_ENABLED, MERCADO_LIVRE_API_ENABLED " +
-          "and MERCADO_LIVRE_ACCESS_TOKEN. See docs/MONETIZATION_SCORE.md.",
+        "MercadoLivreTrendsDemandSource requires MERCADO_LIVRE_ENABLED and MERCADO_LIVRE_API_ENABLED. " +
+          "See docs/MONETIZATION_SCORE.md.",
+      );
+    }
+    const accessToken = await this.getAccessToken();
+    if (!accessToken) {
+      throw new Error(
+        "MercadoLivreTrendsDemandSource has no access token available. See docs/MONETIZATION_SCORE.md.",
       );
     }
 
@@ -42,7 +55,7 @@ export class MercadoLivreTrendsDemandSource implements DemandSource {
       ? `/trends/${env.MERCADO_LIVRE_SITE_ID}/${this.categoryId}`
       : `/trends/${env.MERCADO_LIVRE_SITE_ID}`;
     const response = await fetch(`${API_BASE}${path}`, {
-      headers: { Authorization: `Bearer ${env.MERCADO_LIVRE_ACCESS_TOKEN}` },
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
 
     if (!response.ok) {

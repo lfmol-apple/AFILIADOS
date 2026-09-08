@@ -18,6 +18,7 @@
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
     "jobs:run": "tsx jobs/run.ts",
+    "jobs:run-ml-shopee": "tsx jobs/run-ml-shopee-cycle.ts",
     "amazon:compliance": "tsx scripts/amazon-compliance.ts",
     "production:readiness": "tsx scripts/production-readiness.ts",
     "admin:hash-password": "tsx scripts/generate-admin-password-hash.ts",

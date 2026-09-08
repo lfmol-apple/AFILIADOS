@@ -23,8 +23,10 @@ import { env } from "@/lib/config/env";
 import { createMercadoLivreProvider } from "@/lib/services/ml-token-store";
 import { MercadoLivreTrendsDemandSource } from "@/lib/demand/sources/mercado-livre-trends-demand-source";
 import { MercadoLivreBestsellerDemandSource } from "@/lib/demand/sources/mercado-livre-bestseller-demand-source";
-import { calculateMonetizationScore } from "@/lib/services/monetization-score";
-import type { MonetizationScoreInput } from "@/types/monetization";
+import {
+  ensureMercadoLivreMerchant,
+  persistHighlightSignal as persistHighlightSignalShared,
+} from "@/lib/services/ml-demand-collector";
 
 function parseArgs() {
   const args = process.argv.slice(2);
@@ -37,101 +39,6 @@ function parseArgs() {
     else if (args[i] === "--persist") persist = true;
   }
   return { categories, item, persist };
-}
-
-async function ensureMercadoLivreMerchant() {
-  return prisma.merchant.upsert({
-    where: { code: "MERCADO_LIVRE" },
-    create: { code: "MERCADO_LIVRE", name: "Mercado Livre", active: true },
-    update: {},
-  });
-}
-
-async function persistHighlightSignal(input: {
-  merchantId: string;
-  itemId: string;
-  title: string;
-  position: number;
-  categoryId: string;
-}) {
-  const listing = await prisma.merchantListing.upsert({
-    where: {
-      merchantId_marketplace_externalId: {
-        merchantId: input.merchantId,
-        marketplace: "BR",
-        externalId: input.itemId,
-      },
-    },
-    create: {
-      merchantId: input.merchantId,
-      externalId: input.itemId,
-      externalIdType: "MERCHANT_PRODUCT_ID",
-      marketplace: "BR",
-      productUrl: `https://produto.mercadolivre.com.br/${input.itemId}`,
-      // A human/script confirmed this listing is real via a live API call
-      // — not fabricated, not demo data — but the facts weren't manually
-      // typed by a human either, so MANUAL_VERIFIED is the closest honest
-      // fit among the existing DataSource values (see
-      // lib/config/public-catalog.ts's doc comment on the enum). Never
-      // AMAZON_API — this is not Amazon.
-      source: "MANUAL_VERIFIED",
-    },
-    update: { productUrl: `https://produto.mercadolivre.com.br/${input.itemId}` },
-  });
-
-  await prisma.merchantListingSignal.create({
-    data: {
-      merchantListingId: listing.id,
-      source: "mercado_livre_highlights",
-      bestsellerRank: input.position,
-    },
-  });
-
-  // Without this, a highlighted product never gets a MonetizationScore
-  // row and therefore never clears getMlAffiliateQueue's threshold — it
-  // was silently invisible in /admin despite being real, persisted data
-  // (found 2026-09-07). Demand-only: a highlights rank is real observed
-  // demand, but this source has no commission/price/rating field at all
-  // (that only exists once a link is generated), so every other
-  // component stays UNKNOWN rather than guessed.
-  const input_: MonetizationScoreInput = {
-    demandSignal: { value: bestsellerRankToScore(input.position), quality: "OBSERVED" },
-    commissionSignal: null,
-    trendSignal: null,
-    historicalConversionSignal: null,
-    offerQualitySignal: null,
-  };
-  const score = calculateMonetizationScore(input_);
-  await prisma.monetizationScore.upsert({
-    where: { merchantListingId: listing.id },
-    create: {
-      merchantListingId: listing.id,
-      score: score.score,
-      confidence: score.confidence,
-      components: score.components as unknown as object,
-      reasons: score.reasons,
-      missingSignals: score.missingSignals,
-    },
-    update: {
-      score: score.score,
-      confidence: score.confidence,
-      components: score.components as unknown as object,
-      reasons: score.reasons,
-      missingSignals: score.missingSignals,
-    },
-  });
-
-  return listing;
-}
-
-// Rank 1 (top highlight) -> 100, decaying linearly to a floor of 40 by
-// rank 20+ — a highlighted product is never "low demand" (it's already
-// among a category's best), so the floor is deliberately not near 0.
-// Same category of judgment call as shopee-first-cycle.ts's
-// commissionToScore/salesToScore: the input (real rank) is real, only
-// this mapping curve is a documented, explicit choice.
-function bestsellerRankToScore(position: number): number {
-  return Math.max(40, 100 - (position - 1) * 3);
 }
 
 async function main() {
@@ -178,12 +85,10 @@ async function main() {
 
     if (persist && merchant) {
       for (const h of highlights) {
-        await persistHighlightSignal({
+        await persistHighlightSignalShared({
           merchantId: merchant.id,
           itemId: h.itemId,
-          title: h.title,
           position: h.position,
-          categoryId,
         });
       }
       console.log(`  Persisted ${highlights.length} signal(s).`);

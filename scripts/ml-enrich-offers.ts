@@ -36,7 +36,11 @@
  * Mercado Livre affiliate portal search (unchanged since Phase 1).
  *
  * Manual, human-run — not wired into jobs/ (same category as
- * scripts/shopee-first-cycle.ts and scripts/ml-demand-e2e-check.ts).
+ * scripts/shopee-first-cycle.ts and scripts/ml-demand-e2e-check.ts). See
+ * jobs/ml-enrichment.ts (Automação Operacional V1, 2026-09-08) for the
+ * automated counterpart — same shared logic
+ * (lib/services/ml-enrichment-collector.ts), same idempotent upserts, plus
+ * locking/retry/partial-failure isolation this manual script doesn't need.
  * Idempotent: MerchantListing/CanonicalProduct rows are upserted by a
  * deterministic key; reruns don't duplicate them (MerchantListingSignal
  * rows do accumulate over time by design, same convention as the other
@@ -46,14 +50,9 @@
  */
 import { prisma } from "@/lib/db";
 import { env } from "@/lib/config/env";
-import {
-  findAttribute,
-  type MercadoLivreSellerReputation,
-} from "@/lib/providers/mercado-livre-provider";
+import type { MercadoLivreSellerReputation } from "@/lib/providers/mercado-livre-provider";
 import { createMercadoLivreProvider } from "@/lib/services/ml-token-store";
-import { calculateMonetizationScore } from "@/lib/services/monetization-score";
-import { offerQualityScore, getDiscountPercent } from "@/lib/services/ml-offer-quality";
-import type { MonetizationScoreInput } from "@/types/monetization";
+import { enrichCatalogListing } from "@/lib/services/ml-enrichment-collector";
 
 async function main() {
   if (!env.MERCADO_LIVRE_ENABLED || !env.MERCADO_LIVRE_API_ENABLED || !env.MERCADO_LIVRE_ACCESS_TOKEN) {
@@ -93,129 +92,20 @@ async function main() {
   let offersCreated = 0;
 
   for (const catalogListing of catalogListings) {
-    const catalogProductId = catalogListing.externalId;
-    const detail = await provider.getCatalogProductDetail(catalogProductId);
-    if (!detail) {
-      console.log(`  ${catalogProductId}: catalog product não encontrado (404) — pulando.`);
+    const catalogDemandScore = catalogListing.monetizationScore?.score ?? 50;
+    const result = await enrichCatalogListing(
+      provider,
+      merchant.id,
+      catalogListing,
+      catalogDemandScore,
+      sellerCache,
+    );
+    if (!result) {
+      console.log(`  ${catalogListing.externalId}: catalog product não encontrado (404) — pulando.`);
       continue;
     }
-
-    const canonical = await prisma.canonicalProduct.upsert({
-      where: { slug: `ml-catalog-${catalogProductId}` },
-      create: {
-        slug: `ml-catalog-${catalogProductId}`,
-        title: detail.name,
-        brand: findAttribute(detail, "BRAND") ?? null,
-        model: findAttribute(detail, "MODEL") ?? null,
-        gtin: findAttribute(detail, "GTIN") ?? null,
-        imageUrl: detail.pictures?.[0]?.url ?? null,
-        specifications: {
-          catalogProductId,
-          domainId: detail.domain_id ?? null,
-          familyName: detail.family_name ?? null,
-          line: findAttribute(detail, "LINE") ?? null,
-        },
-      },
-      update: {
-        title: detail.name,
-        brand: findAttribute(detail, "BRAND") ?? null,
-        model: findAttribute(detail, "MODEL") ?? null,
-        gtin: findAttribute(detail, "GTIN") ?? null,
-        imageUrl: detail.pictures?.[0]?.url ?? null,
-      },
-    });
-
-    if (catalogListing.canonicalProductId !== canonical.id) {
-      await prisma.merchantListing.update({
-        where: { id: catalogListing.id },
-        data: { canonicalProductId: canonical.id },
-      });
-    }
-
-    const items = await provider.getCatalogProductItems(catalogProductId);
-    console.log(`  ${catalogProductId} (${detail.name}): ${items.length} oferta(s) real(is).`);
-
-    const catalogDemandScore = catalogListing.monetizationScore?.score ?? 50;
-
-    for (const item of items) {
-      if (!sellerCache.has(item.seller_id)) {
-        sellerCache.set(item.seller_id, await provider.getSellerReputation(item.seller_id));
-      }
-      const seller = sellerCache.get(item.seller_id) ?? null;
-
-      // Not a confirmed permalink — see the file-level doc comment above
-      // for the full, real investigation. Item-specific (real item_id, ML's
-      // own redirector domain), but genuinely unverified: never presented
-      // as "the real link" downstream without permalinkVerified: false
-      // alongside it.
-      const bestEffortUrl = `https://produto.mercadolivre.com.br/${item.item_id}`;
-
-      const offerListing = await prisma.merchantListing.upsert({
-        where: {
-          merchantId_marketplace_externalId: {
-            merchantId: merchant.id,
-            marketplace: "BR",
-            externalId: item.item_id,
-          },
-        },
-        create: {
-          merchantId: merchant.id,
-          externalId: item.item_id,
-          externalIdType: "MERCHANT_PRODUCT_ID",
-          marketplace: "BR",
-          productUrl: bestEffortUrl,
-          source: "MANUAL_VERIFIED",
-          canonicalProductId: canonical.id,
-        },
-        // productUrl included here too — a rerun must correct any listing
-        // persisted by an earlier, buggier version of this script (the
-        // original bug this fix addresses: the upsert only ever touched
-        // canonicalProductId, so a stale/wrong productUrl from a prior run
-        // survived forever).
-        update: { canonicalProductId: canonical.id, productUrl: bestEffortUrl },
-      });
-      offersCreated++;
-
-      await prisma.merchantListingSignal.create({
-        data: {
-          merchantListingId: offerListing.id,
-          source: "mercado_livre_catalog_items",
-          raw: {
-            ...item,
-            discountPercent: getDiscountPercent(item),
-            seller,
-            permalinkVerified: false,
-          } as unknown as object,
-        },
-      });
-
-      const input: MonetizationScoreInput = {
-        demandSignal: { value: catalogDemandScore, quality: "DERIVED_FROM_OBSERVED" },
-        commissionSignal: null, // no affiliate commission API available — see docs.
-        trendSignal: null,
-        historicalConversionSignal: null,
-        offerQualitySignal: { value: offerQualityScore(item, seller), quality: "OBSERVED" },
-      };
-      const score = calculateMonetizationScore(input);
-      await prisma.monetizationScore.upsert({
-        where: { merchantListingId: offerListing.id },
-        create: {
-          merchantListingId: offerListing.id,
-          score: score.score,
-          confidence: score.confidence,
-          components: score.components as unknown as object,
-          reasons: score.reasons,
-          missingSignals: score.missingSignals,
-        },
-        update: {
-          score: score.score,
-          confidence: score.confidence,
-          components: score.components as unknown as object,
-          reasons: score.reasons,
-          missingSignals: score.missingSignals,
-        },
-      });
-    }
+    console.log(`  ${catalogListing.externalId}: ${result.offersProcessed} oferta(s) real(is).`);
+    offersCreated += result.offersCreated + result.offersUpdated;
   }
 
   console.log(`\nResumo: ${catalogListings.length} produto(s) processado(s), ${offersCreated} oferta(s) real(is) enriquecida(s).`);
