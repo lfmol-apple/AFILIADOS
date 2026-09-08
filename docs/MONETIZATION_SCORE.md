@@ -274,6 +274,20 @@ periodicamente — automatizar isso com segurança (rotação atômica, sem down
 refresh_token em log de
 cron) fica para uma fase futura, quando fizer sentido decidir isso junto com os outros 13 jobs.
 
+### Fluxo OAuth real implementado (2026-09-08)
+
+`lib/services/ml-oauth.ts` implementa o Authorization Code + PKCE S256 real: `GET
+/api/admin/mercadolivre/authorize` (só para admin autenticado) gera par PKCE + `state` real, grava
+em cookie `HttpOnly` de 10 minutos, e redireciona para `auth.mercadolivre.com.br`. `GET
+/api/auth/mercadolivre/callback` (path exigido — precisa estar cadastrado exatamente assim no
+DevCenter do app "Preço Caindo", Client ID `7130181975666501`) valida `state`, troca o `code` pelo
+par de tokens reais em `POST /oauth/token`, e grava na **mesma** tabela
+`IntegrationCredential` que `ml-token-store.ts` já lê — nenhuma persistência nova, nenhuma
+duplicação. Nunca renderiza token nenhum; erros redirecionam para `/admin?ml_oauth=error&reason=...`
+com um motivo sanitizado, nunca o payload da Mercado Livre. `/admin` → Integrações → "Mercado
+Livre — autenticação" mostra status real (conectado/não conectado, validade do token) e o
+botão de conectar/reconectar.
+
 ### Correção urgente — `productUrl` das ofertas não é um permalink verificado (2026-09-07)
 
 Detectado em produção: o `productUrl` gerado por `scripts/ml-enrich-offers.ts`

@@ -29,6 +29,8 @@ import { getMlAffiliateQueue } from "@/lib/queries/ml-affiliate-queue";
 import { OperationsOpportunityList } from "@/components/operations-opportunity-list";
 import { getTodaysOpportunities, getOperationsSummary } from "@/lib/queries/operations-center";
 import { getAdminRadarFeed } from "@/lib/queries/radar-events";
+import { getMercadoLivreCredentialStatus } from "@/lib/services/ml-token-store";
+import type { PagePropsWithSearch } from "@/lib/next-route-types";
 
 export const metadata: Metadata = {
   title: "Admin",
@@ -101,7 +103,7 @@ function SubSection({
   );
 }
 
-export default async function AdminPage() {
+export default async function AdminPage(props: PagePropsWithSearch) {
   const cookieStore = await cookies();
   const sessionToken = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
   const authorized = await isAdminRequestAuthorized(sessionToken);
@@ -109,6 +111,10 @@ export default async function AdminPage() {
   if (!authorized) {
     return <AdminLoginForm />;
   }
+
+  const searchParams = await props.searchParams;
+  const mlOauthStatus = typeof searchParams?.ml_oauth === "string" ? searchParams.ml_oauth : undefined;
+  const mlOauthReason = typeof searchParams?.reason === "string" ? searchParams.reason : undefined;
 
   const [
     today,
@@ -128,6 +134,7 @@ export default async function AdminPage() {
     todaysOpportunities,
     operationsSummary,
     radarFeed,
+    mlCredentialStatus,
   ] = await Promise.all([
     getTodayStats(),
     getWeeklyStats(),
@@ -146,6 +153,7 @@ export default async function AdminPage() {
     getTodaysOpportunities(),
     getOperationsSummary(),
     getAdminRadarFeed(200),
+    getMercadoLivreCredentialStatus(),
   ]);
   const brCompliancePass = checkLiveActivationReadiness("BR").every(
     (c) => c.pass,
@@ -184,6 +192,18 @@ export default async function AdminPage() {
         <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-300">
           ⚠️ Políticas Amazon não revisadas há mais de 90 dias. Atualize
           AMAZON_POLICY_REVIEW_DATE após revisar docs/AMAZON_COMPLIANCE.md.
+        </div>
+      )}
+
+      {mlOauthStatus === "success" && (
+        <div className="mt-4 rounded-lg border border-emerald-300 bg-emerald-50 p-3 text-sm text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+          ✅ Mercado Livre conectado com sucesso.
+        </div>
+      )}
+      {mlOauthStatus === "error" && (
+        <div className="mt-4 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm text-rose-800 dark:border-rose-800 dark:bg-rose-950 dark:text-rose-300">
+          ❌ Falha ao conectar o Mercado Livre{mlOauthReason ? ` (${mlOauthReason})` : ""}. Tente
+          novamente pelo botão em Integrações → Mercado Livre.
         </div>
       )}
 
@@ -590,6 +610,27 @@ export default async function AdminPage() {
             </div>
           </SubSection>
         </div>
+
+        <SubSection title="Mercado Livre — autenticação">
+          <div className="flex flex-wrap items-center gap-3">
+            <StatusPill
+              ok={mlCredentialStatus.connected}
+              label={mlCredentialStatus.connected ? "Conectado" : "Não conectado"}
+            />
+            {mlCredentialStatus.expiresAt && (
+              <span className="text-foreground/60 text-xs">
+                Token válido até {mlCredentialStatus.expiresAt.toISOString()} (renovação automática
+                antes de expirar)
+              </span>
+            )}
+            <a
+              href="/api/admin/mercadolivre/authorize"
+              className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
+            >
+              {mlCredentialStatus.connected ? "Reconectar" : "Conectar"} Mercado Livre →
+            </a>
+          </div>
+        </SubSection>
       </DashboardGroup>
 
       {/* ---------------- PRIVACIDADE ---------------- */}

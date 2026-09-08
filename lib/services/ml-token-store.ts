@@ -182,3 +182,16 @@ async function refresh(previousAccessToken: string, refreshToken: string): Promi
   logger.info("mercado_livre.token_refreshed", { expiresAt: expiresAt.toISOString() });
   return body.access_token;
 }
+
+export interface MercadoLivreCredentialStatus {
+  connected: boolean;
+  expiresAt: Date | null;
+  updatedAt: Date | null;
+}
+
+/** For /admin display only — never returns the token values themselves. */
+export async function getMercadoLivreCredentialStatus(): Promise<MercadoLivreCredentialStatus> {
+  const row = await prisma.integrationCredential.findUnique({ where: { provider: "MERCADO_LIVRE" } });
+  if (!row) return { connected: false, expiresAt: null, updatedAt: null };
+  return { connected: true, expiresAt: row.expiresAt, updatedAt: row.updatedAt };
+}
