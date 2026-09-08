@@ -20,6 +20,12 @@ import {
  * client-side state, so this section needs no client boundary at all.
  */
 export function AmazonBrShowcase() {
+  // "Se AmazonBrShowcase não tiver conteúdo real, não renderizar o bloco"
+  // (project brief, 2026-09-08) — defensive: today AMAZON_SHOWCASE_FEATURED
+  // is always non-empty (hand-curated, not DB-driven), but this must never
+  // reserve visible Home space once/if that stops being true.
+  if (AMAZON_SHOWCASE_FEATURED.length === 0) return null;
+
   return (
     <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
       <div>

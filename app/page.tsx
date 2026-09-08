@@ -1,12 +1,23 @@
 import Link from "next/link";
 import { getHomeSections } from "@/lib/queries/products";
-import { ProductCard } from "@/components/product-card";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { AmazonBrShowcase } from "@/components/amazon-br-showcase";
 import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 import { GUIDES } from "@/lib/editorial/guides";
 import { RadarFeed } from "@/components/radar-feed";
 import { getPublicRadarFeed } from "@/lib/queries/radar-events";
+import {
+  getUnifiedMerchantOffers,
+  mapAmazonProductToUnifiedCard,
+  type UnifiedOfferCard as UnifiedOfferCardData,
+} from "@/lib/queries/unified-offers";
+import { UnifiedOfferCard } from "@/components/unified-offer-card";
+
+// Home reorganization, 2026-09-08 — see docs/HOME_ARCHITECTURE.md for the
+// full diagnostic/decision record this file implements: one journey
+// (descobrir -> entender -> comparar -> decidir -> comprar), not a
+// collection of per-marketplace or per-data-source modules. Marketplace
+// is a secondary attribute on a card, never a section of its own.
 
 export const dynamic = "force-dynamic";
 
@@ -42,19 +53,6 @@ const FEATURED_GUIDE_SLUGS = [
   "como-comparar-celulares-alem-do-preco",
 ];
 
-const FEATURED_TOOL_SLUGS = [
-  "como-comparar-preco-por-kg-litro-ou-unidade",
-  "parcelado-ou-a-vista-como-comparar-corretamente",
-  "como-comparar-precos-sem-cair-em-falso-desconto",
-];
-
-const EDITORIAL_CATEGORIES = [
-  "Decisão de compra",
-  "Histórico de preços",
-  "Comparação",
-  "Planejamento",
-];
-
 type HomeSections = Awaited<ReturnType<typeof getHomeSections>>;
 
 const EMPTY_HOME_SECTIONS: HomeSections = {
@@ -65,62 +63,63 @@ const EMPTY_HOME_SECTIONS: HomeSections = {
   guides: [],
 };
 
-async function loadHomeSections(catalogSafe: boolean): Promise<{
-  sections: HomeSections;
-  catalogUnavailable: boolean;
-}> {
-  if (!catalogSafe) {
-    return { sections: EMPTY_HOME_SECTIONS, catalogUnavailable: true };
-  }
-
+async function loadHomeSections(catalogSafe: boolean): Promise<HomeSections> {
+  if (!catalogSafe) return EMPTY_HOME_SECTIONS;
   try {
-    return {
-      sections: await getHomeSections(),
-      catalogUnavailable: false,
-    };
+    return await getHomeSections();
   } catch (error) {
     console.error("home.catalog_unavailable", error);
-    return { sections: EMPTY_HOME_SECTIONS, catalogUnavailable: true };
+    return EMPTY_HOME_SECTIONS;
   }
 }
 
 export default async function Home() {
-  // Pre-launch (or every data-source gate closed) — see
-  // lib/config/public-catalog.ts. Deliberately checks "is anything at all
-  // currently visible" rather than isPublicCatalogSafeToShow() alone: a
-  // MANUAL_VERIFIED cohort can be visible even when that check is false
-  // (e.g. AMAZON_PROVIDER=mock in production). The homepage itself stays up
-  // in an institutional shell either way; only the catalog-derived sections
-  // are withheld when nothing is currently visible.
+  // Amazon-specific gate (AMAZON_PROVIDER=mock, PUBLIC_CATALOG_ENABLED,
+  // etc. — see lib/config/public-catalog.ts). Only governs whether
+  // Amazon's own Product-backed data is queried at all; Shopee/Mercado
+  // Livre data below is entirely independent of it.
   const catalogSafe = currentlyVisibleDataSources().length > 0;
-  const { sections, catalogUnavailable } = await loadHomeSections(catalogSafe);
-  // Shopee/Mercado Livre radar — independent of catalogSafe (Amazon-only
-  // gate above): each event already requires its own real
-  // MonetizationScore/signal evidence, and the CTA is separately
-  // fail-closed on AffiliateLinkRegistry.status === "ACTIVE"
-  // (lib/queries/radar-events.ts). Resilient the same way
-  // loadHomeSections is — a query failure never breaks the homepage.
-  const radarItems = await getPublicRadarFeed(8).catch((error) => {
-    console.error("home.radar_unavailable", error);
-    return [];
-  });
-  const {
-    pricesDropping,
-    bestOpportunities,
-    popularProducts,
-    categories,
-    guides,
-  } = sections;
+  const { bestOpportunities, categories } = await loadHomeSections(catalogSafe);
+
+  const [radarItems, merchantOffers] = await Promise.all([
+    // Resilient the same way loadHomeSections is — a query failure never
+    // breaks the homepage.
+    getPublicRadarFeed(8).catch((error) => {
+      console.error("home.radar_unavailable", error);
+      return [];
+    }),
+    getUnifiedMerchantOffers(24).catch((error) => {
+      console.error("home.merchant_offers_unavailable", error);
+      return [] as UnifiedOfferCardData[];
+    }),
+  ]);
+
+  // "Melhores oportunidades agora" — cross-merchant, real, purchasable
+  // items only (every source here already filters to a real, ACTIVE
+  // affiliate link or, for Amazon, a real Offer row). Sorted by each
+  // merchant's own real, commission-free opportunity signal — see
+  // lib/queries/unified-offers.ts's doc comment for exactly what that is
+  // and why commission never enters it.
+  const bestOffers = [...bestOpportunities.map(mapAmazonProductToUnifiedCard), ...merchantOffers]
+    .sort((a, b) => (b.opportunitySignal ?? -1) - (a.opportunitySignal ?? -1))
+    .slice(0, 8);
+
+  // "REAL > PLACEHOLDER" (project brief) — the old Amazon-only
+  // catalogUnavailable gate is gone: with 0 Amazon products but 12
+  // Shopee + up to 200 Mercado Livre listings, showing a "catálogo ainda
+  // não disponível" notice would be false. Only show it when there is
+  // genuinely nothing commercial to show anywhere on the page.
+  const hasAnyRealCommercialContent = radarItems.length > 0 || bestOffers.length > 0;
+
   const featuredGuides = FEATURED_GUIDE_SLUGS.map((slug) =>
-    GUIDES.find((guide) => guide.slug === slug),
-  ).filter((guide): guide is (typeof GUIDES)[number] => Boolean(guide));
-  const featuredTools = FEATURED_TOOL_SLUGS.map((slug) =>
     GUIDES.find((guide) => guide.slug === slug),
   ).filter((guide): guide is (typeof GUIDES)[number] => Boolean(guide));
 
   return (
     <div>
       <AnalyticsBeacon pageType="home" pageSlug="/" />
+
+      {/* ---------------- 1. HERO + BUSCA ---------------- */}
       <section className="border-border-subtle bg-surface-muted border-b">
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.2fr_0.8fr] lg:items-center lg:py-16">
           <div>
@@ -210,9 +209,10 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* ---------------- 2. RADAR ---------------- */}
       <RadarFeed items={radarItems} />
 
-      {catalogUnavailable && (
+      {!hasAnyRealCommercialContent && (
         <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
           <div className="border-border-subtle rounded-lg border p-6 text-sm">
             <p className="font-semibold">Comece pela decisão, não pelo link.</p>
@@ -226,123 +226,87 @@ export default async function Home() {
         </section>
       )}
 
-      {pricesDropping.length > 0 && (
-        <HomeSection title="🔥 Preços caindo agora" href="/ofertas">
-          {pricesDropping.map((product) => (
-            <ProductCard key={product.id} product={product} />
+      {/* ---------------- 3. MELHORES OPORTUNIDADES AGORA ---------------- */}
+      {bestOffers.length > 0 && (
+        <HomeSection title="🏆 Melhores oportunidades agora" href="/ofertas">
+          {bestOffers.map((item) => (
+            <UnifiedOfferCard key={`${item.merchant}-${item.id}`} item={item} />
           ))}
         </HomeSection>
       )}
-
-      {bestOpportunities.length > 0 && (
-        <HomeSection title="🏆 Boas compras agora" href="/ofertas">
-          {bestOpportunities.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </HomeSection>
-      )}
-
-      {popularProducts.length > 0 &&
-        pricesDropping.length === 0 &&
-        bestOpportunities.length === 0 && (
-          <HomeSection title="Produtos populares monitorados" href="/ofertas">
-            {popularProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </HomeSection>
-        )}
-
-      <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-        <h2 className="text-lg font-semibold">Motor de decisão de compra</h2>
-        <div className="mt-4 grid gap-4 sm:grid-cols-3">
-          {[
-            {
-              title: "1. Ranking",
-              body: "Começamos pelos produtos com maior demanda e categorias com mais intenção de compra.",
-            },
-            {
-              title: "2. Verificação",
-              body: "Cada produto precisa ter preço, imagem, loja de destino e evidências antes de ganhar destaque.",
-            },
-            {
-              title: "3. Decisão",
-              body: "O usuário vê o veredito, compra na loja parceira ou cria alerta para acompanhar queda.",
-            },
-          ].map((step) => (
-            <div
-              key={step.title}
-              className="border-border-subtle rounded-lg border p-4"
-            >
-              <h3 className="text-sm font-semibold">{step.title}</h3>
-              <p className="text-foreground/70 mt-2 text-sm leading-relaxed">
-                {step.body}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-        <div className="grid gap-8 lg:grid-cols-[0.75fr_1.25fr]">
-          <div>
-            <h2 className="text-lg font-semibold">Categorias editoriais</h2>
-            <p className="text-foreground/70 mt-2 text-sm leading-relaxed">
-              O conteúdo é organizado por tipo de decisão, para o usuário
-              encontrar rapidamente como comparar antes de comprar.
-            </p>
-          </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {EDITORIAL_CATEGORIES.map((category) => (
-              <div
-                key={category}
-                className="border-border-subtle rounded-lg border p-4"
-              >
-                <p className="text-sm font-semibold">{category}</p>
-                <p className="text-foreground/60 mt-1 text-sm">
-                  Guias independentes para avaliar preço, momento e custo real.
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-        <h2 className="text-lg font-semibold">Ferramentas rápidas</h2>
-        <div className="mt-4 grid gap-3 md:grid-cols-3">
-          {featuredTools.map((guide) => (
-            <Link
-              key={guide.slug}
-              href={`/guias/${guide.slug}`}
-              className="border-border-subtle hover:border-brand block rounded-lg border p-4"
-            >
-              <p className="text-sm font-semibold">{guide.title}</p>
-              <p className="text-foreground/60 mt-2 text-sm leading-relaxed">
-                Inclui calculadora para transformar a comparação em decisão
-                objetiva.
-              </p>
-            </Link>
-          ))}
-        </div>
-      </section>
 
       <AmazonBrShowcase />
 
+      {/* ---------------- 4. CATEGORIAS ---------------- */}
+      {categories.length > 0 && (
+        <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+          <h2 className="text-lg font-semibold">Categorias</h2>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {categories.map((category) => (
+              <Link
+                key={category.id}
+                href={`/categorias/${category.slug}`}
+                className="border-border-subtle hover:border-brand hover:text-brand rounded-full border px-4 py-2 text-sm"
+              >
+                {category.name}
+                <span className="text-foreground/40 ml-1">
+                  ({category._count.products})
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ---------------- 5. GUIAS ---------------- */}
       <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-        <h2 className="text-lg font-semibold">Metodologia</h2>
+        <h2 className="text-lg font-semibold">Guias para comprar melhor</h2>
+        <p className="text-foreground/70 mt-1 text-sm leading-relaxed">
+          Conteúdo independente para decidir com segurança: histórico, custo
+          real, comparação entre lojas e sinais de falsa promoção.
+        </p>
+        <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {featuredGuides.map((guide) => (
+            <li key={guide.slug}>
+              <Link
+                href={`/guias/${guide.slug}`}
+                className="border-border-subtle hover:border-brand block rounded-lg border p-4 text-sm"
+              >
+                <span className="text-foreground/50 block text-xs tracking-wide uppercase">
+                  {guide.category}
+                </span>
+                <span className="mt-1 block font-medium">{guide.title}</span>
+                <span className="text-foreground/50 mt-3 block text-xs">
+                  {guide.readingTime} de leitura
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <Link
+          href="/guias"
+          className="text-brand mt-4 inline-block text-sm hover:underline"
+        >
+          Ver todos os guias
+        </Link>
+      </section>
+
+      {/* ---------------- 6. COMO FUNCIONA / METODOLOGIA ---------------- */}
+      <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+        <h2 className="text-lg font-semibold">Como o PreçoCaindo decide</h2>
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           {[
             {
               title: "Evidência antes do destaque",
-              body: "Uma recomendação precisa explicar o sinal usado: histórico, custo por unidade, preço final ou critério editorial.",
+              body: "Ranqueamos por demanda, histórico e sinais reais de mercado — nunca por comissão. Cada destaque precisa de preço, imagem, loja de destino e evidência antes de aparecer.",
             },
             {
               title: "Independência comercial",
-              body: "Comissão não compra posição editorial, score nem conclusão. Se faltar evidência, a página deve dizer isso.",
+              body: "Comissão não compra posição, score nem conclusão. Se faltar evidência, a página diz isso — nunca inventa.",
             },
             {
               title: "Utilidade sem afiliado",
-              body: "Cada guia precisa ajudar mesmo quando não há botão de compra disponível.",
+              body: "O usuário vê o veredito e decide: compra na loja parceira agora ou espera. Guias ajudam mesmo sem link comercial disponível.",
             },
           ].map((item) => (
             <div
@@ -361,64 +325,6 @@ export default async function Home() {
           className="text-brand mt-4 inline-block text-sm hover:underline"
         >
           Ver metodologia completa
-        </Link>
-      </section>
-
-      {categories.length > 0 && (
-        <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-          <h2 className="text-lg font-semibold">Mais procurados</h2>
-          <div className="mt-4 flex flex-wrap gap-2">
-            {categories.map((category) => (
-              <Link
-                key={category.id}
-                href={`/categorias/${category.slug}`}
-                className="border-border-subtle hover:border-brand hover:text-brand rounded-full border px-4 py-2 text-sm"
-              >
-                {category.name}
-                <span className="text-foreground/40 ml-1">
-                  ({category._count.products})
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-        <h2 className="text-lg font-semibold">Guias para comprar melhor</h2>
-        <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {featuredGuides.map((guide) => (
-            <li key={guide.slug}>
-              <Link
-                href={`/guias/${guide.slug}`}
-                className="border-border-subtle hover:border-brand block rounded-lg border p-4 text-sm"
-              >
-                <span className="text-foreground/50 block text-xs tracking-wide uppercase">
-                  {guide.category}
-                </span>
-                <span className="mt-1 block font-medium">{guide.title}</span>
-                <span className="text-foreground/50 mt-3 block text-xs">
-                  {guide.readingTime} de leitura
-                </span>
-              </Link>
-            </li>
-          ))}
-          {guides.map((guide) => (
-            <li key={guide.id}>
-              <Link
-                href={`/${guide.contentType === "BEST_OF" ? "melhores" : "comparar"}/${guide.slug}`}
-                className="border-border-subtle hover:border-brand block rounded-lg border p-4 text-sm"
-              >
-                {guide.title}
-              </Link>
-            </li>
-          ))}
-        </ul>
-        <Link
-          href="/guias"
-          className="text-brand mt-4 inline-block text-sm hover:underline"
-        >
-          Ver todos os guias
         </Link>
       </section>
     </div>

@@ -4,6 +4,12 @@ import { GUIDES, getGuideCategories } from "@/lib/editorial/guides";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { jsonLdScriptPayload } from "@/lib/seo/structured-data";
 import { siteConfig } from "@/lib/config/site";
+import { prisma } from "@/lib/db";
+
+// Same cadence as /melhores and /comparar (this page now queries the same
+// GeneratedContent rows for discovery) — without this the page's new DB
+// read gets baked in once at build time and never refreshes.
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Guias para comprar melhor",
@@ -17,9 +23,30 @@ export const metadata: Metadata = {
   },
 };
 
-export default function GuiasPage() {
+async function loadGeneratedGuides() {
+  // "/guias deve ser capaz de descobrir os três tipos quando existirem"
+  // (project brief, 2026-09-08) — /guias (static, hand-authored),
+  // /melhores and /comparar (GeneratedContent, AI-authored + quality-gated)
+  // are conceptually one editorial layer now; this is purely additive
+  // discovery, no URL changes, no content generated here. Resilient: a
+  // query failure never breaks the guides index.
+  try {
+    return await prisma.generatedContent.findMany({
+      where: { status: "PUBLISHED", noindex: false, contentType: { in: ["BEST_OF", "COMPARISON"] } },
+      select: { slug: true, title: true, contentType: true },
+      orderBy: { publishedAt: "desc" },
+      take: 12,
+    });
+  } catch (error) {
+    console.error("guias.generated_content_unavailable", error);
+    return [];
+  }
+}
+
+export default async function GuiasPage() {
   const featured = GUIDES.slice(0, 3);
   const categories = getGuideCategories();
+  const generatedGuides = await loadGeneratedGuides();
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -101,6 +128,30 @@ export default function GuiasPage() {
           ))}
         </div>
       </section>
+
+      {generatedGuides.length > 0 && (
+        <section className="mt-10">
+          <h2 className="text-lg font-semibold">Rankings e comparações</h2>
+          <p className="text-foreground/70 mt-1 max-w-2xl text-sm leading-relaxed">
+            Conteúdo gerado a partir de dados reais, validado antes de
+            publicar — mesma independência editorial dos guias acima.
+          </p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {generatedGuides.map((content) => (
+              <Link
+                key={`${content.contentType}-${content.slug}`}
+                href={`/${content.contentType === "BEST_OF" ? "melhores" : "comparar"}/${content.slug}`}
+                className="border-border-subtle hover:border-brand block rounded-lg border p-4 text-sm"
+              >
+                <span className="text-foreground/50 block text-xs tracking-wide uppercase">
+                  {content.contentType === "BEST_OF" ? "Melhores" : "Comparação"}
+                </span>
+                <span className="mt-1 block font-medium">{content.title}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   );
 }

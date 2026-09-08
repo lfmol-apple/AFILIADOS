@@ -3,6 +3,7 @@ import { AffiliateDisclosure } from "@/components/affiliate-disclosure";
 import { siteConfig } from "@/lib/config/site";
 
 const LINKS = [
+  { href: "/ofertas", label: "Ofertas" },
   { href: "/guias", label: "Guias" },
   { href: "/sobre", label: "Sobre" },
   { href: "/como-funciona", label: "Como funciona" },
