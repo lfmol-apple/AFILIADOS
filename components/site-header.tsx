@@ -92,18 +92,6 @@ export function SiteHeader() {
           <Link href="/guias" className="hover:text-brand hidden sm:inline">
             Guias
           </Link>
-          <Link
-            href="/como-funciona"
-            className="hover:text-brand hidden sm:inline"
-          >
-            Como funciona
-          </Link>
-          <Link
-            href="/transparencia"
-            className="hover:text-brand hidden sm:inline"
-          >
-            Transparência
-          </Link>
         </nav>
       </div>
     </header>
