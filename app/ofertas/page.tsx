@@ -51,11 +51,17 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
     // lib/queries/unified-offers.ts's searchUnifiedOffers() doc comment
     // para o porquê disso não agrupar por produto ainda (ProductMatcher
     // nunca rodou sobre dado real).
-    const { items, page: currentPage, totalPages } = catalogSafe
-      ? await searchUnifiedOffers({ query, page })
-      : { items: [], page: 1, totalPages: 1 };
+    // Bug real corrigido em 2026-09-08: `catalogSafe` só reflete a
+    // visibilidade da Amazon (PUBLIC_CATALOG_ENABLED/MANUAL_PRODUCTS_ENABLED)
+    // — nunca deve envolver a chamada inteira, senão Shopee/ML (que têm
+    // sua própria regra fail-closed via AffiliateLinkRegistry ACTIVE,
+    // aplicada dentro de searchUnifiedOffers/getUnifiedMerchantOffers)
+    // desaparecem da busca sempre que a Amazon estiver com o catálogo
+    // público fechado — exatamente o que já foi corrigido antes na Home e
+    // na grade padrão de /ofertas (ver getUnifiedMerchantOffers acima).
+    const { items, page: currentPage, totalPages } = await searchUnifiedOffers({ query, page });
 
-    if (catalogSafe) await recordSearchEvent(query, items.length);
+    await recordSearchEvent(query, items.length);
 
     return (
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
@@ -66,9 +72,7 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
           Resultados reais em qualquer loja parceira, priorizados por
           demanda e evidência.
         </p>
-        {!catalogSafe && items.length === 0 ? (
-          <PreLaunchNotice />
-        ) : items.length === 0 ? (
+        {items.length === 0 ? (
           <p className="text-foreground/60 mt-10 text-sm">Nenhum produto encontrado.</p>
         ) : (
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
