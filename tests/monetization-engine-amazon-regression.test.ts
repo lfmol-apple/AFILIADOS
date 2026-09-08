@@ -19,16 +19,17 @@ describe("Amazon provider/merchant config — unaffected by the monetization eng
     expect(provider.marketplace).toBe("BR");
   });
 
-  it("the amazon merchant config is still 'live' and affiliateEnabled — unaffected by shopee going live too (2026-09-07)", () => {
+  it("the amazon merchant config is still 'live' and affiliateEnabled — unaffected by shopee/mercado-livre going live too", () => {
     const amazon = getMerchantConfig("amazon");
     expect(amazon.status).toBe("live");
     expect(amazon.affiliateEnabled).toBe(true);
 
-    // Mercado Livre stays "prepared" (human-assisted link flow, no
-    // automated generation) — only Shopee's status legitimately changed,
-    // once real Affiliate API credentials were confirmed working.
+    // Mercado Livre flipped to "live" 2026-09-08 once a real human-
+    // generated link (via the real Linkbuilder tool) was confirmed
+    // working — the human-assisted flow itself is unchanged, no
+    // automated link generation was added.
     const mercadoLivre = getMerchantConfig("mercado-livre");
-    expect(mercadoLivre.status).toBe("prepared");
-    expect(mercadoLivre.affiliateEnabled).toBe(false);
+    expect(mercadoLivre.status).toBe("live");
+    expect(mercadoLivre.affiliateEnabled).toBe(true);
   });
 });

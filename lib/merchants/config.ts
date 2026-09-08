@@ -31,19 +31,27 @@ const MERCHANTS: Record<MerchantCode, MerchantPublicConfig> = {
   "mercado-livre": {
     code: "mercado-livre",
     name: "Mercado Livre",
-    status: "prepared",
+    // Flipped 2026-09-08 (was "prepared"/false) — a human-generated link
+    // via the real Linkbuilder tool (meli.la, confirmed live) was pasted
+    // and saved successfully; the human-assisted flow itself is
+    // unchanged (no automatic link generation was added), same category
+    // of change as Shopee's own prepared -> live flip in an earlier phase.
+    status: "live",
     // .com.br hosts are the plain product pages; .com/sec/... and
     // .com.br/social/... are the short-link formats their affiliate link
     // generator produces (confirmed via research, 2026-09-07 — see
-    // docs/AFFILIATE_LINK_REGISTRY.md) — both must validate for a human to
-    // paste a real generated link into the admin queue.
+    // docs/AFFILIATE_LINK_REGISTRY.md). meli.la is the real short-link
+    // host the Linkbuilder tool (https://www.mercadolivre.com.br/afiliados/
+    // linkbuilder#hub) actually produces — confirmed live 2026-09-08 (a
+    // real pasted link was rejected until this host was added).
     allowedHosts: [
       "mercadolivre.com.br",
       "www.mercadolivre.com.br",
       "mercadolivre.com",
       "www.mercadolivre.com",
+      "meli.la",
     ],
-    affiliateEnabled: false,
+    affiliateEnabled: true,
   },
   shopee: {
     code: "shopee",

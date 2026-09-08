@@ -12,8 +12,12 @@ describe("merchant routing config", () => {
     expect(isMerchantCode("amazon")).toBe(true);
     expect(isMerchantCode("mercado-livre")).toBe(true);
     expect(isMerchantCode("unknown")).toBe(false);
-    expect(getMerchantConfig("mercado-livre").status).toBe("prepared");
-    expect(getMerchantConfig("mercado-livre").affiliateEnabled).toBe(false);
+    // mercado-livre itself went "live" 2026-09-08 (real human-generated
+    // link confirmed working) — awin is still genuinely unimplemented,
+    // so it's the one that still demonstrates "prepared, no fake
+    // integration enabled".
+    expect(getMerchantConfig("awin").status).toBe("prepared");
+    expect(getMerchantConfig("awin").affiliateEnabled).toBe(false);
   });
 
   it("rejects destinations outside the merchant whitelist", async () => {
