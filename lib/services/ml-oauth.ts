@@ -74,9 +74,20 @@ export async function completeMercadoLivreOAuth(input: {
   });
 
   if (!response.ok) {
-    // Never logs the body — Mercado Livre's token-exchange error payloads
-    // can echo back request parameters (including the authorization code).
-    logger.error("mercado_livre.oauth_exchange_failed", { status: response.status });
+    // TEMPORARY diagnostic (2026-09-08, remove once the real cause of a
+    // live 400 is confirmed): logs ONLY the standard OAuth error/
+    // error_description fields, explicitly whitelisted — never the full
+    // body (which could otherwise echo back request params) and never
+    // access_token/refresh_token/client_secret/code/code_verifier, none
+    // of which ML's error responses carry per the OAuth spec.
+    const errorBody = await response.json().catch(() => null) as
+      | { error?: string; error_description?: string; message?: string }
+      | null;
+    logger.error("mercado_livre.oauth_exchange_failed", {
+      status: response.status,
+      error: errorBody?.error,
+      errorDescription: errorBody?.error_description ?? errorBody?.message,
+    });
     throw new Error(`Mercado Livre OAuth token exchange failed: HTTP ${response.status}`);
   }
 
