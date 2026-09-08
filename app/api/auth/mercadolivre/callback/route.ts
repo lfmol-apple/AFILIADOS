@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { completeMercadoLivreOAuth } from "@/lib/services/ml-oauth";
 import { ML_OAUTH_PKCE_COOKIE } from "@/app/api/admin/mercadolivre/authorize/route";
 import { logger } from "@/lib/observability/logger";
+import { env } from "@/lib/config/env";
 
 /**
  * Real Mercado Livre OAuth callback — registered as this exact path in
@@ -24,9 +25,16 @@ export async function GET(request: Request) {
   // Always cleared — this cookie is single-use regardless of outcome.
   cookieStore.delete(ML_OAUTH_PKCE_COOKIE);
 
+  // Built from NEXT_PUBLIC_SITE_URL, never `url.origin` — behind this
+  // project's nginx reverse proxy, the Node process sees its own
+  // container-internal bind address (0.0.0.0:3000) as the request origin,
+  // not the public host. Confirmed live (2026-09-08): using `url.origin`
+  // here sent the browser to an unreachable `https://0.0.0.0:3000/admin`.
+  const adminUrl = (query: string) => `${env.NEXT_PUBLIC_SITE_URL}/admin${query}`;
+
   const fail = (reason: string) => {
     logger.error("mercado_livre.oauth_callback_failed", { reason });
-    return NextResponse.redirect(new URL(`/admin?ml_oauth=error&reason=${encodeURIComponent(reason)}`, url.origin));
+    return NextResponse.redirect(adminUrl(`?ml_oauth=error&reason=${encodeURIComponent(reason)}`));
   };
 
   if (oauthError) return fail(`mercado_livre_returned_error:${oauthError}`);
@@ -51,5 +59,5 @@ export async function GET(request: Request) {
     return fail("token_exchange_failed");
   }
 
-  return NextResponse.redirect(new URL("/admin?ml_oauth=success", url.origin));
+  return NextResponse.redirect(adminUrl("?ml_oauth=success"));
 }
