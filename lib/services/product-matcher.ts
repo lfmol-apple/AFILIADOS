@@ -1,9 +1,21 @@
 import { jaccardSimilarity } from "./similarity";
+import { gtinsMatch, normalizeGtin } from "./gtin";
+import { detectVariantConflict } from "./product-variant-guard";
 import type {
   MatchableListing,
   MatchEvidence,
   MatchResult,
 } from "@/types/product-match";
+
+/** Bumped whenever the matching rules themselves change (project brief:
+ * "distinguir match produzido pela regra antiga de match produzido pela
+ * regra nova"). Persisted inside every MatchEvidence.detail — no schema
+ * migration needed, ProductMatchEvidence.evidence is already a free-form
+ * Json column. v1: GTIN (real check-digit validated) / MANUFACTURER_ID ->
+ * CONFIRMED; BRAND_MODEL / TEXTUAL_CANDIDATE -> CANDIDATE, both guarded
+ * against storage/voltage/tier variant conflicts (lib/services/
+ * product-variant-guard.ts). */
+export const MATCHER_VERSION = "v1";
 
 /**
  * Decides whether two listings (possibly from different merchants) represent
@@ -30,17 +42,27 @@ export function matchListings(
 ): MatchResult | null {
   if (a.id === b.id) return null;
 
-  const gtinMatch = compareNormalized(a.gtin, b.gtin);
-  if (gtinMatch) {
+  // GTIN: real GS1 check-digit validation (lib/services/gtin.ts) — an
+  // equal-but-invalid "GTIN" (wrong length, bad check digit, not even
+  // numeric) is never treated as a match. A validated real-world
+  // identifier is unambiguous by definition, so this tier is never
+  // subject to the variant guard below — a different capacity/voltage is
+  // a genuinely different real GTIN, not a false positive to catch here.
+  if (gtinsMatch(a.gtin, b.gtin)) {
     return buildResult(a, b, "GTIN", 1, "CONFIRMED", {
+      matcherVersion: MATCHER_VERSION,
       method: "GTIN",
-      detail: { gtinA: normalize(a.gtin), gtinB: normalize(b.gtin) },
+      detail: { gtinA: normalizeGtin(a.gtin), gtinB: normalizeGtin(b.gtin) },
     });
   }
+  // A GTIN-shaped value that fails validation is recorded nowhere by
+  // design — it simply falls through to the next tier, exactly as if it
+  // were absent, per the same "never treat garbage as evidence" rule.
 
   const manufacturerMatch = compareNormalized(a.manufacturerId, b.manufacturerId);
   if (manufacturerMatch) {
     return buildResult(a, b, "MANUFACTURER_ID", 0.95, "CONFIRMED", {
+      matcherVersion: MATCHER_VERSION,
       method: "MANUFACTURER_ID",
       detail: {
         manufacturerIdA: normalize(a.manufacturerId),
@@ -49,10 +71,13 @@ export function matchListings(
     });
   }
 
+  const variantConflict = detectVariantConflict(a.title, b.title);
+
   const brandModelMatch =
     compareNormalized(a.brand, b.brand) && compareNormalized(a.model, b.model);
-  if (brandModelMatch) {
+  if (brandModelMatch && !variantConflict.conflict) {
     return buildResult(a, b, "BRAND_MODEL", 0.75, "CANDIDATE", {
+      matcherVersion: MATCHER_VERSION,
       method: "BRAND_MODEL",
       detail: {
         brandA: normalize(a.brand),
@@ -62,10 +87,20 @@ export function matchListings(
       },
     });
   }
+  if (brandModelMatch && variantConflict.conflict) {
+    // Same brand+model string, but the titles disagree on capacity/
+    // voltage/tier — e.g. "Galaxy A17" 128GB vs 256GB, a real conflict
+    // found in this app's own production data. Never a match at any
+    // status, not even CANDIDATE (project brief: "se houver dúvida:
+    // CANDIDATE ou nenhum match" — here there isn't doubt, there's a
+    // concrete, extracted disagreement, so "nenhum match" is the honest
+    // outcome, not a downgrade).
+    return null;
+  }
 
   const titleSimilarity = jaccardSimilarity(a.title, b.title);
   const TEXTUAL_CANDIDATE_THRESHOLD = 0.35;
-  if (titleSimilarity >= TEXTUAL_CANDIDATE_THRESHOLD) {
+  if (titleSimilarity >= TEXTUAL_CANDIDATE_THRESHOLD && !variantConflict.conflict) {
     return buildResult(
       a,
       b,
@@ -75,6 +110,7 @@ export function matchListings(
       Math.min(titleSimilarity, 0.6),
       "CANDIDATE",
       {
+        matcherVersion: MATCHER_VERSION,
         method: "TEXTUAL_CANDIDATE",
         detail: { titleA: a.title, titleB: b.title, titleSimilarity },
       },

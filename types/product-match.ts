@@ -27,6 +27,12 @@ export interface MatchableListing {
 
 export interface MatchEvidence {
   method: MatchMethod;
+  /** Which version of the matching rules produced this evidence (project
+   * brief: "distinguir match da regra antiga do match da regra nova") —
+   * deliberately simple, a bare string bumped by hand in
+   * lib/services/product-matcher.ts whenever a rule changes, not a whole
+   * versioning system. */
+  matcherVersion: string;
   /** What specifically was compared — e.g. the two GTIN values, or the
    * normalized brand/model tokens on each side, or the two titles and the
    * similarity score for a textual candidate. Always concrete, never a bare
