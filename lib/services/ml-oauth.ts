@@ -74,12 +74,13 @@ export async function completeMercadoLivreOAuth(input: {
   });
 
   if (!response.ok) {
-    // TEMPORARY diagnostic (2026-09-08, remove once the real cause of a
-    // live 400 is confirmed): logs ONLY the standard OAuth error/
-    // error_description fields, explicitly whitelisted — never the full
-    // body (which could otherwise echo back request params) and never
-    // access_token/refresh_token/client_secret/code/code_verifier, none
-    // of which ML's error responses carry per the OAuth spec.
+    // Kept permanently (2026-09-08) — proved its worth immediately,
+    // diagnosing a real invalid_client on the first live attempt. Logs
+    // ONLY the standard OAuth error/error_description fields, explicitly
+    // whitelisted — never the full body (which could otherwise echo back
+    // request params) and never access_token/refresh_token/client_secret/
+    // code/code_verifier, none of which ML's error responses carry per
+    // the OAuth spec.
     const errorBody = await response.json().catch(() => null) as
       | { error?: string; error_description?: string; message?: string }
       | null;

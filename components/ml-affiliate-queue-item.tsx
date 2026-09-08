@@ -8,7 +8,13 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const ML_LINK_GENERATOR_URL = "https://afiliados.mercadolivre.com.br";
+// Real URL confirmed by the user (2026-09-08) — the Linkbuilder tool
+// itself takes a real Mercado Livre product URL pasted into it and
+// resolves/generates the affiliate link, which is the actual practical
+// path here: this app never confirms navigability of a third-party
+// item's URL (permalinkVerified stays false — see below), but ML's own
+// Linkbuilder is exactly the tool built to resolve one authoritatively.
+const ML_LINK_GENERATOR_URL = "https://www.mercadolivre.com.br/afiliados/linkbuilder#hub";
 
 export interface MlAffiliateQueueItemProps {
   merchantListingId: string;
@@ -138,10 +144,10 @@ export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
 
       {props.bestOffer && !props.bestOffer.permalinkVerified && (
         <p className="mt-2 text-xs font-medium text-amber-700 dark:text-amber-400">
-          ⚠️ A API do Mercado Livre não confirma um link público para esta
-          oferta específica (investigado — ver docs/MONETIZATION_SCORE.md).
-          Use os termos de busca abaixo no portal oficial, não confie no
-          endereço copiado como um link direto.
+          ⚠️ Esta API não confirma sozinha que a URL abaixo abre a oferta
+          (investigado — ver docs/MONETIZATION_SCORE.md) — mas o Linkbuilder
+          da própria Mercado Livre resolve isso: copie a URL, cole lá, e ele
+          confirma e já gera o link.
         </p>
       )}
 
@@ -181,31 +187,30 @@ export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
       )}
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        {props.bestOffer && !props.bestOffer.permalinkVerified ? (
-          <button
-            type="button"
-            onClick={() => handleCopy(searchTerms)}
-            className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
-          >
-            {copied ? "Copiado!" : "Copiar termo de busca"}
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={() => handleCopy(props.publicUrl)}
-            className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
-          >
-            {copied ? "Copiado!" : "Copiar URL pública"}
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => handleCopy(props.publicUrl)}
+          className="bg-brand text-brand-foreground min-h-9 rounded-full px-4 text-xs font-semibold hover:opacity-90"
+        >
+          {copied ? "Copiado!" : "1. Copiar URL do produto"}
+        </button>
         <a
           href={ML_LINK_GENERATOR_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
         >
-          Abrir gerador de links ML →
+          2. Abrir Linkbuilder ML →
         </a>
+        {props.bestOffer && !props.bestOffer.permalinkVerified && (
+          <button
+            type="button"
+            onClick={() => handleCopy(searchTerms)}
+            className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
+          >
+            {copied ? "Copiado!" : "URL não resolveu? Copiar termo de busca"}
+          </button>
+        )}
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -213,7 +218,7 @@ export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
           type="url"
           value={affiliateUrl}
           onChange={(e) => setAffiliateUrl(e.target.value)}
-          placeholder="Cole aqui o link gerado (mercadolivre.com/sec/... ou .../social/...)"
+          placeholder="3. Cole aqui o link gerado pelo Linkbuilder (mercadolivre.com/sec/... ou .../social/...)"
           className="border-border-subtle min-h-9 min-w-64 flex-1 rounded-md border px-3 text-xs"
         />
         <button
@@ -222,7 +227,7 @@ export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
           disabled={pending || affiliateUrl.trim().length === 0}
           className="bg-brand text-brand-foreground min-h-9 rounded-full px-4 text-xs font-semibold disabled:opacity-50"
         >
-          {pending ? "Salvando..." : "Salvar e ir para o próximo"}
+          {pending ? "Salvando..." : "4. Salvar e ir para o próximo"}
         </button>
       </div>
       {error && (
