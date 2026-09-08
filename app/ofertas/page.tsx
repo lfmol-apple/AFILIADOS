@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getOfertas } from "@/lib/queries/products";
-import { ProductCard } from "@/components/product-card";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { recordSearchEvent } from "@/lib/analytics/search-event";
@@ -10,6 +9,7 @@ import type { PagePropsWithSearch } from "@/lib/next-route-types";
 import {
   getUnifiedMerchantOffers,
   mapAmazonProductToUnifiedCard,
+  searchUnifiedOffers,
 } from "@/lib/queries/unified-offers";
 import { UnifiedOfferCard } from "@/components/unified-offer-card";
 
@@ -45,14 +45,17 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
   const catalogSafe = currentlyVisibleDataSources().length > 0;
 
   if (query) {
-    // Search stays Amazon-only for now (project brief: "NÃO reconstruir
-    // ainda todo o motor de busca" — cross-merchant search is a documented
-    // next step, not this round). Unchanged from before.
-    const { items, page: currentPage, totalPages, total } = catalogSafe
-      ? await getOfertas({ page, query })
-      : { items: [], page: 1, totalPages: 1, total: 0 };
+    // Busca Cross-Merchant V1 (2026-09-08) — pesquisa a base já observada
+    // (Product Amazon + MerchantListing Shopee/ML com AffiliateLink
+    // ACTIVE), nunca uma API externa durante o request. Ver
+    // lib/queries/unified-offers.ts's searchUnifiedOffers() doc comment
+    // para o porquê disso não agrupar por produto ainda (ProductMatcher
+    // nunca rodou sobre dado real).
+    const { items, page: currentPage, totalPages } = catalogSafe
+      ? await searchUnifiedOffers({ query, page })
+      : { items: [], page: 1, totalPages: 1 };
 
-    if (catalogSafe) await recordSearchEvent(query, total);
+    if (catalogSafe) await recordSearchEvent(query, items.length);
 
     return (
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
@@ -60,17 +63,17 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
         <Breadcrumbs items={[{ label: "Início", href: "/" }, { label: "Ofertas" }]} />
         <h1 className="mt-4 text-2xl font-semibold">Resultados para &quot;{query}&quot;</h1>
         <p className="text-foreground/60 mt-1 text-sm">
-          Busca hoje cobre o catálogo Amazon monitorado — Shopee e Mercado
-          Livre entram na busca cross-merchant numa próxima etapa.
+          Resultados reais em qualquer loja parceira, priorizados por
+          demanda e evidência.
         </p>
-        {!catalogSafe ? (
+        {!catalogSafe && items.length === 0 ? (
           <PreLaunchNotice />
         ) : items.length === 0 ? (
           <p className="text-foreground/60 mt-10 text-sm">Nenhum produto encontrado.</p>
         ) : (
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {items.map((product) => (
-              <ProductCard key={product.id} product={product} />
+            {items.map((item) => (
+              <UnifiedOfferCard key={`${item.merchant}-${item.id}`} item={item} />
             ))}
           </div>
         )}
