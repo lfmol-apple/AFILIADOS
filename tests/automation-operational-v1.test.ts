@@ -465,7 +465,7 @@ describe("SHOPEE_REFRESH job", () => {
 describe("ML_SHOPEE_CYCLE lock", () => {
   afterEach(async () => {
     await prisma.automationRun.deleteMany({
-      where: { job: { in: ["ML_SHOPEE_CYCLE", "ML_DEMAND", "ML_ENRICHMENT", "SHOPEE_REFRESH"] } },
+      where: { job: { in: ["ML_SHOPEE_CYCLE", "ML_DEMAND", "ML_ENRICHMENT", "SHOPEE_REFRESH", "PRODUCT_MATCHER_SHADOW"] } },
     });
   });
 
@@ -510,14 +510,22 @@ describe("ML_SHOPEE_CYCLE lock", () => {
     // Every step still got its own AutomationRun row — the outer cycle
     // recorded, not swallowed, each one, and none is left stuck RUNNING.
     const stepRuns = await prisma.automationRun.findMany({
-      where: { job: { in: ["ML_DEMAND", "ML_ENRICHMENT", "SHOPEE_REFRESH"] } },
+      where: { job: { in: ["ML_DEMAND", "ML_ENRICHMENT", "SHOPEE_REFRESH", "PRODUCT_MATCHER_SHADOW"] } },
       orderBy: { startedAt: "desc" },
-      take: 3,
+      take: 4,
     });
-    expect(stepRuns).toHaveLength(3);
+    expect(stepRuns).toHaveLength(4);
     for (const stepRun of stepRuns) expect(stepRun.status).not.toBe("RUNNING");
 
     const shopeeRun = stepRuns.find((r) => r.job === "SHOPEE_REFRESH");
     expect(shopeeRun?.status).toBe("FAILED"); // its own real, unguarded failure — proves the step's error wasn't silently swallowed either.
+
+    // PRODUCT_MATCHER_SHADOW never calls the network — it only reads
+    // whatever the (in this test, entirely failed) collectors left behind
+    // — so it still completes as SUCCESS even when every other step fails,
+    // proving its failure isolation runs both ways: a collector failing
+    // doesn't break the matcher, and the matcher never blocks on them.
+    const matcherRun = stepRuns.find((r) => r.job === "PRODUCT_MATCHER_SHADOW");
+    expect(matcherRun?.status).toBe("SUCCESS");
   }, 30000);
 });

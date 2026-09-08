@@ -5,6 +5,7 @@ import { logger } from "@/lib/observability/logger";
 import { runMlDemandJob } from "./ml-demand";
 import { runMlEnrichmentJob } from "./ml-enrichment";
 import { runShopeeRefreshJob } from "./shopee-refresh";
+import { runProductMatcherShadowJob } from "./product-matcher-shadow";
 
 /**
  * Automação Operacional V1 (2026-09-08) — the ML/Shopee counterpart of
@@ -20,13 +21,22 @@ import { runShopeeRefreshJob } from "./shopee-refresh";
  * would just find nothing new. SHOPEE_REFRESH is independent of both (its
  * own API, own merchant) and runs last only to keep the log/metadata
  * order matching "ML primeiro, Shopee depois" from the project brief —
- * not a real dependency.
+ * not a real dependency. PRODUCT_MATCHER_SHADOW (2026-09-08) runs last,
+ * after every collector — it only reads what they just persisted
+ * (MerchantListing/CanonicalProduct/MerchantListingSignal), so it needs
+ * the freshest possible data; added to this cycle only after a manual,
+ * human-audited shadow run in production came back healthy (0 false
+ * CONFIRMED, 0 duplication, 0 public-surface change — see
+ * docs/PRODUCT_MATCHER.md).
  *
  * One marketplace's step failing must not stop the others: each step is
  * already wrapped in its own runJob() (own try/catch, own AutomationRun),
  * so a thrown error from one is caught here, counted, and the cycle moves
  * on — never a single marketplace's transient failure losing another
- * marketplace's successful run.
+ * marketplace's successful run. This also protects PRODUCT_MATCHER_SHADOW
+ * itself: it never writes to MerchantListing/MerchantListingSignal/
+ * MonetizationScore, so even if it fails, the real collection this cycle
+ * already did stays intact.
  */
 export async function runMlShopeeCycle(): Promise<void> {
   await runJob("ML_SHOPEE_CYCLE", async (ctx) => {
@@ -34,6 +44,7 @@ export async function runMlShopeeCycle(): Promise<void> {
       { name: "ML_DEMAND", run: runMlDemandJob },
       { name: "ML_ENRICHMENT", run: runMlEnrichmentJob },
       { name: "SHOPEE_REFRESH", run: runShopeeRefreshJob },
+      { name: "PRODUCT_MATCHER_SHADOW", run: runProductMatcherShadowJob },
     ];
 
     for (const step of steps) {

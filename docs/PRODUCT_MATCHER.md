@@ -103,6 +103,26 @@ uma segunda linha invertida para o mesmo par real. `product-match-shadow.ts` sem
 `[listingAId, listingBId]` lexicograficamente antes de `upsert`, então A↔B nunca duplica como B↔A,
 e uma reexecução atualiza a linha existente em vez de duplicá-la.
 
+## Ativação (brief seções 18/23/24)
+
+Primeira execução: manual, controlada, direto em produção via `npx tsx jobs/product-matcher-shadow.ts`
+(mesmo mecanismo `docker run` já usado para os outros jobs) — **não** integrado ao ciclo automático
+até essa execução ser auditada por um humano. Resultado real (2026-09-08, produção): 35
+representantes ML + 24 listings Shopee = 59 elegíveis, 39 pares candidatos considerados (todos
+via o nível textual, cross-merchant — nenhum GTIN/manufacturerId/brand+model real disponível para
+gerar candidatos nos outros níveis), **0 CONFIRMED, 0 CANDIDATE** — todos os 39 pares tinham
+similaridade Jaccard 0.000 (catálogo de celulares/eletrônicos do ML vs. amostra real de
+skincare/limpeza/pet da Shopee, genuinamente sem sobreposição). Antes/depois idêntico
+(`ProductMatchEvidence` 0→0, `canonicalProductId` de ML 643→643 inalterado, Shopee 0→0), 103ms de
+duração. Guarda de variante confirmada com dado real: dois `CanonicalProduct` reais "iPhone 17"
+(512GB vs 256GB) corretamente bloqueados de um `CANDIDATE`, apesar de brand+model idênticos.
+
+Gate (brief seção 23) — nenhum dos bloqueios ocorreu: sem falso `CONFIRMED`, sem duplicação, sem
+performance ruim, sem crescimento explosivo de candidatos, sem alteração pública, sem
+inconsistência de `CanonicalProduct`. `PRODUCT_MATCHER_SHADOW` foi então adicionado como quarto
+passo de `jobs/run-ml-shopee-cycle.ts`, reutilizando o cron já existente (a cada 4h) — nenhum
+scheduler novo.
+
 ## Falha isolada (brief seção 16)
 
 `jobs/product-matcher-shadow.ts` roda dentro de `runJob("PRODUCT_MATCHER_SHADOW", ...)` — mesma
