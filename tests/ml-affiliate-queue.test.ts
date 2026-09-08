@@ -100,6 +100,15 @@ describe("getMlAffiliateQueue", () => {
     ).toContain(listing.id);
   });
 
+  it("a dismissed listing (active: false — POST /api/admin/ml-affiliate-links/dismiss) leaves the queue, same as every other query in the project", async () => {
+    const listing = await makeListing({ score: 80, hasActiveLink: false });
+    expect((await getMlAffiliateQueue()).map((i) => i.merchantListingId)).toContain(listing.id);
+
+    await prisma.merchantListing.update({ where: { id: listing.id }, data: { active: false } });
+
+    expect((await getMlAffiliateQueue()).map((i) => i.merchantListingId)).not.toContain(listing.id);
+  });
+
   describe("Phase 2 — commercial enrichment (scripts/ml-enrich-offers.ts)", () => {
     it("surfaces the best real seller offer's price/condition/seller for an enriched catalog product, and never a fictitious offer for a listing with no real offers", async () => {
       const canonical = await prisma.canonicalProduct.create({

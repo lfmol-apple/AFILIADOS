@@ -99,6 +99,27 @@ export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
     }
   }
 
+  async function handleDismiss() {
+    setPending(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/admin/ml-affiliate-links/dismiss", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ merchantListingId: props.merchantListingId }),
+      });
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        setError(body.error ?? "Falha ao descartar.");
+        return;
+      }
+      setSaved(true); // reuses the same "hide this card" state as a save
+      router.refresh();
+    } finally {
+      setPending(false);
+    }
+  }
+
   if (saved) return null;
 
   return (
@@ -228,6 +249,15 @@ export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
           className="bg-brand text-brand-foreground min-h-9 rounded-full px-4 text-xs font-semibold disabled:opacity-50"
         >
           {pending ? "Salvando..." : "4. Salvar e ir para o próximo"}
+        </button>
+        <button
+          type="button"
+          onClick={handleDismiss}
+          disabled={pending}
+          title="Não achei uma oferta correspondente real no Mercado Livre — tirar da fila"
+          className="text-foreground/50 hover:text-rose-600 dark:hover:text-rose-400 min-h-9 rounded-full px-3 text-xs font-medium disabled:opacity-50"
+        >
+          Descartar (sem correspondência)
         </button>
       </div>
       {error && (
