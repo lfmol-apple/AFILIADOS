@@ -54,6 +54,47 @@ export interface PublicMerchantProductViewModel {
   ctaHref: string | null;
   gate: PublicationGateResult;
   radarEvents: RadarEvent[];
+  /** One real, evidence-only sentence answering "por que está aqui?" —
+   * project brief section 9. Built from the single strongest real
+   * RadarEvent (never a fabricated summary); a neutral honest line when
+   * there isn't one yet. */
+  decisionSummary: string;
+}
+
+/** Mirrors radar.ts's EVENT_TYPE_BASE_WEIGHT ordering (PRICE_DROP >
+ * HIGH_QUALITY_OFFER > BESTSELLER_ENTRY > TREND_ENTRY) — not imported
+ * because that map is private to radar.ts and only its relative order
+ * matters here, not its exact weights. */
+const DECISION_SUMMARY_PRIORITY: Record<RadarEvent["type"], number> = {
+  PRICE_DROP: 4,
+  HIGH_QUALITY_OFFER: 3,
+  BESTSELLER_ENTRY: 2,
+  TREND_ENTRY: 1,
+  AFFILIATE_LINK_ACTIVATED: 0,
+};
+
+export function buildDecisionSummary(events: RadarEvent[]): string {
+  if (events.length === 0) {
+    return "Ainda estamos reunindo sinais suficientes sobre este produto.";
+  }
+  const [top] = [...events].sort(
+    (a, b) => DECISION_SUMMARY_PRIORITY[b.type] - DECISION_SUMMARY_PRIORITY[a.type],
+  );
+  switch (top!.type) {
+    case "PRICE_DROP": {
+      const dropPercent = top!.evidence.dropPercent;
+      const percentText = dropPercent ? `${Math.round(dropPercent * 100)}%` : "";
+      return `Vale atenção agora porque o preço caiu ${percentText} desde a observação anterior.`;
+    }
+    case "HIGH_QUALITY_OFFER":
+      return "Vale atenção agora porque combina boa avaliação e uma oferta forte.";
+    case "BESTSELLER_ENTRY":
+      return "Vale atenção agora porque está entre os produtos mais vendidos que observamos.";
+    case "TREND_ENTRY":
+      return "Vale atenção agora porque está entre os produtos com maior alta de interesse que observamos.";
+    default:
+      return "Estamos acompanhando este produto.";
+  }
 }
 
 function buildCtaHref(merchant: MerchantListingMerchant, externalId: string, ctaEligible: boolean, slug: string): string | null {
@@ -97,6 +138,7 @@ function buildRadarEventsForFacts(facts: MerchantListingFacts): RadarEvent[] {
 
 function buildViewModel(facts: MerchantListingFacts, slug: string): PublicMerchantProductViewModel {
   const gate = evaluatePublicationGate(facts);
+  const radarEvents = buildRadarEventsForFacts(facts);
   return {
     source: facts.merchant,
     merchantListingId: facts.merchantListingId,
@@ -117,7 +159,8 @@ function buildViewModel(facts: MerchantListingFacts, slug: string): PublicMercha
     lastObservedAt: facts.lastObservedAt,
     ctaHref: buildCtaHref(facts.merchant, facts.externalId, gate.ctaEligible, slug),
     gate,
-    radarEvents: buildRadarEventsForFacts(facts),
+    radarEvents,
+    decisionSummary: buildDecisionSummary(radarEvents),
   };
 }
 

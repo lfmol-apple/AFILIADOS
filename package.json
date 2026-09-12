@@ -20,6 +20,7 @@
     "jobs:run": "tsx jobs/run.ts",
     "jobs:run-ml-shopee": "tsx jobs/run-ml-shopee-cycle.ts",
     "amazon:compliance": "tsx scripts/amazon-compliance.ts",
+    "seo:readiness": "tsx scripts/seo-readiness-report.ts",
     "production:readiness": "tsx scripts/production-readiness.ts",
     "admin:hash-password": "tsx scripts/generate-admin-password-hash.ts",
     "db:backup": "bash scripts/backup-database.sh",

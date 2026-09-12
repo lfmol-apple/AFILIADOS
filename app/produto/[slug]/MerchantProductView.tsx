@@ -93,6 +93,9 @@ export function MerchantProductView({
               {data.lastObservedAt && (
                 <p className="text-foreground/50 mt-1 text-xs">Observado pelo PreçoCaindo em {formatDate(data.lastObservedAt)}</p>
               )}
+              <p className="mt-3 text-sm font-medium text-emerald-700 dark:text-emerald-400">
+                {data.decisionSummary}
+              </p>
             </>
           ) : (
             <p className="text-foreground/60 mt-4 text-sm leading-relaxed">
