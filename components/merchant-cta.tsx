@@ -1,5 +1,19 @@
 import Link from "next/link";
-import { AffiliateDisclosure } from "@/components/affiliate-disclosure";
+
+/** Generic, merchant-neutral affiliate disclosure — NOT AffiliateDisclosure
+ * (components/affiliate-disclosure.tsx), whose text is the Amazon
+ * Associates Program's specific mandated wording ("Como associado da
+ * Amazon..."). Reusing that here would be a false claim on a Mercado
+ * Livre/Shopee page. */
+function GenericAffiliateDisclosure() {
+  return (
+    <p className="text-foreground/60 text-xs">
+      <span className="text-foreground/70 font-medium">Publicidade / link de afiliado.</span>{" "}
+      O PreçoCaindo pode receber uma comissão por compras feitas através deste link. Isso não
+      altera o preço que você paga.
+    </p>
+  );
+}
 
 /**
  * Mercado Livre/Shopee equivalent of AmazonCta — but the fail-closed
@@ -35,7 +49,7 @@ export function MerchantCta({
       <Link href={ctaHref} className={classNameValue}>
         {label}
       </Link>
-      {showDisclosure && <AffiliateDisclosure />}
+      {showDisclosure && <GenericAffiliateDisclosure />}
     </div>
   );
 }
