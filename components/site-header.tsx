@@ -14,9 +14,8 @@ export function SiteHeader() {
           href="/"
           className="flex shrink-0 items-center gap-2 text-lg font-semibold"
         >
-          <span className="bg-brand text-brand-foreground flex h-7 w-7 items-center justify-center rounded-full text-sm">
-            ↓
-          </span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-icon.png" alt="" width={28} height={28} className="h-7 w-7" />
           PreçoCaindo
         </Link>
 
