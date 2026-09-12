@@ -39,6 +39,12 @@ export interface UnifiedOfferCard {
    * type as a structural reminder for any future caller that stops
    * pre-filtering. */
   href: string | null;
+  /** Optional link to this product's own /produto/[slug] page (Acquisition
+   * Engine) — set ONLY when a public slug already exists (never generated
+   * here, to keep this vitrine query cheap; see lib/queries/public-
+   * product.ts). Purely additive: `href` above is unchanged and still the
+   * card's primary CTA target for every existing caller/test. */
+  detailHref?: string;
 }
 
 function nonCommissionSignal(components: unknown): number | null {
@@ -112,7 +118,7 @@ export async function getUnifiedMerchantOffers(
         canonicalProduct: { isNot: null },
       },
       include: {
-        canonicalProduct: { select: { title: true, imageUrl: true, specifications: true } },
+        canonicalProduct: { select: { title: true, imageUrl: true, specifications: true, publicSlug: true } },
         monetizationScore: true,
       },
     }),
@@ -142,6 +148,7 @@ export async function getUnifiedMerchantOffers(
       soldQuantity: raw?.sales ?? null,
       opportunitySignal: nonCommissionSignal(listing.monetizationScore?.components),
       href: `/go/shopee/${encodeURIComponent(listing.externalId)}?${params}`,
+      detailHref: listing.slug ? `/produto/${listing.slug}` : undefined,
     };
   });
 
@@ -169,6 +176,9 @@ export async function getUnifiedMerchantOffers(
         (bestOffer ?? catalogListing).monetizationScore?.components,
       ),
       href: `/go/mercado-livre/${encodeURIComponent(catalogListing.externalId)}?${params}`,
+      detailHref: catalogListing.canonicalProduct?.publicSlug
+        ? `/produto/${catalogListing.canonicalProduct.publicSlug}`
+        : undefined,
     });
   }
 

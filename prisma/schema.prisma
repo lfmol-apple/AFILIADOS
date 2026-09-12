@@ -207,6 +207,13 @@ model Category {
 model CanonicalProduct {
   id             String   @id @default(cuid())
   slug           String   @unique
+  /// Public-facing SEO slug for the Acquisition Engine product page
+  /// (/produto/[slug]), distinct from `slug` above — which stays the
+  /// internal upsert key ml-enrichment-collector.ts keys off of every 4h
+  /// cycle and must never change. Generated lazily (human-readable, from
+  /// real title/brand/model) the first time the page is resolved; null
+  /// until then. See lib/queries/public-product.ts.
+  publicSlug     String?  @unique
   title          String
   brand          String?
   model          String?
@@ -262,6 +269,11 @@ model MerchantListing {
   source             DataSource      @default(MANUAL_VERIFIED)
   availability       Availability    @default(UNKNOWN)
   active             Boolean         @default(true)
+  /// Public-facing SEO slug for the Acquisition Engine product page
+  /// (/produto/[slug]) — only used for listings with no CanonicalProduct
+  /// (Shopee today). Generated lazily from the real title, never by
+  /// jobs/shopee-refresh.ts. See lib/queries/public-product.ts.
+  slug               String?         @unique
 
   affiliateClicks AffiliateClick[]
   signals          MerchantListingSignal[]

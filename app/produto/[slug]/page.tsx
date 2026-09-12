@@ -26,6 +26,8 @@ import {
 } from "@/lib/seo/structured-data";
 import { isProductPageIndexable } from "@/lib/seo/indexability";
 import Link from "next/link";
+import { loadPublicMerchantProduct, getRelatedMerchantProducts } from "@/lib/queries/public-product";
+import { MerchantProductView } from "./MerchantProductView";
 
 export const revalidate = 900;
 
@@ -152,12 +154,42 @@ async function loadProduct(slug: string) {
   return { product, offer, stats, decision };
 }
 
+/** Mercado Livre/Shopee metadata — the Amazon branch below this function is
+ * completely unchanged; this only runs when getProductBySlug() (Amazon)
+ * found nothing for this slug. */
+function buildMerchantMetadata(
+  merchantData: Awaited<ReturnType<typeof loadPublicMerchantProduct>>,
+): Metadata {
+  if (!merchantData) return {};
+
+  const { title: name, gate, currentPrice, currency, canonicalUrl, imageUrl } = merchantData;
+  const priceDropReason = gate.reasons.find((r) => r.includes("Queda de preço"));
+  const title = priceDropReason
+    ? `${name} caiu de preço: preço atual e histórico`
+    : `${name}: preço e histórico`;
+  const description =
+    currentPrice !== null
+      ? `Veja ${name}, atualmente por ${formatCurrency(currentPrice, currency)}, e o que o PreçoCaindo observou sobre preço, demanda e qualidade.`
+      : `O PreçoCaindo está acompanhando ${name}. Veja os detalhes assim que tivermos um preço verificado.`;
+
+  return {
+    title,
+    description,
+    alternates: { canonical: canonicalUrl },
+    robots: gate.indexable ? undefined : { index: false, follow: true },
+    openGraph: { title, description, images: imageUrl ? [imageUrl] : undefined },
+  };
+}
+
 export async function generateMetadata(
   props: RouteParams<{ slug: string }>,
 ): Promise<Metadata> {
   const { slug } = await props.params;
   const data = await loadProduct(slug);
-  if (!data) return {};
+  if (!data) {
+    const merchantData = await loadPublicMerchantProduct(slug);
+    return buildMerchantMetadata(merchantData);
+  }
 
   const { product, offer: rawOffer, stats } = data;
   const offer = hasValidOfferPrice(rawOffer) ? rawOffer : null;
@@ -204,7 +236,16 @@ export default async function ProductPage(
 ) {
   const { slug } = await props.params;
   const data = await loadProduct(slug);
-  if (!data) notFound();
+  if (!data) {
+    const merchantData = await loadPublicMerchantProduct(slug);
+    if (!merchantData) notFound();
+    const related = await getRelatedMerchantProducts({
+      merchant: merchantData.source,
+      excludeListingId: merchantData.merchantListingId,
+      categoryId: merchantData.categoryId,
+    });
+    return <MerchantProductView data={merchantData} related={related} />;
+  }
 
   const { product, offer: rawOffer, stats, decision } = data;
   const offer = hasValidOfferPrice(rawOffer) ? rawOffer : null;

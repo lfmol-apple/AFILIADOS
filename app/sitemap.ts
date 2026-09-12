@@ -5,6 +5,7 @@ import { isProductPageIndexable } from "@/lib/seo/indexability";
 import { PRIMARY_PUBLIC_MARKETPLACE } from "@/lib/config/marketplaces";
 import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 import { GUIDES } from "@/lib/editorial/guides";
+import { listIndexableMerchantProductUrls } from "@/lib/queries/public-product";
 
 // force-dynamic (not just `revalidate`) because PUBLIC_CATALOG_ENABLED/
 // MANUAL_PRODUCTS_ENABLED are runtime-only env vars, never set during
@@ -61,7 +62,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return [...staticEntries, ...guideEntries];
   }
 
-  const [products, categories, content] = await Promise.all([
+  const [products, categories, content, merchantProductUrls] = await Promise.all([
     prisma.product.findMany({
       where: {
         marketplace: PRIMARY_PUBLIC_MARKETPLACE,
@@ -95,6 +96,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       where: { status: "PUBLISHED", noindex: false },
       select: { contentType: true, slug: true, updatedAt: true },
     }),
+    // Mercado Livre/Shopee product pages — Acquisition Engine. Same
+    // pre-launch gate as everything else above: no visible data source
+    // means no product URL of any kind, Amazon or merchant.
+    listIndexableMerchantProductUrls(),
   ]);
 
   const productEntries: MetadataRoute.Sitemap = products
@@ -129,10 +134,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
+  const merchantProductEntries: MetadataRoute.Sitemap = merchantProductUrls.map((p) => ({
+    url: `${siteConfig.url}/produto/${p.slug}`,
+    lastModified: p.lastModified,
+    changeFrequency: "daily" as const,
+    priority: 0.7,
+  }));
+
   return [
     ...staticEntries,
     ...guideEntries,
     ...productEntries,
+    ...merchantProductEntries,
     ...categoryEntries,
     ...contentEntries,
   ];
