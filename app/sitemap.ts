@@ -15,7 +15,10 @@ import { listIndexableMerchantProductUrls } from "@/lib/queries/public-product";
 // showing only static routes, no products, right after the flip.
 export const dynamic = "force-dynamic";
 
-const STATIC_ROUTES = [
+/** Exported for tests/sitemap-merchant-independence.test.ts only — proving
+ * the sitemap's static surface is exactly this list, no more, no less,
+ * regardless of how the merchant/Amazon gates evaluate. */
+export const STATIC_ROUTE_PATHS = [
   "",
   "/ofertas",
   "/guias",
@@ -46,7 +49,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // in production), so we must ask what's *actually* visible, not just
   // whether the mock-provider catalog is.
   const visibleDataSources = currentlyVisibleDataSources();
-  const staticEntries: MetadataRoute.Sitemap = STATIC_ROUTES.map((path) => ({
+  const staticEntries: MetadataRoute.Sitemap = STATIC_ROUTE_PATHS.map((path) => ({
     url: `${siteConfig.url}${path}`,
     changeFrequency: path === "" || path === "/ofertas" ? "daily" : "monthly",
     priority: path === "" ? 1 : 0.5,
@@ -58,11 +61,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  // Mercado Livre/Shopee product pages — Acquisition Engine. Deliberately
+  // OUTSIDE the currentlyVisibleDataSources() gate below: that function is
+  // scoped entirely to Product.dataSource (Amazon/MOCK/MANUAL_VERIFIED —
+  // see lib/config/public-catalog.ts's own doc comment) and has no bearing
+  // on MerchantListing at all. These pages have their own, independent
+  // authority — evaluatePublicationGate() + AffiliateLinkRegistry ACTIVE,
+  // via listIndexableMerchantProductUrls() — so a closed Amazon catalog
+  // gate must never hide an otherwise-legitimate ML/Shopee page (found in
+  // pre-production audit: the previous early return below skipped this
+  // call entirely whenever visibleDataSources was empty).
+  const merchantProductUrls = await listIndexableMerchantProductUrls();
+  const merchantProductEntries: MetadataRoute.Sitemap = merchantProductUrls.map((p) => ({
+    url: `${siteConfig.url}/produto/${p.slug}`,
+    lastModified: p.lastModified,
+    changeFrequency: "daily" as const,
+    priority: 0.7,
+  }));
+
   if (visibleDataSources.length === 0) {
-    return [...staticEntries, ...guideEntries];
+    return [...staticEntries, ...guideEntries, ...merchantProductEntries];
   }
 
-  const [products, categories, content, merchantProductUrls] = await Promise.all([
+  const [products, categories, content] = await Promise.all([
     prisma.product.findMany({
       where: {
         marketplace: PRIMARY_PUBLIC_MARKETPLACE,
@@ -92,14 +113,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       },
       select: { slug: true, updatedAt: true },
     }),
+    // NOTE (audited, not changed this round — scope is ML/Shopee only):
+    // this query has no Product/dataSource filter of its own, but stays
+    // gated behind visibleDataSources here, same as before this fix,
+    // because that's pre-existing behavior this round doesn't have
+    // evidence to call a bug. Revisit with its own audit if that coupling
+    // ever needs to change.
     prisma.generatedContent.findMany({
       where: { status: "PUBLISHED", noindex: false },
       select: { contentType: true, slug: true, updatedAt: true },
     }),
-    // Mercado Livre/Shopee product pages — Acquisition Engine. Same
-    // pre-launch gate as everything else above: no visible data source
-    // means no product URL of any kind, Amazon or merchant.
-    listIndexableMerchantProductUrls(),
   ]);
 
   const productEntries: MetadataRoute.Sitemap = products
@@ -132,13 +155,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: c.updatedAt,
     changeFrequency: "weekly",
     priority: 0.6,
-  }));
-
-  const merchantProductEntries: MetadataRoute.Sitemap = merchantProductUrls.map((p) => ({
-    url: `${siteConfig.url}/produto/${p.slug}`,
-    lastModified: p.lastModified,
-    changeFrequency: "daily" as const,
-    priority: 0.7,
   }));
 
   return [
