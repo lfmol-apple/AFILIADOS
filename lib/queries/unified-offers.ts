@@ -47,6 +47,18 @@ export interface UnifiedOfferCard {
   detailHref?: string;
 }
 
+/**
+ * Ranks and caps a list of real cards — never pads with fabricated
+ * entries. Shared by Home's "O que vale a pena agora" (limit 8, project
+ * brief: "se houver 5 boas, mostrar 5") and /ofertas's default grid, so
+ * both surfaces apply the exact same real, commission-free ranking rule.
+ */
+export function selectTopUnifiedOffers(cards: UnifiedOfferCard[], limit: number): UnifiedOfferCard[] {
+  return [...cards]
+    .sort((a, b) => (b.opportunitySignal ?? -1) - (a.opportunitySignal ?? -1))
+    .slice(0, limit);
+}
+
 function nonCommissionSignal(components: unknown): number | null {
   const c = components as
     | { demand?: { value: number | null }; offerQuality?: { value: number | null } }

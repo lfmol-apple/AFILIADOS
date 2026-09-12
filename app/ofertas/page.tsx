@@ -10,6 +10,7 @@ import {
   getUnifiedMerchantOffers,
   mapAmazonProductToUnifiedCard,
   searchUnifiedOffers,
+  selectTopUnifiedOffers,
 } from "@/lib/queries/unified-offers";
 import { UnifiedOfferCard } from "@/components/unified-offer-card";
 
@@ -104,14 +105,12 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
   // three separate "Achados X" sections (project brief).
   const [amazonResult, merchantOffers] = await Promise.all([
     catalogSafe ? getOfertas({ page: 1, pageSize: UNIFIED_LIMIT }) : { items: [] },
-    getUnifiedMerchantOffers(UNIFIED_LIMIT),
+    getUnifiedMerchantOffers(UNIFIED_LIMIT, { source: "ofertas" }),
   ]);
-  const items = [
-    ...amazonResult.items.map(mapAmazonProductToUnifiedCard),
-    ...merchantOffers,
-  ]
-    .sort((a, b) => (b.opportunitySignal ?? -1) - (a.opportunitySignal ?? -1))
-    .slice(0, UNIFIED_LIMIT);
+  const items = selectTopUnifiedOffers(
+    [...amazonResult.items.map(mapAmazonProductToUnifiedCard), ...merchantOffers],
+    UNIFIED_LIMIT,
+  );
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
