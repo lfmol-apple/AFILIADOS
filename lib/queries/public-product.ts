@@ -8,6 +8,7 @@ import {
   type RadarEvent,
 } from "@/lib/services/radar";
 import { evaluatePublicationGate, type PublicationGateResult } from "@/lib/services/publication-gate";
+import { selectBestOfferIdsPerCanonicalProduct } from "@/lib/queries/candidate-pool";
 import {
   extractMercadoLivreListingFacts,
   extractShopeeListingFacts,
@@ -389,19 +390,38 @@ const RECENT_SIGNALS_WINDOW = 10;
  * extractShopeeListingFacts functions the per-item loaders already use —
  * so the Publication Gate's answer can never disagree between this bulk
  * path and /produto/[slug]'s own single-item lookup.
+ *
+ * Second production incident (2026-09-13): that "fetch every candidate
+ * row up front" still fetched EVERY real offer sibling per canonical
+ * product (some have 100-174 of them) to find the best one — ~20,740
+ * Mercado Livre MerchantListing rows in one request in production,
+ * which 504'd. Fixed the same way as getUnifiedMerchantOffers/
+ * collectMercadoLivreEvents: fetch only the catalog listing per
+ * canonical product (bounded by canonicalIds.length) plus the single
+ * best real offer per canonical product via Postgres DISTINCT ON
+ * (selectBestOfferIdsPerCanonicalProduct) — never every sibling.
  */
 export async function listIndexableMerchantProductUrls(): Promise<IndexableMerchantProductUrl[]> {
   const urls: IndexableMerchantProductUrl[] = [];
 
-  // --- Mercado Livre: 2 queries total, never one per canonical product ---
+  // --- Mercado Livre: bounded by canonicalIds.length, never by how many
+  // real offers exist per canonical product ---
   const canonicals = await prisma.canonicalProduct.findMany({
     where: { publicSlug: { not: null }, listings: { some: { merchant: { code: "MERCADO_LIVRE" } } } },
     select: { id: true, publicSlug: true, title: true, imageUrl: true, brand: true, model: true, categoryId: true },
   });
   const canonicalIds = canonicals.map((c) => c.id);
-  const mlListings = canonicalIds.length
+  // The catalog row (never has an "mercado_livre_catalog_items" signal —
+  // see lib/queries/ml-affiliate-queue.ts) is 1:1 per canonical product,
+  // so this is bounded by canonicalIds.length regardless of how many real
+  // offer siblings each one has.
+  const catalogListings = canonicalIds.length
     ? await prisma.merchantListing.findMany({
-        where: { canonicalProductId: { in: canonicalIds }, merchant: { code: "MERCADO_LIVRE" } },
+        where: {
+          canonicalProductId: { in: canonicalIds },
+          merchant: { code: "MERCADO_LIVRE" },
+          signals: { none: { source: "mercado_livre_catalog_items" } },
+        },
         include: {
           affiliateLink: true,
           monetizationScore: true,
@@ -409,26 +429,27 @@ export async function listIndexableMerchantProductUrls(): Promise<IndexableMerch
         },
       })
     : [];
-  const mlListingsByCanonical = new Map<string, typeof mlListings>();
-  for (const listing of mlListings) {
-    if (!listing.canonicalProductId) continue;
-    const group = mlListingsByCanonical.get(listing.canonicalProductId) ?? [];
-    group.push(listing);
-    mlListingsByCanonical.set(listing.canonicalProductId, group);
+  const catalogListingByCanonical = new Map<string, (typeof catalogListings)[number]>();
+  for (const listing of catalogListings) {
+    if (listing.canonicalProductId) catalogListingByCanonical.set(listing.canonicalProductId, listing);
+  }
+  const catalogListingIds = catalogListings.map((c) => c.id);
+  const bestOfferIds = await selectBestOfferIdsPerCanonicalProduct(canonicalIds, catalogListingIds);
+  const bestOffers = bestOfferIds.length
+    ? await prisma.merchantListing.findMany({
+        where: { id: { in: bestOfferIds } },
+        include: { monetizationScore: true, signals: { orderBy: { observedAt: "desc" }, take: RECENT_SIGNALS_WINDOW } },
+      })
+    : [];
+  const bestOfferByCanonical = new Map<string, (typeof bestOffers)[number]>();
+  for (const offer of bestOffers) {
+    if (offer.canonicalProductId) bestOfferByCanonical.set(offer.canonicalProductId, offer);
   }
 
   for (const canonical of canonicals) {
-    const group = mlListingsByCanonical.get(canonical.id) ?? [];
-    // Same rule as everywhere else: an offer row is one that's ever been
-    // written an "mercado_livre_catalog_items" signal; the catalog row
-    // never gets that source (see lib/queries/ml-affiliate-queue.ts).
-    const catalogListing = group.find(
-      (l) => !l.signals.some((s) => s.source === "mercado_livre_catalog_items"),
-    );
+    const catalogListing = catalogListingByCanonical.get(canonical.id);
     if (!catalogListing) continue;
-    const bestOffer = group
-      .filter((l) => l.id !== catalogListing.id)
-      .sort((a, b) => (b.monetizationScore?.score ?? -1) - (a.monetizationScore?.score ?? -1))[0];
+    const bestOffer = bestOfferByCanonical.get(canonical.id);
 
     const facts = extractMercadoLivreListingFacts({
       catalogListing,

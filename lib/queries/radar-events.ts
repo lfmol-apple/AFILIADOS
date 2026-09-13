@@ -9,7 +9,11 @@ import {
   type RadarEvent,
   type RadarEventType,
 } from "@/lib/services/radar";
-import { selectCandidateListingIds, bestByNonCommissionSignal } from "@/lib/queries/candidate-pool";
+import {
+  selectCandidateListingIds,
+  selectBestOfferIdsPerCanonicalProduct,
+  bestByNonCommissionSignal,
+} from "@/lib/queries/candidate-pool";
 
 /**
  * Radar — query-time event assembly. See lib/services/radar.ts's doc
@@ -212,17 +216,21 @@ async function collectMercadoLivreEvents(poolSize: number): Promise<RadarFeedIte
     },
   });
 
-  // Batched replacement for the old per-catalog-listing `findFirst` loop
-  // (the literal N+1): one query for every candidate's real offer
-  // siblings, then pick the best-for-the-consumer one in memory — never
-  // by DB order (same commission-bias risk as the pool query above).
+  // Production incident (2026-09-13): a real Mercado Livre canonical
+  // product can have 100-174 real offer siblings (average ~27) —
+  // fetching every one of them for every candidate (as the previous
+  // version did) pulled thousands of rows per request and hung the Home
+  // page. Postgres picks the single best (commission-free) offer PER
+  // canonical product directly via DISTINCT ON (candidate-pool.ts) —
+  // bounded strictly by the number of canonical products in this pool.
   const canonicalProductIds = catalogListings
     .map((c) => c.canonicalProductId)
     .filter((id): id is string => id !== null);
   const catalogListingIds = catalogListings.map((c) => c.id);
-  const bestOffers = canonicalProductIds.length
+  const bestOfferIds = await selectBestOfferIdsPerCanonicalProduct(canonicalProductIds, catalogListingIds);
+  const bestOffers = bestOfferIds.length
     ? await prisma.merchantListing.findMany({
-        where: { canonicalProductId: { in: canonicalProductIds }, id: { notIn: catalogListingIds } },
+        where: { id: { in: bestOfferIds } },
         include: {
           monetizationScore: true,
           signals: { orderBy: { observedAt: "desc" }, take: RECENT_SIGNALS_WINDOW },

@@ -1,7 +1,11 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { getOfertas, type ProductListItem } from "@/lib/queries/products";
-import { selectCandidateListingIds, bestByNonCommissionSignal } from "@/lib/queries/candidate-pool";
+import {
+  selectCandidateListingIds,
+  selectBestOfferIdsPerCanonicalProduct,
+  bestByNonCommissionSignal,
+} from "@/lib/queries/candidate-pool";
 
 /**
  * Cross-merchant view-model for the public "vitrine" surfaces (Home's
@@ -205,18 +209,22 @@ export async function getUnifiedMerchantOffers(
     };
   });
 
-  // Batched replacement for the old per-listing `findFirst` loop: one
-  // query for every candidate's real offer siblings, then pick the
-  // best-for-the-consumer one in memory (never by DB order — that was
-  // the same commission-bias risk as the pool query above: which real
-  // offer "wins" and gets shown must not depend on which one pays more).
+  // Production incident (2026-09-13): a real Mercado Livre canonical
+  // product can have 100-174 real offer siblings (average ~27) — fetching
+  // every one of them for every candidate (as the previous version did)
+  // pulled thousands of rows per request and hung the Home page. Postgres
+  // picks the single best (commission-free) offer PER canonical product
+  // directly via DISTINCT ON (candidate-pool.ts) — bounded strictly by
+  // the number of canonical products in this pool, never by how many
+  // real offers exist for any one of them.
   const canonicalProductIds = mlCatalogListings
     .map((c) => c.canonicalProductId)
     .filter((id): id is string => id !== null);
   const catalogListingIds = mlCatalogListings.map((c) => c.id);
-  const bestOffers = canonicalProductIds.length
+  const bestOfferIds = await selectBestOfferIdsPerCanonicalProduct(canonicalProductIds, catalogListingIds);
+  const bestOffers = bestOfferIds.length
     ? await prisma.merchantListing.findMany({
-        where: { canonicalProductId: { in: canonicalProductIds }, id: { notIn: catalogListingIds } },
+        where: { id: { in: bestOfferIds } },
         include: { monetizationScore: true, signals: { orderBy: { observedAt: "desc" }, take: 1 } },
       })
     : [];

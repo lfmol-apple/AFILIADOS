@@ -76,6 +76,13 @@ export async function selectCandidateListingIds(
  * "rows pre-sorted by the DB" (which is exactly the bias described
  * above) with an explicit, local comparison — correct regardless of
  * what order the rows arrive in.
+ *
+ * ONLY safe to use on an already-bounded `offers` array (see
+ * selectBestOfferIdsPerCanonicalProduct below for the unbounded case —
+ * real Mercado Livre catalog products can have 100+ real offer siblings
+ * each; grouping in memory after fetching every one of them is exactly
+ * the incident this file exists to prevent, see the 2026-09-13
+ * production incident this function's sibling was added to fix).
  */
 export function bestByNonCommissionSignal<
   T extends { canonicalProductId: string | null },
@@ -89,4 +96,48 @@ export function bestByNonCommissionSignal<
     }
   }
   return best;
+}
+
+/**
+ * The unbounded-fan-out fix (2026-09-13 production incident): given a set
+ * of canonical product ids, returns the single best (highest demand +
+ * offerQuality) real offer MerchantListing id PER canonical product —
+ * without ever fetching every sibling offer into the app first.
+ *
+ * What broke in production: getUnifiedMerchantOffers/
+ * collectMercadoLivreEvents/listIndexableMerchantProductUrls each fetched
+ * every MerchantListing row sharing a canonicalProductId (to find the
+ * "best" one via bestByNonCommissionSignal above), then reduced in
+ * memory. That's correct but was never load-tested against real data
+ * shape: some Mercado Livre canonical products have 100-174 real offer
+ * siblings (average ~27), so a candidate pool of ~100 canonical products
+ * could pull ~2,900 full rows (each with a nested signals sub-select) in
+ * a single request — the Home page hung indefinitely and
+ * `/sitemap.xml`'s equivalent, unbounded-by-any-pool version (~755
+ * canonical products) pulled all ~20,740 Mercado Livre MerchantListing
+ * rows at once and 504'd.
+ *
+ * Postgres's `DISTINCT ON` picks exactly one row per group directly in
+ * the database — the group's best offer never needs its siblings
+ * fetched into the app at all. Bounded strictly by the number of
+ * canonical product ids passed in, regardless of how skewed the real
+ * per-product offer count is.
+ */
+export async function selectBestOfferIdsPerCanonicalProduct(
+  canonicalProductIds: string[],
+  excludeListingIds: string[],
+): Promise<string[]> {
+  if (canonicalProductIds.length === 0) return [];
+  const rows = await prisma.$queryRaw<{ id: string }[]>(Prisma.sql`
+    SELECT DISTINCT ON (ml."canonicalProductId") ml.id
+    FROM "MerchantListing" ml
+    LEFT JOIN "MonetizationScore" ms ON ms."merchantListingId" = ml.id
+    WHERE ml."canonicalProductId" = ANY(${canonicalProductIds})
+      AND ml.id != ALL(${excludeListingIds.length > 0 ? excludeListingIds : [""]})
+    ORDER BY ml."canonicalProductId", (
+      COALESCE((ms.components->'demand'->>'value')::numeric, 0)
+      + COALESCE((ms.components->'offerQuality'->>'value')::numeric, 0)
+    ) DESC NULLS LAST
+  `);
+  return rows.map((r) => r.id);
 }
