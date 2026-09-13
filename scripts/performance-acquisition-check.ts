@@ -195,7 +195,14 @@ async function main() {
   console.log(`UnifiedOffers: ${offers.ms.toFixed(1)}ms, ${offers.queries} queries, retornou ${offers.result.length} cards (limite 24)`);
   console.log(`Combinado (Home): ${combinedMs.toFixed(1)}ms, ${combinedQueries} queries`);
 
-  const explosive = radar.queries > 20 || offers.queries > 10;
+  // Baseline bumped 12->14 / 9->11 by the commission-bias fix
+  // (2026-09-12 code review): pool MEMBERSHIP now costs one extra
+  // `$queryRaw` per merchant (Shopee, Mercado Livre) in both Radar and
+  // UnifiedOffers — a bounded, commission-free candidate-id SELECT
+  // instead of relying on `orderBy: monetizationScore.score` (see
+  // lib/queries/candidate-pool.ts). Still a small, fixed, O(1) count:
+  // proven flat at 3x this dataset size during that fix's verification.
+  const explosive = radar.queries > 25 || offers.queries > 15;
   console.log(`\nComportamento explosivo (queries crescendo com o dataset)? ${explosive ? "SIM — FALHOU" : "NÃO"}`);
   if (radar.result.length > 20) throw new Error(`getPublicRadarFeed(20) retornou ${radar.result.length} > 20`);
   if (offers.result.length > 24) throw new Error(`getUnifiedMerchantOffers(24) retornou ${offers.result.length} > 24`);

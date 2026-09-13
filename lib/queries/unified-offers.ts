@@ -1,5 +1,7 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { getOfertas, type ProductListItem } from "@/lib/queries/products";
+import { selectCandidateListingIds, bestByNonCommissionSignal } from "@/lib/queries/candidate-pool";
 
 /**
  * Cross-merchant view-model for the public "vitrine" surfaces (Home's
@@ -104,30 +106,18 @@ export function mapAmazonProductToUnifiedCard(product: ProductListItem): Unified
  * N without ever scanning the full table — same idea as an index-assisted
  * "top-K" query, just expressed as an explicit bounded candidate set
  * because the actual ranking field (nonCommissionSignal) isn't a plain
- * column Postgres can ORDER BY directly.
+ * column Postgres can ORDER BY directly. Pool membership itself is also
+ * commission-free (candidate-pool.ts's selectCandidateListingIds) — a
+ * second fix (2026-09-12) after code review found the pool's own DB-level
+ * pre-selection was ordering by MonetizationScore.score, which blends in
+ * commission and could silently exclude better-for-the-consumer rows
+ * before the ranking below ever saw them.
  */
 const CANDIDATE_POOL_MULTIPLIER = 5;
 const CANDIDATE_POOL_CEILING = 200;
 
 function candidatePoolSize(limit: number): number {
   return Math.min(limit * CANDIDATE_POOL_MULTIPLIER, CANDIDATE_POOL_CEILING);
-}
-
-/** Groups `offers` by `canonicalProductId` and keeps only the best-scoring
- * one per group — replaces what used to be one `findFirst` query PER
- * catalog listing (the literal N+1) with a single batched `findMany` (see
- * call site) plus this in-memory grouping. Relies on `offers` already
- * being ordered by `monetizationScore.score desc` (set at the query), so
- * the first row seen for a given canonicalProductId is the best one. */
-function bestOfferPerCanonicalProduct<
-  T extends { canonicalProductId: string | null; id: string },
->(offers: T[]): Map<string, T> {
-  const best = new Map<string, T>();
-  for (const offer of offers) {
-    if (!offer.canonicalProductId) continue;
-    if (!best.has(offer.canonicalProductId)) best.set(offer.canonicalProductId, offer);
-  }
-  return best;
 }
 
 /**
@@ -152,37 +142,38 @@ export async function getUnifiedMerchantOffers(
 ): Promise<UnifiedOfferCard[]> {
   const poolSize = candidatePoolSize(limit);
 
+  // Pool MEMBERSHIP is decided by a commission-free proxy (demand +
+  // offerQuality only — see candidate-pool.ts's doc comment for why this
+  // can't just be `orderBy: { monetizationScore: { score: "desc" } }`:
+  // that blend includes commission, which must never determine which
+  // products even get considered). Hydration below is a plain `id: in`
+  // fetch — order doesn't matter there, the real ranking happens in
+  // memory via nonCommissionSignal further down.
+  const [shopeeIds, mlCatalogIds] = await Promise.all([
+    selectCandidateListingIds(
+      Prisma.sql`ml.active = true AND m.code = 'SHOPEE' AND al.status = 'ACTIVE'`,
+      poolSize,
+    ),
+    selectCandidateListingIds(
+      Prisma.sql`ml.active = true AND m.code = 'MERCADO_LIVRE' AND al.status = 'ACTIVE' AND ml."canonicalProductId" IS NOT NULL`,
+      poolSize,
+    ),
+  ]);
+
   const [shopeeListings, mlCatalogListings] = await Promise.all([
     prisma.merchantListing.findMany({
-      where: {
-        active: true,
-        merchant: { code: "SHOPEE" },
-        affiliateLink: { is: { status: "ACTIVE" } },
-      },
+      where: { id: { in: shopeeIds } },
       include: {
         monetizationScore: true,
         signals: { orderBy: { observedAt: "desc" }, take: 1 },
       },
-      // A real, already-computed ranking signal — the true commission-free
-      // sort still happens in memory below, this just keeps the DB-level
-      // candidate set biased toward plausible winners instead of an
-      // arbitrary/unordered slice of the table.
-      orderBy: { monetizationScore: { score: "desc" } },
-      take: poolSize,
     }),
     prisma.merchantListing.findMany({
-      where: {
-        active: true,
-        merchant: { code: "MERCADO_LIVRE" },
-        affiliateLink: { is: { status: "ACTIVE" } },
-        canonicalProduct: { isNot: null },
-      },
+      where: { id: { in: mlCatalogIds } },
       include: {
         canonicalProduct: { select: { title: true, imageUrl: true, specifications: true, publicSlug: true } },
         monetizationScore: true,
       },
-      orderBy: { monetizationScore: { score: "desc" } },
-      take: poolSize,
     }),
   ]);
 
@@ -215,8 +206,10 @@ export async function getUnifiedMerchantOffers(
   });
 
   // Batched replacement for the old per-listing `findFirst` loop: one
-  // query for every candidate's best offer sibling, ordered so the first
-  // row per canonicalProductId is already the best-scoring one.
+  // query for every candidate's real offer siblings, then pick the
+  // best-for-the-consumer one in memory (never by DB order — that was
+  // the same commission-bias risk as the pool query above: which real
+  // offer "wins" and gets shown must not depend on which one pays more).
   const canonicalProductIds = mlCatalogListings
     .map((c) => c.canonicalProductId)
     .filter((id): id is string => id !== null);
@@ -225,10 +218,12 @@ export async function getUnifiedMerchantOffers(
     ? await prisma.merchantListing.findMany({
         where: { canonicalProductId: { in: canonicalProductIds }, id: { notIn: catalogListingIds } },
         include: { monetizationScore: true, signals: { orderBy: { observedAt: "desc" }, take: 1 } },
-        orderBy: { monetizationScore: { score: "desc" } },
       })
     : [];
-  const bestOfferByCanonicalId = bestOfferPerCanonicalProduct(bestOffers);
+  const bestOfferByCanonicalId = bestByNonCommissionSignal(
+    bestOffers,
+    (offer) => nonCommissionSignal(offer.monetizationScore?.components) ?? -1,
+  );
 
   const mlCards: UnifiedOfferCard[] = mlCatalogListings.map((catalogListing) => {
     const bestOffer = catalogListing.canonicalProductId

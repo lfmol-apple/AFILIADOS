@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import {
   detectPriceDrop,
@@ -8,6 +9,7 @@ import {
   type RadarEvent,
   type RadarEventType,
 } from "@/lib/services/radar";
+import { selectCandidateListingIds, bestByNonCommissionSignal } from "@/lib/queries/candidate-pool";
 
 /**
  * Radar — query-time event assembly. See lib/services/radar.ts's doc
@@ -45,19 +47,24 @@ function candidatePoolSize(limit: number): number {
  * both have one), without ever loading a listing's entire signal history. */
 const RECENT_SIGNALS_WINDOW = 10;
 
-/** Groups `rows` by `canonicalProductId`, keeping only the first (best,
- * given `rows` is already ordered by monetizationScore.score desc) per
- * group. Replaces what used to be one `findFirst` query PER catalog
- * listing with a single batched `findMany` — see call site. */
-function bestOfferPerCanonicalProduct<
-  T extends { canonicalProductId: string | null; id: string },
->(rows: T[]): Map<string, T> {
-  const best = new Map<string, T>();
-  for (const row of rows) {
-    if (!row.canonicalProductId) continue;
-    if (!best.has(row.canonicalProductId)) best.set(row.canonicalProductId, row);
-  }
-  return best;
+/** Mirrors lib/queries/unified-offers.ts's nonCommissionSignal() — same
+ * commission-free average of demand+offerQuality, kept as a local copy
+ * (not extracted/imported) for the same reason the rest of this file
+ * mirrors that module's query shapes instead of sharing code: each file
+ * owns its own tested behavior. Used only to pick which real offer
+ * sibling represents an ML catalog product (bestByNonCommissionSignal
+ * below) — never to touch calculateRadarPriority's own, deliberately
+ * commission-aware tie-break nudge. */
+function nonCommissionSignal(components: unknown): number | null {
+  const c = components as
+    | { demand?: { value: number | null }; offerQuality?: { value: number | null } }
+    | null
+    | undefined;
+  const values = [c?.demand?.value, c?.offerQuality?.value].filter(
+    (v): v is number => typeof v === "number",
+  );
+  if (values.length === 0) return null;
+  return Math.round(values.reduce((a, b) => a + b, 0) / values.length);
 }
 
 export interface RadarFeedItem {
@@ -118,8 +125,15 @@ async function getAllRadarEvents(poolSize: number): Promise<RadarFeedItem[]> {
 }
 
 async function collectShopeeEvents(poolSize: number): Promise<RadarFeedItem[]> {
+  // Pool membership is commission-free (candidate-pool.ts) — see
+  // getUnifiedMerchantOffers's identical fix/reasoning. Hydration below
+  // is a plain `id: in` fetch; order doesn't matter there.
+  const shopeeIds = await selectCandidateListingIds(
+    Prisma.sql`ml.active = true AND m.code = 'SHOPEE' AND ms.id IS NOT NULL`,
+    poolSize,
+  );
   const listings = await prisma.merchantListing.findMany({
-    where: { active: true, merchant: { code: "SHOPEE" }, monetizationScore: { isNot: null } },
+    where: { id: { in: shopeeIds } },
     include: {
       monetizationScore: true,
       affiliateLink: true,
@@ -128,8 +142,6 @@ async function collectShopeeEvents(poolSize: number): Promise<RadarFeedItem[]> {
       // one, without loading a listing's entire signal history.
       signals: { orderBy: { observedAt: "desc" }, take: RECENT_SIGNALS_WINDOW },
     },
-    orderBy: { monetizationScore: { score: "desc" } },
-    take: poolSize,
   });
 
   const results: RadarFeedItem[] = [];
@@ -179,27 +191,31 @@ async function collectShopeeEvents(poolSize: number): Promise<RadarFeedItem[]> {
 
 async function collectMercadoLivreEvents(poolSize: number): Promise<RadarFeedItem[]> {
   // Catalog rows: the demand signal (rank) lives here — see
-  // scripts/ml-demand-e2e-check.ts / scripts/ml-enrich-offers.ts.
+  // scripts/ml-demand-e2e-check.ts / scripts/ml-enrich-offers.ts. Pool
+  // membership is commission-free (candidate-pool.ts) — same fix/
+  // reasoning as getUnifiedMerchantOffers and collectShopeeEvents above.
+  const mlIds = await selectCandidateListingIds(
+    Prisma.sql`ml.active = true AND m.code = 'MERCADO_LIVRE' AND EXISTS (
+      SELECT 1 FROM "MerchantListingSignal" mls
+      WHERE mls."merchantListingId" = ml.id
+      AND mls.source IN ('mercado_livre_highlights', 'mercado_livre_trends')
+    )`,
+    poolSize,
+  );
   const catalogListings = await prisma.merchantListing.findMany({
-    where: {
-      active: true,
-      merchant: { code: "MERCADO_LIVRE" },
-      signals: { some: { source: { in: ["mercado_livre_highlights", "mercado_livre_trends"] } } },
-    },
+    where: { id: { in: mlIds } },
     include: {
       monetizationScore: true,
       affiliateLink: true,
       canonicalProduct: { select: { title: true, imageUrl: true, specifications: true } },
       signals: { orderBy: { observedAt: "desc" }, take: 1 },
     },
-    orderBy: { monetizationScore: { score: "desc" } },
-    take: poolSize,
   });
 
   // Batched replacement for the old per-catalog-listing `findFirst` loop
-  // (the literal N+1): one query for every candidate's best real offer
-  // sibling, ordered so the first row per canonicalProductId is already
-  // the best-scoring one.
+  // (the literal N+1): one query for every candidate's real offer
+  // siblings, then pick the best-for-the-consumer one in memory — never
+  // by DB order (same commission-bias risk as the pool query above).
   const canonicalProductIds = catalogListings
     .map((c) => c.canonicalProductId)
     .filter((id): id is string => id !== null);
@@ -211,10 +227,12 @@ async function collectMercadoLivreEvents(poolSize: number): Promise<RadarFeedIte
           monetizationScore: true,
           signals: { orderBy: { observedAt: "desc" }, take: RECENT_SIGNALS_WINDOW },
         },
-        orderBy: { monetizationScore: { score: "desc" } },
       })
     : [];
-  const bestOfferByCanonicalId = bestOfferPerCanonicalProduct(bestOffers);
+  const bestOfferByCanonicalId = bestByNonCommissionSignal(
+    bestOffers,
+    (offer) => nonCommissionSignal(offer.monetizationScore?.components) ?? -1,
+  );
 
   const results: RadarFeedItem[] = [];
   for (const catalogListing of catalogListings) {

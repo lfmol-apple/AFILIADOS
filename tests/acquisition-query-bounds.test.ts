@@ -201,9 +201,11 @@ describe("no N+1 regression — findFirst is never called per candidate", () => 
 
   it("getUnifiedMerchantOffers issues a small, fixed number of findMany calls — not one per candidate", async () => {
     const counts = await countCalls("findMany", () => getUnifiedMerchantOffers(24));
-    // Exactly 3 today (Shopee candidates, ML catalog candidates, batched
-    // best-offer lookup) — asserting well under CANDIDATE_COUNT (15)
-    // proves this doesn't grow with the number of eligible listings.
+    // 3 today (Shopee hydration, ML catalog hydration, batched best-offer
+    // lookup) — pool MEMBERSHIP itself is a `$queryRaw`, not `findMany`
+    // (candidate-pool.ts, commission-bias fix, 2026-09-12), so it doesn't
+    // show up in this count at all. Asserting well under CANDIDATE_COUNT
+    // (15) proves this doesn't grow with the number of eligible listings.
     expect(counts).toBeLessThanOrEqual(5);
   });
 

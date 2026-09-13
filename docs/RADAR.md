@@ -19,7 +19,11 @@ Com isso, todo evento é **derivado em tempo de consulta** (`lib/services/radar.
 milhares de `MerchantListing`; a consulta continua rápida porque é **bounded e batched**
 (`candidatePoolSize`, sem N+1 por candidato — hotfix de performance, 2026-09-12, depois de um
 deploy que levou a Home de ~4s a 32,6s em produção assim que o volume real apareceu), nunca porque
-o catálogo é pequeno. Revisitar a decisão de não persistir (aí sim criar uma tabela) quando
+o catálogo é pequeno. A seleção do pool bounded também é **livre de comissão** (`lib/queries/
+candidate-pool.ts`, correção de code review, 2026-09-12): a versão inicial do hotfix ordenava o
+pool por `MonetizationScore.score` (que mistura comissão), o que podia excluir do pool um listing
+melhor para o consumidor só por pagar menos — corrigido para ordenar por `demand`+`offerQuality`
+apenas, nunca por comissão. Revisitar a decisão de não persistir (aí sim criar uma tabela) quando
 qualquer um destes ficar real: ruído de duplicação entre requests (o mesmo preço observado gerando eventos "piscando"),
 necessidade de um ciclo de vida "visto/publicado", ou tracking de clique por evento precisando de
 um id estável além da vida de um único signal.
