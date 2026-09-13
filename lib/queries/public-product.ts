@@ -9,6 +9,8 @@ import {
 } from "@/lib/services/radar";
 import { evaluatePublicationGate, type PublicationGateResult } from "@/lib/services/publication-gate";
 import {
+  extractMercadoLivreListingFacts,
+  extractShopeeListingFacts,
   loadMerchantListingFactsByListingId,
   loadMerchantListingFactsByPublicSlug,
   loadMerchantListingFactsBySlug,
@@ -364,42 +366,102 @@ export interface IndexableMerchantProductUrl {
   lastModified: Date;
 }
 
+/** Mirrors the identical helper in lib/queries/radar-events.ts and
+ * lib/queries/unified-offers.ts (kept as three small local copies rather
+ * than one shared import — see this project's precedent in
+ * lib/services/merchant-listing-facts.ts's own doc comment about mirroring
+ * vs. refactoring existing tested logic). */
+const RECENT_SIGNALS_WINDOW = 10;
+
 /**
  * Every Mercado Livre/Shopee product page that has earned a spot in
  * app/sitemap.ts — a real slug already exists (this never generates one:
  * see ensurePublicSlugsForAllEligibleListings/scripts/backfill-public-
  * slugs.ts for that) AND evaluatePublicationGate().indexable is true.
- * At today's real volume (a few dozen listings) a per-listing Prisma
- * round-trip through loadMerchantListingFactsBy* is acceptable; revisit if
- * volume grows enough to matter (same scaling note as lib/queries/
- * radar-events.ts).
+ *
+ * Performance hotfix (2026-09-12): this used to do one Prisma round-trip
+ * PER canonical product / Shopee listing via loadMerchantListingFactsBy*
+ * (each of which does its own extra query) — fine at "a few dozen
+ * listings", explosive at production's real ~800+ slugged rows and
+ * growing. Now a fixed, small number of batched queries regardless of how
+ * many rows exist: fetch every candidate row up front, group in memory,
+ * and reuse the exact same pure extractMercadoLivreListingFacts/
+ * extractShopeeListingFacts functions the per-item loaders already use —
+ * so the Publication Gate's answer can never disagree between this bulk
+ * path and /produto/[slug]'s own single-item lookup.
  */
 export async function listIndexableMerchantProductUrls(): Promise<IndexableMerchantProductUrl[]> {
   const urls: IndexableMerchantProductUrl[] = [];
 
-  const canonicalsWithPublicSlug = await prisma.canonicalProduct.findMany({
+  // --- Mercado Livre: 2 queries total, never one per canonical product ---
+  const canonicals = await prisma.canonicalProduct.findMany({
     where: { publicSlug: { not: null }, listings: { some: { merchant: { code: "MERCADO_LIVRE" } } } },
-    select: { publicSlug: true },
+    select: { id: true, publicSlug: true, title: true, imageUrl: true, brand: true, model: true, categoryId: true },
   });
-  for (const canonical of canonicalsWithPublicSlug) {
-    const resolved = await loadMerchantListingFactsByPublicSlug(canonical.publicSlug!);
-    if (!resolved) continue;
-    const gate = evaluatePublicationGate(resolved.facts);
-    if (gate.indexable && resolved.facts.lastObservedAt) {
-      urls.push({ slug: canonical.publicSlug!, lastModified: resolved.facts.lastObservedAt });
+  const canonicalIds = canonicals.map((c) => c.id);
+  const mlListings = canonicalIds.length
+    ? await prisma.merchantListing.findMany({
+        where: { canonicalProductId: { in: canonicalIds }, merchant: { code: "MERCADO_LIVRE" } },
+        include: {
+          affiliateLink: true,
+          monetizationScore: true,
+          signals: { orderBy: { observedAt: "desc" }, take: RECENT_SIGNALS_WINDOW },
+        },
+      })
+    : [];
+  const mlListingsByCanonical = new Map<string, typeof mlListings>();
+  for (const listing of mlListings) {
+    if (!listing.canonicalProductId) continue;
+    const group = mlListingsByCanonical.get(listing.canonicalProductId) ?? [];
+    group.push(listing);
+    mlListingsByCanonical.set(listing.canonicalProductId, group);
+  }
+
+  for (const canonical of canonicals) {
+    const group = mlListingsByCanonical.get(canonical.id) ?? [];
+    // Same rule as everywhere else: an offer row is one that's ever been
+    // written an "mercado_livre_catalog_items" signal; the catalog row
+    // never gets that source (see lib/queries/ml-affiliate-queue.ts).
+    const catalogListing = group.find(
+      (l) => !l.signals.some((s) => s.source === "mercado_livre_catalog_items"),
+    );
+    if (!catalogListing) continue;
+    const bestOffer = group
+      .filter((l) => l.id !== catalogListing.id)
+      .sort((a, b) => (b.monetizationScore?.score ?? -1) - (a.monetizationScore?.score ?? -1))[0];
+
+    const facts = extractMercadoLivreListingFacts({
+      catalogListing,
+      canonicalProduct: canonical,
+      catalogSignals: catalogListing.signals,
+      bestOffer: bestOffer ? { signals: bestOffer.signals, monetizationScore: bestOffer.monetizationScore } : null,
+      affiliateLink: catalogListing.affiliateLink,
+    });
+    const gate = evaluatePublicationGate(facts);
+    if (gate.indexable && facts.lastObservedAt && canonical.publicSlug) {
+      urls.push({ slug: canonical.publicSlug, lastModified: facts.lastObservedAt });
     }
   }
 
-  const shopeeListingsWithSlug = await prisma.merchantListing.findMany({
+  // --- Shopee: 1 query total, never one per listing ---
+  const shopeeListings = await prisma.merchantListing.findMany({
     where: { slug: { not: null }, active: true, merchant: { code: "SHOPEE" } },
-    select: { id: true, slug: true },
+    include: {
+      affiliateLink: true,
+      monetizationScore: true,
+      signals: { orderBy: { observedAt: "desc" }, take: RECENT_SIGNALS_WINDOW },
+    },
   });
-  for (const listing of shopeeListingsWithSlug) {
-    const facts = await loadMerchantListingFactsByListingId(listing.id);
-    if (!facts) continue;
+  for (const listing of shopeeListings) {
+    const facts = extractShopeeListingFacts({
+      listing,
+      signals: listing.signals,
+      monetizationScore: listing.monetizationScore,
+      affiliateLink: listing.affiliateLink,
+    });
     const gate = evaluatePublicationGate(facts);
-    if (gate.indexable && facts.lastObservedAt) {
-      urls.push({ slug: listing.slug!, lastModified: facts.lastObservedAt });
+    if (gate.indexable && facts.lastObservedAt && listing.slug) {
+      urls.push({ slug: listing.slug, lastModified: facts.lastObservedAt });
     }
   }
 

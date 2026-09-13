@@ -36,9 +36,10 @@ export default async function Home() {
     }),
     // A wider real sample than what's displayed individually — this only
     // feeds the compact category counts below (components/radar-summary.tsx),
-    // never a per-product list, so a larger, still-cheap sample (see
-    // lib/services/radar.ts's doc comment on today's real volume) gives a
-    // more representative "acontecendo agora" than 4 events would.
+    // never a per-product list, so a larger sample gives a more
+    // representative "acontecendo agora" than 4 events would. Bounded on
+    // the query side regardless of catalog size — see
+    // lib/queries/radar-events.ts's candidatePoolSize doc comment.
     getPublicRadarFeed(20).catch((error) => {
       console.error("home.radar_unavailable", error);
       return [];

@@ -92,6 +92,45 @@ export function mapAmazonProductToUnifiedCard(product: ProductListItem): Unified
 }
 
 /**
+ * How many rows to fetch PER MERCHANT before ranking+slicing to `limit` —
+ * never the whole table. Performance hotfix (2026-09-12): production has
+ * tens of thousands of MerchantListing rows today and is expected to keep
+ * growing; the previous implementation ran an unbounded `findMany` (no
+ * `take` at all) and, for Mercado Livre, one additional query PER
+ * candidate to find its best offer — together these took the Home page
+ * from ~4s to 32.6s in production and would only get worse as the catalog
+ * grows. `limit * 5`, capped at `CANDIDATE_POOL_CEILING`, gives the
+ * in-memory, commission-free ranking below real room to pick the true top
+ * N without ever scanning the full table — same idea as an index-assisted
+ * "top-K" query, just expressed as an explicit bounded candidate set
+ * because the actual ranking field (nonCommissionSignal) isn't a plain
+ * column Postgres can ORDER BY directly.
+ */
+const CANDIDATE_POOL_MULTIPLIER = 5;
+const CANDIDATE_POOL_CEILING = 200;
+
+function candidatePoolSize(limit: number): number {
+  return Math.min(limit * CANDIDATE_POOL_MULTIPLIER, CANDIDATE_POOL_CEILING);
+}
+
+/** Groups `offers` by `canonicalProductId` and keeps only the best-scoring
+ * one per group — replaces what used to be one `findFirst` query PER
+ * catalog listing (the literal N+1) with a single batched `findMany` (see
+ * call site) plus this in-memory grouping. Relies on `offers` already
+ * being ordered by `monetizationScore.score desc` (set at the query), so
+ * the first row seen for a given canonicalProductId is the best one. */
+function bestOfferPerCanonicalProduct<
+  T extends { canonicalProductId: string | null; id: string },
+>(offers: T[]): Map<string, T> {
+  const best = new Map<string, T>();
+  for (const offer of offers) {
+    if (!offer.canonicalProductId) continue;
+    if (!best.has(offer.canonicalProductId)) best.set(offer.canonicalProductId, offer);
+  }
+  return best;
+}
+
+/**
  * Real Shopee + Mercado Livre offers that are ACTUALLY purchasable right
  * now (AffiliateLinkRegistry.status === "ACTIVE") — this is a vitrine
  * with buying intent, not the Radar (which shows intelligence with or
@@ -99,7 +138,8 @@ export function mapAmazonProductToUnifiedCard(product: ProductListItem): Unified
  * rule already established for Mercado Livre in
  * lib/queries/ml-affiliate-queue.ts / lib/queries/radar-events.ts: the
  * link lives on the catalog-level MerchantListing, and price/condition/
- * seller facts come from its best-scoring real offer sibling.
+ * seller facts come from its best-scoring real offer sibling — fetched in
+ * one batched query below, never one query per candidate.
  */
 export async function getUnifiedMerchantOffers(
   limit: number = 24,
@@ -110,6 +150,8 @@ export async function getUnifiedMerchantOffers(
    * eligibility logic. */
   linkParams?: Record<string, string>,
 ): Promise<UnifiedOfferCard[]> {
+  const poolSize = candidatePoolSize(limit);
+
   const [shopeeListings, mlCatalogListings] = await Promise.all([
     prisma.merchantListing.findMany({
       where: {
@@ -121,6 +163,12 @@ export async function getUnifiedMerchantOffers(
         monetizationScore: true,
         signals: { orderBy: { observedAt: "desc" }, take: 1 },
       },
+      // A real, already-computed ranking signal — the true commission-free
+      // sort still happens in memory below, this just keeps the DB-level
+      // candidate set biased toward plausible winners instead of an
+      // arbitrary/unordered slice of the table.
+      orderBy: { monetizationScore: { score: "desc" } },
+      take: poolSize,
     }),
     prisma.merchantListing.findMany({
       where: {
@@ -133,6 +181,8 @@ export async function getUnifiedMerchantOffers(
         canonicalProduct: { select: { title: true, imageUrl: true, specifications: true, publicSlug: true } },
         monetizationScore: true,
       },
+      orderBy: { monetizationScore: { score: "desc" } },
+      take: poolSize,
     }),
   ]);
 
@@ -164,17 +214,30 @@ export async function getUnifiedMerchantOffers(
     };
   });
 
-  const mlCards: UnifiedOfferCard[] = [];
-  for (const catalogListing of mlCatalogListings) {
-    const bestOffer = await prisma.merchantListing.findFirst({
-      where: { canonicalProductId: catalogListing.canonicalProductId, id: { not: catalogListing.id } },
-      include: { monetizationScore: true, signals: { orderBy: { observedAt: "desc" }, take: 1 } },
-      orderBy: { monetizationScore: { score: "desc" } },
-    });
+  // Batched replacement for the old per-listing `findFirst` loop: one
+  // query for every candidate's best offer sibling, ordered so the first
+  // row per canonicalProductId is already the best-scoring one.
+  const canonicalProductIds = mlCatalogListings
+    .map((c) => c.canonicalProductId)
+    .filter((id): id is string => id !== null);
+  const catalogListingIds = mlCatalogListings.map((c) => c.id);
+  const bestOffers = canonicalProductIds.length
+    ? await prisma.merchantListing.findMany({
+        where: { canonicalProductId: { in: canonicalProductIds }, id: { notIn: catalogListingIds } },
+        include: { monetizationScore: true, signals: { orderBy: { observedAt: "desc" }, take: 1 } },
+        orderBy: { monetizationScore: { score: "desc" } },
+      })
+    : [];
+  const bestOfferByCanonicalId = bestOfferPerCanonicalProduct(bestOffers);
+
+  const mlCards: UnifiedOfferCard[] = mlCatalogListings.map((catalogListing) => {
+    const bestOffer = catalogListing.canonicalProductId
+      ? bestOfferByCanonicalId.get(catalogListing.canonicalProductId)
+      : undefined;
     const offerRaw = bestOffer?.signals[0]?.raw as
       | { price?: number; original_price?: number | null; discountPercent?: number | null }
       | null;
-    mlCards.push({
+    return {
       id: catalogListing.id,
       merchant: "MERCADO_LIVRE",
       title: catalogListing.canonicalProduct?.title ?? catalogListing.externalId,
@@ -191,8 +254,8 @@ export async function getUnifiedMerchantOffers(
       detailHref: catalogListing.canonicalProduct?.publicSlug
         ? `/produto/${catalogListing.canonicalProduct.publicSlug}`
         : undefined,
-    });
-  }
+    };
+  });
 
   return [...shopeeCards, ...mlCards]
     .sort((a, b) => (b.opportunitySignal ?? -1) - (a.opportunitySignal ?? -1))
@@ -227,13 +290,18 @@ export interface SearchUnifiedOffersResult {
  * Text matching for Mercado Livre/Shopee: a plain, case-insensitive
  * substring check on the title already computed by
  * getUnifiedMerchantOffers() — no new Prisma query, no JSON/ILIKE
- * clause, no index. This is intentionally the smallest thing that
- * works at today's real volume (12 Shopee + a couple hundred ML
- * listings, fetched once, filtered in memory). If that volume grows by
- * an order of magnitude, this in-memory filter should be replaced by a
- * real indexed text search (e.g. a Postgres trigram/GIN index on a
- * denormalized title column) — not attempted now, per the project
- * brief's explicit "não criar infraestrutura prematura de indexação".
+ * clause, no index. Performance hotfix (2026-09-12): getUnifiedMerchantOffers()
+ * itself is now bounded (candidatePoolSize — never scans the whole table
+ * regardless of the `limit` passed here), which also caps what this
+ * search can find: with a catalog now in the tens of thousands of rows,
+ * a rare term matching only a low-ranked listing outside that candidate
+ * window won't surface. Trading completeness for a bounded, non-explosive
+ * query is the right call for this hotfix (see this file's git history
+ * for the incident); a real indexed text search (e.g. a Postgres
+ * trigram/GIN index on a denormalized title column) is the correct
+ * follow-up once this limitation actually bites — not attempted now, per
+ * the project brief's explicit "não criar infraestrutura prematura de
+ * indexação".
  *
  * Only page 1 includes Shopee/ML results (same precedent this codebase
  * already used for the old ShopeeShowcase-on-page-1-only pattern) —
@@ -252,11 +320,12 @@ export async function searchUnifiedOffers(input: {
 
   let merchantCards: UnifiedOfferCard[] = [];
   if (page === 1) {
-    // 200: comfortably above today's real total (12 Shopee + ~200 ML
-    // listings, most without an ACTIVE link and therefore already
-    // excluded by getUnifiedMerchantOffers itself) — not a hardcoded
-    // "enough for now" guess so much as "everything eligible, full
-    // stop", filtered by text after the fact.
+    // 200 is getUnifiedMerchantOffers's own CANDIDATE_POOL_CEILING — the
+    // most it will ever fetch per merchant regardless of the number
+    // passed here, so this isn't requesting "everything eligible" anymore
+    // (the catalog is far larger than 200 rows today); it's the largest
+    // bounded, ranked candidate set that function will return, filtered
+    // by text after the fact. See that function's doc comment.
     const eligible = await getUnifiedMerchantOffers(200, {
       source: "search",
       campaign: input.query,

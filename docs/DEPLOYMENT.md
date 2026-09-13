@@ -74,9 +74,14 @@ esta sprint deliberadamente não fez (nenhum VPS/DNS real foi tocado).
    `localhost`), e gerar `ADMIN_PASSWORD_HASH` com
    `npm run admin:hash-password -- 'senha-real'` (rodar isso localmente ou
    na própria VPS — nunca commitar a senha em texto puro em lugar nenhum).
-5. `docker compose -f docker-compose.prod.yml up -d --build`.
-6. Rodar as migrations: `docker compose -f docker-compose.prod.yml exec app
-   node node_modules/prisma/build/index.js migrate deploy`.
+5. `docker compose -p precocaindo -f docker-compose.prod.yml up -d
+   --build` — **sempre com `-p precocaindo` explícito** (ver
+   docs/OPERATIONS.md, seção "Docker Compose — sempre com `-p
+   precocaindo`": um comando sem `-p` já criou um segundo Postgres sobre
+   o mesmo volume de dados em produção).
+6. Rodar as migrations: `docker compose -p precocaindo -f
+   docker-compose.prod.yml exec app node node_modules/prisma/build/index.js
+   migrate deploy`.
 7. **Não** rodar `npm run db:seed` em produção — dados de demonstração,
    nunca confundir com catálogo real.
 8. Rodar `npm run production:readiness` (localmente, apontando

@@ -12,16 +12,53 @@ import {
 /**
  * Radar — query-time event assembly. See lib/services/radar.ts's doc
  * comment for why this stays derivation-only (no persisted `RadarEvent`
- * table) at today's real data volume (18 ML catalog products, ~180 real
- * offers, 12 Shopee listings — a handful of Prisma queries per request,
- * no N+1 loop over thousands of rows).
+ * table). The catalog can hold hundreds of CanonicalProducts and tens of
+ * thousands of MerchantListing rows — every query in this file is bounded
+ * (candidatePoolSize) and batched (no per-candidate round trip), so the
+ * work done per request stays flat as the catalog grows instead of
+ * scanning/looping over the full table (performance hotfix, 2026-09-12 —
+ * the previous unbounded version took Home from ~4s to 32.6s in
+ * production once the catalog reached real scale).
  *
- * Revisit that decision (add persistence) once any of these becomes true:
- * real duplicate-across-requests noise appears (a fresh price snapshot
- * flips the same event on/off within seconds), a "mark as seen/published"
- * lifecycle is needed, or per-event click tracking needs a stable id that
- * survives beyond one signal's lifetime.
+ * Revisit the "no persisted table" decision once any of these becomes
+ * true: real duplicate-across-requests noise appears (a fresh price
+ * snapshot flips the same event on/off within seconds), a "mark as
+ * seen/published" lifecycle is needed, or per-event click tracking needs
+ * a stable id that survives beyond one signal's lifetime.
  */
+
+/** How many candidate listings to fetch PER MERCHANT before deriving
+ * events and sorting by priority — never the whole table. Mirrors
+ * lib/queries/unified-offers.ts's identical constant/reasoning: `limit *
+ * 5`, capped at 200, gives the in-memory priority sort real room to find
+ * the true top N without an unbounded scan. */
+const CANDIDATE_POOL_MULTIPLIER = 5;
+const CANDIDATE_POOL_CEILING = 200;
+
+function candidatePoolSize(limit: number): number {
+  return Math.min(limit * CANDIDATE_POOL_MULTIPLIER, CANDIDATE_POOL_CEILING);
+}
+
+/** Small, bounded recent-signal window — enough headroom to find two real,
+ * price-bearing observations for detectPriceDrop() even when some recent
+ * signals lack a parseable price (never assume the two most recent rows
+ * both have one), without ever loading a listing's entire signal history. */
+const RECENT_SIGNALS_WINDOW = 10;
+
+/** Groups `rows` by `canonicalProductId`, keeping only the first (best,
+ * given `rows` is already ordered by monetizationScore.score desc) per
+ * group. Replaces what used to be one `findFirst` query PER catalog
+ * listing with a single batched `findMany` — see call site. */
+function bestOfferPerCanonicalProduct<
+  T extends { canonicalProductId: string | null; id: string },
+>(rows: T[]): Map<string, T> {
+  const best = new Map<string, T>();
+  for (const row of rows) {
+    if (!row.canonicalProductId) continue;
+    if (!best.has(row.canonicalProductId)) best.set(row.canonicalProductId, row);
+  }
+  return best;
+}
 
 export interface RadarFeedItem {
   event: RadarEvent;
@@ -61,30 +98,38 @@ const PUBLIC_EVENT_TYPES: RadarEventType[] = [
 ];
 
 export async function getPublicRadarFeed(limit: number = 12): Promise<RadarFeedItem[]> {
-  const all = await getAllRadarEvents();
+  const all = await getAllRadarEvents(candidatePoolSize(limit));
   return all.filter((item) => PUBLIC_EVENT_TYPES.includes(item.event.type)).slice(0, limit);
 }
 
 export async function getAdminRadarFeed(limit: number = 50): Promise<RadarFeedItem[]> {
-  const all = await getAllRadarEvents();
+  const all = await getAllRadarEvents(candidatePoolSize(limit));
   return all.slice(0, limit);
 }
 
-async function getAllRadarEvents(): Promise<RadarFeedItem[]> {
-  const [shopeeItems, mlItems] = await Promise.all([collectShopeeEvents(), collectMercadoLivreEvents()]);
+async function getAllRadarEvents(poolSize: number): Promise<RadarFeedItem[]> {
+  const [shopeeItems, mlItems] = await Promise.all([
+    collectShopeeEvents(poolSize),
+    collectMercadoLivreEvents(poolSize),
+  ]);
   const items = [...shopeeItems, ...mlItems];
   items.sort((a, b) => b.priority - a.priority);
   return items;
 }
 
-async function collectShopeeEvents(): Promise<RadarFeedItem[]> {
+async function collectShopeeEvents(poolSize: number): Promise<RadarFeedItem[]> {
   const listings = await prisma.merchantListing.findMany({
     where: { active: true, merchant: { code: "SHOPEE" }, monetizationScore: { isNot: null } },
     include: {
       monetizationScore: true,
       affiliateLink: true,
-      signals: { orderBy: { observedAt: "asc" } },
+      // Bounded, most-recent-first window — enough to find two real,
+      // price-bearing observations even if a recent signal or two lacks
+      // one, without loading a listing's entire signal history.
+      signals: { orderBy: { observedAt: "desc" }, take: RECENT_SIGNALS_WINDOW },
     },
+    orderBy: { monetizationScore: { score: "desc" } },
+    take: poolSize,
   });
 
   const results: RadarFeedItem[] = [];
@@ -97,7 +142,8 @@ async function collectShopeeEvents(): Promise<RadarFeedItem[]> {
       })
       .filter((p): p is { price: number; observedAt: Date } => p !== null);
 
-    const latest = listing.signals[listing.signals.length - 1];
+    // Signals are fetched newest-first (desc) — index 0 is the latest.
+    const latest = listing.signals[0];
     const latestRaw = latest?.raw as { productName?: string; imageUrl?: string; rating?: number } | null;
     const title = latestRaw?.productName ?? listing.externalId;
     const imageUrl = latestRaw?.imageUrl ?? null;
@@ -131,7 +177,7 @@ async function collectShopeeEvents(): Promise<RadarFeedItem[]> {
   return results;
 }
 
-async function collectMercadoLivreEvents(): Promise<RadarFeedItem[]> {
+async function collectMercadoLivreEvents(poolSize: number): Promise<RadarFeedItem[]> {
   // Catalog rows: the demand signal (rank) lives here — see
   // scripts/ml-demand-e2e-check.ts / scripts/ml-enrich-offers.ts.
   const catalogListings = await prisma.merchantListing.findMany({
@@ -146,7 +192,29 @@ async function collectMercadoLivreEvents(): Promise<RadarFeedItem[]> {
       canonicalProduct: { select: { title: true, imageUrl: true, specifications: true } },
       signals: { orderBy: { observedAt: "desc" }, take: 1 },
     },
+    orderBy: { monetizationScore: { score: "desc" } },
+    take: poolSize,
   });
+
+  // Batched replacement for the old per-catalog-listing `findFirst` loop
+  // (the literal N+1): one query for every candidate's best real offer
+  // sibling, ordered so the first row per canonicalProductId is already
+  // the best-scoring one.
+  const canonicalProductIds = catalogListings
+    .map((c) => c.canonicalProductId)
+    .filter((id): id is string => id !== null);
+  const catalogListingIds = catalogListings.map((c) => c.id);
+  const bestOffers = canonicalProductIds.length
+    ? await prisma.merchantListing.findMany({
+        where: { canonicalProductId: { in: canonicalProductIds }, id: { notIn: catalogListingIds } },
+        include: {
+          monetizationScore: true,
+          signals: { orderBy: { observedAt: "desc" }, take: RECENT_SIGNALS_WINDOW },
+        },
+        orderBy: { monetizationScore: { score: "desc" } },
+      })
+    : [];
+  const bestOfferByCanonicalId = bestOfferPerCanonicalProduct(bestOffers);
 
   const results: RadarFeedItem[] = [];
   for (const catalogListing of catalogListings) {
@@ -187,12 +255,9 @@ async function collectMercadoLivreEvents(): Promise<RadarFeedItem[]> {
     // shipping/seller facts live here, never on the catalog row. Only the
     // single best-scoring offer represents this product, same rule as
     // lib/queries/ml-affiliate-queue.ts (never one row per raw offer).
+    // Looked up from the batch fetched above — never a per-listing query.
     if (!catalogListing.canonicalProductId) continue;
-    const bestOffer = await prisma.merchantListing.findFirst({
-      where: { canonicalProductId: catalogListing.canonicalProductId, id: { not: catalogListing.id } },
-      include: { monetizationScore: true, signals: { orderBy: { observedAt: "asc" } } },
-      orderBy: { monetizationScore: { score: "desc" } },
-    });
+    const bestOffer = bestOfferByCanonicalId.get(catalogListing.canonicalProductId);
     if (!bestOffer) continue;
 
     const offerPriceHistory = bestOffer.signals
@@ -202,7 +267,8 @@ async function collectMercadoLivreEvents(): Promise<RadarFeedItem[]> {
       })
       .filter((p): p is { price: number; observedAt: Date } => p !== null);
 
-    const latestOfferSignal = bestOffer.signals[bestOffer.signals.length - 1];
+    // Signals are fetched newest-first (desc) — index 0 is the latest.
+    const latestOfferSignal = bestOffer.signals[0];
     const latestOfferRaw = latestOfferSignal?.raw as
       | { condition?: string; shipping?: { free_shipping?: boolean }; seller?: { levelId?: string | null } }
       | null;

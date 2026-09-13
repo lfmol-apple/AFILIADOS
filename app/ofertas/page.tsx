@@ -17,9 +17,11 @@ import { UnifiedOfferCard } from "@/components/unified-offer-card";
 export const revalidate = 300;
 
 // Cross-merchant vitrine cap for the default (no search) view — a single
-// page today (12 Shopee + up to ~a couple hundred Mercado Livre + however
-// many Amazon), not a new pagination scheme merging three independently
-// paginated sources. Search (a query is present) still uses Amazon's own
+// page, not a new pagination scheme merging three independently paginated
+// sources. getUnifiedMerchantOffers bounds its own DB work regardless of
+// how large the Shopee/ML/Amazon catalogs get (see that function's
+// candidatePoolSize doc comment) — this constant only caps what's shown,
+// same as before. Search (a query is present) still uses Amazon's own
 // real pagination unchanged — see the comment further down for why.
 const UNIFIED_LIMIT = 48;
 

@@ -4,6 +4,37 @@ Day-to-day operational reference for a running deploy. See
 docs/DEPLOYMENT.md for how to stand the stack up in the first place, and
 docs/BACKUP.md for backups.
 
+## Docker Compose — sempre com `-p precocaindo`
+
+**Regra:** em produção, todo comando `docker compose` deve usar
+explicitamente o projeto `precocaindo`:
+
+```bash
+docker compose -p precocaindo -f docker-compose.prod.yml <comando>
+```
+
+**Por quê:** sem `-p`, o Compose deriva o nome do projeto do nome do
+diretório atual. Numa sessão de deploy real, rodar `docker compose run app
+npx prisma migrate deploy` a partir de um diretório com nome diferente
+(em vez do nome esperado do projeto) fez o Compose criar um container
+Postgres **novo e paralelo** (`app-db-1`) apontando para o **mesmo volume
+nomeado** (`precocaindo_db_data`) já em uso pelo container correto
+(`precocaindo-db-1`) — dois processos Postgres competindo pelo mesmo
+diretório de dados ao mesmo tempo. Foi contido a tempo (parar o container
+duplicado, conferir contagem de linhas para confirmar zero perda de dado,
+reiniciar `precocaindo-db-1` normalmente, reexecutar a migration
+apontando pelo nome exato do container via `docker run --rm --network
+precocaindo_internal ...`), mas o risco — dois Postgres escrevendo no
+mesmo `PGDATA` — é sério o bastante para nunca depender de inferência
+implícita de nome de projeto.
+
+**NUNCA iniciar um segundo Postgres sobre `precocaindo_db_data`.** Antes
+de qualquer `docker compose run`/`up`/`exec` em produção, confirmar com
+`docker compose -p precocaindo ps` que os serviços já existentes
+(`precocaindo-app-1`, `precocaindo-db-1`, `precocaindo-caddy-1`) são os
+únicos referenciados — se aparecer qualquer container com prefixo
+diferente de `precocaindo-`, parar e investigar antes de prosseguir.
+
 ## Logs
 
 Structured JSON, one line per event, from `lib/observability/logger.ts` —

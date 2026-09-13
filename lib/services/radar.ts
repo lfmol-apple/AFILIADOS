@@ -9,12 +9,14 @@
  * derivable at query time from MerchantListingSignal's accumulated
  * snapshots (each script run — scripts/ml-enrich-offers.ts,
  * scripts/shopee-first-cycle.ts — appends a new, timestamped signal row
- * rather than overwriting) and AffiliateLinkRegistry. At today's real
- * volume (18 ML catalog products, ~180 real offers, 12 Shopee listings)
- * query-time derivation is fast and correct, and nothing here needs
- * dedup/lifecycle/publication state that only a persisted row could give —
- * see lib/queries/radar-events.ts's doc comment for exactly what would
- * change that calculus (and when to revisit this decision).
+ * rather than overwriting) and AffiliateLinkRegistry. The catalog can hold
+ * hundreds of products and tens of thousands of listings — query-time
+ * derivation stays correct and cheap because lib/queries/radar-events.ts
+ * bounds and batches its queries (candidatePoolSize), not because the
+ * catalog happens to be small. Nothing here needs dedup/lifecycle/
+ * publication state that only a persisted row could give — see
+ * lib/queries/radar-events.ts's doc comment for exactly what would change
+ * that calculus (and when to revisit this decision).
  *
  * Every detector requires real evidence for its specific claim — no
  * detector ever fires from "not enough data", it just returns null.

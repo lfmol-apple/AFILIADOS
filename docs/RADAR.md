@@ -15,10 +15,12 @@ tinham ≥2 snapshots reais no momento desta auditoria, o suficiente para detect
 inventar nada.
 
 Com isso, todo evento é **derivado em tempo de consulta** (`lib/services/radar.ts` +
-`lib/queries/radar-events.ts`) — nenhuma tabela nova. No volume real de hoje (18 catalog products
-ML, ~180 ofertas, 12 listings Shopee) é um punhado de queries por request, não um problema de
-performance. Revisitar essa decisão (aí sim criar persistência) quando qualquer um destes ficar
-real: ruído de duplicação entre requests (o mesmo preço observado gerando eventos "piscando"),
+`lib/queries/radar-events.ts`) — nenhuma tabela nova. O catálogo real já passou de dezenas de
+milhares de `MerchantListing`; a consulta continua rápida porque é **bounded e batched**
+(`candidatePoolSize`, sem N+1 por candidato — hotfix de performance, 2026-09-12, depois de um
+deploy que levou a Home de ~4s a 32,6s em produção assim que o volume real apareceu), nunca porque
+o catálogo é pequeno. Revisitar a decisão de não persistir (aí sim criar uma tabela) quando
+qualquer um destes ficar real: ruído de duplicação entre requests (o mesmo preço observado gerando eventos "piscando"),
 necessidade de um ciclo de vida "visto/publicado", ou tracking de clique por evento precisando de
 um id estável além da vida de um único signal.
 
