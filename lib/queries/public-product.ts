@@ -53,6 +53,12 @@ export interface PublicMerchantProductViewModel {
   priceHistory: Array<{ price: number; observedAt: Date }>;
   rating: number | null;
   reviewCount: number | null;
+  /** Mercado Livre's own real seller_reputation.level_id ("5_green" best to
+   * "1_red" worst) — already collected (feeds MonetizationScore's
+   * offerQuality, lib/services/ml-offer-quality.ts) but never shown to a
+   * visitor until now. Null (never a fabricated default) for Shopee or an
+   * unrated/brand-new seller. */
+  sellerReputationLevel: string | null;
   lastObservedAt: Date | null;
   ctaHref: string | null;
   gate: PublicationGateResult;
@@ -159,6 +165,7 @@ function buildViewModel(facts: MerchantListingFacts, slug: string): PublicMercha
     priceHistory: facts.priceHistory,
     rating: facts.rating,
     reviewCount: facts.reviewCount,
+    sellerReputationLevel: facts.sellerReputationLevel,
     lastObservedAt: facts.lastObservedAt,
     ctaHref: buildCtaHref(facts.merchant, facts.externalId, gate.ctaEligible, slug),
     gate,

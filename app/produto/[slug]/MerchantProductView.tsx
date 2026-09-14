@@ -13,6 +13,18 @@ const MERCHANT_LABEL: Record<PublicMerchantProductViewModel["source"], string> =
   SHOPEE: "na Shopee",
 };
 
+// Mercado Livre's own real seller_reputation.level_id scale — same source
+// already scoring offerQuality (lib/services/ml-offer-quality.ts), shown
+// honestly either way: a visitor deserves to see a weak reputation too,
+// not just the good ones.
+const REPUTATION_LABEL: Record<string, { label: string; tone: string }> = {
+  "5_green": { label: "Vendedor com reputação alta no Mercado Livre", tone: "text-emerald-700 dark:text-emerald-400" },
+  "4_light_green": { label: "Vendedor com boa reputação no Mercado Livre", tone: "text-emerald-700 dark:text-emerald-400" },
+  "3_yellow": { label: "Vendedor com reputação mediana no Mercado Livre", tone: "text-amber-700 dark:text-amber-400" },
+  "2_orange": { label: "Vendedor com reputação baixa no Mercado Livre", tone: "text-amber-700 dark:text-amber-400" },
+  "1_red": { label: "Vendedor com reputação ruim no Mercado Livre", tone: "text-rose-700 dark:text-rose-400" },
+};
+
 const RADAR_EVENT_LABEL: Record<RadarEventType, { icon: string; label: string }> = {
   PRICE_DROP: { icon: "📉", label: "Preço" },
   BESTSELLER_ENTRY: { icon: "📈", label: "Demanda" },
@@ -84,6 +96,11 @@ export function MerchantProductView({
           <h1 className="text-2xl leading-tight font-semibold">{data.title}</h1>
           {data.brand && <p className="text-foreground/60 mt-1 text-sm">{data.brand}</p>}
           <p className="text-foreground/40 mt-1 text-xs">Oferta {MERCHANT_LABEL[data.source]}</p>
+          {data.sellerReputationLevel && REPUTATION_LABEL[data.sellerReputationLevel] && (
+            <p className={`mt-1 text-xs font-medium ${REPUTATION_LABEL[data.sellerReputationLevel].tone}`}>
+              {REPUTATION_LABEL[data.sellerReputationLevel].label}
+            </p>
+          )}
 
           {data.currentPrice !== null ? (
             <>
