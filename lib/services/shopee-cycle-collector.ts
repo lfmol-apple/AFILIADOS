@@ -3,6 +3,7 @@ import { shopeeNumeric, type ShopeeProductOfferNode, type ShopeeProvider } from 
 import { calculateMonetizationScore } from "@/lib/services/monetization-score";
 import { saveApiGeneratedAffiliateLink } from "@/lib/services/affiliate-link-registry";
 import { buildShopeeSubIds } from "@/lib/services/shopee-attribution";
+import { getHistoricalClickSignal } from "@/lib/services/historical-click-signal";
 import type { MonetizationScoreInput } from "@/types/monetization";
 
 /**
@@ -26,7 +27,17 @@ export function ratingToScore(rating: number): number {
   return Math.min(100, Math.round((rating / 5) * 100));
 }
 
-export function scoreOffer(offer: ShopeeProductOfferNode) {
+/**
+ * historicalConversionSignal defaults to null — correct for the ranking
+ * call site (jobs/shopee-refresh.ts scores offers before any of them are
+ * persisted, so there's no MerchantListing yet to have click history
+ * against). processShopeeOffer below re-scores with the real signal once
+ * the listing's id is known, right before persisting the final score.
+ */
+export function scoreOffer(
+  offer: ShopeeProductOfferNode,
+  historicalConversionSignal: { value: number; quality: "HISTORICAL_INTERNAL" } | null = null,
+) {
   const commissionRate = shopeeNumeric(offer.commissionRate);
   const ratingStar = shopeeNumeric(offer.ratingStar);
   const input: MonetizationScoreInput = {
@@ -39,7 +50,7 @@ export function scoreOffer(offer: ShopeeProductOfferNode) {
         ? { value: commissionToScore(commissionRate), quality: "OBSERVED" }
         : null,
     trendSignal: null, // productOfferV2 has no trend field.
-    historicalConversionSignal: null, // no internal history yet.
+    historicalConversionSignal,
     offerQualitySignal:
       ratingStar !== undefined
         ? { value: ratingToScore(ratingStar), quality: "OBSERVED" }
@@ -68,8 +79,6 @@ export async function processShopeeOffer(
   offer: ShopeeProductOfferNode,
   source: string,
 ): Promise<ProcessShopeeOfferResult> {
-  const score = scoreOffer(offer);
-
   const existingListing = await prisma.merchantListing.findUnique({
     where: {
       merchantId_marketplace_externalId: {
@@ -99,6 +108,12 @@ export async function processShopeeOffer(
     },
     update: { productUrl: offer.productLink },
   });
+
+  // Re-scored now that listing.id exists, so it can carry this listing's
+  // own real click history — the initial scoreOffer() call (used only for
+  // pre-persistence ranking in jobs/shopee-refresh.ts) can never have this,
+  // since a not-yet-persisted offer has no click history to have.
+  const score = scoreOffer(offer, await getHistoricalClickSignal(listing.id));
 
   await prisma.merchantListingSignal.create({
     data: {

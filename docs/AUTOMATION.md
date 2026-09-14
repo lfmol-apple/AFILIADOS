@@ -136,6 +136,43 @@ por job" (`lib/queries/admin.ts`'s `getLatestJobRuns()`, já existente) já é d
 job reais em `AutomationRun`, não de uma lista fixa — `ML_DEMAND`/`ML_ENRICHMENT`/
 `SHOPEE_REFRESH`/`ML_SHOPEE_CYCLE` aparecem ali automaticamente assim que rodam pela primeira vez.
 
+## Clique real alimentando o score (2026-09-14)
+
+`historicalConversion` (`MonetizationScore`) sempre foi `historicalConversionSignal: null` nos três
+coletores (`ml-demand-collector.ts`, `ml-enrichment-collector.ts`, `shopee-cycle-collector.ts`) —
+travava a confiança em ~35% pra sempre, mesmo com meses de dado real. `AffiliateClick` já grava
+todo clique real via `/go/`; `lib/services/historical-click-signal.ts` (`getHistoricalClickSignal`)
+conta esses cliques por `merchantListingId` e vira um sinal `HISTORICAL_INTERNAL` (nunca
+`OBSERVED` — é histórico interno do PreçoCaindo, não fato observado no marketplace). Sem clique
+ainda: `null` (nunca 0 — mesma regra de "ausência de evidência não é zero" de todo o resto do
+engine). Constantes documentadas em `historical-click-signal.ts` (`MIN_CLICKS_FOR_SIGNAL`,
+`CLICKS_FOR_MAX_SIGNAL`), não mágicas inline.
+
+No Shopee, isso exigiu separar o `scoreOffer()` puro (usado só pra ranquear ofertas *antes* de
+qualquer uma existir como `MerchantListing` — nesse momento não há como ter histórico de clique)
+de um recálculo em `processShopeeOffer()`, feito só depois que `listing.id` já existe.
+
+## Revalidação de link (`LINK_HEALTH_CHECK`, 2026-09-14)
+
+Uma vez `ACTIVE`, um `AffiliateLinkRegistry` nunca era checado de novo — `lastValidatedAt` era
+gravado e nunca lido. `jobs/link-health-check.ts` (`npm run jobs:run-link-health`) revalida todo
+link `ACTIVE` (ML + Shopee) contra a API real e já autorizada de cada marketplace
+(`provider.getProduct()`) — nunca contra o próprio link afiliado (isso exigiria automatizar um
+navegador contra uma página que não controlamos, o mesmo risco de RPA já descartado em
+`docs/AFFILIATE_LINK_REGISTRY.md`).
+
+- Item não encontrado (404 real) ou `OUT_OF_STOCK` → `AffiliateLinkRegistry.status = INVALID`
+  (nunca apagado, fica pra auditoria) + `MerchantListing.active = false` (some de toda superfície
+  pública/admin pelo mesmo mecanismo que qualquer outro `active=false` já usa — nenhuma lógica de
+  filtro nova em lugar nenhum).
+- Erro de rede/transiente → só conta como erro (`ctx.counters.errors`), nunca flipa o link —
+  evita marcar um link saudável como morto por causa de uma falha passageira.
+- Item ainda válido → só atualiza `lastValidatedAt`.
+
+**Deliberadamente fora do `ML_SHOPEE_CYCLE` automático por enquanto** — mesma lógica dos 13 jobs
+Amazon não entrarem sozinhos no cron: ativar isso é uma decisão operacional separada. Rodar manual
+(`npm run jobs:run-link-health`) ou adicionar uma linha própria no crontab da VPS quando decidido.
+
 ## Orçamento de coleta (`RefreshPlanner`)
 
 `lib/services/refresh-planner.ts` decide **quais** produtos entram no lote de um refresh e em que

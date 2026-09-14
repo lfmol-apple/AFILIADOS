@@ -6,6 +6,7 @@ import {
 } from "@/lib/providers/mercado-livre-provider";
 import { calculateMonetizationScore } from "@/lib/services/monetization-score";
 import { offerQualityScore, getDiscountPercent } from "@/lib/services/ml-offer-quality";
+import { getHistoricalClickSignal } from "@/lib/services/historical-click-signal";
 import type { MonetizationScoreInput } from "@/types/monetization";
 
 /**
@@ -160,7 +161,7 @@ export async function enrichCatalogListing(
       demandSignal: { value: catalogDemandScore, quality: "DERIVED_FROM_OBSERVED" },
       commissionSignal: null,
       trendSignal: null,
-      historicalConversionSignal: null,
+      historicalConversionSignal: await getHistoricalClickSignal(offerListing.id),
       offerQualitySignal: { value: offerQualityScore(item, seller), quality: "OBSERVED" },
     };
     const score = calculateMonetizationScore(input);

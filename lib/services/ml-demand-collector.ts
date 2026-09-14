@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { calculateMonetizationScore } from "@/lib/services/monetization-score";
+import { getHistoricalClickSignal } from "@/lib/services/historical-click-signal";
 import type { MonetizationScoreInput } from "@/types/monetization";
 
 /**
@@ -79,7 +80,7 @@ export async function persistHighlightSignal(input: {
     demandSignal: { value: bestsellerRankToScore(input.position), quality: "OBSERVED" },
     commissionSignal: null,
     trendSignal: null,
-    historicalConversionSignal: null,
+    historicalConversionSignal: await getHistoricalClickSignal(listing.id),
     offerQualitySignal: null,
   };
   const score = calculateMonetizationScore(scoreInput);
