@@ -25,8 +25,14 @@ export const revalidate = 300;
 // real pagination unchanged — see the comment further down for why.
 const UNIFIED_LIMIT = 48;
 
-export function generateMetadata(): Metadata {
-  const catalogSafe = currentlyVisibleDataSources().length > 0;
+export async function generateMetadata(): Promise<Metadata> {
+  // Same fix as app/robots.ts (2026-09-14): currentlyVisibleDataSources()
+  // only knows about Amazon — /ofertas must also stay indexable whenever
+  // real Mercado Livre/Shopee offers are showing, regardless of the
+  // Amazon gate. Ask what's actually indexable, not just the Amazon flag.
+  const catalogSafe =
+    currentlyVisibleDataSources().length > 0 ||
+    (await getUnifiedMerchantOffers(1)).length > 0;
   return {
     title: "Ofertas",
     description:
