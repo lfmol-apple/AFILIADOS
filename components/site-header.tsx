@@ -59,32 +59,47 @@ export function SiteHeader() {
         </form>
 
         <nav className="ml-auto flex items-center gap-4 text-sm sm:ml-4">
-          <Link
-            href="/ofertas"
-            aria-label="Buscar produto"
-            className="hover:text-brand sm:hidden"
-          >
-            <svg
-              viewBox="0 0 20 20"
-              fill="none"
-              className="h-5 w-5"
-              aria-hidden
+          {/* Mobile-only search toggle — before this, the icon just
+           * re-linked to /ofertas with no way to actually type a query once
+           * away from the home page's hero search (found live, 2026-09-14).
+           * <details> gives a real, focusable input with zero client JS.
+           * The revealed form is `fixed` (viewport-relative), not
+           * `absolute` — <header> has overflow-x-hidden, which forces
+           * overflow-y to auto as a side effect (CSS spec), clipping any
+           * absolutely-positioned child that extends past the header's own
+           * box; `fixed` ignores that ancestor entirely. Confirmed via
+           * elementFromPoint in real testing, 2026-09-14: an `absolute`
+           * version rendered with correct styles/bounding box but was
+           * genuinely unreachable to a real tap — main content painted
+           * on top of it. */}
+          <details className="sm:hidden">
+            <summary
+              aria-label="Buscar produto"
+              className="hover:text-brand flex list-none items-center [&::-webkit-details-marker]:hidden"
             >
-              <circle
-                cx="9"
-                cy="9"
-                r="6"
-                stroke="currentColor"
-                strokeWidth="1.5"
+              <svg viewBox="0 0 20 20" fill="none" className="h-5 w-5" aria-hidden>
+                <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.5" />
+                <path d="m14 14 4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              </svg>
+            </summary>
+            <form
+              action="/ofertas"
+              method="GET"
+              className="fixed inset-x-4 top-16 z-50"
+            >
+              <label htmlFor="header-search-mobile" className="sr-only">
+                Buscar produto
+              </label>
+              <input
+                id="header-search-mobile"
+                type="search"
+                name="q"
+                autoFocus
+                placeholder="Buscar"
+                className="border-border-subtle bg-background focus:border-brand w-full rounded-full border px-4 py-2 text-sm shadow-md outline-none"
               />
-              <path
-                d="m14 14 4 4"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
-          </Link>
+            </form>
+          </details>
           <Link href="/ofertas" className="hover:text-brand hidden sm:inline">
             Ofertas
           </Link>
