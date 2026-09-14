@@ -178,6 +178,16 @@ function buildMerchantMetadata(
     alternates: { canonical: canonicalUrl },
     robots: gate.indexable ? undefined : { index: false, follow: true },
     openGraph: { title, description, images: imageUrl ? [imageUrl] : undefined },
+    // Without this, Next.js falls back to the root layout's site-wide
+    // Twitter Card (generic "PreçoCaindo" title/description) instead of
+    // this product's own — found live 2026-09-14: og:* was correct per
+    // product, twitter:* wasn't.
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: imageUrl ? [imageUrl] : undefined,
+    },
   };
 }
 
@@ -224,6 +234,12 @@ export async function generateMetadata(
     alternates: { canonical: `/produto/${product.slug}` },
     robots: indexable ? undefined : { index: false, follow: true },
     openGraph: {
+      title,
+      description,
+      images: product.imageUrl ? [product.imageUrl] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
       title,
       description,
       images: product.imageUrl ? [product.imageUrl] : undefined,
