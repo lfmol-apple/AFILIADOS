@@ -190,3 +190,31 @@ the database is safe: older code simply doesn't read the newer columns.
 Rolling back a migration itself is not automated (Prisma has no built-in
 `migrate down`) — if a migration genuinely needs reverting, write a new
 forward migration that undoes it, don't hand-edit history.
+
+## Docker disk cleanup (2026-09-14)
+
+Every `docker build`/`docker compose build` leaves its old layers and
+build cache behind — found live: 22.69GB of build cache plus ~8GB of
+untagged (`<none>`) dangling images had accumulated from a single day's
+worth of redeploys, on a 48GB disk (69% used, climbing toward a real
+outage). Cleaned manually once (reclaimed ~23.6GB), then scheduled daily:
+
+```cron
+0 4 * * * docker builder prune -f >> /var/log/precocaindo-docker-cleanup.log 2>&1 && docker image prune -f >> /var/log/precocaindo-docker-cleanup.log 2>&1
+```
+
+**Deliberately not `docker system prune`** — this VPS is shared with
+Caipira da Gema (see the project's own standing rule); `system prune`
+would also remove *any* stopped container, unused network, or dangling
+volume on the host, not just PreçoCaindo's own. The two commands above
+are narrow by construction:
+
+- `docker builder prune` only touches the build cache — never a running
+  container, never a tagged image.
+- `docker image prune` (without `-a`) only removes **untagged**
+  (`<none>`) images — a tagged image (Caipira da Gema's own, or anything
+  else on this host) is never a candidate, by definition of the command.
+
+Check `docker system df -v` before ever widening this scope — build
+cache is normally the overwhelming majority of reclaimable space, so
+these two commands alone should stay sufficient.
