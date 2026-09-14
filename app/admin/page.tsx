@@ -306,30 +306,32 @@ export default async function AdminPage(props: PagePropsWithSearch) {
           )}
         </SubSection>
 
-        <SubSection title="Candidatos Amazon">
-          <p className="text-foreground/60 mb-3 text-xs">
-            Sem PA-API ainda (precisa de 3 vendas qualificadas em 180 dias) —
-            descoberta é manual. Registre um ASIN real que valha a pena
-            avaliar, aprove os que se confirmarem, e promova a produto real
-            (rascunho, ativação continua um passo separado).
-          </p>
-          <ProductCandidateForm />
-          {productCandidates.length === 0 ? (
-            <p className="text-foreground/50 text-sm">
-              Nenhum candidato aguardando revisão agora.
+        {env.MANUAL_PRODUCTS_ENABLED && (
+          <SubSection title="Candidatos Amazon">
+            <p className="text-foreground/60 mb-3 text-xs">
+              Sem PA-API ainda (precisa de 3 vendas qualificadas em 180 dias) —
+              descoberta é manual. Registre um ASIN real que valha a pena
+              avaliar, aprove os que se confirmarem, e promova a produto real
+              (rascunho, ativação continua um passo separado).
             </p>
-          ) : (
-            <div className="space-y-3">
-              {productCandidates.map((item) => (
-                <ProductCandidateItem
-                  key={item.id}
-                  categoryOptions={categoryOptions}
-                  {...item}
-                />
-              ))}
-            </div>
-          )}
-        </SubSection>
+            <ProductCandidateForm />
+            {productCandidates.length === 0 ? (
+              <p className="text-foreground/50 text-sm">
+                Nenhum candidato aguardando revisão agora.
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {productCandidates.map((item) => (
+                  <ProductCandidateItem
+                    key={item.id}
+                    categoryOptions={categoryOptions}
+                    {...item}
+                  />
+                ))}
+              </div>
+            )}
+          </SubSection>
+        )}
       </DashboardGroup>
 
       {/* ---------------- SAÚDE DO SISTEMA ---------------- */}
