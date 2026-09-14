@@ -46,6 +46,15 @@ services:
       db:
         condition: service_healthy
     networks: [internal, web]
+    # The production VPS's actual reverse proxy is a host-level nginx site
+    # (/etc/nginx/sites-available/precocaindo), not the `caddy` service
+    # below — nginx's upstream is hardcoded to 127.0.0.1:3100. Without
+    # this published port, `app` is only reachable from other containers
+    # on the `web`/`internal` networks, and nginx 502s (confirmed in
+    # production, 2026-09-14). Bound to loopback only — never exposed
+    # beyond this host.
+    ports:
+      - "127.0.0.1:3100:3000"
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://localhost:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
       interval: 30s
@@ -71,6 +80,15 @@ networks:
   web:
 
 volumes:
+  # Pinned to the exact pre-existing Docker volume name, bypassing
+  # Compose's default `${project}_${name}` prefixing — the real data
+  # volume on the production VPS was created before the `-p precocaindo`
+  # convention was adopted and is named `precocaindo_db_data`, not
+  # `precocaindo_precocaindo_db_data`. Without `name:` here, a compose
+  # invocation with `-p precocaindo` creates a second, empty volume with
+  # the double-prefixed name and the app/db end up pointed at it instead
+  # of the real data (confirmed happening in production, 2026-09-14).
   precocaindo_db_data:
+    name: precocaindo_db_data
   caddy_data:
   caddy_config:
