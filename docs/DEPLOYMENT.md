@@ -7,10 +7,16 @@ Não há deploy automático configurado para produção — o CI
 build em todo push e PR, mas **não publica nada**. Isso é intencional:
 nenhum deploy automático em produção sem uma decisão explícita e separada.
 
-Esta sprint prepara os artefatos e a documentação necessários para o
-**primeiro deploy real**, em modo institucional/pré-lançamento (ver
-docs/PRODUCTION_READINESS.md — `SITE_LAUNCH_READY`) — mas **não executa**
-esse deploy. Nenhuma VPS foi provisionada, nenhum DNS foi configurado.
+Há uma VPS Hostinger provisionada para produção
+(`srv1880497.hstgr.cloud`, `179.198.110.11`, Ubuntu 24.04 LTS, SSH
+`root@179.198.110.11`). Credenciais e segredos desse ambiente ficam fora
+do repositório; ver docs/OPERATIONS.md, seção "Production access".
+
+Esta documentação prepara os artefatos e o procedimento necessários para
+um deploy real em modo institucional/pré-lançamento (ver
+docs/PRODUCTION_READINESS.md — `SITE_LAUNCH_READY`). Configuração de DNS,
+execução do deploy e ativação de catálogo/jobs continuam decisões
+operacionais explícitas, não automatizadas por este repo.
 
 ## Por que Docker Compose
 
@@ -18,23 +24,26 @@ Alvo: uma única VPS Ubuntu, tráfego baixo/médio, um administrador. Entre
 "Docker Compose" e "Node + Postgres administrados separadamente" (ex.:
 `systemd` + Postgres apt-instalado), Docker Compose venceu por:
 
-- **Simplicidade**: um único `docker compose up -d --build` sobe app +
-  banco + proxy HTTPS. Sem passos manuais de `systemd unit`, `nginx.conf`,
-  certbot cron, etc. — tudo declarado em `docker-compose.prod.yml` +
-  `Caddyfile`.
+- **Simplicidade**: um único `docker compose -p precocaindo -f
+  docker-compose.prod.yml up -d --build` sobe app + banco + proxy HTTPS.
+  Sem passos manuais de `systemd unit`, `nginx.conf`, certbot cron, etc.
+  — tudo declarado em `docker-compose.prod.yml` + `Caddyfile`.
 - **Custo baixo**: roda inteiro em uma VPS pequena (1-2 vCPU, 2GB RAM é
   suficiente neste estágio); nenhum serviço gerenciado pago é necessário.
 - **Backup**: o Postgres já roda em volume nomeado (`precocaindo_db_data`)
   — mesmo padrão do `docker-compose.yml` de desenvolvimento. `pg_dump`
   funciona identicamente em dev e produção (docs/BACKUP.md).
-- **Atualização**: `git pull && docker compose up -d --build app` —
-  reconstrói só o serviço que mudou, sem tocar no banco.
-- **Rollback**: `git checkout <commit anterior> && docker compose up -d
-  --build app` — como as migrations deste projeto são estritamente
-  aditivas (nunca destrutivas — ver docs/ARCHITECTURE.md), voltar a
-  imagem do app sem reverter o schema é seguro.
+- **Atualização**: `git pull && docker compose -p precocaindo -f
+  docker-compose.prod.yml up -d --build app` — reconstrói só o serviço que
+  mudou, sem tocar no banco.
+- **Rollback**: `git checkout <commit anterior> && docker compose -p
+  precocaindo -f docker-compose.prod.yml up -d --build app` — como as
+  migrations deste projeto são estritamente aditivas (nunca destrutivas —
+  ver docs/ARCHITECTURE.md), voltar a imagem do app sem reverter o schema
+  é seguro.
 - **Persistência**: volumes nomeados do Docker sobrevivem a
-  `docker compose down` (só `down -v` os apaga) e a rebuilds de imagem.
+  `docker compose -p precocaindo down` (só `down -v` os apaga) e a
+  rebuilds de imagem.
 
 **Caddy**, não nginx+certbot, como reverse proxy: um `Caddyfile` de duas
 linhas (`Caddyfile` neste repo) já emite e renova certificados Let's
@@ -58,13 +67,13 @@ O `Dockerfile` foi **testado localmente** nesta sprint: `docker build` foi
 executado com sucesso e a imagem resultante foi rodada contra o Postgres
 de desenvolvimento real, respondendo corretamente em `/api/health`. Isso
 valida a imagem — não substitui testar o stack completo (`docker compose
--f docker-compose.prod.yml up`) antes do primeiro deploy real, algo que
-esta sprint deliberadamente não fez (nenhum VPS/DNS real foi tocado).
+-p precocaindo -f docker-compose.prod.yml up`) na VPS antes do primeiro
+deploy real. Trate esse teste como uma etapa operacional separada.
 
-## Passos para o primeiro deploy real (próxima etapa, não executada aqui)
+## Passos para o primeiro deploy real
 
-1. Provisionar uma VPS Ubuntu (22.04/24.04), instalar Docker + Docker
-   Compose plugin.
+1. Acessar a VPS Ubuntu provisionada (ver docs/OPERATIONS.md) e instalar
+   Docker + Docker Compose plugin, se ainda não estiverem instalados.
 2. Apontar o DNS de `precocaindo.com.br` para o IP da VPS.
 3. Clonar o repositório na VPS.
 4. Criar `.env` a partir de `.env.example`, seção **STAGING/PRE-LAUNCH**:

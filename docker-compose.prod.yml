@@ -7,8 +7,8 @@
 # for a small, single-domain deployment.
 #
 # Usage:
-#   docker compose -f docker-compose.prod.yml up -d --build
-#   docker compose -f docker-compose.prod.yml exec app node node_modules/prisma/build/index.js migrate deploy
+#   docker compose -p precocaindo -f docker-compose.prod.yml up -d --build
+#   docker compose -p precocaindo -f docker-compose.prod.yml exec app node node_modules/prisma/build/index.js migrate deploy
 #
 # Requires a `.env` file next to this compose file with production values
 # — see .env.example's "PRODUCTION LIVE" section. Never commit that file.

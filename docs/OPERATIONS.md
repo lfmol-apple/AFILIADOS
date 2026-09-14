@@ -4,6 +4,37 @@ Day-to-day operational reference for a running deploy. See
 docs/DEPLOYMENT.md for how to stand the stack up in the first place, and
 docs/BACKUP.md for backups.
 
+## Production access
+
+Current VPS:
+
+| Field | Value |
+| --- | --- |
+| Provider | Hostinger |
+| Hostname | `srv1880497.hstgr.cloud` |
+| IPv4 | `179.198.110.11` |
+| OS | Ubuntu 24.04 LTS |
+| SSH user | `root` |
+| SSH target | `root@179.198.110.11` |
+
+Use SSH only when a production task truly requires it:
+
+```bash
+ssh root@179.198.110.11
+```
+
+Secrets policy:
+
+- Do not commit or paste production passwords, Hostinger panel passwords,
+  `.env` values, API keys, cookies, or tokens into this repo.
+- Prefer SSH key authentication managed outside the repo. If the only
+  available credential is the root password, request it interactively for
+  the current session and do not save it in shell history, docs, scripts,
+  or config files.
+- After connecting, assume every command is production-impacting. Read
+  the relevant section below before changing Docker, database, cron, DNS,
+  firewall, or `.env`.
+
 ## Docker Compose — sempre com `-p precocaindo`
 
 **Regra:** em produção, todo comando `docker compose` deve usar
@@ -61,8 +92,8 @@ Events currently logged:
 With Docker Compose (`docker-compose.prod.yml`), read logs with:
 
 ```bash
-docker compose -f docker-compose.prod.yml logs -f app
-docker compose -f docker-compose.prod.yml logs -f app | grep '"level":"error"'
+docker compose -p precocaindo -f docker-compose.prod.yml logs -f app
+docker compose -p precocaindo -f docker-compose.prod.yml logs -f app | grep '"level":"error"'
 ```
 
 ## Health
@@ -102,7 +133,7 @@ deliberately does not add a crontab entry — enabling the automated cycle
 is a separate, explicit decision. When ready:
 
 ```cron
-*/15 * * * * cd /opt/precocaindo && docker compose -f docker-compose.prod.yml exec -T app npm run jobs:run >> /var/log/precocaindo-jobs.log 2>&1
+*/15 * * * * cd /opt/precocaindo && docker compose -p precocaindo -f docker-compose.prod.yml exec -T app npm run jobs:run >> /var/log/precocaindo-jobs.log 2>&1
 ```
 
 Adjust the interval once real Amazon rate limits are known (see
@@ -122,7 +153,7 @@ independent rows in `AdminSession`, not derived from the password), so
 also clear them if you suspect compromise:
 
 ```bash
-docker compose -f docker-compose.prod.yml exec db psql -U precocaindo -c 'DELETE FROM "AdminSession";'
+docker compose -p precocaindo -f docker-compose.prod.yml exec db psql -U precocaindo -c 'DELETE FROM "AdminSession";'
 ```
 
 Failed logins are rate-limited per IP (5 failures / 15 minutes) — see
@@ -134,8 +165,8 @@ enough here to justify one).
 
 ```bash
 git pull
-docker compose -f docker-compose.prod.yml up -d --build app
-docker compose -f docker-compose.prod.yml exec app node node_modules/prisma/build/index.js migrate deploy
+docker compose -p precocaindo -f docker-compose.prod.yml up -d --build app
+docker compose -p precocaindo -f docker-compose.prod.yml exec app node node_modules/prisma/build/index.js migrate deploy
 ```
 
 Run migrations *after* the new image is up — `prisma migrate deploy` only
@@ -150,7 +181,7 @@ keeps the window short regardless.
 
 ```bash
 git checkout <previous-good-commit>
-docker compose -f docker-compose.prod.yml up -d --build app
+docker compose -p precocaindo -f docker-compose.prod.yml up -d --build app
 ```
 
 Since migrations in this project are additive-only (never destructive —
