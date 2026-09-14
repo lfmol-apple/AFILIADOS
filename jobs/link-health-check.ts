@@ -1,3 +1,4 @@
+import { parseArgs } from "node:util";
 import { prisma } from "@/lib/db";
 import { env } from "@/lib/config/env";
 import { runJob, type JobCounters } from "@/lib/jobs/automation-run";
@@ -5,8 +6,11 @@ import { withRetry } from "@/lib/jobs/retry";
 import { logger } from "@/lib/observability/logger";
 import { createMercadoLivreProvider } from "@/lib/services/ml-token-store";
 import { ShopeeProvider } from "@/lib/providers/shopee-provider";
-import { checkOneLinkHealth } from "@/lib/services/link-health-check";
-import type { CommerceProvider } from "@/types/commerce";
+import type { MercadoLivreProvider } from "@/lib/providers/mercado-livre-provider";
+import {
+  checkOneMercadoLivreLinkHealth,
+  checkOneShopeeLinkHealth,
+} from "@/lib/services/link-health-check";
 
 /**
  * Re-validates every ACTIVE AffiliateLinkRegistry (Mercado Livre + Shopee)
@@ -15,48 +19,60 @@ import type { CommerceProvider } from "@/types/commerce";
  * don't control). Not part of the automated ML_SHOPEE_CYCLE cron yet —
  * a deliberate, separate decision, same principle as the 13 Amazon jobs
  * not being auto-scheduled by default. Run manually via
- * `npm run jobs:run-link-health`, or add a crontab line once confirmed.
+ * `npm run jobs:run-link-health -- --dry-run` first (logs only, writes
+ * nothing), then without the flag once its output looks right.
+ *
+ * dryRun defaults to true — writing INVALID/active=false into production
+ * must always be an explicit opt-in (--live), never the accidental
+ * default of a bare invocation. See link-health-check.ts's own doc
+ * comment for the 2026-09-14 incident this replays.
  */
-export async function runLinkHealthCheckJob(): Promise<JobCounters> {
+export async function runLinkHealthCheckJob(dryRun: boolean): Promise<JobCounters> {
   return runJob("LINK_HEALTH_CHECK", async (ctx) => {
     const links = await prisma.affiliateLinkRegistry.findMany({
       where: { status: "ACTIVE" },
       include: { merchantListing: { select: { id: true, externalId: true } }, merchant: true },
     });
 
-    let mlProvider: CommerceProvider | null = null;
-    let shopeeProvider: CommerceProvider | null = null;
+    let mlProvider: MercadoLivreProvider | null = null;
+    let shopeeProvider: ShopeeProvider | null = null;
 
     for (const link of links) {
       ctx.counters.processed += 1;
       try {
-        let provider: CommerceProvider;
-        if (link.merchant.code === "MERCADO_LIVRE") {
-          if (!env.MERCADO_LIVRE_ENABLED || !env.MERCADO_LIVRE_API_ENABLED) {
-            throw new Error("MERCADO_LIVRE_ENABLED/API_ENABLED required to check ML links.");
+        const result = await withRetry(async () => {
+          if (link.merchant.code === "MERCADO_LIVRE") {
+            if (!env.MERCADO_LIVRE_ENABLED || !env.MERCADO_LIVRE_API_ENABLED) {
+              throw new Error("MERCADO_LIVRE_ENABLED/API_ENABLED required to check ML links.");
+            }
+            mlProvider ??= await createMercadoLivreProvider();
+            return checkOneMercadoLivreLinkHealth(
+              mlProvider,
+              link.merchantListingId,
+              link.merchantListing.externalId,
+              dryRun,
+            );
           }
-          mlProvider ??= await createMercadoLivreProvider();
-          provider = mlProvider;
-        } else if (link.merchant.code === "SHOPEE") {
-          if (!env.SHOPEE_AFFILIATE_ENABLED || !env.SHOPEE_AFFILIATE_API_ENABLED) {
-            throw new Error("SHOPEE_AFFILIATE_ENABLED/API_ENABLED required to check Shopee links.");
+          if (link.merchant.code === "SHOPEE") {
+            if (!env.SHOPEE_AFFILIATE_ENABLED || !env.SHOPEE_AFFILIATE_API_ENABLED) {
+              throw new Error("SHOPEE_AFFILIATE_ENABLED/API_ENABLED required to check Shopee links.");
+            }
+            shopeeProvider ??= new ShopeeProvider();
+            return checkOneShopeeLinkHealth(
+              shopeeProvider,
+              link.merchantListingId,
+              link.merchantListing.externalId,
+              dryRun,
+            );
           }
-          shopeeProvider ??= new ShopeeProvider();
-          provider = shopeeProvider;
-        } else {
-          // No other merchant generates a link this way today — skip,
-          // never guess a provider for it.
-          continue;
-        }
-
-        const result = await withRetry(
-          () => checkOneLinkHealth(provider, link.merchantListingId, link.merchantListing.externalId),
-          { label: `link_health_check.${link.merchantListingId}` },
-        );
+          // No other merchant generates a link this way today — never
+          // guess a provider/endpoint for it.
+          return { outcome: "STILL_VALID" as const };
+        }, { label: `link_health_check.${link.merchantListingId}` });
 
         if (result.outcome === "FLAGGED_INVALID") {
           ctx.counters.updated += 1;
-          logger.info("link_health_check.flagged_invalid", {
+          logger.info(dryRun ? "link_health_check.dry_run_would_flag_invalid" : "link_health_check.flagged_invalid", {
             merchantListingId: link.merchantListingId,
             merchant: link.merchant.code,
             reason: result.reason,
@@ -83,7 +99,12 @@ export async function runLinkHealthCheckJob(): Promise<JobCounters> {
 
 const isMainModule = import.meta.url === `file://${process.argv[1]}`;
 if (isMainModule) {
-  runLinkHealthCheckJob()
+  const { values } = parseArgs({ options: { live: { type: "boolean", default: false } } });
+  const dryRun = !values.live;
+  if (dryRun) {
+    console.log("=== DRY RUN — nada será escrito. Passe --live pra aplicar de verdade. ===");
+  }
+  runLinkHealthCheckJob(dryRun)
     .then((counters) => {
       console.log("LINK_HEALTH_CHECK done:", JSON.stringify(counters));
     })

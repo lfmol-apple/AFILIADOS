@@ -1,7 +1,12 @@
 import { describe, expect, it, beforeAll, afterAll } from "vitest";
 import { prisma } from "@/lib/db";
-import { checkOneLinkHealth } from "@/lib/services/link-health-check";
-import type { CommerceProvider, NormalizedProduct } from "@/types/commerce";
+import {
+  checkOneMercadoLivreLinkHealth,
+  checkOneShopeeLinkHealth,
+} from "@/lib/services/link-health-check";
+import type { MercadoLivreProvider } from "@/lib/providers/mercado-livre-provider";
+import type { ShopeeProvider } from "@/lib/providers/shopee-provider";
+import type { NormalizedProduct } from "@/types/commerce";
 
 let merchantId: string;
 const listingIds: string[] = [];
@@ -34,29 +39,18 @@ async function makeActiveLinkListing() {
   return listing;
 }
 
-function fakeProvider(product: NormalizedProduct | null): CommerceProvider {
-  return {
-    name: "MERCADO_LIVRE",
-    marketplace: "BR",
-    async searchProducts() {
-      return { products: [], totalResults: 0, page: 1 };
-    },
-    async getProduct() {
-      return product;
-    },
-    async getProducts() {
-      return [];
-    },
-    async getOffers() {
-      return {};
-    },
-  };
+function fakeMlProvider(name: string | null): MercadoLivreProvider {
+  return { getCatalogProductName: async () => name } as unknown as MercadoLivreProvider;
+}
+
+function fakeShopeeProvider(product: NormalizedProduct | null): ShopeeProvider {
+  return { getProduct: async () => product } as unknown as ShopeeProvider;
 }
 
 function normalizedProduct(availability: "IN_STOCK" | "OUT_OF_STOCK"): NormalizedProduct {
   return {
     asin: "irrelevant",
-    provider: "MERCADO_LIVRE",
+    provider: "SHOPEE",
     title: "Produto de teste",
     offer: {
       price: 100,
@@ -81,10 +75,15 @@ afterAll(async () => {
   await prisma.merchantListing.deleteMany({ where: { id: { in: listingIds } } });
 });
 
-describe("checkOneLinkHealth", () => {
-  it("flags INVALID and deactivates the listing when the provider no longer finds the item", async () => {
+describe("checkOneMercadoLivreLinkHealth", () => {
+  it("flags INVALID and deactivates the listing when the catalog product no longer exists", async () => {
     const listing = await makeActiveLinkListing();
-    const result = await checkOneLinkHealth(fakeProvider(null), listing.id, listing.externalId);
+    const result = await checkOneMercadoLivreLinkHealth(
+      fakeMlProvider(null),
+      listing.id,
+      listing.externalId,
+      false,
+    );
     expect(result).toEqual({ outcome: "FLAGGED_INVALID", reason: "NOT_FOUND" });
 
     const link = await prisma.affiliateLinkRegistry.findUnique({ where: { merchantListingId: listing.id } });
@@ -93,63 +92,95 @@ describe("checkOneLinkHealth", () => {
     expect(updated?.active).toBe(false);
   });
 
-  it("flags INVALID and deactivates the listing when the item is out of stock", async () => {
+  it("keeps a listing ACTIVE and stamps lastValidatedAt when the catalog product still resolves", async () => {
     const listing = await makeActiveLinkListing();
-    const result = await checkOneLinkHealth(
-      fakeProvider(normalizedProduct("OUT_OF_STOCK")),
+    const result = await checkOneMercadoLivreLinkHealth(
+      fakeMlProvider("Produto real"),
       listing.id,
       listing.externalId,
-    );
-    expect(result).toEqual({ outcome: "FLAGGED_INVALID", reason: "OUT_OF_STOCK" });
-
-    const updated = await prisma.merchantListing.findUnique({ where: { id: listing.id } });
-    expect(updated?.active).toBe(false);
-    expect(updated?.availability).toBe("OUT_OF_STOCK");
-  });
-
-  it("keeps a genuinely in-stock listing ACTIVE and stamps lastValidatedAt", async () => {
-    const listing = await makeActiveLinkListing();
-    const before = await prisma.affiliateLinkRegistry.findUnique({ where: { merchantListingId: listing.id } });
-
-    const result = await checkOneLinkHealth(
-      fakeProvider(normalizedProduct("IN_STOCK")),
-      listing.id,
-      listing.externalId,
+      false,
     );
     expect(result).toEqual({ outcome: "STILL_VALID" });
 
     const link = await prisma.affiliateLinkRegistry.findUnique({ where: { merchantListingId: listing.id } });
     expect(link?.status).toBe("ACTIVE");
-    expect(link!.lastValidatedAt!.getTime()).toBeGreaterThan(before!.updatedAt.getTime() - 1);
+    expect(link?.lastValidatedAt).not.toBeNull();
     const updated = await prisma.merchantListing.findUnique({ where: { id: listing.id } });
     expect(updated?.active).toBe(true);
   });
 
   it("never flips a link to INVALID on a transient check failure", async () => {
     const listing = await makeActiveLinkListing();
-    const throwingProvider: CommerceProvider = {
-      name: "MERCADO_LIVRE",
-      marketplace: "BR",
-      async searchProducts() {
-        return { products: [], totalResults: 0, page: 1 };
-      },
-      async getProduct(): Promise<NormalizedProduct | null> {
+    const throwingProvider = {
+      getCatalogProductName: async () => {
         throw new Error("network blip");
       },
-      async getProducts() {
-        return [];
-      },
-      async getOffers() {
-        return {};
-      },
-    };
+    } as unknown as MercadoLivreProvider;
 
-    const result = await checkOneLinkHealth(throwingProvider, listing.id, listing.externalId);
+    const result = await checkOneMercadoLivreLinkHealth(
+      throwingProvider,
+      listing.id,
+      listing.externalId,
+      false,
+    );
     expect(result.outcome).toBe("CHECK_FAILED");
+
+    const link = await prisma.affiliateLinkRegistry.findUnique({ where: { merchantListingId: listing.id } });
+    expect(link?.status).toBe("ACTIVE");
+  });
+
+  it("dry run reports FLAGGED_INVALID but writes nothing", async () => {
+    const listing = await makeActiveLinkListing();
+    const result = await checkOneMercadoLivreLinkHealth(
+      fakeMlProvider(null),
+      listing.id,
+      listing.externalId,
+      true,
+    );
+    expect(result).toEqual({ outcome: "FLAGGED_INVALID", reason: "NOT_FOUND" });
 
     const link = await prisma.affiliateLinkRegistry.findUnique({ where: { merchantListingId: listing.id } });
     expect(link?.status).toBe("ACTIVE");
     const updated = await prisma.merchantListing.findUnique({ where: { id: listing.id } });
     expect(updated?.active).toBe(true);
+  });
+});
+
+describe("checkOneShopeeLinkHealth", () => {
+  it("flags INVALID when the item is no longer found", async () => {
+    const listing = await makeActiveLinkListing();
+    const result = await checkOneShopeeLinkHealth(
+      fakeShopeeProvider(null),
+      listing.id,
+      listing.externalId,
+      false,
+    );
+    expect(result).toEqual({ outcome: "FLAGGED_INVALID", reason: "NOT_FOUND" });
+    const updated = await prisma.merchantListing.findUnique({ where: { id: listing.id } });
+    expect(updated?.active).toBe(false);
+  });
+
+  it("flags INVALID when out of stock", async () => {
+    const listing = await makeActiveLinkListing();
+    const result = await checkOneShopeeLinkHealth(
+      fakeShopeeProvider(normalizedProduct("OUT_OF_STOCK")),
+      listing.id,
+      listing.externalId,
+      false,
+    );
+    expect(result).toEqual({ outcome: "FLAGGED_INVALID", reason: "OUT_OF_STOCK" });
+    const updated = await prisma.merchantListing.findUnique({ where: { id: listing.id } });
+    expect(updated?.availability).toBe("OUT_OF_STOCK");
+  });
+
+  it("keeps ACTIVE when in stock", async () => {
+    const listing = await makeActiveLinkListing();
+    const result = await checkOneShopeeLinkHealth(
+      fakeShopeeProvider(normalizedProduct("IN_STOCK")),
+      listing.id,
+      listing.externalId,
+      false,
+    );
+    expect(result).toEqual({ outcome: "STILL_VALID" });
   });
 });

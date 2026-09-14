@@ -156,22 +156,41 @@ de um recálculo em `processShopeeOffer()`, feito só depois que `listing.id` j�
 
 Uma vez `ACTIVE`, um `AffiliateLinkRegistry` nunca era checado de novo — `lastValidatedAt` era
 gravado e nunca lido. `jobs/link-health-check.ts` (`npm run jobs:run-link-health`) revalida todo
-link `ACTIVE` (ML + Shopee) contra a API real e já autorizada de cada marketplace
-(`provider.getProduct()`) — nunca contra o próprio link afiliado (isso exigiria automatizar um
-navegador contra uma página que não controlamos, o mesmo risco de RPA já descartado em
-`docs/AFFILIATE_LINK_REGISTRY.md`).
+link `ACTIVE` (ML + Shopee) contra a API real e já autorizada de cada marketplace — nunca contra o
+próprio link afiliado (isso exigiria automatizar um navegador contra uma página que não
+controlamos, o mesmo risco de RPA já descartado em `docs/AFFILIATE_LINK_REGISTRY.md`).
 
-- Item não encontrado (404 real) ou `OUT_OF_STOCK` → `AffiliateLinkRegistry.status = INVALID`
-  (nunca apagado, fica pra auditoria) + `MerchantListing.active = false` (some de toda superfície
-  pública/admin pelo mesmo mecanismo que qualquer outro `active=false` já usa — nenhuma lógica de
-  filtro nova em lugar nenhum).
-- Erro de rede/transiente → só conta como erro (`ctx.counters.errors`), nunca flipa o link —
-  evita marcar um link saudável como morto por causa de uma falha passageira.
+**Incidente real (2026-09-14, mesmo dia)**: a primeira versão chamava `MercadoLivreProvider.
+getProduct()` (`GET /items/{id}`) igual pra todo link. Mas `AffiliateLinkRegistry.
+merchantListingId` sempre aponta pra linha **de catálogo** (`enrichWithBestOffer` em
+`ml-affiliate-queue.ts` nunca troca esse id pelo da oferta-irmã real, só troca `publicUrl`/score) —
+e um id de catálogo (vindo de `mercado_livre_highlights`) dá 404 em `/items/{id}` por definição,
+mesmo o produto estando perfeitamente vivo (é um recurso diferente, `GET /products/{id}`). Rodar a
+primeira versão contra os 329 links reais marcou **219 como INVALID incorretamente** — todos
+revertidos manualmente antes deste fix, nenhum permaneceu incorreto em produção.
+
+**Corrigido**: `checkOneMercadoLivreLinkHealth` usa `getCatalogProductName()` (`GET
+/products/{id}`) — o endpoint certo pra esse formato de id, já usado com sucesso em outro lugar do
+projeto (`MercadoLivreBestsellerDemandSource`). Sem checagem de estoque pro ML: isso é fato por
+vendedor, não por catálogo, e `GET /items/{id}` já é documentado como 403 pra item de qualquer
+vendedor que não seja a própria conta (`getCatalogProductItems`'s doc comment) — não existe hoje
+um endpoint por-oferta confiável, então ML só confirma "o produto de catálogo ainda existe", nada
+mais fino. Shopee não tem esse problema (sem split catálogo/item — seu `externalId` já é o item
+real que `productOfferV2` espera, e a API retorna disponibilidade real por oferta).
+
+- Produto de catálogo não encontrado (ML) ou item/estoque não encontrado (Shopee) →
+  `AffiliateLinkRegistry.status = INVALID` (nunca apagado, fica pra auditoria) +
+  `MerchantListing.active = false` (some de toda superfície pública/admin pelo mesmo mecanismo que
+  qualquer outro `active=false` já usa — nenhuma lógica de filtro nova em lugar nenhum).
+- Erro de rede/transiente → só conta como erro (`ctx.counters.errors`), nunca flipa o link.
 - Item ainda válido → só atualiza `lastValidatedAt`.
 
+**`--dry-run` por padrão** (depois do incidente acima): `npm run jobs:run-link-health` sozinho só
+loga o que faria, sem escrever nada — só `npm run jobs:run-link-health -- --live` escreve de
+verdade. Sempre rodar dry-run primeiro e inspecionar o resultado antes de `--live`.
+
 **Deliberadamente fora do `ML_SHOPEE_CYCLE` automático por enquanto** — mesma lógica dos 13 jobs
-Amazon não entrarem sozinhos no cron: ativar isso é uma decisão operacional separada. Rodar manual
-(`npm run jobs:run-link-health`) ou adicionar uma linha própria no crontab da VPS quando decidido.
+Amazon não entrarem sozinhos no cron: ativar isso é uma decisão operacional separada.
 
 ## Orçamento de coleta (`RefreshPlanner`)
 
