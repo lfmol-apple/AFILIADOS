@@ -75,7 +75,16 @@ export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
   // today — see MlAffiliateQueueItemProps.bestOffer's doc comment).
   const searchTerms = [props.title, props.bestOffer?.sellerNickname].filter(Boolean).join(" — ");
 
-  async function handleSave() {
+  // Confirmed generated-link path shapes (docs/AFFILIATE_LINK_REGISTRY.md) —
+  // distinct from a plain product page URL, which shares the same hosts.
+  // Used only to decide whether a paste can be trusted to auto-submit; the
+  // server re-validates the host/format regardless (assertAllowedMerchantDestination).
+  function looksLikeGeneratedLink(value: string): boolean {
+    return /\/(sec|social)\//i.test(value);
+  }
+
+  async function handleSave(urlOverride?: string) {
+    const urlToSave = urlOverride ?? affiliateUrl;
     setPending(true);
     setError(null);
     try {
@@ -84,7 +93,7 @@ export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           merchantListingId: props.merchantListingId,
-          affiliateUrl,
+          affiliateUrl: urlToSave,
         }),
       });
       if (!response.ok) {
@@ -208,20 +217,14 @@ export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
       )}
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          onClick={() => handleCopy(props.publicUrl)}
-          className="bg-brand text-brand-foreground min-h-9 rounded-full px-4 text-xs font-semibold hover:opacity-90"
-        >
-          {copied ? "Copiado!" : "1. Copiar URL do produto"}
-        </button>
         <a
           href={ML_LINK_GENERATOR_URL}
           target="_blank"
           rel="noopener noreferrer"
-          className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
+          onClick={() => handleCopy(props.publicUrl)}
+          className="bg-brand text-brand-foreground min-h-9 rounded-full px-4 text-xs font-semibold hover:opacity-90"
         >
-          2. Abrir Linkbuilder ML →
+          {copied ? "URL copiada — Linkbuilder aberto" : "1. Copiar URL + abrir Linkbuilder →"}
         </a>
         {props.bestOffer && !props.bestOffer.permalinkVerified && (
           <button
@@ -234,21 +237,35 @@ export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
         )}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-2">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          void handleSave();
+        }}
+        className="mt-3 flex flex-wrap items-center gap-2"
+      >
         <input
           type="url"
           value={affiliateUrl}
           onChange={(e) => setAffiliateUrl(e.target.value)}
-          placeholder="3. Cole aqui o link gerado pelo Linkbuilder (mercadolivre.com/sec/... ou .../social/...)"
+          onPaste={(e) => {
+            const pasted = e.clipboardData.getData("text").trim();
+            if (looksLikeGeneratedLink(pasted)) {
+              // A confirmed shortlink shape needs no confirmation click —
+              // save immediately so pasting is the entire remaining step.
+              setAffiliateUrl(pasted);
+              void handleSave(pasted);
+            }
+          }}
+          placeholder="2. Cole aqui o link gerado (mercadolivre.com/sec/... ou .../social/...) — salva sozinho ao colar"
           className="border-border-subtle min-h-9 min-w-64 flex-1 rounded-md border px-3 text-xs"
         />
         <button
-          type="button"
-          onClick={handleSave}
+          type="submit"
           disabled={pending || affiliateUrl.trim().length === 0}
           className="bg-brand text-brand-foreground min-h-9 rounded-full px-4 text-xs font-semibold disabled:opacity-50"
         >
-          {pending ? "Salvando..." : "4. Salvar e ir para o próximo"}
+          {pending ? "Salvando..." : "Salvar"}
         </button>
         <button
           type="button"
@@ -259,7 +276,7 @@ export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
         >
           Descartar (sem correspondência)
         </button>
-      </div>
+      </form>
       {error && (
         <p className="mt-2 text-xs font-medium text-rose-600 dark:text-rose-400">
           {error}
