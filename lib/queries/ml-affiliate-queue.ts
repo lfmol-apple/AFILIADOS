@@ -88,7 +88,13 @@ export async function getMlAffiliateQueue(
       signals: { orderBy: { observedAt: "desc" }, take: 1 },
       canonicalProduct: { select: { title: true, brand: true, specifications: true } },
     },
-    orderBy: { monetizationScore: { score: "desc" } },
+    // `id: "asc"` is a deterministic tiebreaker — without it, Postgres has
+    // no guaranteed order among rows with the same score, so a tie could
+    // silently return in a different order (or, for the `take: 1` "best
+    // sibling offer" query above, pick a different seller/price) on two
+    // otherwise-identical queries. Confirmed cause of the admin queue
+    // visibly reshuffling mid-session, 2026-09-14.
+    orderBy: [{ monetizationScore: { score: "desc" } }, { id: "asc" }],
   });
 
   // Also catch listings with an affiliateLink row that exists but isn't
@@ -109,7 +115,13 @@ export async function getMlAffiliateQueue(
       signals: { orderBy: { observedAt: "desc" }, take: 1 },
       canonicalProduct: { select: { title: true, brand: true, specifications: true } },
     },
-    orderBy: { monetizationScore: { score: "desc" } },
+    // `id: "asc"` is a deterministic tiebreaker — without it, Postgres has
+    // no guaranteed order among rows with the same score, so a tie could
+    // silently return in a different order (or, for the `take: 1` "best
+    // sibling offer" query above, pick a different seller/price) on two
+    // otherwise-identical queries. Confirmed cause of the admin queue
+    // visibly reshuffling mid-session, 2026-09-14.
+    orderBy: [{ monetizationScore: { score: "desc" } }, { id: "asc" }],
   });
 
   const all = [...listings, ...withInactiveLink];
@@ -180,7 +192,13 @@ async function enrichWithBestOffer(listing: CandidateListing): Promise<MlAffilia
       monetizationScore: true,
       signals: { orderBy: { observedAt: "desc" }, take: 1 },
     },
-    orderBy: { monetizationScore: { score: "desc" } },
+    // `id: "asc"` is a deterministic tiebreaker — without it, Postgres has
+    // no guaranteed order among rows with the same score, so a tie could
+    // silently return in a different order (or, for the `take: 1` "best
+    // sibling offer" query above, pick a different seller/price) on two
+    // otherwise-identical queries. Confirmed cause of the admin queue
+    // visibly reshuffling mid-session, 2026-09-14.
+    orderBy: [{ monetizationScore: { score: "desc" } }, { id: "asc" }],
     take: 1,
   });
   const best = offers[0];
