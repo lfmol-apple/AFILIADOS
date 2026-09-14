@@ -5,7 +5,7 @@ import { calculateOpportunityScore } from "@/lib/services/opportunity-score";
 import { calculateDecision } from "@/lib/services/decision-engine";
 import { priceEvidenceLine } from "@/lib/services/price-evidence";
 import { calculateUnitEconomics } from "@/lib/services/unit-economics";
-import { formatCurrency, formatDate } from "@/lib/format";
+import { formatCurrency, formatDate, truncateForTitleTag } from "@/lib/format";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ScorePanel } from "@/components/score-panel";
 import { AmazonCta } from "@/components/amazon-cta";
@@ -164,9 +164,13 @@ function buildMerchantMetadata(
 
   const { title: name, gate, currentPrice, currency, canonicalUrl, imageUrl } = merchantData;
   const priceDropReason = gate.reasons.find((r) => r.includes("Queda de preço"));
+  // Marketplace names routinely run 100+ characters — leave room for the
+  // suffix within Google's ~60-char <title> display budget (see
+  // lib/format.ts's truncateForTitleTag doc comment for why).
+  const shortName = truncateForTitleTag(name, 45);
   const title = priceDropReason
-    ? `${name} caiu de preço: preço atual e histórico`
-    : `${name}: preço e histórico`;
+    ? `${shortName} caiu de preço`
+    : `${shortName}: preço e histórico`;
   const description =
     currentPrice !== null
       ? `Veja ${name}, atualmente por ${formatCurrency(currentPrice, currency)}, e o que o PreçoCaindo observou sobre preço, demanda e qualidade.`
@@ -207,11 +211,15 @@ export async function generateMetadata(
     specifications: product.specifications,
     currentPrice: offer ? Number(offer.price) : null,
   });
+  // Same reasoning as buildMerchantMetadata above — Amazon titles can run
+  // long too; the <title> tag needs room for the suffix within Google's
+  // ~60-char display budget.
+  const shortTitle = truncateForTitleTag(product.title, 45);
   const title = unitEconomics
-    ? `${product.title}: preço por ${unitEconomics.label} e histórico`
+    ? `${shortTitle}: preço por ${unitEconomics.label}`
     : offer
-      ? `${product.title} — vale a pena comprar agora?`
-      : `${product.title} — PreçoCaindo`;
+      ? `${shortTitle} — vale a pena comprar agora?`
+      : `${shortTitle} — PreçoCaindo`;
   const description = unitEconomics
     ? `Veja ${product.title} com preço por ${unitEconomics.label}, histórico de preço e decisão honesta de compra no PreçoCaindo.`
     : offer
