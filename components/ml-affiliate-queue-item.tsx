@@ -5,7 +5,6 @@
 // See lib/services/monetization-score.ts's sibling incident (2026-09-03):
 // a client component that pulled in AffiliateDisclosure's env-reading
 // import chain crashed hydration in production. Never repeat that here.
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 // Real URL confirmed by the user (2026-09-08) — the Linkbuilder tool
@@ -51,7 +50,6 @@ export interface MlAffiliateQueueItemProps {
 }
 
 export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
-  const router = useRouter();
   const [affiliateUrl, setAffiliateUrl] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -101,8 +99,13 @@ export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
         setError(body.error ?? "Falha ao salvar.");
         return;
       }
+      // Deliberately no router.refresh() here — that would re-fetch and
+      // re-sort the whole queue from the server mid-session, shifting every
+      // other card's position while the human is mid-flow on another item
+      // (copy URL, tab away to Linkbuilder, come back — wrong card by then).
+      // Removing just this card from local state is enough; the list only
+      // needs to resync on a real page reload.
       setSaved(true);
-      router.refresh();
     } finally {
       setPending(false);
     }
@@ -123,7 +126,6 @@ export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
         return;
       }
       setSaved(true); // reuses the same "hide this card" state as a save
-      router.refresh();
     } finally {
       setPending(false);
     }
