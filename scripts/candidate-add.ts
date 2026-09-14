@@ -1,7 +1,6 @@
 import { parseArgs } from "node:util";
 import { prisma } from "@/lib/db";
-import { isValidAsin } from "@/lib/amazon/policy-guard";
-import { isMarketplaceCode } from "@/lib/config/marketplaces";
+import { registerProductCandidate } from "@/lib/services/candidate-registration";
 
 /**
  * Registers one ProductCandidate — the entry point to the cohort-selection
@@ -68,17 +67,6 @@ async function main() {
   }
 
   const marketplace = values.marketplace ?? "BR";
-  if (!isMarketplaceCode(marketplace)) {
-    console.error(`Marketplace desconhecido: "${marketplace}".`);
-    process.exitCode = 1;
-    return;
-  }
-
-  if (!isValidAsin(values.asin)) {
-    console.error(`ASIN inválido: "${values.asin}".`);
-    process.exitCode = 1;
-    return;
-  }
 
   const scores: Record<string, number | undefined> = {};
   let scoreError = false;
@@ -92,26 +80,22 @@ async function main() {
     return;
   }
 
-  const existing = await prisma.productCandidate.findUnique({
-    where: { asin_marketplace: { asin: values.asin, marketplace } },
+  const result = await registerProductCandidate({
+    asin: values.asin,
+    marketplace,
+    workingTitle: values.title,
+    rationale: values.rationale,
+    categoryHint: values.category ?? null,
+    slugHint: values.slug ?? null,
+    ...scores,
   });
-  if (existing) {
-    console.error(`Já existe um candidato para este ASIN/marketplace (id=${existing.id}, status=${existing.status}).`);
+
+  if (!result.ok) {
+    console.error(result.error.message);
     process.exitCode = 1;
     return;
   }
-
-  const candidate = await prisma.productCandidate.create({
-    data: {
-      asin: values.asin,
-      marketplace,
-      workingTitle: values.title,
-      rationale: values.rationale,
-      categoryHint: values.category ?? null,
-      slugHint: values.slug ?? null,
-      ...scores,
-    },
-  });
+  const candidate = result.candidate;
 
   console.log("\nCandidato registrado (status=CANDIDATE, nunca público):");
   console.log(`  id:    ${candidate.id}`);

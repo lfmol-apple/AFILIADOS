@@ -29,6 +29,12 @@ import {
   getMlAffiliateQueue,
   DEFAULT_QUEUE_DISPLAY_LIMIT,
 } from "@/lib/queries/ml-affiliate-queue";
+import { ProductCandidateItem } from "@/components/product-candidate-item";
+import { ProductCandidateForm } from "@/components/product-candidate-form";
+import {
+  getProductCandidateQueue,
+  listActiveCategoryOptions,
+} from "@/lib/queries/product-candidate-queue";
 import { OperationsOpportunityList } from "@/components/operations-opportunity-list";
 import { getTodaysOpportunities, getOperationsSummary } from "@/lib/queries/operations-center";
 import { getAdminRadarFeed } from "@/lib/queries/radar-events";
@@ -138,6 +144,8 @@ export default async function AdminPage(props: PagePropsWithSearch) {
     operationsSummary,
     radarFeed,
     mlCredentialStatus,
+    productCandidates,
+    categoryOptions,
   ] = await Promise.all([
     getTodayStats(),
     getWeeklyStats(),
@@ -157,6 +165,8 @@ export default async function AdminPage(props: PagePropsWithSearch) {
     getOperationsSummary(),
     getAdminRadarFeed(200),
     getMercadoLivreCredentialStatus(),
+    getProductCandidateQueue(),
+    listActiveCategoryOptions(),
   ]);
   const mlAffiliateQueueDisplayed = mlAffiliateQueue.slice(
     0,
@@ -293,6 +303,31 @@ export default async function AdminPage(props: PagePropsWithSearch) {
                 ))}
               </div>
             </>
+          )}
+        </SubSection>
+
+        <SubSection title="Candidatos Amazon">
+          <p className="text-foreground/60 mb-3 text-xs">
+            Sem PA-API ainda (precisa de 3 vendas qualificadas em 180 dias) —
+            descoberta é manual. Registre um ASIN real que valha a pena
+            avaliar, aprove os que se confirmarem, e promova a produto real
+            (rascunho, ativação continua um passo separado).
+          </p>
+          <ProductCandidateForm />
+          {productCandidates.length === 0 ? (
+            <p className="text-foreground/50 text-sm">
+              Nenhum candidato aguardando revisão agora.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {productCandidates.map((item) => (
+                <ProductCandidateItem
+                  key={item.id}
+                  categoryOptions={categoryOptions}
+                  {...item}
+                />
+              ))}
+            </div>
           )}
         </SubSection>
       </DashboardGroup>
