@@ -25,7 +25,10 @@ import {
 import { AdminLoginForm } from "@/components/admin-login-form";
 import { AdminLogoutButton } from "@/components/admin-logout-button";
 import { MlAffiliateQueueItem } from "@/components/ml-affiliate-queue-item";
-import { getMlAffiliateQueue } from "@/lib/queries/ml-affiliate-queue";
+import {
+  getMlAffiliateQueue,
+  DEFAULT_QUEUE_DISPLAY_LIMIT,
+} from "@/lib/queries/ml-affiliate-queue";
 import { OperationsOpportunityList } from "@/components/operations-opportunity-list";
 import { getTodaysOpportunities, getOperationsSummary } from "@/lib/queries/operations-center";
 import { getAdminRadarFeed } from "@/lib/queries/radar-events";
@@ -155,6 +158,10 @@ export default async function AdminPage(props: PagePropsWithSearch) {
     getAdminRadarFeed(200),
     getMercadoLivreCredentialStatus(),
   ]);
+  const mlAffiliateQueueDisplayed = mlAffiliateQueue.slice(
+    0,
+    DEFAULT_QUEUE_DISPLAY_LIMIT,
+  );
   const brCompliancePass = checkLiveActivationReadiness("BR").every(
     (c) => c.pass,
   );
@@ -270,11 +277,22 @@ export default async function AdminPage(props: PagePropsWithSearch) {
               corte econômico, ou todas já têm link ativo.
             </p>
           ) : (
-            <div className="space-y-3">
-              {mlAffiliateQueue.map((item) => (
-                <MlAffiliateQueueItem key={item.merchantListingId} {...item} />
-              ))}
-            </div>
+            <>
+              <p className="text-foreground/60 mb-3 text-xs">
+                Mostrando os {mlAffiliateQueueDisplayed.length} melhores de{" "}
+                {mlAffiliateQueue.length} aguardando — os próximos aparecem
+                sozinhos assim que estes forem resolvidos.
+              </p>
+              <div className="space-y-3">
+                {mlAffiliateQueueDisplayed.map((item, i) => (
+                  <MlAffiliateQueueItem
+                    key={item.merchantListingId}
+                    remaining={mlAffiliateQueueDisplayed.length - i}
+                    {...item}
+                  />
+                ))}
+              </div>
+            </>
           )}
         </SubSection>
       </DashboardGroup>

@@ -17,6 +17,13 @@ const ML_LINK_GENERATOR_URL = "https://www.mercadolivre.com.br/afiliados/linkbui
 
 export interface MlAffiliateQueueItemProps {
   merchantListingId: string;
+  /** Countdown within the currently displayed batch — the top card shows
+   * the batch size, the last one shows 1, so "quanto falta" is legible at
+   * a glance without counting cards. Fixed for the whole session (this is
+   * a server-computed prop, never recalculated client-side) — matches the
+   * queue-stability fix: numbers only shift on a real page reload, never
+   * mid-session as cards above are processed. */
+  remaining: number;
   title: string;
   publicUrl: string;
   brand: string | null;
@@ -134,7 +141,13 @@ export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
   if (saved) return null;
 
   return (
-    <div className="border-border-subtle rounded-lg border p-4">
+    <div className="border-border-subtle relative rounded-lg border p-4">
+      <span
+        title="Quantos itens faltam nesta leva, contando este"
+        className="bg-brand text-brand-foreground absolute -top-2 -left-2 flex h-6 min-w-6 items-center justify-center rounded-full px-1 text-xs font-bold"
+      >
+        {props.remaining}
+      </span>
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-semibold">{props.title}</p>

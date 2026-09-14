@@ -7,6 +7,17 @@ import { prisma } from "@/lib/db";
  * caller/test can override it explicitly rather than guess the default. */
 export const DEFAULT_MIN_MONETIZATION_SCORE = 50;
 
+/** Page-level display cap for the admin queue — deliberately not applied
+ * inside getMlAffiliateQueue itself (its contract stays "every listing
+ * that clears the economic bar", unchanged for tests/other callers).
+ * Nothing is discarded: the query is already sorted best-first, so
+ * slicing to this many at the render layer only bounds how much renders
+ * at once — a human working top-down processes the same items either
+ * way. See docs/AFFILIATE_LINK_REGISTRY.md and the 2026-09-14 discussion
+ * that concluded a display cap loses no opportunity, since order never
+ * changes based on how many rows are shown. */
+export const DEFAULT_QUEUE_DISPLAY_LIMIT = 20;
+
 export interface MlAffiliateQueueItem {
   merchantListingId: string;
   title: string;
