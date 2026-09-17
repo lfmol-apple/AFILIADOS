@@ -36,81 +36,25 @@ import {
   listActiveCategoryOptions,
 } from "@/lib/queries/product-candidate-queue";
 import { OperationsOpportunityList } from "@/components/operations-opportunity-list";
-import { getTodaysOpportunities, getOperationsSummary } from "@/lib/queries/operations-center";
+import {
+  getTodaysOpportunities,
+  getOperationsSummary,
+} from "@/lib/queries/operations-center";
 import { getAdminRadarFeed } from "@/lib/queries/radar-events";
 import { getMercadoLivreCredentialStatus } from "@/lib/services/ml-token-store";
 import type { PagePropsWithSearch } from "@/lib/next-route-types";
+import {
+  StatCard,
+  StatusPill,
+  DashboardGroup,
+  SubSection,
+} from "@/components/admin/dashboard-ui";
 
 export const metadata: Metadata = {
   title: "Admin",
   robots: { index: false, follow: false },
 };
 export const dynamic = "force-dynamic";
-
-function StatCard({ label, value }: { label: string; value: number | string }) {
-  return (
-    <div className="border-border-subtle rounded-lg border p-4">
-      <div className="text-foreground/50 text-xs">{label}</div>
-      <div className="mt-1 text-2xl font-semibold">{value}</div>
-    </div>
-  );
-}
-
-function StatusPill({ ok, label }: { ok: boolean; label: string }) {
-  return (
-    <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
-        ok
-          ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-          : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
-      }`}
-    >
-      <span
-        className={`h-1.5 w-1.5 rounded-full ${ok ? "bg-emerald-500" : "bg-slate-400"}`}
-        aria-hidden
-      />
-      {label}
-    </span>
-  );
-}
-
-/** Top-level grouping used to organize the dashboard into the four areas
- * an operator should be able to scan in seconds: Saúde do sistema,
- * Negócio, Catálogo, Integrações — presentation only, no data changes. */
-function DashboardGroup({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="border-border-subtle mt-12 border-t pt-8 first:mt-8 first:border-t-0 first:pt-0">
-      <h2 className="text-lg font-semibold">{title}</h2>
-      {description && (
-        <p className="text-foreground/50 mt-1 text-sm">{description}</p>
-      )}
-      <div className="mt-5 space-y-8">{children}</div>
-    </section>
-  );
-}
-
-function SubSection({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div>
-      <h3 className="text-foreground/70 text-sm font-semibold">{title}</h3>
-      <div className="mt-3">{children}</div>
-    </div>
-  );
-}
 
 export default async function AdminPage(props: PagePropsWithSearch) {
   const cookieStore = await cookies();
@@ -122,8 +66,12 @@ export default async function AdminPage(props: PagePropsWithSearch) {
   }
 
   const searchParams = await props.searchParams;
-  const mlOauthStatus = typeof searchParams?.ml_oauth === "string" ? searchParams.ml_oauth : undefined;
-  const mlOauthReason = typeof searchParams?.reason === "string" ? searchParams.reason : undefined;
+  const mlOauthStatus =
+    typeof searchParams?.ml_oauth === "string"
+      ? searchParams.ml_oauth
+      : undefined;
+  const mlOauthReason =
+    typeof searchParams?.reason === "string" ? searchParams.reason : undefined;
 
   const [
     today,
@@ -181,15 +129,22 @@ export default async function AdminPage(props: PagePropsWithSearch) {
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Admin</h1>
-        {isAdminAuthConfigured() && <AdminLogoutButton />}
+        <div className="flex items-center gap-3">
+          <a
+            href="/admin/desempenho"
+            className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
+          >
+            Desempenho (cliques diários) →
+          </a>
+          {isAdminAuthConfigured() && <AdminLogoutButton />}
+        </div>
       </div>
 
       {!isAdminAuthConfigured() && (
         <div className="mt-4 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm text-rose-800 dark:border-rose-800 dark:bg-rose-950 dark:text-rose-300">
-          ⚠️ ADMIN_PASSWORD_HASH não está configurado — este painel está
-          aberto sem autenticação. Aceitável apenas em desenvolvimento local
-          (bloqueado automaticamente em produção — ver
-          docs/PRODUCTION_READINESS.md e rode{" "}
+          ⚠️ ADMIN_PASSWORD_HASH não está configurado — este painel está aberto
+          sem autenticação. Aceitável apenas em desenvolvimento local (bloqueado
+          automaticamente em produção — ver docs/PRODUCTION_READINESS.md e rode{" "}
           <code>npm run admin:hash-password</code>).
         </div>
       )}
@@ -219,8 +174,9 @@ export default async function AdminPage(props: PagePropsWithSearch) {
       )}
       {mlOauthStatus === "error" && (
         <div className="mt-4 rounded-lg border border-rose-300 bg-rose-50 p-3 text-sm text-rose-800 dark:border-rose-800 dark:bg-rose-950 dark:text-rose-300">
-          ❌ Falha ao conectar o Mercado Livre{mlOauthReason ? ` (${mlOauthReason})` : ""}. Tente
-          novamente pelo botão em Integrações → Mercado Livre.
+          ❌ Falha ao conectar o Mercado Livre
+          {mlOauthReason ? ` (${mlOauthReason})` : ""}. Tente novamente pelo
+          botão em Integrações → Mercado Livre.
         </div>
       )}
 
@@ -230,11 +186,26 @@ export default async function AdminPage(props: PagePropsWithSearch) {
         description="O que fazer hoje para ganhar mais comissão — oportunidades priorizadas por MonetizationScore em todos os merchants."
       >
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-          <StatCard label="Novos listings hoje" value={operationsSummary.newListingsToday} />
-          <StatCard label="Links ativos" value={operationsSummary.activeLinks} />
-          <StatCard label="Links pendentes" value={operationsSummary.pendingLinks} />
-          <StatCard label="Cliques afiliados hoje" value={operationsSummary.affiliateClicksToday} />
-          <StatCard label="Merchants ativos" value={operationsSummary.activeMerchants.length} />
+          <StatCard
+            label="Novos listings hoje"
+            value={operationsSummary.newListingsToday}
+          />
+          <StatCard
+            label="Links ativos"
+            value={operationsSummary.activeLinks}
+          />
+          <StatCard
+            label="Links pendentes"
+            value={operationsSummary.pendingLinks}
+          />
+          <StatCard
+            label="Cliques afiliados hoje"
+            value={operationsSummary.affiliateClicksToday}
+          />
+          <StatCard
+            label="Merchants ativos"
+            value={operationsSummary.activeMerchants.length}
+          />
         </div>
 
         <SubSection title="Radar hoje">
@@ -246,11 +217,17 @@ export default async function AdminPage(props: PagePropsWithSearch) {
             />
             <StatCard
               label="Monetizáveis sem link"
-              value={radarFeed.filter((i) => i.ctaHref === null && i.merchant === "MERCADO_LIVRE").length}
+              value={
+                radarFeed.filter(
+                  (i) => i.ctaHref === null && i.merchant === "MERCADO_LIVRE",
+                ).length
+              }
             />
             <StatCard
               label="Quedas de preço reais"
-              value={radarFeed.filter((i) => i.event.type === "PRICE_DROP").length}
+              value={
+                radarFeed.filter((i) => i.event.type === "PRICE_DROP").length
+              }
             />
           </div>
           <ul className="mt-3 space-y-1.5 text-xs">
@@ -265,7 +242,9 @@ export default async function AdminPage(props: PagePropsWithSearch) {
                 <span className="truncate">
                   [{item.event.type}] {item.title}
                 </span>
-                <span className="text-foreground/60 shrink-0">{item.event.headline}</span>
+                <span className="text-foreground/60 shrink-0">
+                  {item.event.headline}
+                </span>
               </li>
             ))}
           </ul>
@@ -340,8 +319,14 @@ export default async function AdminPage(props: PagePropsWithSearch) {
         description="Jobs, erros e última atualização."
       >
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <StatCard label="Preços atualizados hoje" value={today.pricesUpdatedToday} />
-          <StatCard label="Quedas detectadas hoje" value={today.dropsDetectedToday} />
+          <StatCard
+            label="Preços atualizados hoje"
+            value={today.pricesUpdatedToday}
+          />
+          <StatCard
+            label="Quedas detectadas hoje"
+            value={today.dropsDetectedToday}
+          />
           <StatCard
             label="Erros das automações hoje"
             value={today.automationErrorsToday}
@@ -474,7 +459,10 @@ export default async function AdminPage(props: PagePropsWithSearch) {
         description="Produtos monitorados, prioridade e conteúdo."
       >
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatCard label="Produtos monitorados" value={today.productsMonitored} />
+          <StatCard
+            label="Produtos monitorados"
+            value={today.productsMonitored}
+          />
           <StatCard label="HOT" value={priority.HOT} />
           <StatCard label="WARM" value={priority.WARM} />
           <StatCard label="COLD" value={priority.COLD} />
@@ -483,15 +471,24 @@ export default async function AdminPage(props: PagePropsWithSearch) {
         <div className="grid gap-8 sm:grid-cols-2">
           <SubSection title="Catálogo BR">
             <div className="grid grid-cols-2 gap-3">
-              <StatCard label="Produtos (total)" value={catalogBr.totalProducts} />
+              <StatCard
+                label="Produtos (total)"
+                value={catalogBr.totalProducts}
+              />
               <StatCard label="Ativos" value={catalogBr.activeProducts} />
               <StatCard label="HOT" value={catalogBr.priorityBreakdown.HOT} />
               <StatCard label="WARM" value={catalogBr.priorityBreakdown.WARM} />
               <StatCard label="COLD" value={catalogBr.priorityBreakdown.COLD} />
-              <StatCard label="Cliques (7d)" value={catalogBr.clicksLast7Days} />
+              <StatCard
+                label="Cliques (7d)"
+                value={catalogBr.clicksLast7Days}
+              />
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
-              <StatusPill ok={catalogBr.enabled} label={catalogBr.enabled ? "Habilitado" : "Desabilitado"} />
+              <StatusPill
+                ok={catalogBr.enabled}
+                label={catalogBr.enabled ? "Habilitado" : "Desabilitado"}
+              />
             </div>
             <p className="text-foreground/50 mt-2 text-xs">
               Último refresh de catálogo:{" "}
@@ -510,15 +507,33 @@ export default async function AdminPage(props: PagePropsWithSearch) {
             ) : (
               <>
                 <div className="grid grid-cols-2 gap-3">
-                  <StatCard label="Produtos (total)" value={catalogUs.totalProducts} />
+                  <StatCard
+                    label="Produtos (total)"
+                    value={catalogUs.totalProducts}
+                  />
                   <StatCard label="Ativos" value={catalogUs.activeProducts} />
-                  <StatCard label="HOT" value={catalogUs.priorityBreakdown.HOT} />
-                  <StatCard label="WARM" value={catalogUs.priorityBreakdown.WARM} />
-                  <StatCard label="COLD" value={catalogUs.priorityBreakdown.COLD} />
-                  <StatCard label="Cliques (7d)" value={catalogUs.clicksLast7Days} />
+                  <StatCard
+                    label="HOT"
+                    value={catalogUs.priorityBreakdown.HOT}
+                  />
+                  <StatCard
+                    label="WARM"
+                    value={catalogUs.priorityBreakdown.WARM}
+                  />
+                  <StatCard
+                    label="COLD"
+                    value={catalogUs.priorityBreakdown.COLD}
+                  />
+                  <StatCard
+                    label="Cliques (7d)"
+                    value={catalogUs.clicksLast7Days}
+                  />
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  <StatusPill ok={catalogUs.enabled} label={catalogUs.enabled ? "Habilitado" : "Desabilitado"} />
+                  <StatusPill
+                    ok={catalogUs.enabled}
+                    label={catalogUs.enabled ? "Habilitado" : "Desabilitado"}
+                  />
                 </div>
               </>
             )}
@@ -529,7 +544,9 @@ export default async function AdminPage(props: PagePropsWithSearch) {
           <SubSection title="Maiores quedas">
             <ul className="space-y-2 text-sm">
               {weekly.biggestDrops.length === 0 && (
-                <li className="text-foreground/50">Nenhuma queda registrada.</li>
+                <li className="text-foreground/50">
+                  Nenhuma queda registrada.
+                </li>
               )}
               {weekly.biggestDrops.map((row) => (
                 <li key={row.id} className="flex justify-between">
@@ -559,7 +576,10 @@ export default async function AdminPage(props: PagePropsWithSearch) {
             <StatCard label="Páginas publicáveis" value={seo.publishable} />
             <StatCard label="Rejeitadas" value={seo.rejected} />
             <StatCard label="Noindex" value={seo.noindexed} />
-            <StatCard label="Oportunidades pendentes" value={seo.opportunities} />
+            <StatCard
+              label="Oportunidades pendentes"
+              value={seo.opportunities}
+            />
           </div>
           <p className="text-foreground/50 mt-3 text-xs">
             Páginas publicadas hoje: {today.pagesPublished} · Rejeitadas hoje:{" "}
@@ -670,19 +690,22 @@ export default async function AdminPage(props: PagePropsWithSearch) {
           <div className="flex flex-wrap items-center gap-3">
             <StatusPill
               ok={mlCredentialStatus.connected}
-              label={mlCredentialStatus.connected ? "Conectado" : "Não conectado"}
+              label={
+                mlCredentialStatus.connected ? "Conectado" : "Não conectado"
+              }
             />
             {mlCredentialStatus.expiresAt && (
               <span className="text-foreground/60 text-xs">
-                Token válido até {mlCredentialStatus.expiresAt.toISOString()} (renovação automática
-                antes de expirar)
+                Token válido até {mlCredentialStatus.expiresAt.toISOString()}{" "}
+                (renovação automática antes de expirar)
               </span>
             )}
             <a
               href="/api/admin/mercadolivre/authorize"
               className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
             >
-              {mlCredentialStatus.connected ? "Reconectar" : "Conectar"} Mercado Livre →
+              {mlCredentialStatus.connected ? "Reconectar" : "Conectar"} Mercado
+              Livre →
             </a>
           </div>
         </SubSection>
@@ -692,9 +715,15 @@ export default async function AdminPage(props: PagePropsWithSearch) {
       <DashboardGroup title="Privacidade">
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <StatCard label="Analytics aceito" value={privacy.analyticsGranted} />
-          <StatCard label="Analytics recusado" value={privacy.analyticsDenied} />
+          <StatCard
+            label="Analytics recusado"
+            value={privacy.analyticsDenied}
+          />
           <StatCard label="Marketing aceito" value={privacy.marketingGranted} />
-          <StatCard label="Marketing recusado" value={privacy.marketingDenied} />
+          <StatCard
+            label="Marketing recusado"
+            value={privacy.marketingDenied}
+          />
         </div>
         <p className="text-foreground/50 mt-2 text-xs">
           Provedor de remarketing ativo: {privacy.remarketingProvider}
