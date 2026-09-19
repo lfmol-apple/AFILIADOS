@@ -67,7 +67,7 @@ export async function getTodayStats(marketplace: MarketplaceCode = PRIMARY_PUBLI
 export async function getWeeklyStats(marketplace: MarketplaceCode = PRIMARY_PUBLIC_MARKETPLACE) {
   const since = daysAgo(7);
 
-  const [clicksByProduct, clicksByPage, biggestDrops, failedJobs] =
+  const [clicksByProduct, clicksByProductPage, clicksByPage, biggestDrops, failedJobs] =
     await Promise.all([
       prisma.affiliateClick.groupBy({
         by: ["productId"],
@@ -77,8 +77,15 @@ export async function getWeeklyStats(marketplace: MarketplaceCode = PRIMARY_PUBL
         take: 5,
       }),
       prisma.affiliateClick.groupBy({
+        by: ["pageSlug"],
+        where: { createdAt: { gte: since }, pageType: "product" },
+        _count: { _all: true },
+        orderBy: { _count: { pageSlug: "desc" } },
+        take: 5,
+      }),
+      prisma.affiliateClick.groupBy({
         by: ["pageType", "pageSlug"],
-        where: { createdAt: { gte: since }, product: { marketplace } },
+        where: { createdAt: { gte: since } },
         _count: { _all: true },
         orderBy: { _count: { pageSlug: "desc" } },
         take: 5,
@@ -107,6 +114,38 @@ export async function getWeeklyStats(marketplace: MarketplaceCode = PRIMARY_PUBL
     select: { id: true, title: true, slug: true },
   });
   const productMap = new Map(products.map((p) => [p.id, p]));
+  const productPageSlugs = clicksByProductPage.map((c) => c.pageSlug);
+  const [legacyProductsBySlug, canonicals, merchantListings] =
+    productPageSlugs.length > 0
+      ? await Promise.all([
+          prisma.product.findMany({
+            where: { slug: { in: productPageSlugs } },
+            select: { slug: true, title: true },
+          }),
+          prisma.canonicalProduct.findMany({
+            where: { publicSlug: { in: productPageSlugs } },
+            select: { publicSlug: true, title: true },
+          }),
+          prisma.merchantListing.findMany({
+            where: { slug: { in: productPageSlugs } },
+            select: {
+              slug: true,
+              externalId: true,
+              signals: { orderBy: { observedAt: "desc" }, take: 1 },
+            },
+          }),
+        ])
+      : [[], [], []];
+  const titleByPageSlug = new Map<string, string>();
+  for (const product of legacyProductsBySlug) titleByPageSlug.set(product.slug, product.title);
+  for (const canonical of canonicals) {
+    if (canonical.publicSlug) titleByPageSlug.set(canonical.publicSlug, canonical.title);
+  }
+  for (const listing of merchantListings) {
+    if (!listing.slug) continue;
+    const raw = listing.signals[0]?.raw as { productName?: string; title?: string } | null | undefined;
+    titleByPageSlug.set(listing.slug, raw?.productName ?? raw?.title ?? listing.externalId);
+  }
 
   const categoryStrength = await prisma.category.findMany({
     where: { active: true },
@@ -118,6 +157,11 @@ export async function getWeeklyStats(marketplace: MarketplaceCode = PRIMARY_PUBL
   return {
     topProductsByClicks: clicksByProduct.map((c) => ({
       product: c.productId ? productMap.get(c.productId) : undefined,
+      clicks: c._count._all,
+    })),
+    topProductPagesByClicks: clicksByProductPage.map((c) => ({
+      pageSlug: c.pageSlug,
+      productTitle: titleByPageSlug.get(c.pageSlug) ?? null,
       clicks: c._count._all,
     })),
     topPagesByClicks: clicksByPage.map((c) => ({

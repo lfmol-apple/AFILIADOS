@@ -423,12 +423,12 @@ export default async function AdminPage(props: PagePropsWithSearch) {
         <div className="grid gap-8 sm:grid-cols-2">
           <SubSection title="Produtos com mais cliques (7d)">
             <ul className="space-y-2 text-sm">
-              {weekly.topProductsByClicks.length === 0 && (
+              {weekly.topProductPagesByClicks.length === 0 && (
                 <li className="text-foreground/50">Sem cliques ainda.</li>
               )}
-              {weekly.topProductsByClicks.map((row, i) => (
+              {weekly.topProductPagesByClicks.map((row, i) => (
                 <li key={i} className="flex justify-between">
-                  <span>{row.product?.title ?? "—"}</span>
+                  <span>{row.productTitle ?? row.pageSlug}</span>
                   <span className="font-medium">{row.clicks}</span>
                 </li>
               ))}
