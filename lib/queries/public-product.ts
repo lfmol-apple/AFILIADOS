@@ -7,7 +7,10 @@ import {
   detectRankEvent,
   type RadarEvent,
 } from "@/lib/services/radar";
-import { evaluatePublicationGate, type PublicationGateResult } from "@/lib/services/publication-gate";
+import {
+  evaluatePublicationGate,
+  type PublicationGateResult,
+} from "@/lib/services/publication-gate";
 import { selectBestOfferIdsPerCanonicalProduct } from "@/lib/queries/candidate-pool";
 import {
   extractMercadoLivreListingFacts,
@@ -87,12 +90,15 @@ export function buildDecisionSummary(events: RadarEvent[]): string {
     return "Ainda estamos reunindo sinais suficientes sobre este produto.";
   }
   const [top] = [...events].sort(
-    (a, b) => DECISION_SUMMARY_PRIORITY[b.type] - DECISION_SUMMARY_PRIORITY[a.type],
+    (a, b) =>
+      DECISION_SUMMARY_PRIORITY[b.type] - DECISION_SUMMARY_PRIORITY[a.type],
   );
   switch (top!.type) {
     case "PRICE_DROP": {
       const dropPercent = top!.evidence.dropPercent;
-      const percentText = dropPercent ? `${Math.round(dropPercent * 100)}%` : "";
+      const percentText = dropPercent
+        ? `${Math.round(dropPercent * 100)}%`
+        : "";
       return `Vale atenção agora porque o preço caiu ${percentText} desde a observação anterior.`;
     }
     case "HIGH_QUALITY_OFFER":
@@ -106,9 +112,18 @@ export function buildDecisionSummary(events: RadarEvent[]): string {
   }
 }
 
-function buildCtaHref(merchant: MerchantListingMerchant, externalId: string, ctaEligible: boolean, slug: string): string | null {
+function buildCtaHref(
+  merchant: MerchantListingMerchant,
+  externalId: string,
+  ctaEligible: boolean,
+  slug: string,
+): string | null {
   if (!ctaEligible) return null;
-  const params = new URLSearchParams({ pageType: "product", pageSlug: slug, source: "product_page" }).toString();
+  const params = new URLSearchParams({
+    pageType: "product",
+    pageSlug: slug,
+    source: "product_page",
+  }).toString();
   return `/go/${MERCHANT_TO_CTA_SEGMENT[merchant]}/${encodeURIComponent(externalId)}?${params}`;
 }
 
@@ -122,7 +137,10 @@ function buildRadarEventsForFacts(facts: MerchantListingFacts): RadarEvent[] {
   const events: RadarEvent[] = [];
   const observedAt = facts.lastObservedAt ?? new Date(0);
 
-  const priceDrop = detectPriceDrop(facts.merchantListingId, facts.priceHistory);
+  const priceDrop = detectPriceDrop(
+    facts.merchantListingId,
+    facts.priceHistory,
+  );
   if (priceDrop) events.push(priceDrop);
 
   const rank = detectRankEvent(facts.merchantListingId, {
@@ -145,7 +163,10 @@ function buildRadarEventsForFacts(facts: MerchantListingFacts): RadarEvent[] {
   return events;
 }
 
-function buildViewModel(facts: MerchantListingFacts, slug: string): PublicMerchantProductViewModel {
+function buildViewModel(
+  facts: MerchantListingFacts,
+  slug: string,
+): PublicMerchantProductViewModel {
   const gate = evaluatePublicationGate(facts);
   const radarEvents = buildRadarEventsForFacts(facts);
   return {
@@ -167,7 +188,12 @@ function buildViewModel(facts: MerchantListingFacts, slug: string): PublicMercha
     reviewCount: facts.reviewCount,
     sellerReputationLevel: facts.sellerReputationLevel,
     lastObservedAt: facts.lastObservedAt,
-    ctaHref: buildCtaHref(facts.merchant, facts.externalId, gate.ctaEligible, slug),
+    ctaHref: buildCtaHref(
+      facts.merchant,
+      facts.externalId,
+      gate.ctaEligible,
+      slug,
+    ),
     gate,
     radarEvents,
     decisionSummary: buildDecisionSummary(radarEvents),
@@ -178,20 +204,27 @@ function buildViewModel(facts: MerchantListingFacts, slug: string): PublicMercha
  * and persists one from the real title on first call. Never called by
  * jobs/ml-enrichment.ts or any cron job — only from this module (the page
  * loader, the optional backfill script, or getRelatedMerchantProducts). */
-export async function ensureCanonicalProductPublicSlug(canonicalProductId: string, title: string): Promise<string> {
+export async function ensureCanonicalProductPublicSlug(
+  canonicalProductId: string,
+  title: string,
+): Promise<string> {
   const current = await prisma.canonicalProduct.findUnique({
     where: { id: canonicalProductId },
     select: { publicSlug: true },
   });
   if (current?.publicSlug) return current.publicSlug;
 
-  const slug = await generateUniqueSlug(title, canonicalProductId, async (candidate) => {
-    const existing = await prisma.canonicalProduct.findUnique({
-      where: { publicSlug: candidate },
-      select: { id: true },
-    });
-    return existing !== null;
-  });
+  const slug = await generateUniqueSlug(
+    title,
+    canonicalProductId,
+    async (candidate) => {
+      const existing = await prisma.canonicalProduct.findUnique({
+        where: { publicSlug: candidate },
+        select: { id: true },
+      });
+      return existing !== null;
+    },
+  );
 
   try {
     const updated = await prisma.canonicalProduct.update({
@@ -208,19 +241,30 @@ export async function ensureCanonicalProductPublicSlug(canonicalProductId: strin
       select: { publicSlug: true },
     });
     if (refetched?.publicSlug) return refetched.publicSlug;
-    throw new Error(`Failed to generate/persist publicSlug for CanonicalProduct ${canonicalProductId}`);
+    throw new Error(
+      `Failed to generate/persist publicSlug for CanonicalProduct ${canonicalProductId}`,
+    );
   }
 }
 
 /** Same idempotent lazy generation as ensureCanonicalProductPublicSlug,
  * for Shopee's MerchantListing.slug (no CanonicalProduct exists for
  * Shopee today). Never called by jobs/shopee-refresh.ts. */
-export async function ensureShopeeListingSlug(listingId: string, title: string): Promise<string> {
-  const current = await prisma.merchantListing.findUnique({ where: { id: listingId }, select: { slug: true } });
+export async function ensureShopeeListingSlug(
+  listingId: string,
+  title: string,
+): Promise<string> {
+  const current = await prisma.merchantListing.findUnique({
+    where: { id: listingId },
+    select: { slug: true },
+  });
   if (current?.slug) return current.slug;
 
   const slug = await generateUniqueSlug(title, listingId, async (candidate) => {
-    const existing = await prisma.merchantListing.findUnique({ where: { slug: candidate }, select: { id: true } });
+    const existing = await prisma.merchantListing.findUnique({
+      where: { slug: candidate },
+      select: { id: true },
+    });
     return existing !== null;
   });
 
@@ -232,9 +276,14 @@ export async function ensureShopeeListingSlug(listingId: string, title: string):
     });
     return updated.slug!;
   } catch {
-    const refetched = await prisma.merchantListing.findUnique({ where: { id: listingId }, select: { slug: true } });
+    const refetched = await prisma.merchantListing.findUnique({
+      where: { id: listingId },
+      select: { slug: true },
+    });
     if (refetched?.slug) return refetched.slug;
-    throw new Error(`Failed to generate/persist slug for MerchantListing ${listingId}`);
+    throw new Error(
+      `Failed to generate/persist slug for MerchantListing ${listingId}`,
+    );
   }
 }
 
@@ -247,12 +296,17 @@ export async function ensureShopeeListingSlug(listingId: string, title: string):
  * the view model's canonicalUrl always points at the pretty slug once it
  * exists, even when the request came in on the technical one.
  */
-export async function loadPublicMerchantProduct(slug: string): Promise<PublicMerchantProductViewModel | null> {
+export async function loadPublicMerchantProduct(
+  slug: string,
+): Promise<PublicMerchantProductViewModel | null> {
   const mlResult = await loadMerchantListingFactsByPublicSlug(slug);
   if (mlResult) {
     const effectiveSlug = mlResult.hasPublicSlug
       ? slug
-      : await ensureCanonicalProductPublicSlug(mlResult.canonicalProductId, mlResult.facts.title);
+      : await ensureCanonicalProductPublicSlug(
+          mlResult.canonicalProductId,
+          mlResult.facts.title,
+        );
     return buildViewModel(mlResult.facts, effectiveSlug);
   }
 
@@ -290,7 +344,13 @@ export async function getRelatedMerchantProducts(input: {
       where: {
         categoryId: input.categoryId,
         publicSlug: { not: null },
-        listings: { some: { merchant: { code: "MERCADO_LIVRE" }, id: { not: input.excludeListingId }, active: true } },
+        listings: {
+          some: {
+            merchant: { code: "MERCADO_LIVRE" },
+            id: { not: input.excludeListingId },
+            active: true,
+          },
+        },
       },
       select: { id: true, publicSlug: true, title: true, imageUrl: true },
       orderBy: { updatedAt: "desc" },
@@ -298,15 +358,27 @@ export async function getRelatedMerchantProducts(input: {
     });
     for (const candidate of candidates) {
       if (results.length >= limit) break;
-      const resolved = await loadMerchantListingFactsByPublicSlug(candidate.publicSlug!);
-      if (!resolved || !evaluatePublicationGate(resolved.facts).indexable) continue;
-      results.push({ slug: candidate.publicSlug!, title: candidate.title, imageUrl: candidate.imageUrl });
+      const resolved = await loadMerchantListingFactsByPublicSlug(
+        candidate.publicSlug!,
+      );
+      if (!resolved || !evaluatePublicationGate(resolved.facts).indexable)
+        continue;
+      results.push({
+        slug: candidate.publicSlug!,
+        title: candidate.title,
+        imageUrl: candidate.imageUrl,
+      });
     }
     return results;
   }
 
   const shopeeListings = await prisma.merchantListing.findMany({
-    where: { merchant: { code: "SHOPEE" }, id: { not: input.excludeListingId }, active: true, slug: { not: null } },
+    where: {
+      merchant: { code: "SHOPEE" },
+      id: { not: input.excludeListingId },
+      active: true,
+      slug: { not: null },
+    },
     select: { id: true, slug: true },
     orderBy: { updatedAt: "desc" },
     take: limit * 3,
@@ -315,7 +387,11 @@ export async function getRelatedMerchantProducts(input: {
     if (results.length >= limit) break;
     const facts = await loadMerchantListingFactsByListingId(listing.id);
     if (!facts || !evaluatePublicationGate(facts).indexable) continue;
-    results.push({ slug: listing.slug!, title: facts.title, imageUrl: facts.imageUrl });
+    results.push({
+      slug: listing.slug!,
+      title: facts.title,
+      imageUrl: facts.imageUrl,
+    });
   }
   return results;
 }
@@ -345,7 +421,10 @@ export async function ensurePublicSlugsForAllEligibleListings(): Promise<Backfil
   };
 
   const mlCanonicals = await prisma.canonicalProduct.findMany({
-    where: { publicSlug: null, listings: { some: { merchant: { code: "MERCADO_LIVRE" } } } },
+    where: {
+      publicSlug: null,
+      listings: { some: { merchant: { code: "MERCADO_LIVRE" } } },
+    },
     select: { id: true, title: true },
   });
   for (const canonical of mlCanonicals) {
@@ -372,6 +451,14 @@ export async function ensurePublicSlugsForAllEligibleListings(): Promise<Backfil
 export interface IndexableMerchantProductUrl {
   slug: string;
   lastModified: Date;
+}
+
+export interface MerchantPublicationReadinessSummary {
+  evaluated: number;
+  indexable: number;
+  noindex: number;
+  ctaEligible: number;
+  productSitemapUrls: number;
 }
 
 /** Mirrors the identical helper in lib/queries/radar-events.ts and
@@ -408,14 +495,50 @@ const RECENT_SIGNALS_WINDOW = 10;
  * best real offer per canonical product via Postgres DISTINCT ON
  * (selectBestOfferIdsPerCanonicalProduct) — never every sibling.
  */
-export async function listIndexableMerchantProductUrls(): Promise<IndexableMerchantProductUrl[]> {
+async function evaluateMerchantPublicationCandidates(): Promise<{
+  urls: IndexableMerchantProductUrl[];
+  summary: MerchantPublicationReadinessSummary;
+}> {
   const urls: IndexableMerchantProductUrl[] = [];
+  const summary: MerchantPublicationReadinessSummary = {
+    evaluated: 0,
+    indexable: 0,
+    noindex: 0,
+    ctaEligible: 0,
+    productSitemapUrls: 0,
+  };
+
+  function recordGate(
+    gate: PublicationGateResult,
+    slug: string | null,
+    lastModified: Date | null,
+  ) {
+    summary.evaluated += 1;
+    if (gate.ctaEligible) summary.ctaEligible += 1;
+    if (gate.indexable) {
+      summary.indexable += 1;
+      if (slug && lastModified) urls.push({ slug, lastModified });
+    } else {
+      summary.noindex += 1;
+    }
+  }
 
   // --- Mercado Livre: bounded by canonicalIds.length, never by how many
   // real offers exist per canonical product ---
   const canonicals = await prisma.canonicalProduct.findMany({
-    where: { publicSlug: { not: null }, listings: { some: { merchant: { code: "MERCADO_LIVRE" } } } },
-    select: { id: true, publicSlug: true, title: true, imageUrl: true, brand: true, model: true, categoryId: true },
+    where: {
+      publicSlug: { not: null },
+      listings: { some: { merchant: { code: "MERCADO_LIVRE" } } },
+    },
+    select: {
+      id: true,
+      publicSlug: true,
+      title: true,
+      imageUrl: true,
+      brand: true,
+      model: true,
+      categoryId: true,
+    },
   });
   const canonicalIds = canonicals.map((c) => c.id);
   // The catalog row (never has an "mercado_livre_catalog_items" signal —
@@ -432,25 +555,42 @@ export async function listIndexableMerchantProductUrls(): Promise<IndexableMerch
         include: {
           affiliateLink: true,
           monetizationScore: true,
-          signals: { orderBy: { observedAt: "desc" }, take: RECENT_SIGNALS_WINDOW },
+          signals: {
+            orderBy: { observedAt: "desc" },
+            take: RECENT_SIGNALS_WINDOW,
+          },
         },
       })
     : [];
-  const catalogListingByCanonical = new Map<string, (typeof catalogListings)[number]>();
+  const catalogListingByCanonical = new Map<
+    string,
+    (typeof catalogListings)[number]
+  >();
   for (const listing of catalogListings) {
-    if (listing.canonicalProductId) catalogListingByCanonical.set(listing.canonicalProductId, listing);
+    if (listing.canonicalProductId)
+      catalogListingByCanonical.set(listing.canonicalProductId, listing);
   }
   const catalogListingIds = catalogListings.map((c) => c.id);
-  const bestOfferIds = await selectBestOfferIdsPerCanonicalProduct(canonicalIds, catalogListingIds);
+  const bestOfferIds = await selectBestOfferIdsPerCanonicalProduct(
+    canonicalIds,
+    catalogListingIds,
+  );
   const bestOffers = bestOfferIds.length
     ? await prisma.merchantListing.findMany({
         where: { id: { in: bestOfferIds } },
-        include: { monetizationScore: true, signals: { orderBy: { observedAt: "desc" }, take: RECENT_SIGNALS_WINDOW } },
+        include: {
+          monetizationScore: true,
+          signals: {
+            orderBy: { observedAt: "desc" },
+            take: RECENT_SIGNALS_WINDOW,
+          },
+        },
       })
     : [];
   const bestOfferByCanonical = new Map<string, (typeof bestOffers)[number]>();
   for (const offer of bestOffers) {
-    if (offer.canonicalProductId) bestOfferByCanonical.set(offer.canonicalProductId, offer);
+    if (offer.canonicalProductId)
+      bestOfferByCanonical.set(offer.canonicalProductId, offer);
   }
 
   for (const canonical of canonicals) {
@@ -462,13 +602,16 @@ export async function listIndexableMerchantProductUrls(): Promise<IndexableMerch
       catalogListing,
       canonicalProduct: canonical,
       catalogSignals: catalogListing.signals,
-      bestOffer: bestOffer ? { signals: bestOffer.signals, monetizationScore: bestOffer.monetizationScore } : null,
+      bestOffer: bestOffer
+        ? {
+            signals: bestOffer.signals,
+            monetizationScore: bestOffer.monetizationScore,
+          }
+        : null,
       affiliateLink: catalogListing.affiliateLink,
     });
     const gate = evaluatePublicationGate(facts);
-    if (gate.indexable && facts.lastObservedAt && canonical.publicSlug) {
-      urls.push({ slug: canonical.publicSlug, lastModified: facts.lastObservedAt });
-    }
+    recordGate(gate, canonical.publicSlug, facts.lastObservedAt);
   }
 
   // --- Shopee: 1 query total, never one per listing ---
@@ -488,10 +631,21 @@ export async function listIndexableMerchantProductUrls(): Promise<IndexableMerch
       affiliateLink: listing.affiliateLink,
     });
     const gate = evaluatePublicationGate(facts);
-    if (gate.indexable && facts.lastObservedAt && listing.slug) {
-      urls.push({ slug: listing.slug, lastModified: facts.lastObservedAt });
-    }
+    recordGate(gate, listing.slug, facts.lastObservedAt);
   }
 
+  summary.productSitemapUrls = urls.length;
+  return { urls, summary };
+}
+
+export async function listIndexableMerchantProductUrls(): Promise<
+  IndexableMerchantProductUrl[]
+> {
+  const { urls } = await evaluateMerchantPublicationCandidates();
   return urls;
+}
+
+export async function getMerchantPublicationReadinessSummary(): Promise<MerchantPublicationReadinessSummary> {
+  const { summary } = await evaluateMerchantPublicationCandidates();
+  return summary;
 }

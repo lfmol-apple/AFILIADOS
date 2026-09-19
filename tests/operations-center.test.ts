@@ -1,6 +1,9 @@
 import { describe, expect, it, beforeAll, afterAll } from "vitest";
 import { prisma } from "@/lib/db";
-import { getTodaysOpportunities, getOperationsSummary } from "@/lib/queries/operations-center";
+import {
+  getTodaysOpportunities,
+  getOperationsSummary,
+} from "@/lib/queries/operations-center";
 
 let shopeeMerchantId: string;
 let mlMerchantId: string;
@@ -50,7 +53,8 @@ async function makeListing(input: {
         merchantListingId: listing.id,
         merchantId: input.merchantId,
         publicUrl: listing.productUrl,
-        affiliateUrl: input.linkStatus === "ACTIVE" ? "https://s.shopee.com.br/x" : null,
+        affiliateUrl:
+          input.linkStatus === "ACTIVE" ? "https://s.shopee.com.br/x" : null,
         attributionTag: "precocaindo",
         source: "API",
         status: input.linkStatus,
@@ -77,7 +81,9 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await prisma.merchantListing.deleteMany({ where: { id: { in: listingIds } } });
+  await prisma.merchantListing.deleteMany({
+    where: { id: { in: listingIds } },
+  });
 });
 
 describe("getTodaysOpportunities", () => {
@@ -93,21 +99,32 @@ describe("getTodaysOpportunities", () => {
       externalId: `OPS-SHOPEE-${runId}`,
       score: 80,
       linkStatus: "ACTIVE",
-      raw: { productName: "Item Shopee", imageUrl: "https://cf.shopee.com.br/x", priceMin: "49.9" },
+      raw: {
+        productName: "Item Shopee",
+        imageUrl: "https://cf.shopee.com.br/x",
+        priceMin: "49.9",
+      },
     });
 
     const items = await getTodaysOpportunities(50);
     const filtered = items.filter(
-      (i) => i.merchantListingId === mlPending.id || i.merchantListingId === shopeeActive.id,
+      (i) =>
+        i.merchantListingId === mlPending.id ||
+        i.merchantListingId === shopeeActive.id,
     );
-    expect(filtered.map((i) => i.merchantListingId)).toEqual([mlPending.id, shopeeActive.id]);
+    expect(filtered.map((i) => i.merchantListingId)).toEqual([
+      mlPending.id,
+      shopeeActive.id,
+    ]);
 
     const ml = filtered.find((i) => i.merchantListingId === mlPending.id)!;
     expect(ml.merchant).toBe("MERCADO_LIVRE");
     expect(ml.linkStatus).toBe("PENDING_HUMAN");
     expect(ml.ctaHref).toBeNull();
 
-    const shopee = filtered.find((i) => i.merchantListingId === shopeeActive.id)!;
+    const shopee = filtered.find(
+      (i) => i.merchantListingId === shopeeActive.id,
+    )!;
     expect(shopee.merchant).toBe("SHOPEE");
     expect(shopee.linkStatus).toBe("ACTIVE");
     expect(shopee.imageUrl).toBe("https://cf.shopee.com.br/x");
@@ -119,11 +136,39 @@ describe("getTodaysOpportunities", () => {
 });
 
 describe("getOperationsSummary", () => {
-  it("returns only real, non-fabricated counts", async () => {
-    const summary = await getOperationsSummary();
-    expect(summary.newListingsToday).toBeGreaterThanOrEqual(0);
-    expect(summary.activeMerchants.every((c) => ["SHOPEE", "MERCADO_LIVRE"].includes(c))).toBe(
-      true,
-    );
+  it("counts observed listings without ACTIVE affiliate link separately from active links", async () => {
+    const before = await getOperationsSummary();
+    await makeListing({
+      merchantId: mlMerchantId,
+      externalId: `OPS-SUMMARY-ML-NOLINK-${runId}`,
+      score: 70,
+      linkStatus: null,
+    });
+    await makeListing({
+      merchantId: shopeeMerchantId,
+      externalId: `OPS-SUMMARY-SHOPEE-PENDING-${runId}`,
+      score: 60,
+      linkStatus: "PENDING",
+    });
+    await makeListing({
+      merchantId: shopeeMerchantId,
+      externalId: `OPS-SUMMARY-SHOPEE-ACTIVE-${runId}`,
+      score: 50,
+      linkStatus: "ACTIVE",
+    });
+
+    const after = await getOperationsSummary();
+    expect(
+      after.newListingsToday - before.newListingsToday,
+    ).toBeGreaterThanOrEqual(3);
+    expect(after.activeLinks - before.activeLinks).toBeGreaterThanOrEqual(1);
+    expect(
+      after.listingsWithoutActiveLink - before.listingsWithoutActiveLink,
+    ).toBeGreaterThanOrEqual(2);
+    expect(
+      after.activeMerchants.every((c) =>
+        ["SHOPEE", "MERCADO_LIVRE"].includes(c),
+      ),
+    ).toBe(true);
   });
 });

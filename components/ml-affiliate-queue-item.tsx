@@ -85,11 +85,11 @@ export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
   // Used only to decide whether a paste can be trusted to auto-submit; the
   // server re-validates the host/format regardless (assertAllowedMerchantDestination).
   function looksLikeGeneratedLink(value: string): boolean {
-    return /\/(sec|social)\//i.test(value);
+    return /(?:meli\.la\/|\/(?:sec|social)\/)/i.test(value);
   }
 
   async function handleSave(urlOverride?: string) {
-    const urlToSave = urlOverride ?? affiliateUrl;
+    const urlToSave = (urlOverride ?? affiliateUrl).trim();
     setPending(true);
     setError(null);
     try {

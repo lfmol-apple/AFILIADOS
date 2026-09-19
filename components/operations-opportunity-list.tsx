@@ -7,7 +7,11 @@ import type { OperationsOpportunity } from "@/lib/queries/operations-center";
  * action stays in MlAffiliateQueueItem/ml-affiliate-links API route; this
  * component never writes anything.
  */
-export function OperationsOpportunityList({ items }: { items: OperationsOpportunity[] }) {
+export function OperationsOpportunityList({
+  items,
+}: {
+  items: OperationsOpportunity[];
+}) {
   if (items.length === 0) {
     return (
       <p className="text-foreground/50 text-sm">
@@ -54,7 +58,10 @@ export function OperationsOpportunityList({ items }: { items: OperationsOpportun
               </td>
               <td className="py-2 pr-3">
                 {item.price !== null
-                  ? item.price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+                  ? item.price.toLocaleString("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                    })
                   : "—"}
               </td>
               <td className="py-2 pr-3">
@@ -73,7 +80,7 @@ export function OperationsOpportunityList({ items }: { items: OperationsOpportun
                 {item.monetizationScore ?? "—"}
                 <span className="text-foreground/50 font-normal">
                   {" "}
-                  ({(item.monetizationConfidence * 100).toFixed(0)}%)
+                  confiança {(item.monetizationConfidence * 100).toFixed(0)}%
                 </span>
               </td>
               <td className="py-2 pr-3">
@@ -91,7 +98,12 @@ export function OperationsOpportunityList({ items }: { items: OperationsOpportun
               </td>
               <td className="py-2 text-xs">
                 {item.linkStatus === "ACTIVE" && item.ctaHref ? (
-                  <a href={item.ctaHref} target="_blank" rel="noopener noreferrer" className="text-brand font-medium underline">
+                  <a
+                    href={item.ctaHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-brand font-medium underline"
+                  >
                     Ver CTA →
                   </a>
                 ) : (

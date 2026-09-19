@@ -1,6 +1,11 @@
 import { describe, expect, it, beforeAll, afterAll } from "vitest";
 import { prisma } from "@/lib/db";
-import { listIndexableMerchantProductUrls, ensureCanonicalProductPublicSlug, ensureShopeeListingSlug } from "@/lib/queries/public-product";
+import {
+  listIndexableMerchantProductUrls,
+  ensureCanonicalProductPublicSlug,
+  ensureShopeeListingSlug,
+  getMerchantPublicationReadinessSummary,
+} from "@/lib/queries/public-product";
 
 /**
  * app/sitemap.ts calls listIndexableMerchantProductUrls() directly (see
@@ -32,13 +37,20 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await prisma.merchantListing.deleteMany({ where: { id: { in: listingIds } } });
-  await prisma.canonicalProduct.deleteMany({ where: { id: { in: canonicalIds } } });
+  await prisma.merchantListing.deleteMany({
+    where: { id: { in: listingIds } },
+  });
+  await prisma.canonicalProduct.deleteMany({
+    where: { id: { in: canonicalIds } },
+  });
 });
 
 async function createIndexableMlListing(suffix: string) {
   const canonical = await prisma.canonicalProduct.create({
-    data: { slug: `ml-catalog-sitemap-${suffix}-${runId}`, title: `Produto Sitemap ML ${suffix}` },
+    data: {
+      slug: `ml-catalog-sitemap-${suffix}-${runId}`,
+      title: `Produto Sitemap ML ${suffix}`,
+    },
   });
   canonicalIds.push(canonical.id);
   const catalogListing = await prisma.merchantListing.create({
@@ -52,7 +64,12 @@ async function createIndexableMlListing(suffix: string) {
   });
   listingIds.push(catalogListing.id);
   await prisma.merchantListingSignal.create({
-    data: { merchantListingId: catalogListing.id, source: "mercado_livre_highlights", raw: {}, bestsellerRank: 2 },
+    data: {
+      merchantListingId: catalogListing.id,
+      source: "mercado_livre_highlights",
+      raw: {},
+      bestsellerRank: 2,
+    },
   });
   const offerListing = await prisma.merchantListing.create({
     data: {
@@ -65,7 +82,11 @@ async function createIndexableMlListing(suffix: string) {
   });
   listingIds.push(offerListing.id);
   await prisma.merchantListingSignal.create({
-    data: { merchantListingId: offerListing.id, source: "mercado_livre_catalog_items", raw: { price: 500 } },
+    data: {
+      merchantListingId: offerListing.id,
+      source: "mercado_livre_catalog_items",
+      raw: { price: 500 },
+    },
   });
   await prisma.affiliateLinkRegistry.create({
     data: {
@@ -84,7 +105,10 @@ async function createIndexableMlListing(suffix: string) {
 describe("listIndexableMerchantProductUrls", () => {
   it("inclui um produto ML indexável que já tem publicSlug", async () => {
     const canonical = await createIndexableMlListing("with-slug");
-    const publicSlug = await ensureCanonicalProductPublicSlug(canonical.id, canonical.title);
+    const publicSlug = await ensureCanonicalProductPublicSlug(
+      canonical.id,
+      canonical.title,
+    );
 
     const urls = await listIndexableMerchantProductUrls();
     expect(urls.some((u) => u.slug === publicSlug)).toBe(true);
@@ -98,7 +122,9 @@ describe("listIndexableMerchantProductUrls", () => {
     // listIndexableMerchantProductUrls nunca gera slug, só lista os já
     // existentes (backfill/lazy generation é responsabilidade de outro
     // caminho).
-    const anyMatchesThisCanonical = urls.some((u) => u.slug.includes(canonical.id));
+    const anyMatchesThisCanonical = urls.some((u) =>
+      u.slug.includes(canonical.id),
+    );
     expect(anyMatchesThisCanonical).toBe(false);
   });
 
@@ -130,7 +156,10 @@ describe("listIndexableMerchantProductUrls", () => {
         status: "ACTIVE",
       },
     });
-    const slug = await ensureShopeeListingSlug(listing.id, "Produto Sem Valor Adicional");
+    const slug = await ensureShopeeListingSlug(
+      listing.id,
+      "Produto Sem Valor Adicional",
+    );
 
     const urls = await listIndexableMerchantProductUrls();
     expect(urls.some((u) => u.slug === slug)).toBe(false);
@@ -173,9 +202,23 @@ describe("listIndexableMerchantProductUrls", () => {
         status: "ACTIVE",
       },
     });
-    const slug = await ensureShopeeListingSlug(listing.id, "Produto Indexável Sitemap");
+    const slug = await ensureShopeeListingSlug(
+      listing.id,
+      "Produto Indexável Sitemap",
+    );
 
     const urls = await listIndexableMerchantProductUrls();
     expect(urls.some((u) => u.slug === slug)).toBe(true);
+  });
+
+  it("mantém o resumo de prontidão do admin em paridade com o sitemap", async () => {
+    const urls = await listIndexableMerchantProductUrls();
+    const summary = await getMerchantPublicationReadinessSummary();
+
+    expect(summary.productSitemapUrls).toBe(urls.length);
+    expect(summary.indexable).toBeGreaterThanOrEqual(
+      summary.productSitemapUrls,
+    );
+    expect(summary.evaluated).toBe(summary.indexable + summary.noindex);
   });
 });
