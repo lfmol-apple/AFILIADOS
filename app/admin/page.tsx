@@ -4,11 +4,12 @@ import { env } from "@/lib/config/env";
 import {
   getTodayStats,
   getWeeklyStats,
+  getPriorityBreakdown,
   getTrafficOverview,
   getLatestJobRuns,
   getSeoStatus,
   getPrivacyStatus,
-  getCurrentCatalogOverview,
+  getCatalogSnapshot,
   getUnexpectedCatalogAlerts,
 } from "@/lib/queries/admin";
 import {
@@ -40,8 +41,6 @@ import {
   getOperationsSummary,
 } from "@/lib/queries/operations-center";
 import { getAdminRadarFeed } from "@/lib/queries/radar-events";
-import { getDemandIntelligenceSnapshot } from "@/lib/queries/demand-intelligence-v2";
-import { formatDemandMomentum } from "@/lib/services/demand-intelligence-v2";
 import { getMercadoLivreCredentialStatus } from "@/lib/services/ml-token-store";
 import type { PagePropsWithSearch } from "@/lib/next-route-types";
 import {
@@ -77,44 +76,42 @@ export default async function AdminPage(props: PagePropsWithSearch) {
   const [
     today,
     weekly,
+    priority,
     traffic,
     jobRuns,
     seo,
-    catalog,
     amazonBr,
     amazonUs,
     privacy,
     policyRecent,
+    catalogBr,
+    catalogUs,
     unexpectedCatalogAlerts,
     mlAffiliateQueue,
     todaysOpportunities,
     operationsSummary,
     radarFeed,
-    demandIntelligence,
     mlCredentialStatus,
     productCandidates,
     categoryOptions,
   ] = await Promise.all([
     getTodayStats(),
     getWeeklyStats(),
+    getPriorityBreakdown(),
     getTrafficOverview(),
     getLatestJobRuns(),
     getSeoStatus(),
-    getCurrentCatalogOverview(),
     Promise.resolve(getBrazilAmazonStatus()),
     Promise.resolve(getUsAmazonStatus()),
     getPrivacyStatus(),
     Promise.resolve(isPolicyReviewRecent()),
+    getCatalogSnapshot("BR"),
+    getCatalogSnapshot("US"),
     getUnexpectedCatalogAlerts(),
     getMlAffiliateQueue(),
     getTodaysOpportunities(),
     getOperationsSummary(),
     getAdminRadarFeed(200),
-    getDemandIntelligenceSnapshot({
-      limit: 25,
-      candidateLimit: 400,
-      historySignalsPerListing: 30,
-    }),
     getMercadoLivreCredentialStatus(),
     getProductCandidateQueue(),
     listActiveCategoryOptions(),
@@ -126,15 +123,7 @@ export default async function AdminPage(props: PagePropsWithSearch) {
   const brCompliancePass = checkLiveActivationReadiness("BR").every(
     (c) => c.pass,
   );
-  const hasAutomationAttentionToday =
-    today.automationFailedToday > 0 ||
-    today.automationPartialToday > 0 ||
-    today.automationErrorsToday > 0;
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-  const priceDropsToday = radarFeed.filter(
-    (i) => i.event.type === "PRICE_DROP" && i.event.occurredAt >= todayStart,
-  ).length;
+  const hasFailedJobsToday = today.automationErrorsToday > 0;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
@@ -206,9 +195,8 @@ export default async function AdminPage(props: PagePropsWithSearch) {
             value={operationsSummary.activeLinks}
           />
           <StatCard
-            label="Listings sem link ativo"
-            value={operationsSummary.listingsWithoutActiveLink}
-            helper="Catálogo observado sem link afiliado ACTIVE. Não representa necessariamente trabalho manual pendente."
+            label="Links pendentes"
+            value={operationsSummary.pendingLinks}
           />
           <StatCard
             label="Cliques afiliados hoje"
@@ -268,15 +256,14 @@ export default async function AdminPage(props: PagePropsWithSearch) {
 
         <SubSection title="Pendências de receita — Mercado Livre">
           <p className="text-foreground/60 mb-3 text-xs">
-            Itens acima do corte econômico, com demanda forte detectada e sem
-            link afiliado ACTIVE. Cole o link gerado no painel oficial ML
-            (etiqueta &quot;precocaindo&quot;) e o item sai da fila
-            automaticamente.
+            Demanda forte já detectada, sem link afiliado ainda. Cole o link
+            gerado no painel oficial ML (etiqueta &quot;precocaindo&quot;) e o
+            item sai da fila automaticamente.
           </p>
           {mlAffiliateQueue.length === 0 ? (
             <p className="text-foreground/50 text-sm">
-              Nenhuma oportunidade economicamente prioritária aguarda link
-              afiliado do Mercado Livre.
+              Nenhum item na fila agora — ou não há oportunidade ML acima do
+              corte econômico, ou todas já têm link ativo.
             </p>
           ) : (
             <>
@@ -331,33 +318,23 @@ export default async function AdminPage(props: PagePropsWithSearch) {
         title="Saúde do sistema"
         description="Jobs, erros e última atualização."
       >
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <StatCard
-            label="Listings atualizados hoje"
-            value={today.listingsUpdatedToday}
+            label="Preços atualizados hoje"
+            value={today.pricesUpdatedToday}
           />
           <StatCard
-            label="Quedas de preço detectadas hoje"
-            value={priceDropsToday}
+            label="Quedas detectadas hoje"
+            value={today.dropsDetectedToday}
           />
           <StatCard
             label="Erros das automações hoje"
             value={today.automationErrorsToday}
-            helper="Soma de erros reportados pelos jobs; PARTIAL com poucos erros não é falha total."
-          />
-          <StatCard
-            label="Jobs FAILED hoje"
-            value={today.automationFailedToday}
-          />
-          <StatCard
-            label="Jobs PARTIAL hoje"
-            value={today.automationPartialToday}
           />
         </div>
-        {hasAutomationAttentionToday && (
+        {hasFailedJobsToday && (
           <p className="mt-2 text-xs font-medium text-amber-700 dark:text-amber-400">
-            Há automações com erro, falha ou execução parcial hoje — veja a
-            tabela abaixo.
+            ⚠️ Há erros de automação registrados hoje — veja a tabela abaixo.
           </p>
         )}
 
@@ -431,52 +408,27 @@ export default async function AdminPage(props: PagePropsWithSearch) {
       {/* ---------------- NEGÓCIO ---------------- */}
       <DashboardGroup
         title="Negócio"
-        description="Tráfego, buscas e cliques afiliados do PreçoCaindo em todos os merchants monitorados."
+        description="Tráfego, buscas e cliques para a Amazon."
       >
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <StatCard label="Pageviews hoje" value={traffic.pageviews} />
           <StatCard label="Buscas hoje" value={traffic.searches} />
+          <StatCard label="Cliques Amazon hoje" value={traffic.clicks} />
           <StatCard
-            label="Cliques afiliados hoje"
-            value={traffic.clicksToday}
-          />
-          <StatCard
-            label="Cliques afiliados 7d"
-            value={traffic.clicksLast7Days}
-          />
-        </div>
-        <p className="text-foreground/50 text-xs">
-          CTR indisponível — pageviews dependem de consentimento e não são
-          comparáveis diretamente aos cliques afiliados.
-        </p>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatCard
-            label="Mercado Livre hoje"
-            value={traffic.clicksByMerchant.mercadoLivre}
-          />
-          <StatCard
-            label="Shopee hoje"
-            value={traffic.clicksByMerchant.shopee}
-          />
-          <StatCard
-            label="Amazon hoje"
-            value={traffic.clicksByMerchant.amazon}
-          />
-          <StatCard
-            label="Outros hoje"
-            value={traffic.clicksByMerchant.other}
+            label="CTR (cliques/pageviews)"
+            value={traffic.ctr !== null ? `${traffic.ctr}%` : "—"}
           />
         </div>
 
         <div className="grid gap-8 sm:grid-cols-2">
           <SubSection title="Produtos com mais cliques (7d)">
             <ul className="space-y-2 text-sm">
-              {weekly.topProductPagesByClicks.length === 0 && (
+              {weekly.topProductsByClicks.length === 0 && (
                 <li className="text-foreground/50">Sem cliques ainda.</li>
               )}
-              {weekly.topProductPagesByClicks.map((row, i) => (
+              {weekly.topProductsByClicks.map((row, i) => (
                 <li key={i} className="flex justify-between">
-                  <span>{row.productTitle ?? row.pageSlug}</span>
+                  <span>{row.product?.title ?? "—"}</span>
                   <span className="font-medium">{row.clicks}</span>
                 </li>
               ))}
@@ -501,150 +453,137 @@ export default async function AdminPage(props: PagePropsWithSearch) {
         </div>
       </DashboardGroup>
 
-      {/* ---------------- DEMAND INTELLIGENCE ---------------- */}
-      <DashboardGroup
-        title="Demand Intelligence"
-        description="DemandScore V2 em SHADOW: força observada da demanda, sem comissão, link ativo, MonetizationScore ou decisão pública."
-      >
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-          <StatCard
-            label="Candidatos avaliados"
-            value={demandIntelligence.candidateListings}
-          />
-          <StatCard
-            label="Signals carregados"
-            value={demandIntelligence.historySignalsLoaded}
-          />
-          <StatCard
-            label="Signals com rank"
-            value={demandIntelligence.audit.rankedSignals}
-          />
-          <StatCard
-            label="Listings com rank"
-            value={demandIntelligence.audit.rankedListings}
-          />
-          <StatCard
-            label="Tempo"
-            value={`${demandIntelligence.elapsedMs}ms`}
-          />
-        </div>
-
-        <SubSection title="Top DemandScore V2 — SHADOW">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-220 text-left text-sm">
-              <thead>
-                <tr className="text-foreground/50 text-xs">
-                  <th className="pb-2 font-medium">Produto</th>
-                  <th className="pb-2 font-medium">Merchant</th>
-                  <th className="pb-2 font-medium">Rank atual</th>
-                  <th className="pb-2 font-medium">Rank médio</th>
-                  <th className="pb-2 font-medium">Melhor</th>
-                  <th className="pb-2 font-medium">Top 10</th>
-                  <th className="pb-2 font-medium">Persistência</th>
-                  <th className="pb-2 font-medium">Momentum</th>
-                  <th className="pb-2 font-medium">Obs.</th>
-                  <th className="pb-2 font-medium">Confidence</th>
-                  <th className="pb-2 font-medium">DemandScore V2</th>
-                </tr>
-              </thead>
-              <tbody className="divide-border-subtle divide-y">
-                {demandIntelligence.topByDemandScoreV2.length === 0 && (
-                  <tr>
-                    <td colSpan={11} className="text-foreground/50 py-3">
-                      Nenhum histórico de ranking ML disponível para calcular
-                      DemandScore V2.
-                    </td>
-                  </tr>
-                )}
-                {demandIntelligence.topByDemandScoreV2.map((row) => (
-                  <tr key={row.merchantListingId}>
-                    <td className="max-w-72 py-2 pr-3">
-                      <span className="line-clamp-2">{row.title}</span>
-                      <span className="text-foreground/45 block text-xs">
-                        {row.externalId}
-                      </span>
-                    </td>
-                    <td className="py-2 pr-3">Mercado Livre</td>
-                    <td className="py-2 pr-3">
-                      {row.currentRank ? `#${row.currentRank}` : "—"}
-                    </td>
-                    <td className="py-2 pr-3">
-                      {row.averageRank !== null ? `#${row.averageRank}` : "—"}
-                    </td>
-                    <td className="py-2 pr-3">
-                      {row.bestRank ? `#${row.bestRank}` : "—"}
-                    </td>
-                    <td className="py-2 pr-3">
-                      {(row.top10Share * 100).toFixed(0)}%
-                      <span className="text-foreground/50 block text-xs">
-                        {row.consecutiveTop10Cycles} seguidos
-                      </span>
-                    </td>
-                    <td className="py-2 pr-3">{row.demandPersistence}</td>
-                    <td className="py-2 pr-3">
-                      {formatDemandMomentum(row.demandMomentum)}
-                      <span className="text-foreground/50 ml-1 text-xs">
-                        {row.demandMomentum}
-                      </span>
-                    </td>
-                    <td className="py-2 pr-3">{row.rankedCycles}</td>
-                    <td className="py-2 pr-3">{row.confidence}</td>
-                    <td className="py-2 pr-3 font-semibold">
-                      {row.demandScoreV2}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p className="text-foreground/50 mt-3 text-xs">
-            SHADOW: estes números não alteram Publication Gate, sitemap,
-            scanner, links, MonetizationScore, OpportunityScore ou cron.
-          </p>
-        </SubSection>
-      </DashboardGroup>
-
       {/* ---------------- CATÁLOGO ---------------- */}
       <DashboardGroup
         title="Catálogo"
-        description="Catálogo observado ML/Shopee, links ativos e prontidão de publicação."
+        description="Produtos monitorados, prioridade e conteúdo."
       >
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <StatCard
-            label="MerchantListings ativos"
-            value={catalog.merchantListingsTotal}
+            label="Produtos monitorados"
+            value={today.productsMonitored}
           />
-          <StatCard
-            label="Mercado Livre"
-            value={catalog.mercadoLivreListings}
-          />
-          <StatCard label="Shopee" value={catalog.shopeeListings} />
-          <StatCard
-            label="CanonicalProducts"
-            value={catalog.canonicalProducts}
-          />
-          <StatCard label="Links ACTIVE" value={catalog.activeAffiliateLinks} />
+          <StatCard label="HOT" value={priority.HOT} />
+          <StatCard label="WARM" value={priority.WARM} />
+          <StatCard label="COLD" value={priority.COLD} />
         </div>
 
-        <SubSection title="SEO / Publication Gate">
+        <div className="grid gap-8 sm:grid-cols-2">
+          <SubSection title="Catálogo BR">
+            <div className="grid grid-cols-2 gap-3">
+              <StatCard
+                label="Produtos (total)"
+                value={catalogBr.totalProducts}
+              />
+              <StatCard label="Ativos" value={catalogBr.activeProducts} />
+              <StatCard label="HOT" value={catalogBr.priorityBreakdown.HOT} />
+              <StatCard label="WARM" value={catalogBr.priorityBreakdown.WARM} />
+              <StatCard label="COLD" value={catalogBr.priorityBreakdown.COLD} />
+              <StatCard
+                label="Cliques (7d)"
+                value={catalogBr.clicksLast7Days}
+              />
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <StatusPill
+                ok={catalogBr.enabled}
+                label={catalogBr.enabled ? "Habilitado" : "Desabilitado"}
+              />
+            </div>
+            <p className="text-foreground/50 mt-2 text-xs">
+              Último refresh de catálogo:{" "}
+              {catalogBr.lastRefreshAt
+                ? catalogBr.lastRefreshAt.toISOString()
+                : "nunca"}
+            </p>
+          </SubSection>
+
+          <SubSection title="Catálogo EUA">
+            {!catalogUs.enabled && catalogUs.totalProducts === 0 ? (
+              <p className="text-foreground/50 text-sm">
+                Marketplace EUA desativado — nenhum dado operacional. Isso é o
+                estado esperado enquanto AMAZON_US_ENABLED=false.
+              </p>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 gap-3">
+                  <StatCard
+                    label="Produtos (total)"
+                    value={catalogUs.totalProducts}
+                  />
+                  <StatCard label="Ativos" value={catalogUs.activeProducts} />
+                  <StatCard
+                    label="HOT"
+                    value={catalogUs.priorityBreakdown.HOT}
+                  />
+                  <StatCard
+                    label="WARM"
+                    value={catalogUs.priorityBreakdown.WARM}
+                  />
+                  <StatCard
+                    label="COLD"
+                    value={catalogUs.priorityBreakdown.COLD}
+                  />
+                  <StatCard
+                    label="Cliques (7d)"
+                    value={catalogUs.clicksLast7Days}
+                  />
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <StatusPill
+                    ok={catalogUs.enabled}
+                    label={catalogUs.enabled ? "Habilitado" : "Desabilitado"}
+                  />
+                </div>
+              </>
+            )}
+          </SubSection>
+        </div>
+
+        <div className="grid gap-8 sm:grid-cols-2">
+          <SubSection title="Maiores quedas">
+            <ul className="space-y-2 text-sm">
+              {weekly.biggestDrops.length === 0 && (
+                <li className="text-foreground/50">
+                  Nenhuma queda registrada.
+                </li>
+              )}
+              {weekly.biggestDrops.map((row) => (
+                <li key={row.id} className="flex justify-between">
+                  <span>{row.product.title}</span>
+                  <span className="font-medium">
+                    {row.dropPercentage?.toFixed(1)}%
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </SubSection>
+
+          <SubSection title="Categorias mais fortes">
+            <ul className="space-y-2 text-sm">
+              {weekly.categoryStrength.map((c) => (
+                <li key={c.id} className="flex justify-between">
+                  <span>{c.name}</span>
+                  <span className="font-medium">{c._count.products}</span>
+                </li>
+              ))}
+            </ul>
+          </SubSection>
+        </div>
+
+        <SubSection title="SEO / conteúdo">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <StatCard label="Unidades avaliadas" value={seo.evaluated} />
-            <StatCard label="Indexáveis" value={seo.indexable} />
-            <StatCard label="Noindex" value={seo.noindex} />
-            <StatCard label="URLs no sitemap" value={seo.productSitemapUrls} />
-          </div>
-          <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <StatCard label="CTA elegível" value={seo.ctaEligible} />
+            <StatCard label="Páginas publicáveis" value={seo.publishable} />
+            <StatCard label="Rejeitadas" value={seo.rejected} />
+            <StatCard label="Noindex" value={seo.noindexed} />
             <StatCard
               label="Oportunidades pendentes"
               value={seo.opportunities}
             />
           </div>
           <p className="text-foreground/50 mt-3 text-xs">
-            Mesma fonte lógica do sitemap de produtos: Publication Gate sobre
-            MerchantListing/CanonicalProduct. Conteúdo editorial hoje:
-            publicadas {today.pagesPublishedToday} · rejeitadas{" "}
-            {today.pagesRejectedToday}.
+            Páginas publicadas hoje: {today.pagesPublished} · Rejeitadas hoje:{" "}
+            {today.pagesRejected}
           </p>
         </SubSection>
       </DashboardGroup>

@@ -70,9 +70,7 @@ export async function getTodaysOpportunities(
       merchant: { select: { code: true } },
       affiliateLink: true,
       monetizationScore: true,
-      canonicalProduct: {
-        select: { title: true, imageUrl: true, specifications: true },
-      },
+      canonicalProduct: { select: { title: true, imageUrl: true, specifications: true } },
       signals: { orderBy: { observedAt: "desc" }, take: 1 },
     },
     orderBy: { monetizationScore: { score: "desc" } },
@@ -88,12 +86,9 @@ export async function getTodaysOpportunities(
     .map((listing) => {
       const merchant = listing.merchant.code;
       const signal = listing.signals[0];
-      const raw = signal?.raw as {
-        productName?: string;
-        imageUrl?: string;
-        priceMin?: string;
-        price?: number;
-      } | null;
+      const raw = signal?.raw as
+        | { productName?: string; imageUrl?: string; priceMin?: string; price?: number }
+        | null;
 
       const linkStatus: OpportunityLinkStatus =
         listing.affiliateLink?.status === "ACTIVE"
@@ -107,10 +102,7 @@ export async function getTodaysOpportunities(
       return {
         merchantListingId: listing.id,
         merchant,
-        title:
-          listing.canonicalProduct?.title ??
-          raw?.productName ??
-          listing.externalId,
+        title: listing.canonicalProduct?.title ?? raw?.productName ?? listing.externalId,
         imageUrl: listing.canonicalProduct?.imageUrl ?? raw?.imageUrl ?? null,
         price: price !== null && !Number.isNaN(price) ? price : null,
         commissionRate: signal?.commissionRate ?? null,
@@ -137,7 +129,7 @@ export async function getTodaysOpportunities(
 export interface OperationsSummary {
   newListingsToday: number;
   activeLinks: number;
-  listingsWithoutActiveLink: number;
+  pendingLinks: number;
   affiliateClicksToday: number;
   activeMerchants: string[];
 }
@@ -155,52 +147,35 @@ function startOfToday(): Date {
  */
 export async function getOperationsSummary(): Promise<OperationsSummary> {
   const since = startOfToday();
-  const [
-    newListingsToday,
-    activeLinks,
-    listingsWithoutActiveLink,
-    affiliateClicksToday,
-    activeMerchants,
-  ] = await Promise.all([
-    prisma.merchantListing.count({
-      where: {
-        createdAt: { gte: since },
-        merchant: { code: { in: ["SHOPEE", "MERCADO_LIVRE"] } },
-      },
-    }),
-    prisma.affiliateLinkRegistry.count({
-      where: {
-        status: "ACTIVE",
-        merchant: { code: { in: ["SHOPEE", "MERCADO_LIVRE"] } },
-      },
-    }),
-    prisma.merchantListing.count({
-      where: {
-        active: true,
-        merchant: { code: { in: ["SHOPEE", "MERCADO_LIVRE"] } },
-        signals: { none: { source: "mercado_livre_catalog_items" } },
-        OR: [
-          { affiliateLink: { is: null } },
-          { affiliateLink: { is: { status: { not: "ACTIVE" } } } },
-        ],
-      },
-    }),
-    prisma.affiliateClick.count({
-      where: {
-        createdAt: { gte: since },
-        merchant: { code: { in: ["SHOPEE", "MERCADO_LIVRE"] } },
-      },
-    }),
-    prisma.merchant.findMany({
-      where: { active: true, code: { in: ["SHOPEE", "MERCADO_LIVRE"] } },
-      select: { code: true },
-    }),
-  ]);
+  const [newListingsToday, activeLinks, pendingLinks, affiliateClicksToday, activeMerchants] =
+    await Promise.all([
+      prisma.merchantListing.count({
+        where: { createdAt: { gte: since }, merchant: { code: { in: ["SHOPEE", "MERCADO_LIVRE"] } } },
+      }),
+      prisma.affiliateLinkRegistry.count({
+        where: { status: "ACTIVE", merchant: { code: { in: ["SHOPEE", "MERCADO_LIVRE"] } } },
+      }),
+      prisma.merchantListing.count({
+        where: {
+          active: true,
+          merchant: { code: "MERCADO_LIVRE" },
+          monetizationScore: { isNot: null },
+          OR: [{ affiliateLink: { is: null } }, { affiliateLink: { isNot: null, is: { status: { not: "ACTIVE" } } } }],
+        },
+      }),
+      prisma.affiliateClick.count({
+        where: { createdAt: { gte: since }, merchant: { code: { in: ["SHOPEE", "MERCADO_LIVRE"] } } },
+      }),
+      prisma.merchant.findMany({
+        where: { active: true, code: { in: ["SHOPEE", "MERCADO_LIVRE"] } },
+        select: { code: true },
+      }),
+    ]);
 
   return {
     newListingsToday,
     activeLinks,
-    listingsWithoutActiveLink,
+    pendingLinks,
     affiliateClicksToday,
     activeMerchants: activeMerchants.map((m) => m.code),
   };

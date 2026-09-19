@@ -6,7 +6,6 @@ import {
   getAmazonMarketplaceConfig,
 } from "@/lib/config/marketplaces";
 import type { MarketplaceCode } from "@/types/marketplace";
-import { getMerchantPublicationReadinessSummary } from "@/lib/queries/public-product";
 
 function startOfToday(): Date {
   const d = new Date();
@@ -18,130 +17,121 @@ function daysAgo(days: number): Date {
   return new Date(Date.now() - days * 24 * 60 * 60 * 1000);
 }
 
-export async function getTodayStats() {
+/**
+ * These operational widgets (today/week/priority/traffic) are scoped to
+ * PRIMARY_PUBLIC_MARKETPLACE (BR) rather than left global — with only BR
+ * enabled today this is a no-op filter, but it stops the numbers from
+ * silently starting to blend in US rows the moment a second marketplace
+ * gets any data (project brief Sprint 4 section 10). Per-marketplace
+ * catalog detail lives in getCatalogSnapshot() below.
+ */
+export async function getTodayStats(marketplace: MarketplaceCode = PRIMARY_PUBLIC_MARKETPLACE) {
   const since = startOfToday();
 
   const [
-    listingsUpdatedToday,
-    pagesPublishedToday,
-    pagesRejectedToday,
-    affiliateClicksToday,
+    productsMonitored,
+    pricesUpdatedToday,
+    pagesPublished,
+    pagesRejected,
+    clicksToday,
     runsToday,
   ] = await Promise.all([
-    prisma.merchantListing.count({
-      where: {
-        active: true,
-        updatedAt: { gte: since },
-        merchant: { code: { in: ["SHOPEE", "MERCADO_LIVRE"] } },
-      },
-    }),
-    prisma.generatedContent.count({
-      where: { status: "PUBLISHED", publishedAt: { gte: since } },
-    }),
-    prisma.generatedContent.count({
-      where: { status: "REJECTED", updatedAt: { gte: since } },
-    }),
-    prisma.affiliateClick.count({ where: { createdAt: { gte: since } } }),
+    prisma.product.count({ where: { marketplace, active: true } }),
+    prisma.offer.count({ where: { observedAt: { gte: since }, product: { marketplace } } }),
+    prisma.generatedContent.count({ where: { status: "PUBLISHED" } }),
+    prisma.generatedContent.count({ where: { status: "REJECTED" } }),
+    prisma.affiliateClick.count({ where: { createdAt: { gte: since }, product: { marketplace } } }),
     prisma.automationRun.findMany({ where: { startedAt: { gte: since } } }),
   ]);
 
+  const dropsDetectedToday = runsToday
+    .filter((r) => r.job === "CALCULATE_OPPORTUNITIES" && r.marketplace === marketplace)
+    .reduce((sum, r) => {
+      const meta = r.metadata as { priceDropsDetected?: number } | null;
+      return sum + (meta?.priceDropsDetected ?? 0);
+    }, 0);
+
   const automationErrorsToday = runsToday.reduce((sum, r) => sum + r.errors, 0);
-  const automationFailedToday = runsToday.filter(
-    (r) => r.status === "FAILED",
-  ).length;
-  const automationPartialToday = runsToday.filter(
-    (r) => r.status === "PARTIAL",
-  ).length;
 
   return {
-    listingsUpdatedToday,
-    pagesPublishedToday,
-    pagesRejectedToday,
-    affiliateClicksToday,
+    productsMonitored,
+    pricesUpdatedToday,
+    dropsDetectedToday,
+    pagesPublished,
+    pagesRejected,
+    clicksToday,
     automationErrorsToday,
-    automationFailedToday,
-    automationPartialToday,
   };
 }
 
-export async function getWeeklyStats() {
+export async function getWeeklyStats(marketplace: MarketplaceCode = PRIMARY_PUBLIC_MARKETPLACE) {
   const since = daysAgo(7);
 
-  const [clicksByPage, failedJobs] = await Promise.all([
-    prisma.affiliateClick.groupBy({
-      by: ["pageType", "pageSlug"],
-      where: { createdAt: { gte: since } },
-      _count: { _all: true },
-      orderBy: { _count: { pageSlug: "desc" } },
-      take: 10,
-    }),
-    prisma.automationRun.findMany({
-      where: {
-        startedAt: { gte: since },
-        status: { in: ["FAILED", "PARTIAL"] },
-      },
-      orderBy: { startedAt: "desc" },
-      take: 10,
+  const [clicksByProduct, clicksByPage, biggestDrops, failedJobs] =
+    await Promise.all([
+      prisma.affiliateClick.groupBy({
+        by: ["productId"],
+        where: { createdAt: { gte: since }, product: { marketplace } },
+        _count: { _all: true },
+        orderBy: { _count: { productId: "desc" } },
+        take: 5,
+      }),
+      prisma.affiliateClick.groupBy({
+        by: ["pageType", "pageSlug"],
+        where: { createdAt: { gte: since }, product: { marketplace } },
+        _count: { _all: true },
+        orderBy: { _count: { pageSlug: "desc" } },
+        take: 5,
+      }),
+      prisma.priceStats.findMany({
+        where: { dropPercentage: { gt: 0 }, product: { marketplace } },
+        orderBy: { dropPercentage: "desc" },
+        take: 5,
+        include: { product: { select: { title: true, slug: true } } },
+      }),
+      prisma.automationRun.findMany({
+        where: { startedAt: { gte: since }, status: "FAILED" },
+        orderBy: { startedAt: "desc" },
+        take: 10,
       }),
     ]);
 
-  const productPageSlugs = clicksByPage
-    .filter((c) => c.pageType === "product")
-    .map((c) => c.pageSlug);
-  const [legacyProducts, canonicals, merchantListings] =
-    productPageSlugs.length > 0
-      ? await Promise.all([
-          prisma.product.findMany({
-            where: { slug: { in: productPageSlugs } },
-            select: { slug: true, title: true },
-          }),
-          prisma.canonicalProduct.findMany({
-            where: { publicSlug: { in: productPageSlugs } },
-            select: { publicSlug: true, title: true },
-          }),
-          prisma.merchantListing.findMany({
-            where: { slug: { in: productPageSlugs } },
-            select: {
-              slug: true,
-              externalId: true,
-              signals: { orderBy: { observedAt: "desc" }, take: 1 },
-            },
-          }),
-        ])
-      : [[], [], []];
-  const titleBySlug = new Map<string, string>();
-  for (const product of legacyProducts) titleBySlug.set(product.slug, product.title);
-  for (const canonical of canonicals) {
-    if (canonical.publicSlug) titleBySlug.set(canonical.publicSlug, canonical.title);
-  }
-  for (const listing of merchantListings) {
-    if (!listing.slug) continue;
-    const raw = listing.signals[0]?.raw as { productName?: string; title?: string } | null | undefined;
-    titleBySlug.set(listing.slug, raw?.productName ?? raw?.title ?? listing.externalId);
-  }
+  // productId is nullable as of 2026-09-07 (Mercado Livre/Shopee clicks
+  // never had a legacy Product row to begin with) — filter those out
+  // rather than querying for a null id.
+  const productIds = clicksByProduct
+    .map((c) => c.productId)
+    .filter((id): id is string => id !== null);
+  const products = await prisma.product.findMany({
+    where: { id: { in: productIds } },
+    select: { id: true, title: true, slug: true },
+  });
+  const productMap = new Map(products.map((p) => [p.id, p]));
+
+  const categoryStrength = await prisma.category.findMany({
+    where: { active: true },
+    include: { _count: { select: { products: { where: { marketplace, active: true } } } } },
+    orderBy: { products: { _count: "desc" } },
+    take: 5,
+  });
 
   return {
-    topProductPagesByClicks: clicksByPage
-      .filter((c) => c.pageType === "product")
-      .slice(0, 5)
-      .map((c) => ({
-        pageType: c.pageType,
-        pageSlug: c.pageSlug,
-        productTitle: titleBySlug.get(c.pageSlug) ?? null,
-        clicks: c._count._all,
-      })),
+    topProductsByClicks: clicksByProduct.map((c) => ({
+      product: c.productId ? productMap.get(c.productId) : undefined,
+      clicks: c._count._all,
+    })),
     topPagesByClicks: clicksByPage.map((c) => ({
       pageType: c.pageType,
       pageSlug: c.pageSlug,
       clicks: c._count._all,
     })),
+    biggestDrops,
     failedJobs,
+    categoryStrength,
   };
 }
 
-export async function getPriorityBreakdown(
-  marketplace: MarketplaceCode = PRIMARY_PUBLIC_MARKETPLACE,
-) {
+export async function getPriorityBreakdown(marketplace: MarketplaceCode = PRIMARY_PUBLIC_MARKETPLACE) {
   const rows = await prisma.product.groupBy({
     by: ["updatePriority"],
     where: { marketplace, active: true },
@@ -154,52 +144,14 @@ export async function getPriorityBreakdown(
 
 export async function getTrafficOverview() {
   const since = startOfToday();
-  const sevenDaysAgo = daysAgo(7);
-  const [
-    pageviews,
-    searches,
-    clicksToday,
-    clicksLast7Days,
-    clicksTodayByMerchant,
-  ] = await Promise.all([
+  const [pageviews, searches, clicks] = await Promise.all([
     prisma.pageView.count({ where: { createdAt: { gte: since } } }),
     prisma.searchEvent.count({ where: { createdAt: { gte: since } } }),
     prisma.affiliateClick.count({ where: { createdAt: { gte: since } } }),
-    prisma.affiliateClick.count({
-      where: { createdAt: { gte: sevenDaysAgo } },
-    }),
-    prisma.affiliateClick.groupBy({
-      by: ["merchantId", "provider"],
-      where: { createdAt: { gte: since } },
-      _count: { _all: true },
-    }),
   ]);
-  const merchantIds = clicksTodayByMerchant
-    .map((row) => row.merchantId)
-    .filter((id): id is string => id !== null);
-  const merchants = await prisma.merchant.findMany({
-    where: { id: { in: merchantIds } },
-    select: { id: true, code: true },
-  });
-  const merchantById = new Map(merchants.map((m) => [m.id, m.code]));
-  const clicksByMerchant = { mercadoLivre: 0, shopee: 0, amazon: 0, other: 0 };
-  for (const row of clicksTodayByMerchant) {
-    const code = row.merchantId
-      ? merchantById.get(row.merchantId)
-      : row.provider;
-    if (code === "MERCADO_LIVRE")
-      clicksByMerchant.mercadoLivre += row._count._all;
-    else if (code === "SHOPEE") clicksByMerchant.shopee += row._count._all;
-    else if (code === "AMAZON") clicksByMerchant.amazon += row._count._all;
-    else clicksByMerchant.other += row._count._all;
-  }
-  return {
-    pageviews,
-    searches,
-    clicksToday,
-    clicksLast7Days,
-    clicksByMerchant,
-  };
+  const ctr =
+    pageviews > 0 ? Math.round((clicks / pageviews) * 1000) / 10 : null;
+  return { pageviews, searches, clicks, ctr };
 }
 
 /** Most recent AutomationRun per job name, for the automation section of
@@ -238,49 +190,17 @@ export async function getLatestJobRuns() {
 }
 
 export async function getSeoStatus() {
-  const [publicationGate, opportunities] = await Promise.all([
-    getMerchantPublicationReadinessSummary(),
+  const [publishable, rejected, noindexed, opportunities] = await Promise.all([
+    prisma.generatedContent.count({
+      where: { status: "PUBLISHED", noindex: false },
+    }),
+    prisma.generatedContent.count({ where: { status: "REJECTED" } }),
+    prisma.generatedContent.count({
+      where: { status: "PUBLISHED", noindex: true },
+    }),
     prisma.searchOpportunity.count({ where: { status: "PENDING" } }),
   ]);
-  return { ...publicationGate, opportunities };
-}
-
-export async function getCurrentCatalogOverview() {
-  const [
-    merchantListingsTotal,
-    mercadoLivreListings,
-    shopeeListings,
-    canonicalProducts,
-    activeAffiliateLinks,
-  ] = await Promise.all([
-    prisma.merchantListing.count({
-      where: {
-        active: true,
-        merchant: { code: { in: ["SHOPEE", "MERCADO_LIVRE"] } },
-      },
-    }),
-    prisma.merchantListing.count({
-      where: { active: true, merchant: { code: "MERCADO_LIVRE" } },
-    }),
-    prisma.merchantListing.count({
-      where: { active: true, merchant: { code: "SHOPEE" } },
-    }),
-    prisma.canonicalProduct.count({ where: { active: true } }),
-    prisma.affiliateLinkRegistry.count({
-      where: {
-        status: "ACTIVE",
-        merchant: { code: { in: ["SHOPEE", "MERCADO_LIVRE"] } },
-      },
-    }),
-  ]);
-
-  return {
-    merchantListingsTotal,
-    mercadoLivreListings,
-    shopeeListings,
-    canonicalProducts,
-    activeAffiliateLinks,
-  };
+  return { publishable, rejected, noindexed, opportunities };
 }
 
 export async function getPrivacyStatus() {
@@ -330,41 +250,29 @@ export interface CatalogSnapshot {
  * honest state, not a bug — `enabled: false` is what the admin UI uses to
  * render it as "disabled" rather than "empty."
  */
-export async function getCatalogSnapshot(
-  marketplace: MarketplaceCode,
-): Promise<CatalogSnapshot> {
+export async function getCatalogSnapshot(marketplace: MarketplaceCode): Promise<CatalogSnapshot> {
   const enabled = getAmazonMarketplaceConfig(marketplace).enabled;
 
-  const [
-    totalProducts,
-    activeProducts,
-    priorityRows,
-    lastRefreshRun,
-    clicksLast7Days,
-  ] = await Promise.all([
-    prisma.product.count({ where: { marketplace } }),
-    prisma.product.count({ where: { marketplace, active: true } }),
-    prisma.product.groupBy({
-      by: ["updatePriority"],
-      where: { marketplace, active: true },
-      _count: { _all: true },
-    }),
-    prisma.automationRun.findFirst({
-      where: {
-        marketplace,
-        job: { in: [...CATALOG_REFRESH_JOBS] },
-        status: "SUCCESS",
-      },
-      orderBy: { finishedAt: "desc" },
-    }),
-    prisma.affiliateClick.count({
-      where: { createdAt: { gte: daysAgo(7) }, product: { marketplace } },
-    }),
-  ]);
+  const [totalProducts, activeProducts, priorityRows, lastRefreshRun, clicksLast7Days] =
+    await Promise.all([
+      prisma.product.count({ where: { marketplace } }),
+      prisma.product.count({ where: { marketplace, active: true } }),
+      prisma.product.groupBy({
+        by: ["updatePriority"],
+        where: { marketplace, active: true },
+        _count: { _all: true },
+      }),
+      prisma.automationRun.findFirst({
+        where: { marketplace, job: { in: [...CATALOG_REFRESH_JOBS] }, status: "SUCCESS" },
+        orderBy: { finishedAt: "desc" },
+      }),
+      prisma.affiliateClick.count({
+        where: { createdAt: { gte: daysAgo(7) }, product: { marketplace } },
+      }),
+    ]);
 
   const priorityBreakdown = { HOT: 0, WARM: 0, COLD: 0 };
-  for (const row of priorityRows)
-    priorityBreakdown[row.updatePriority] = row._count._all;
+  for (const row of priorityRows) priorityBreakdown[row.updatePriority] = row._count._all;
 
   return {
     marketplace,
@@ -388,9 +296,7 @@ export interface UnexpectedCatalogAlert {
  * alerta." Returns one entry per marketplace that has Product rows despite
  * being disabled in config — should always be empty in normal operation.
  */
-export async function getUnexpectedCatalogAlerts(): Promise<
-  UnexpectedCatalogAlert[]
-> {
+export async function getUnexpectedCatalogAlerts(): Promise<UnexpectedCatalogAlert[]> {
   const alerts: UnexpectedCatalogAlert[] = [];
   for (const marketplace of ALL_MARKETPLACES) {
     if (getAmazonMarketplaceConfig(marketplace).enabled) continue;

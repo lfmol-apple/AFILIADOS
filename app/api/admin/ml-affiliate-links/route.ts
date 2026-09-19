@@ -14,22 +14,8 @@ import { logger } from "@/lib/observability/logger";
 
 const bodySchema = z.object({
   merchantListingId: z.string().min(1),
-  affiliateUrl: z.string().min(1).max(2000),
+  affiliateUrl: z.string().url().max(2000),
 });
-
-function normalizePastedUrl(value: string): string {
-  const trimmed = value.trim();
-  if (/^https?:\/\//i.test(trimmed)) {
-    try {
-      const url = new URL(trimmed);
-      url.protocol = "https:";
-      return url.toString();
-    } catch {
-      return trimmed;
-    }
-  }
-  return `https://${trimmed}`;
-}
 
 /**
  * The one write action behind the "Mercado Livre — links pendentes" admin
@@ -65,13 +51,12 @@ export async function POST(request: Request) {
   }
 
   try {
-    const affiliateUrl = normalizePastedUrl(parsed.data.affiliateUrl);
     const saved = await saveManualAffiliateLink({
       merchantListingId: listing.id,
       merchantId: listing.merchantId,
       merchantCode: listing.merchant.code,
       publicUrl: listing.productUrl,
-      affiliateUrl,
+      affiliateUrl: parsed.data.affiliateUrl,
     });
     logger.info("admin.ml_affiliate_link_saved", {
       merchantListingId: listing.id,

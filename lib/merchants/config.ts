@@ -50,7 +50,6 @@ const MERCHANTS: Record<MerchantCode, MerchantPublicConfig> = {
       "mercadolivre.com",
       "www.mercadolivre.com",
       "meli.la",
-      "www.meli.la",
     ],
     affiliateEnabled: true,
   },

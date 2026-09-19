@@ -5,21 +5,14 @@
 export function StatCard({
   label,
   value,
-  helper,
 }: {
   label: string;
   value: number | string;
-  helper?: string;
 }) {
   return (
     <div className="border-border-subtle rounded-lg border p-4">
       <div className="text-foreground/50 text-xs">{label}</div>
       <div className="mt-1 text-2xl font-semibold">{value}</div>
-      {helper && (
-        <div className="text-foreground/50 mt-2 text-xs leading-snug">
-          {helper}
-        </div>
-      )}
     </div>
   );
 }
