@@ -3,11 +3,52 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { UnifiedOfferCard as UnifiedOfferCardData } from "@/lib/queries/unified-offers";
 import { UnifiedOfferCard } from "@/components/unified-offer-card";
+import type { OfferSort, OfferStore } from "@/lib/offers/view";
 
 interface FeedResponse {
   items: UnifiedOfferCardData[];
   page: number;
   hasMore: boolean;
+}
+
+function SkeletonCard() {
+  return (
+    <div
+      aria-hidden
+      className="border-border-subtle bg-background animate-pulse overflow-hidden rounded-2xl border"
+    >
+      <div className="bg-surface-muted aspect-square w-full" />
+      <div className="space-y-3 p-4">
+        <div className="bg-surface-muted h-3 w-11/12 rounded" />
+        <div className="bg-surface-muted h-3 w-2/3 rounded" />
+        <div className="bg-surface-muted mt-4 h-6 w-1/2 rounded" />
+        <div className="bg-surface-muted h-10 w-full rounded-full" />
+      </div>
+    </div>
+  );
+}
+
+/** Appears after scrolling down and jumps back to the top — a long feed is
+ * tiring to climb back out of, especially on a phone. */
+function BackToTop() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setShow(window.scrollY > 1200);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  if (!show) return null;
+  return (
+    <button
+      type="button"
+      aria-label="Voltar ao topo"
+      onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+      className="bg-brand text-brand-foreground fixed right-4 bottom-4 z-30 flex h-12 w-12 items-center justify-center rounded-full text-xl font-bold shadow-lg transition hover:opacity-90 sm:right-6 sm:bottom-6"
+    >
+      ↑
+    </button>
+  );
 }
 
 /**
@@ -16,16 +57,20 @@ interface FeedResponse {
  * /api/ofertas when the sentinel nears the viewport. A "Carregar mais"
  * button is always present as the fallback (keyboard users, IntersectionObserver
  * unavailable, failed request). The parent remounts this component (via
- * `key`) whenever the category changes.
+ * `key`) whenever category, sort or store changes.
  */
 export function OffersInfiniteList({
   initialItems,
   initialHasMore,
   category,
+  sort,
+  store,
 }: {
   initialItems: UnifiedOfferCardData[];
   initialHasMore: boolean;
   category: string | null;
+  sort: OfferSort;
+  store: OfferStore | null;
 }) {
   const [items, setItems] = useState(initialItems);
   const [page, setPage] = useState(1);
@@ -43,6 +88,8 @@ export function OffersInfiniteList({
     try {
       const params = new URLSearchParams({ page: String(page + 1) });
       if (category) params.set("categoria", category);
+      if (sort !== "relevancia") params.set("ordem", sort);
+      if (store) params.set("loja", store);
       const response = await fetch(`/api/ofertas?${params}`);
       if (!response.ok) throw new Error(String(response.status));
       const data = (await response.json()) as FeedResponse;
@@ -61,7 +108,7 @@ export function OffersInfiniteList({
       loadingRef.current = false;
       setLoading(false);
     }
-  }, [page, category]);
+  }, [page, category, sort, store]);
 
   useEffect(() => {
     const node = sentinelRef.current;
@@ -85,7 +132,7 @@ export function OffersInfiniteList({
   if (items.length === 0) {
     return (
       <p className="text-foreground/60 mt-2 text-sm">
-        Nenhuma oferta nesta categoria agora.
+        Nenhuma oferta com esses filtros agora.
       </p>
     );
   }
@@ -96,6 +143,13 @@ export function OffersInfiniteList({
         {items.map((item) => (
           <UnifiedOfferCard key={`${item.merchant}-${item.id}`} item={item} />
         ))}
+        {loading && (
+          <>
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
+          </>
+        )}
       </div>
 
       <div ref={sentinelRef} aria-hidden className="h-px" />
@@ -123,11 +177,12 @@ export function OffersInfiniteList({
         )}
         {!hasMore && (
           <p className="text-foreground/50">
-            Você viu todas as ofertas{category ? " desta categoria" : ""} por
-            enquanto.
+            Você viu todas as ofertas com esses filtros por enquanto.
           </p>
         )}
       </div>
+
+      <BackToTop />
     </div>
   );
 }

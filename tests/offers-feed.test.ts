@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { UnifiedOfferCard } from "@/lib/queries/unified-offers";
-import { countByCategory, paginateOffers } from "@/lib/queries/offers-feed";
+import {
+  countByCategory,
+  paginateOffers,
+  sortOffers,
+} from "@/lib/queries/offers-feed";
 
 function card(id: number, categorySlug: string): UnifiedOfferCard {
   return {
@@ -65,6 +69,70 @@ describe("paginateOffers", () => {
   });
 });
 
+describe("sortOffers and store filter", () => {
+  const mk = (
+    id: number,
+    patch: Partial<UnifiedOfferCard>,
+  ): UnifiedOfferCard => ({ ...card(id, "casa"), ...patch });
+
+  const list = [
+    mk(1, { currentPrice: 50, discountPercent: 0.1, merchant: "SHOPEE" }),
+    mk(2, {
+      currentPrice: null,
+      discountPercent: null,
+      merchant: "MERCADO_LIVRE",
+    }),
+    mk(3, {
+      currentPrice: 20,
+      discountPercent: 0.5,
+      merchant: "MERCADO_LIVRE",
+    }),
+    mk(4, { currentPrice: 20, discountPercent: 0.3, merchant: "SHOPEE" }),
+  ];
+
+  it("keeps the ranked order for 'relevancia'", () => {
+    expect(sortOffers(list, "relevancia").map((c) => c.id)).toEqual([
+      "1",
+      "2",
+      "3",
+      "4",
+    ]);
+  });
+
+  it("sorts by biggest discount, with offers lacking a discount last", () => {
+    expect(sortOffers(list, "desconto").map((c) => c.id)).toEqual([
+      "3",
+      "4",
+      "1",
+      "2",
+    ]);
+  });
+
+  it("sorts by lowest price, stable for ties, with unknown prices last", () => {
+    expect(sortOffers(list, "menor-preco").map((c) => c.id)).toEqual([
+      "3",
+      "4",
+      "1",
+      "2",
+    ]);
+  });
+
+  it("does not mutate its input", () => {
+    const before = list.map((c) => c.id);
+    sortOffers(list, "menor-preco");
+    expect(list.map((c) => c.id)).toEqual(before);
+  });
+
+  it("filters by store before paging and combines with category and sort", () => {
+    const res = paginateOffers(list, { store: "shopee", sort: "menor-preco" });
+    expect(res.items.map((c) => c.id)).toEqual(["4", "1"]);
+    expect(res.total).toBe(2);
+    expect(
+      paginateOffers(list, { store: "mercado-livre", category: "pet" }).total,
+    ).toBe(0);
+  });
+});
+
 describe("countByCategory", () => {
   it("lists only non-empty categories, biggest first, 'outros' last", () => {
     const extraPets = Array.from({ length: 5 }, (_, i) => card(200 + i, "pet"));
@@ -96,6 +164,35 @@ describe("GET /api/ofertas", () => {
     ).toBe(400);
   });
 
+  it("rejects an unknown sort or store", async () => {
+    vi.doMock("@/lib/queries/offers-feed", () => ({ listOffers: vi.fn() }));
+    const { GET } = await import("@/app/api/ofertas/route");
+    expect(
+      (await GET(new Request("http://x/api/ofertas?ordem=barato"))).status,
+    ).toBe(400);
+    expect(
+      (await GET(new Request("http://x/api/ofertas?loja=amazonia"))).status,
+    ).toBe(400);
+  });
+
+  it("passes sort and store through to the feed", async () => {
+    const listOffers = vi.fn(async () => ({
+      items: [],
+      page: 1,
+      total: 0,
+      hasMore: false,
+    }));
+    vi.doMock("@/lib/queries/offers-feed", () => ({ listOffers }));
+    const { GET } = await import("@/app/api/ofertas/route");
+    await GET(new Request("http://x/api/ofertas?ordem=desconto&loja=shopee"));
+    expect(listOffers).toHaveBeenCalledWith({
+      category: undefined,
+      sort: "desconto",
+      store: "shopee",
+      page: 1,
+    });
+  });
+
   it("passes a valid category and page to the feed", async () => {
     const listOffers = vi.fn(async () => ({
       items: [],
@@ -109,6 +206,11 @@ describe("GET /api/ofertas", () => {
       new Request("http://x/api/ofertas?categoria=pet&page=2"),
     );
     expect(res.status).toBe(200);
-    expect(listOffers).toHaveBeenCalledWith({ category: "pet", page: 2 });
+    expect(listOffers).toHaveBeenCalledWith({
+      category: "pet",
+      sort: undefined,
+      store: undefined,
+      page: 2,
+    });
   });
 });

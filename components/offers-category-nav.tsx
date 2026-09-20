@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { CategoryCount } from "@/lib/queries/offers-feed";
+import { offersHref, type OffersView } from "@/lib/offers/view";
 
 /** One accent dot per category so the list scans by color as well as by
  * label. Spelled out in full so Tailwind can see every class. */
@@ -27,13 +28,14 @@ const DOT: Record<string, string> = {
  */
 export function OffersCategoryNav({
   categories,
-  active,
+  view,
   total,
 }: {
   categories: CategoryCount[];
-  active: string | null;
+  view: OffersView;
   total: number;
 }) {
+  const active = view.category;
   const items = [
     { slug: null as string | null, label: "Todas", count: total },
     ...categories.map((c) => ({
@@ -55,9 +57,7 @@ export function OffersCategoryNav({
             return (
               <li key={item.slug ?? "todas"} className="shrink-0">
                 <Link
-                  href={
-                    item.slug ? `/ofertas?categoria=${item.slug}` : "/ofertas"
-                  }
+                  href={offersHref(view, { category: item.slug })}
                   aria-current={isActive ? "page" : undefined}
                   scroll={false}
                   className={`flex min-h-11 items-center gap-2.5 rounded-full px-3.5 text-sm whitespace-nowrap transition lg:min-h-10 lg:rounded-xl lg:whitespace-normal ${

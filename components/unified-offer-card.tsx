@@ -37,6 +37,12 @@ export function UnifiedOfferCard({ item }: { item: UnifiedOfferCardData }) {
     item.discountPercent !== null && item.discountPercent > 0
       ? Math.round(item.discountPercent * 100)
       : null;
+  const saving =
+    item.currentPrice !== null &&
+    item.referencePrice !== null &&
+    item.referencePrice > item.currentPrice
+      ? item.referencePrice - item.currentPrice
+      : null;
   const meta = [
     item.rating !== null ? `★ ${item.rating.toFixed(1)}` : null,
     item.soldQuantity !== null
@@ -103,6 +109,12 @@ export function UnifiedOfferCard({ item }: { item: UnifiedOfferCardData }) {
               )}
             </div>
             <p className="text-foreground/60 mt-1 min-h-5 text-xs">
+              {saving !== null && (
+                <span className="font-semibold text-emerald-700 dark:text-emerald-400">
+                  Economize {brl(saving)}
+                </span>
+              )}
+              {saving !== null && meta.length > 0 && " · "}
               {meta.join(" · ")}
             </p>
 

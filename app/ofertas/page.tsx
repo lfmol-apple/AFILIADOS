@@ -12,15 +12,14 @@ import {
 import { UnifiedOfferCard } from "@/components/unified-offer-card";
 import { OffersCategoryNav } from "@/components/offers-category-nav";
 import { OffersInfiniteList } from "@/components/offers-infinite-list";
+import { OffersToolbar } from "@/components/offers-toolbar";
+import { parseOffersView } from "@/lib/offers/view";
 import {
   getOfferCategoryCounts,
   getOffersPool,
   listOffers,
 } from "@/lib/queries/offers-feed";
-import {
-  isOfferCategorySlug,
-  offerCategoryLabel,
-} from "@/lib/offers/categories";
+import { offerCategoryLabel } from "@/lib/offers/categories";
 
 export const revalidate = 300;
 
@@ -130,16 +129,15 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
   // each merchant's own real, commission-free opportunity signal. Never
   // three separate "Achados X" sections (project brief). The category
   // column filters that same feed; it never re-ranks it.
-  const rawCategory =
-    typeof searchParams?.categoria === "string" ? searchParams.categoria : null;
-  const category =
-    rawCategory && isOfferCategorySlug(rawCategory) ? rawCategory : null;
+  const view = parseOffersView(searchParams ?? {});
+  const category = view.category;
 
   const [firstPage, categories, pool] = await Promise.all([
-    listOffers({ category, page: 1 }),
-    getOfferCategoryCounts(),
+    listOffers({ category, sort: view.sort, store: view.store, page: 1 }),
+    getOfferCategoryCounts(view.store),
     getOffersPool(),
   ]);
+  const visibleTotal = categories.reduce((sum, c) => sum + c.count, 0);
 
   const title = category
     ? offerCategoryLabel(category)
@@ -201,15 +199,24 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
         <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-8">
           <OffersCategoryNav
             categories={categories}
-            active={category}
-            total={pool.length}
+            view={view}
+            total={visibleTotal}
           />
-          <OffersInfiniteList
-            key={category ?? "todas"}
-            initialItems={firstPage.items}
-            initialHasMore={firstPage.hasMore}
-            category={category}
-          />
+          <div className="min-w-0">
+            <OffersToolbar
+              view={view}
+              total={firstPage.total}
+              stores={Array.from(new Set(pool.map((c) => c.merchant)))}
+            />
+            <OffersInfiniteList
+              key={`${category ?? "todas"}|${view.sort}|${view.store ?? "todas"}`}
+              initialItems={firstPage.items}
+              initialHasMore={firstPage.hasMore}
+              category={category}
+              sort={view.sort}
+              store={view.store}
+            />
+          </div>
         </div>
       )}
     </div>

@@ -11,6 +11,11 @@ import {
   isOfferCategorySlug,
   offerCategoryLabel,
 } from "@/lib/offers/categories";
+import {
+  storeToMerchant,
+  type OfferSort,
+  type OfferStore,
+} from "@/lib/offers/view";
 
 /**
  * Paginated, category-filterable feed behind /ofertas (infinite scroll).
@@ -72,19 +77,54 @@ export interface OffersPage {
   hasMore: boolean;
 }
 
-/** Pure paging/filtering over an already ranked list. */
+/** Stable sort; offers missing the sort key go last instead of first. */
+export function sortOffers(
+  cards: UnifiedOfferCard[],
+  sort: OfferSort,
+): UnifiedOfferCard[] {
+  if (sort === "relevancia") return cards;
+  const key = (c: UnifiedOfferCard): number | null =>
+    sort === "desconto"
+      ? c.discountPercent !== null && c.discountPercent > 0
+        ? -c.discountPercent
+        : null
+      : c.currentPrice;
+  return cards
+    .map((card, index) => ({ card, index, k: key(card) }))
+    .sort((a, b) => {
+      if (a.k === null && b.k === null) return a.index - b.index;
+      if (a.k === null) return 1;
+      if (b.k === null) return -1;
+      return a.k - b.k || a.index - b.index;
+    })
+    .map((x) => x.card);
+}
+
+/** Pure filtering, sorting and paging over an already ranked list. */
 export function paginateOffers(
   cards: UnifiedOfferCard[],
-  options: { category?: string | null; page?: number; pageSize?: number },
+  options: {
+    category?: string | null;
+    sort?: OfferSort;
+    store?: OfferStore | null;
+    page?: number;
+    pageSize?: number;
+  },
 ): OffersPage {
   const pageSize = options.pageSize ?? FEED_PAGE_SIZE;
   const category =
     options.category && isOfferCategorySlug(options.category)
       ? options.category
       : null;
-  const filtered = category
-    ? cards.filter((c) => c.categorySlug === category)
-    : cards;
+  const merchant = storeToMerchant(options.store ?? null);
+  const filtered = sortOffers(
+    cards.filter(
+      (c) =>
+        (!category || c.categorySlug === category) &&
+        (!merchant || c.merchant === merchant),
+    ),
+    options.sort ?? "relevancia",
+  );
   const page = Math.max(1, Math.floor(options.page ?? 1));
   const start = (page - 1) * pageSize;
   const items = filtered.slice(start, start + pageSize);
@@ -98,6 +138,8 @@ export function paginateOffers(
 
 export async function listOffers(options: {
   category?: string | null;
+  sort?: OfferSort;
+  store?: OfferStore | null;
   page?: number;
 }): Promise<OffersPage> {
   return paginateOffers(await getOffersPool(), options);
@@ -129,6 +171,13 @@ export function countByCategory(cards: UnifiedOfferCard[]): CategoryCount[] {
     });
 }
 
-export async function getOfferCategoryCounts(): Promise<CategoryCount[]> {
-  return countByCategory(await getOffersPool());
+/** Counts reflect the store filter, so the numbers match what a click shows. */
+export async function getOfferCategoryCounts(
+  store: OfferStore | null = null,
+): Promise<CategoryCount[]> {
+  const merchant = storeToMerchant(store);
+  const pool = await getOffersPool();
+  return countByCategory(
+    merchant ? pool.filter((c) => c.merchant === merchant) : pool,
+  );
 }
