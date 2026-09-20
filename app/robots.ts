@@ -2,20 +2,19 @@ import type { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/config/site";
 import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 import { listIndexableMerchantProductUrls } from "@/lib/queries/public-product";
+import { isOffersPageIndexable } from "@/lib/seo/offers-indexability";
 
 // Generated purely from Amazon-sourced data (see app/sitemap.ts's
 // categoryEntries/contentEntries) — no ML/Shopee equivalent exists, so
 // these stay gated on currentlyVisibleDataSources() alone.
 const AMAZON_ONLY_CATALOG_PATHS = ["/categorias/", "/melhores/", "/comparar/"];
 
-// Shared between Amazon and ML/Shopee (merchant product pages live under
-// /produto/, and /ofertas is the cross-merchant vitrine) — must stay open
-// whenever EITHER side has something real to show, same reasoning as
-// app/sitemap.ts's merchantProductEntries (fix(seo): decouple merchant
-// sitemap from Amazon catalog gate): the Amazon gate has no bearing on
-// MerchantListing, so a closed Amazon catalog must never hide an
-// otherwise-legitimate ML/Shopee page from crawling.
-const SHARED_CATALOG_PATHS = ["/produto/", "/ofertas"];
+// Product pages and /ofertas have independent merchant-side gates. The
+// Amazon catalog gate has no bearing on MerchantListing, so a closed
+// Amazon catalog must never hide otherwise-legitimate ML/Shopee surfaces
+// from crawling.
+const SHARED_PRODUCT_PATH = "/produto/";
+const OFFERS_PATH = "/ofertas";
 
 // Without this, Next.js prerenders robots.txt once at build time and caches
 // it indefinitely — PUBLIC_CATALOG_ENABLED/MANUAL_PRODUCTS_ENABLED are
@@ -49,10 +48,12 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
   // already generating real public pages. Ask what's actually indexable
   // instead of trusting the Amazon-only flag.
   if (!amazonVisible) {
-    const merchantUrls = await listIndexableMerchantProductUrls();
-    if (merchantUrls.length === 0) {
-      disallow.push(...SHARED_CATALOG_PATHS);
-    }
+    const [merchantUrls, offersIndexable] = await Promise.all([
+      listIndexableMerchantProductUrls(),
+      isOffersPageIndexable(),
+    ]);
+    if (merchantUrls.length === 0) disallow.push(SHARED_PRODUCT_PATH);
+    if (!offersIndexable) disallow.push(OFFERS_PATH);
   }
 
   return {

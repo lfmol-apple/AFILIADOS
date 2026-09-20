@@ -6,6 +6,7 @@ import { PRIMARY_PUBLIC_MARKETPLACE } from "@/lib/config/marketplaces";
 import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 import { GUIDES } from "@/lib/editorial/guides";
 import { listIndexableMerchantProductUrls } from "@/lib/queries/public-product";
+import { isOffersPageIndexable } from "@/lib/seo/offers-indexability";
 
 // force-dynamic (not just `revalidate`) because PUBLIC_CATALOG_ENABLED/
 // MANUAL_PRODUCTS_ENABLED are runtime-only env vars, never set during
@@ -20,7 +21,6 @@ export const dynamic = "force-dynamic";
  * regardless of how the merchant/Amazon gates evaluate. */
 export const STATIC_ROUTE_PATHS = [
   "",
-  "/ofertas",
   "/achados",
   "/guias",
   "/transparencia",
@@ -50,11 +50,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // in production), so we must ask what's *actually* visible, not just
   // whether the mock-provider catalog is.
   const visibleDataSources = currentlyVisibleDataSources();
-  const staticEntries: MetadataRoute.Sitemap = STATIC_ROUTE_PATHS.map((path) => ({
+  const routeEntry = (path: string): MetadataRoute.Sitemap[number] => ({
     url: `${siteConfig.url}${path}`,
     changeFrequency: path === "" || path === "/ofertas" ? "daily" : "monthly",
     priority: path === "" ? 1 : 0.5,
-  }));
+  });
+  const staticEntries: MetadataRoute.Sitemap =
+    STATIC_ROUTE_PATHS.map(routeEntry);
+  const offersEntries: MetadataRoute.Sitemap = (await isOffersPageIndexable())
+    ? [routeEntry("/ofertas")]
+    : [];
   const guideEntries: MetadataRoute.Sitemap = GUIDES.map((guide) => ({
     url: `${siteConfig.url}/guias/${guide.slug}`,
     lastModified: guide.updatedAt,
@@ -73,15 +78,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // pre-production audit: the previous early return below skipped this
   // call entirely whenever visibleDataSources was empty).
   const merchantProductUrls = await listIndexableMerchantProductUrls();
-  const merchantProductEntries: MetadataRoute.Sitemap = merchantProductUrls.map((p) => ({
-    url: `${siteConfig.url}/produto/${p.slug}`,
-    lastModified: p.lastModified,
-    changeFrequency: "daily" as const,
-    priority: 0.7,
-  }));
+  const merchantProductEntries: MetadataRoute.Sitemap = merchantProductUrls.map(
+    (p) => ({
+      url: `${siteConfig.url}/produto/${p.slug}`,
+      lastModified: p.lastModified,
+      changeFrequency: "daily" as const,
+      priority: 0.7,
+    }),
+  );
 
   if (visibleDataSources.length === 0) {
-    return [...staticEntries, ...guideEntries, ...merchantProductEntries];
+    return [
+      ...staticEntries,
+      ...offersEntries,
+      ...guideEntries,
+      ...merchantProductEntries,
+    ];
   }
 
   const [products, categories, content] = await Promise.all([
@@ -160,6 +172,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...staticEntries,
+    ...offersEntries,
     ...guideEntries,
     ...productEntries,
     ...merchantProductEntries,

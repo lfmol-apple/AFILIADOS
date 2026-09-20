@@ -5,10 +5,8 @@ import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { recordSearchEvent } from "@/lib/analytics/search-event";
 import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 import type { PagePropsWithSearch } from "@/lib/next-route-types";
-import {
-  getUnifiedMerchantOffers,
-  searchUnifiedOffers,
-} from "@/lib/queries/unified-offers";
+import { searchUnifiedOffers } from "@/lib/queries/unified-offers";
+import { isOffersPageIndexable } from "@/lib/seo/offers-indexability";
 import { UnifiedOfferCard } from "@/components/unified-offer-card";
 import { OffersCategoryNav } from "@/components/offers-category-nav";
 import { OffersInfiniteList } from "@/components/offers-infinite-list";
@@ -34,9 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
   // only knows about Amazon — /ofertas must also stay indexable whenever
   // real Mercado Livre/Shopee offers are showing, regardless of the
   // Amazon gate. Ask what's actually indexable, not just the Amazon flag.
-  const catalogSafe =
-    currentlyVisibleDataSources().length > 0 ||
-    (await getUnifiedMerchantOffers(1)).length > 0;
+  const indexable = await isOffersPageIndexable();
   return {
     title: "Ofertas",
     description:
@@ -45,7 +41,7 @@ export async function generateMetadata(): Promise<Metadata> {
     // Pre-launch (or every data-source gate closed) — the page stays
     // reachable (it's a listing, not a specific fabricated price), but must
     // never be indexed while nothing real is currently visible.
-    robots: catalogSafe ? undefined : { index: false, follow: true },
+    robots: indexable ? undefined : { index: false, follow: true },
   };
 }
 
