@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
+import { isOwnerRequest } from "@/lib/admin/owner-traffic";
 
 const schema = z.object({
   pageType: z.string().min(1).max(50),
@@ -38,6 +39,11 @@ export async function POST(request: Request) {
       { error: "Invalid request body" },
       { status: 400 },
     );
+  }
+
+  // The owner browsing while logged in to /admin must not count as traffic.
+  if (await isOwnerRequest(request)) {
+    return NextResponse.json({ ok: true, stored: false });
   }
 
   const { referrer, ...rest } = parsed.data;

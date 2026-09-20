@@ -5,6 +5,7 @@ import {
 } from "@/lib/services/affiliate-redirect";
 import { logger } from "@/lib/observability/logger";
 import type { MarketplaceCode } from "@/types/marketplace";
+import { OWNER_CLICK_MEDIUM } from "@/lib/admin/owner-traffic";
 
 export type GoAmazonResult =
   | { status: "redirect"; destination: string }
@@ -38,6 +39,9 @@ export async function handleGoAmazonRequest(
   marketplace: MarketplaceCode,
   asin: string,
   searchParams: URLSearchParams,
+  /** True when the request carries a valid admin session (see
+   * lib/admin/owner-traffic.ts) — the click is kept but tagged. */
+  isOwner = false,
 ): Promise<GoAmazonResult> {
   const product = await prisma.product.findUnique({
     where: {
@@ -95,6 +99,7 @@ export async function handleGoAmazonRequest(
         pageType: searchParams.get("pageType") ?? "unknown",
         pageSlug: searchParams.get("pageSlug") ?? product.slug,
         source: searchParams.get("source") ?? undefined,
+        medium: isOwner ? OWNER_CLICK_MEDIUM : undefined,
         campaign: searchParams.get("campaign") ?? undefined,
       },
     });

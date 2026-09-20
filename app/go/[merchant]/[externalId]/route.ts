@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { resolveMerchantRedirect } from "@/lib/services/merchant-redirect";
+import { isOwnerRequest } from "@/lib/admin/owner-traffic";
 
 export async function GET(
   request: Request,
@@ -11,6 +12,7 @@ export async function GET(
     merchant,
     externalId,
     searchParams: url.searchParams,
+    isOwner: await isOwnerRequest(request),
   });
 
   if (result.status === "error") {

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { isMarketplaceCode } from "@/lib/config/marketplaces";
 import { handleGoAmazonRequest } from "@/lib/services/go-amazon-handler";
+import { isOwnerRequest } from "@/lib/admin/owner-traffic";
 import type { RouteParams } from "@/lib/next-route-types";
 
 /**
@@ -46,6 +47,7 @@ export async function GET(
     marketplace,
     asin,
     url.searchParams,
+    await isOwnerRequest(request),
   );
 
   if (result.status === "error") {

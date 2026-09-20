@@ -78,7 +78,8 @@ export default async function PerformanceDashboardPage() {
           <h1 className="text-2xl font-semibold">Desempenho</h1>
           <p className="text-foreground/50 mt-1 text-sm">
             Cliques afiliados, tráfego e saúde da automação — dados reais, sem
-            estimativa de comissão/conversão.
+            estimativa de comissão/conversão. Seus próprios cliques e visitas
+            (feitos logado no admin) não entram na conta.
           </p>
         </div>
         <a

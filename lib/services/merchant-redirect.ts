@@ -12,6 +12,7 @@ import {
 } from "@/lib/merchants/config";
 import { logger } from "@/lib/observability/logger";
 import type { CommerceProviderName } from "@prisma/client";
+import { OWNER_CLICK_MEDIUM } from "@/lib/admin/owner-traffic";
 
 export type MerchantRedirectResult =
   | { status: "redirect"; destination: string }
@@ -29,6 +30,9 @@ export async function resolveMerchantRedirect(input: {
   merchant: string;
   externalId: string;
   searchParams: URLSearchParams;
+  /** True when the request carries a valid admin session — the click is
+   * still recorded but tagged so admin reports can exclude it. */
+  isOwner?: boolean;
 }): Promise<MerchantRedirectResult> {
   if (!isMerchantCode(input.merchant)) {
     return {
@@ -54,6 +58,7 @@ async function resolveAmazonRedirect(input: {
   merchant: "amazon";
   externalId: string;
   searchParams: URLSearchParams;
+  isOwner?: boolean;
 }): Promise<MerchantRedirectResult> {
   try {
     const marketplaceParam = input.searchParams.get("marketplace");
@@ -99,6 +104,7 @@ async function resolveAmazonRedirect(input: {
           pageType: input.searchParams.get("pageType") ?? "unknown",
           pageSlug: input.searchParams.get("pageSlug") ?? product.slug,
           source: input.searchParams.get("source") ?? undefined,
+          medium: input.isOwner ? OWNER_CLICK_MEDIUM : undefined,
           campaign: input.searchParams.get("campaign") ?? undefined,
         },
       });
@@ -136,6 +142,7 @@ async function resolveGenericMerchantRedirect(input: {
   merchant: Exclude<MerchantCode, "amazon">;
   externalId: string;
   searchParams: URLSearchParams;
+  isOwner?: boolean;
 }): Promise<MerchantRedirectResult> {
   const provider = MERCHANT_TO_PROVIDER[input.merchant];
   if (!provider) {
@@ -178,7 +185,9 @@ async function resolveGenericMerchantRedirect(input: {
         pageType: input.searchParams.get("pageType") ?? "unknown",
         pageSlug: input.searchParams.get("pageSlug") ?? listing.externalId,
         source: input.searchParams.get("source") ?? undefined,
-        medium: input.searchParams.get("medium") ?? undefined,
+        medium: input.isOwner
+          ? OWNER_CLICK_MEDIUM
+          : (input.searchParams.get("medium") ?? undefined),
         campaign: input.searchParams.get("campaign") ?? undefined,
       },
     });

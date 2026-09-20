@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { REAL_VISITOR_CLICKS_SQL, realClicks } from "@/lib/admin/owner-traffic";
 
 /**
  * Read-only click/traffic reporting for /admin/desempenho and the daily
@@ -36,7 +37,7 @@ export async function getClicksDailyByMerchant(
            count(*) as clicks
     from "AffiliateClick" ac
     left join "Merchant" m on m.id = ac."merchantId"
-    where ac."createdAt" >= ${since}
+    where ac."createdAt" >= ${since} and ${REAL_VISITOR_CLICKS_SQL}
     group by 1, 2
     order by 1, 2
   `;
@@ -110,7 +111,7 @@ export async function getTopProductsByClicks(
     left join "CanonicalProduct" cp on cp.id = ac."canonicalProductId"
     left join "Product" p on p.id = ac."productId"
     left join "MerchantListing" ml on ml.id = ac."merchantListingId"
-    where ac."createdAt" >= ${since}
+    where ac."createdAt" >= ${since} and ${REAL_VISITOR_CLICKS_SQL}
     group by 1, 2
     order by clicks desc
     limit ${limit}
@@ -140,9 +141,9 @@ export async function getClickSourceBreakdown(
   const rows = await prisma.$queryRaw<
     { source: string | null; page_type: string; clicks: bigint }[]
   >`
-    select source, "pageType" as page_type, count(*) as clicks
-    from "AffiliateClick"
-    where "createdAt" >= ${since}
+    select ac.source, ac."pageType" as page_type, count(*) as clicks
+    from "AffiliateClick" ac
+    where ac."createdAt" >= ${since} and ${REAL_VISITOR_CLICKS_SQL}
     group by 1, 2
     order by clicks desc
   `;
@@ -220,16 +221,18 @@ export async function getPerformanceSummary(): Promise<PerformanceSummary> {
     pendingLinksMl,
   ] = await Promise.all([
     prisma.affiliateClick.count({
-      where: { createdAt: { gte: sevenDaysAgo } },
+      where: realClicks({ createdAt: { gte: sevenDaysAgo } }),
     }),
     prisma.affiliateClick.count({
-      where: { createdAt: { gte: fourteenDaysAgo, lt: sevenDaysAgo } },
+      where: realClicks({
+        createdAt: { gte: fourteenDaysAgo, lt: sevenDaysAgo },
+      }),
     }),
     prisma.pageView.count({ where: { createdAt: { gte: sevenDaysAgo } } }),
     prisma.pageView.count({
       where: { createdAt: { gte: fourteenDaysAgo, lt: sevenDaysAgo } },
     }),
-    prisma.affiliateClick.count(),
+    prisma.affiliateClick.count({ where: realClicks() }),
     prisma.pageView.count(),
     prisma.affiliateLinkRegistry.count({
       where: { status: "ACTIVE", merchant: { code: "MERCADO_LIVRE" } },

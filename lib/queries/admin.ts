@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { realClicks } from "@/lib/admin/owner-traffic";
 import { getRemarketingProvider } from "@/lib/remarketing";
 import {
   ALL_MARKETPLACES,
@@ -40,7 +41,9 @@ export async function getTodayStats(marketplace: MarketplaceCode = PRIMARY_PUBLI
     prisma.offer.count({ where: { observedAt: { gte: since }, product: { marketplace } } }),
     prisma.generatedContent.count({ where: { status: "PUBLISHED" } }),
     prisma.generatedContent.count({ where: { status: "REJECTED" } }),
-    prisma.affiliateClick.count({ where: { createdAt: { gte: since }, product: { marketplace } } }),
+    prisma.affiliateClick.count({
+      where: realClicks({ createdAt: { gte: since }, product: { marketplace } }),
+    }),
     prisma.automationRun.findMany({ where: { startedAt: { gte: since } } }),
   ]);
 
@@ -71,21 +74,21 @@ export async function getWeeklyStats(marketplace: MarketplaceCode = PRIMARY_PUBL
     await Promise.all([
       prisma.affiliateClick.groupBy({
         by: ["productId"],
-        where: { createdAt: { gte: since }, product: { marketplace } },
+        where: realClicks({ createdAt: { gte: since }, product: { marketplace } }),
         _count: { _all: true },
         orderBy: { _count: { productId: "desc" } },
         take: 5,
       }),
       prisma.affiliateClick.groupBy({
         by: ["pageSlug"],
-        where: { createdAt: { gte: since }, pageType: "product" },
+        where: realClicks({ createdAt: { gte: since }, pageType: "product" }),
         _count: { _all: true },
         orderBy: { _count: { pageSlug: "desc" } },
         take: 5,
       }),
       prisma.affiliateClick.groupBy({
         by: ["pageType", "pageSlug"],
-        where: { createdAt: { gte: since } },
+        where: realClicks({ createdAt: { gte: since } }),
         _count: { _all: true },
         orderBy: { _count: { pageSlug: "desc" } },
         take: 5,
@@ -191,7 +194,7 @@ export async function getTrafficOverview() {
   const [pageviews, searches, clicks] = await Promise.all([
     prisma.pageView.count({ where: { createdAt: { gte: since } } }),
     prisma.searchEvent.count({ where: { createdAt: { gte: since } } }),
-    prisma.affiliateClick.count({ where: { createdAt: { gte: since } } }),
+    prisma.affiliateClick.count({ where: realClicks({ createdAt: { gte: since } }) }),
   ]);
   const ctr =
     pageviews > 0 ? Math.round((clicks / pageviews) * 1000) / 10 : null;
@@ -311,7 +314,7 @@ export async function getCatalogSnapshot(marketplace: MarketplaceCode): Promise<
         orderBy: { finishedAt: "desc" },
       }),
       prisma.affiliateClick.count({
-        where: { createdAt: { gte: daysAgo(7) }, product: { marketplace } },
+        where: realClicks({ createdAt: { gte: daysAgo(7) }, product: { marketplace } }),
       }),
     ]);
 

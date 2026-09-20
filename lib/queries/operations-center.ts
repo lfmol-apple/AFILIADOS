@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { realClicks } from "@/lib/admin/owner-traffic";
 
 /**
  * "Centro de Operações" — /admin's answer to "o que eu preciso fazer hoje
@@ -164,7 +165,10 @@ export async function getOperationsSummary(): Promise<OperationsSummary> {
         },
       }),
       prisma.affiliateClick.count({
-        where: { createdAt: { gte: since }, merchant: { code: { in: ["SHOPEE", "MERCADO_LIVRE"] } } },
+        where: realClicks({
+          createdAt: { gte: since },
+          merchant: { code: { in: ["SHOPEE", "MERCADO_LIVRE"] } },
+        }),
       }),
       prisma.merchant.findMany({
         where: { active: true, code: { in: ["SHOPEE", "MERCADO_LIVRE"] } },

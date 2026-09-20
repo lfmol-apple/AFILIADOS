@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { realClicks } from "@/lib/admin/owner-traffic";
 
 export interface AmazonApiPathSnapshot {
   clicksLast30d: number;
@@ -16,9 +17,11 @@ export async function getAmazonApiPathSnapshot(): Promise<AmazonApiPathSnapshot>
   const [clicksLast30d, clicksTotal, sourceRows, activeRows, publishedGuides] =
     await Promise.all([
       prisma.affiliateClick.count({
-        where: { provider: "AMAZON", createdAt: { gte: since } },
+        where: realClicks({ provider: "AMAZON", createdAt: { gte: since } }),
       }),
-      prisma.affiliateClick.count({ where: { provider: "AMAZON" } }),
+      prisma.affiliateClick.count({
+        where: realClicks({ provider: "AMAZON" }),
+      }),
       prisma.product.groupBy({
         by: ["dataSource"],
         where: { marketplace: "BR", provider: "AMAZON" },

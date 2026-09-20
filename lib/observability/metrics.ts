@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { realClicks } from "@/lib/admin/owner-traffic";
 
 export interface InternalMetrics {
   jobFailures24h: number;
@@ -29,7 +30,7 @@ export async function getInternalMetrics(): Promise<InternalMetrics> {
         },
       }),
       prisma.generatedContent.count({ where: { status: "REJECTED" } }),
-      prisma.affiliateClick.count({ where: { createdAt: { gte: since } } }),
+      prisma.affiliateClick.count({ where: realClicks({ createdAt: { gte: since } }) }),
       prisma.pageView.count({ where: { createdAt: { gte: since } } }),
       prisma.searchEvent.count({ where: { createdAt: { gte: since } } }),
       prisma.searchOpportunity.count({ where: { status: "PENDING" } }),
