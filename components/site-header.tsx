@@ -1,11 +1,9 @@
 import Link from "next/link";
 import { HeaderSearch } from "@/components/header-search";
+import { HeaderShortcuts } from "@/components/header-shortcuts";
 import { OFFER_CATEGORIES } from "@/lib/offers/categories";
 
 const NAV_CATEGORIES = OFFER_CATEGORIES.filter((c) => c.slug !== "outros");
-
-const chip =
-  "border-border-subtle hover:border-brand flex min-h-11 items-center rounded-full border px-4 text-sm font-medium whitespace-nowrap";
 
 /**
  * Site header, in two parts that render as siblings so the first can be
@@ -130,28 +128,7 @@ export function SiteHeader() {
       <div className="border-border-subtle border-b sm:hidden">
         <div className="mx-auto w-full max-w-6xl px-4 py-3">
           <HeaderSearch id="header-search-mobile" className="w-full" />
-          <ul
-            aria-label="Atalhos"
-            className="-mx-4 mt-2.5 flex gap-2 overflow-x-auto px-4 pb-0.5"
-          >
-            <li className="shrink-0">
-              <Link href="/achados" className={`${chip} bg-surface-muted`}>
-                Achados
-              </Link>
-            </li>
-            <li className="shrink-0">
-              <Link href="/guias" className={`${chip} bg-surface-muted`}>
-                Guias
-              </Link>
-            </li>
-            {NAV_CATEGORIES.map((c) => (
-              <li key={c.slug} className="shrink-0">
-                <Link href={`/ofertas?categoria=${c.slug}`} className={chip}>
-                  {c.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <HeaderShortcuts categories={NAV_CATEGORIES} />
         </div>
       </div>
     </>

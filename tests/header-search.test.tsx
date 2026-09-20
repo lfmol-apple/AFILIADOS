@@ -24,3 +24,31 @@ describe("HeaderSearch", () => {
     }
   });
 });
+
+import { HeaderShortcuts } from "@/components/header-shortcuts";
+
+describe("HeaderShortcuts", () => {
+  const categories = [
+    { slug: "pet", label: "Pet" },
+    { slug: "casa", label: "Casa e Decoração" },
+  ];
+
+  it("lists sections and categories on ordinary pages", () => {
+    pathname = "/achados";
+    const html = renderToStaticMarkup(
+      <HeaderShortcuts categories={categories} />,
+    );
+    expect(html).toContain('href="/achados"');
+    expect(html).toContain('href="/guias"');
+    expect(html).toContain('href="/ofertas?categoria=pet"');
+  });
+
+  it("does not repeat the categories on /ofertas, which shows its own chips", () => {
+    pathname = "/ofertas";
+    const html = renderToStaticMarkup(
+      <HeaderShortcuts categories={categories} />,
+    );
+    expect(html).toContain('href="/achados"');
+    expect(html).not.toContain("categoria=pet");
+  });
+});
