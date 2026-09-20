@@ -7,7 +7,7 @@ import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 import type { PagePropsWithSearch } from "@/lib/next-route-types";
 import { searchUnifiedOffers } from "@/lib/queries/unified-offers";
 import { isOffersPageIndexable } from "@/lib/seo/offers-indexability";
-import { withIndexableDetailLinks } from "@/lib/seo/indexable-product-links";
+import { stripNoindexDetailLinks } from "@/lib/seo/indexable-product-links";
 import { UnifiedOfferCard } from "@/components/unified-offer-card";
 import { OffersCategoryNav } from "@/components/offers-category-nav";
 import { OffersInfiniteList } from "@/components/offers-infinite-list";
@@ -76,7 +76,7 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
     } = await searchUnifiedOffers({ query, page });
     // Never link the crawler to a noindex product page (Search Console:
     // "Excluded by noindex") — see lib/seo/indexable-product-links.ts.
-    const items = await withIndexableDetailLinks(rawItems);
+    const items = stripNoindexDetailLinks(rawItems);
 
     await recordSearchEvent(query, items.length);
 

@@ -6,22 +6,24 @@ vi.mock("@/lib/queries/public-product", () => ({
 }));
 
 import {
-  getIndexableProductSlugs,
-  resetIndexableProductSlugsCache,
-  withIndexableDetailLinks,
+  peekIndexableProductSlugs,
+  setIndexableProductSlugsForTest,
+  stripNoindexDetailLinks,
+  waitForIndexableRefreshForTest,
 } from "@/lib/seo/indexable-product-links";
 
 const card = (id: string, detailHref?: string) => ({ id, detailHref });
 
 beforeEach(() => {
   list.mockReset();
-  resetIndexableProductSlugsCache();
+  list.mockResolvedValue([]);
+  setIndexableProductSlugsForTest(null);
 });
 
-describe("withIndexableDetailLinks", () => {
-  it("keeps links to indexable product pages and drops links to noindex ones", async () => {
-    list.mockResolvedValue([{ slug: "bom-produto", lastModified: new Date() }]);
-    const out = await withIndexableDetailLinks([
+describe("stripNoindexDetailLinks", () => {
+  it("keeps links to indexable product pages and drops links to noindex ones", () => {
+    setIndexableProductSlugsForTest(["bom-produto"]);
+    const out = stripNoindexDetailLinks([
       card("a", "/produto/bom-produto"),
       card("b", "/produto/pagina-noindex"),
       card("c"),
@@ -34,33 +36,48 @@ describe("withIndexableDetailLinks", () => {
     expect("detailHref" in out[1]).toBe(false);
   });
 
-  it("handles percent-encoded slugs", async () => {
-    list.mockResolvedValue([{ slug: "café-crème", lastModified: new Date() }]);
-    const out = await withIndexableDetailLinks([
+  it("handles percent-encoded slugs", () => {
+    setIndexableProductSlugsForTest(["café-crème"]);
+    const out = stripNoindexDetailLinks([
       card("a", "/produto/caf%C3%A9-cr%C3%A8me"),
     ]);
     expect(out[0].detailHref).toBe("/produto/caf%C3%A9-cr%C3%A8me");
   });
 
-  it("does not compute the (heavy) slug list when no card has a detail link", async () => {
+  it("never waits: with no cached list it returns the cards unchanged and refreshes in the background", async () => {
+    list.mockResolvedValue([{ slug: "x", lastModified: new Date() }]);
+    const cards = [card("a", "/produto/qualquer")];
+    expect(stripNoindexDetailLinks(cards)).toBe(cards); // fail open, synchronous
+    expect(list).toHaveBeenCalledTimes(1);
+    await waitForIndexableRefreshForTest();
+    // the next read uses the freshly built list
+    expect(stripNoindexDetailLinks(cards)[0].detailHref).toBeUndefined();
+  });
+
+  it("does not compute the list when no card has a detail link", () => {
     const cards = [card("a"), card("b")];
-    expect(await withIndexableDetailLinks(cards)).toBe(cards);
+    expect(stripNoindexDetailLinks(cards)).toBe(cards);
     expect(list).not.toHaveBeenCalled();
   });
 
-  it("caches the slug list, so repeated calls cost one computation", async () => {
-    list.mockResolvedValue([{ slug: "x", lastModified: new Date() }]);
-    await getIndexableProductSlugs();
-    await getIndexableProductSlugs();
-    await withIndexableDetailLinks([card("a", "/produto/x")]);
-    expect(list).toHaveBeenCalledTimes(1);
+  it("serves a stale list at once while refreshing it once in the background", async () => {
+    const longAgo = Date.now() - 31 * 60 * 1000;
+    setIndexableProductSlugsForTest(["velho"], longAgo);
+    list.mockResolvedValue([{ slug: "novo", lastModified: new Date() }]);
+    expect(peekIndexableProductSlugs()?.has("velho")).toBe(true); // stale, served immediately
+    peekIndexableProductSlugs();
+    expect(list).toHaveBeenCalledTimes(1); // refresh de-duplicated
+    await waitForIndexableRefreshForTest();
+    expect(peekIndexableProductSlugs()?.has("novo")).toBe(true);
   });
 
-  it("fails open: keeps every link if the list cannot be computed", async () => {
-    list.mockRejectedValue(new Error("db down"));
+  it("keeps the old list if a background refresh fails", async () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
-    const cards = [card("a", "/produto/qualquer")];
-    expect(await withIndexableDetailLinks(cards)).toEqual(cards);
+    setIndexableProductSlugsForTest(["mantido"], Date.now() - 31 * 60 * 1000);
+    list.mockRejectedValue(new Error("db down"));
+    peekIndexableProductSlugs();
+    await waitForIndexableRefreshForTest();
+    expect(peekIndexableProductSlugs()?.has("mantido")).toBe(true);
     spy.mockRestore();
   });
 });

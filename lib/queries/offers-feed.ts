@@ -1,5 +1,5 @@
 import { getOfertas } from "@/lib/queries/products";
-import { withIndexableDetailLinks } from "@/lib/seo/indexable-product-links";
+import { stripNoindexDetailLinks } from "@/lib/seo/indexable-product-links";
 import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 import {
   getUnifiedMerchantOffers,
@@ -53,14 +53,10 @@ async function buildPool(): Promise<UnifiedOfferCard[]> {
     ...amazonResult.items.map(mapAmazonProductToUnifiedCard),
     ...merchantOffers,
   ];
-  // Sequential on purpose: the DB pool is small, and this is the heavy read.
-  return withIndexableDetailLinks(selectTopUnifiedOffers(all, all.length));
+  return selectTopUnifiedOffers(all, all.length);
 }
 
-export async function getOffersPool(
-  now: number = Date.now(),
-): Promise<UnifiedOfferCard[]> {
-  if (cached && now - cached.at < POOL_TTL_MS) return cached.cards;
+function refreshPool(): Promise<UnifiedOfferCard[]> {
   inflight ??= buildPool()
     .then((cards) => {
       cached = { at: Date.now(), cards };
@@ -70,6 +66,26 @@ export async function getOffersPool(
       inflight = null;
     });
   return inflight;
+}
+
+/**
+ * Stale-while-revalidate: once a pool exists it is ALWAYS returned at once,
+ * and a stale one is refreshed in the background. Only the very first call
+ * after a start waits for the build (~1.5 s) — no visitor ever pays that
+ * cost again every 5 minutes.
+ */
+export async function getOffersPool(
+  now: number = Date.now(),
+): Promise<UnifiedOfferCard[]> {
+  if (cached) {
+    if (now - cached.at >= POOL_TTL_MS) {
+      refreshPool().catch((error) => {
+        console.error("offers_feed.refresh_failed", error);
+      });
+    }
+    return cached.cards;
+  }
+  return refreshPool();
 }
 
 export interface OffersPage {
@@ -144,7 +160,11 @@ export async function listOffers(options: {
   store?: OfferStore | null;
   page?: number;
 }): Promise<OffersPage> {
-  return paginateOffers(await getOffersPool(), options);
+  const page = paginateOffers(await getOffersPool(), options);
+  // Applied per read (cheap, only this page's items), not baked into the
+  // cached pool: the indexable-slug list is computed separately in the
+  // background — see lib/seo/indexable-product-links.ts.
+  return { ...page, items: stripNoindexDetailLinks(page.items) };
 }
 
 export interface CategoryCount {
