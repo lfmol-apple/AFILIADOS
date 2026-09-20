@@ -62,18 +62,21 @@ function BackToTop() {
 export function OffersInfiniteList({
   initialItems,
   initialHasMore,
+  initialPage = 1,
   category,
   sort,
   store,
 }: {
   initialItems: UnifiedOfferCardData[];
   initialHasMore: boolean;
+  /** The server rendered this page of the feed (?pagina=N); loading continues from the next. */
+  initialPage?: number;
   category: string | null;
   sort: OfferSort;
   store: OfferStore | null;
 }) {
   const [items, setItems] = useState(initialItems);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(initialPage);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [loading, setLoading] = useState(false);
   const [failed, setFailed] = useState(false);

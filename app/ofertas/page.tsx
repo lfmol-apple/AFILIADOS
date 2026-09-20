@@ -12,12 +12,15 @@ import { OffersInfiniteList } from "@/components/offers-infinite-list";
 import { OffersToolbar } from "@/components/offers-toolbar";
 import { parseOffersView } from "@/lib/offers/view";
 import {
+  FEED_PAGE_SIZE,
   getOfferCategoryCounts,
   getOffersPool,
   listOffers,
   searchOffers,
 } from "@/lib/queries/offers-feed";
 import { offerCategoryLabel } from "@/lib/offers/categories";
+import { buildOffersMetadata } from "@/lib/offers/seo";
+import { MAX_FEED_PAGE, offersHref, type OffersView } from "@/lib/offers/view";
 
 export const revalidate = 300;
 
@@ -27,22 +30,21 @@ export const revalidate = 300;
 // present) still uses Amazon's own real pagination unchanged — see the
 // comment further down for why.
 
-export async function generateMetadata(): Promise<Metadata> {
-  // Same fix as app/robots.ts (2026-09-14): currentlyVisibleDataSources()
-  // only knows about Amazon — /ofertas must also stay indexable whenever
-  // real Mercado Livre/Shopee offers are showing, regardless of the
-  // Amazon gate. Ask what's actually indexable, not just the Amazon flag.
+export async function generateMetadata(
+  props: PagePropsWithSearch,
+): Promise<Metadata> {
+  // /ofertas must stay indexable whenever real Mercado Livre/Shopee offers
+  // are showing, regardless of the Amazon gate (isOffersPageIndexable), and
+  // never while nothing real is visible. The view-specific rules (category
+  // landing pages, pagination, sort/store variants, search) live in
+  // lib/offers/seo.ts.
+  const searchParams = await props.searchParams;
   const indexable = await isOffersPageIndexable();
-  return {
-    title: "Ofertas",
-    description:
-      "As melhores oportunidades reais do PreçoCaindo agora, em qualquer loja parceira — priorizadas por demanda, preço e evidência real.",
-    alternates: { canonical: "/ofertas" },
-    // Pre-launch (or every data-source gate closed) — the page stays
-    // reachable (it's a listing, not a specific fabricated price), but must
-    // never be indexed while nothing real is currently visible.
-    robots: indexable ? undefined : { index: false, follow: true },
-  };
+  return buildOffersMetadata({
+    view: parseOffersView(searchParams ?? {}),
+    indexable,
+    hasQuery: typeof searchParams?.q === "string" && searchParams.q.length > 0,
+  });
 }
 
 export default async function OfertasPage(props: PagePropsWithSearch) {
@@ -129,7 +131,12 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
   const category = view.category;
 
   const [firstPage, categories, pool] = await Promise.all([
-    listOffers({ category, sort: view.sort, store: view.store, page: 1 }),
+    listOffers({
+      category,
+      sort: view.sort,
+      store: view.store,
+      page: view.page,
+    }),
     getOfferCategoryCounts(view.store),
     getOffersPool(),
   ]);
@@ -205,17 +212,64 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
               stores={Array.from(new Set(pool.map((c) => c.merchant)))}
             />
             <OffersInfiniteList
-              key={`${category ?? "todas"}|${view.sort}|${view.store ?? "todas"}`}
+              key={`${category ?? "todas"}|${view.sort}|${view.store ?? "todas"}|${view.page}`}
               initialItems={firstPage.items}
               initialHasMore={firstPage.hasMore}
+              initialPage={view.page}
               category={category}
               sort={view.sort}
               store={view.store}
             />
+            <CrawlablePager view={view} total={firstPage.total} />
           </div>
         </div>
       )}
     </div>
+  );
+}
+
+/**
+ * Plain numbered links to ?pagina=N. Visitors scroll (infinite list) and never
+ * need them, but a crawler does not scroll: this is how it walks the whole
+ * list and finds every product link. It sits in <noscript> — real fallback
+ * content for a client without JavaScript, not hidden text.
+ */
+function CrawlablePager({ view, total }: { view: OffersView; total: number }) {
+  const pages = Math.min(
+    MAX_FEED_PAGE,
+    Math.max(1, Math.ceil(total / FEED_PAGE_SIZE)),
+  );
+  if (pages <= 1) return null;
+  const shown = new Set<number>([1, pages]);
+  for (let p = view.page - 2; p <= view.page + 2; p++)
+    if (p >= 1 && p <= pages) shown.add(p);
+  const list = Array.from(shown).sort((a, b) => a - b);
+  return (
+    <noscript>
+      <nav aria-label="Páginas de ofertas" className="mt-8 text-center text-sm">
+        <ul className="flex flex-wrap justify-center gap-2">
+          {list.map((p) => (
+            <li key={p}>
+              {p === view.page ? (
+                <span
+                  aria-current="page"
+                  className="bg-brand text-brand-foreground rounded-full px-3 py-1.5 font-semibold"
+                >
+                  {p}
+                </span>
+              ) : (
+                <a
+                  href={offersHref(view, { page: p })}
+                  className="border-border-subtle rounded-full border px-3 py-1.5"
+                >
+                  {p}
+                </a>
+              )}
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </noscript>
   );
 }
 

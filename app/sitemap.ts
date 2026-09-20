@@ -7,6 +7,7 @@ import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 import { GUIDES } from "@/lib/editorial/guides";
 import { listIndexableMerchantProductUrls } from "@/lib/queries/public-product";
 import { isOffersPageIndexable } from "@/lib/seo/offers-indexability";
+import { getOfferCategoryCounts } from "@/lib/queries/offers-feed";
 
 // force-dynamic (not just `revalidate`) because PUBLIC_CATALOG_ENABLED/
 // MANUAL_PRODUCTS_ENABLED are runtime-only env vars, never set during
@@ -15,6 +16,8 @@ import { isOffersPageIndexable } from "@/lib/seo/offers-indexability";
 // live: flipping both flags and restarting the container left sitemap.xml
 // showing only static routes, no products, right after the flip.
 export const dynamic = "force-dynamic";
+
+const MIN_CATEGORY_OFFERS_FOR_SITEMAP = 6;
 
 /** Exported for tests/sitemap-merchant-independence.test.ts only — proving
  * the sitemap's static surface is exactly this list, no more, no less,
@@ -57,9 +60,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   });
   const staticEntries: MetadataRoute.Sitemap =
     STATIC_ROUTE_PATHS.map(routeEntry);
-  const offersEntries: MetadataRoute.Sitemap = (await isOffersPageIndexable())
+  const offersIndexable = await isOffersPageIndexable();
+  const offersEntries: MetadataRoute.Sitemap = offersIndexable
     ? [routeEntry("/ofertas")]
     : [];
+  // Category landing pages ("ofertas de pet") — each has its own title,
+  // description and canonical (lib/offers/seo.ts). Only categories with
+  // enough real offers to be worth a page; from the cached pool, so this adds
+  // no per-request database work.
+  if (offersIndexable) {
+    try {
+      const counts = await getOfferCategoryCounts();
+      for (const c of counts) {
+        if (c.slug === "outros" || c.count < MIN_CATEGORY_OFFERS_FOR_SITEMAP)
+          continue;
+        offersEntries.push({
+          url: `${siteConfig.url}/ofertas?categoria=${c.slug}`,
+          changeFrequency: "daily",
+          priority: 0.6,
+        });
+      }
+    } catch (error) {
+      console.error("sitemap.category_landing_unavailable", error);
+    }
+  }
   const guideEntries: MetadataRoute.Sitemap = GUIDES.map((guide) => ({
     url: `${siteConfig.url}/guias/${guide.slug}`,
     lastModified: guide.updatedAt,

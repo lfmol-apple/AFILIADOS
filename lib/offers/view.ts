@@ -28,7 +28,11 @@ export interface OffersView {
   category: string | null;
   sort: OfferSort;
   store: OfferStore | null;
+  /** 1-based page of the feed (?pagina=N), the crawlable way through the list. */
+  page: number;
 }
+
+export const MAX_FEED_PAGE = 200;
 
 export function isOfferSort(value: string): value is OfferSort {
   return SORT_OPTIONS.some((s) => s.slug === value);
@@ -56,23 +60,32 @@ export function parseOffersView(
   const category = first(params.categoria);
   const sort = first(params.ordem);
   const store = first(params.loja);
+  const pageRaw = Number(first(params.pagina));
   return {
     category: category && isOfferCategorySlug(category) ? category : null,
     sort: sort && isOfferSort(sort) ? sort : DEFAULT_SORT,
     store: store && isOfferStore(store) ? store : null,
+    page:
+      Number.isInteger(pageRaw) && pageRaw >= 1
+        ? Math.min(pageRaw, MAX_FEED_PAGE)
+        : 1,
   };
 }
 
-/** URL for a view, with `override` applied on top. Defaults are dropped. */
+/** URL for a view, with `override` applied on top. Defaults are dropped.
+ * Changing category, sort or store goes back to page 1 unless `page` is
+ * given explicitly. */
 export function offersHref(
   view: OffersView,
   override: Partial<OffersView> = {},
 ): string {
   const next = { ...view, ...override };
+  if (!("page" in override)) next.page = 1;
   const query = new URLSearchParams();
   if (next.category) query.set("categoria", next.category);
   if (next.sort !== DEFAULT_SORT) query.set("ordem", next.sort);
   if (next.store) query.set("loja", next.store);
+  if (next.page > 1) query.set("pagina", String(next.page));
   const qs = query.toString();
   return qs ? `/ofertas?${qs}` : "/ofertas";
 }
