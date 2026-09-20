@@ -6,6 +6,7 @@ import {
   selectBestOfferIdsPerCanonicalProduct,
   bestByNonCommissionSignal,
 } from "@/lib/queries/candidate-pool";
+import { classifyOffer } from "@/lib/offers/categories";
 
 /**
  * Cross-merchant view-model for the public "vitrine" surfaces (Home's
@@ -51,6 +52,9 @@ export interface UnifiedOfferCard {
    * product.ts). Purely additive: `href` above is unchanged and still the
    * card's primary CTA target for every existing caller/test. */
   detailHref?: string;
+  /** Sidebar category on /ofertas (lib/offers/categories.ts) — derived
+   * from the ML domainId or the title, presentation-only. */
+  categorySlug?: string;
 }
 
 /**
@@ -94,6 +98,7 @@ export function mapAmazonProductToUnifiedCard(product: ProductListItem): Unified
     soldQuantity: null,
     opportunitySignal: product.opportunityScore?.score ?? null,
     href: `/produto/${product.slug}`,
+    categorySlug: classifyOffer({ title: product.title }),
   };
 }
 
@@ -206,6 +211,7 @@ export async function getUnifiedMerchantOffers(
       opportunitySignal: nonCommissionSignal(listing.monetizationScore?.components),
       href: `/go/shopee/${encodeURIComponent(listing.externalId)}?${params}`,
       detailHref: listing.slug ? `/produto/${listing.slug}` : undefined,
+      categorySlug: classifyOffer({ title: raw?.productName ?? listing.externalId }),
     };
   });
 
@@ -257,6 +263,12 @@ export async function getUnifiedMerchantOffers(
       detailHref: catalogListing.canonicalProduct?.publicSlug
         ? `/produto/${catalogListing.canonicalProduct.publicSlug}`
         : undefined,
+      categorySlug: classifyOffer({
+        title: catalogListing.canonicalProduct?.title ?? catalogListing.externalId,
+        mlDomainId: (
+          catalogListing.canonicalProduct?.specifications as { domainId?: string } | null
+        )?.domainId,
+      }),
     };
   });
 

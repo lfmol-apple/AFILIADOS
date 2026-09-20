@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getOfertas } from "@/lib/queries/products";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { recordSearchEvent } from "@/lib/analytics/search-event";
@@ -8,22 +7,28 @@ import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 import type { PagePropsWithSearch } from "@/lib/next-route-types";
 import {
   getUnifiedMerchantOffers,
-  mapAmazonProductToUnifiedCard,
   searchUnifiedOffers,
-  selectTopUnifiedOffers,
 } from "@/lib/queries/unified-offers";
 import { UnifiedOfferCard } from "@/components/unified-offer-card";
+import { OffersCategoryNav } from "@/components/offers-category-nav";
+import { OffersInfiniteList } from "@/components/offers-infinite-list";
+import {
+  getOfferCategoryCounts,
+  getOffersPool,
+  listOffers,
+} from "@/lib/queries/offers-feed";
+import {
+  isOfferCategorySlug,
+  offerCategoryLabel,
+} from "@/lib/offers/categories";
 
 export const revalidate = 300;
 
-// Cross-merchant vitrine cap for the default (no search) view — a single
-// page, not a new pagination scheme merging three independently paginated
-// sources. getUnifiedMerchantOffers bounds its own DB work regardless of
-// how large the Shopee/ML/Amazon catalogs get (see that function's
-// candidatePoolSize doc comment) — this constant only caps what's shown,
-// same as before. Search (a query is present) still uses Amazon's own
-// real pagination unchanged — see the comment further down for why.
-const UNIFIED_LIMIT = 48;
+// The default (no search) view is an infinite-scroll feed over one cached,
+// ranked cross-merchant pool (lib/queries/offers-feed.ts) — the first page
+// is rendered here, later pages come from /api/ofertas. Search (a query is
+// present) still uses Amazon's own real pagination unchanged — see the
+// comment further down for why.
 
 export async function generateMetadata(): Promise<Metadata> {
   // Same fix as app/robots.ts (2026-09-14): currentlyVisibleDataSources()
@@ -68,25 +73,38 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
     // desaparecem da busca sempre que a Amazon estiver com o catálogo
     // público fechado — exatamente o que já foi corrigido antes na Home e
     // na grade padrão de /ofertas (ver getUnifiedMerchantOffers acima).
-    const { items, page: currentPage, totalPages } = await searchUnifiedOffers({ query, page });
+    const {
+      items,
+      page: currentPage,
+      totalPages,
+    } = await searchUnifiedOffers({ query, page });
 
     await recordSearchEvent(query, items.length);
 
     return (
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         <AnalyticsBeacon pageType="ofertas" pageSlug={`busca:${query}`} />
-        <Breadcrumbs items={[{ label: "Início", href: "/" }, { label: "Ofertas" }]} />
-        <h1 className="mt-4 text-2xl font-semibold">Resultados para &quot;{query}&quot;</h1>
+        <Breadcrumbs
+          items={[{ label: "Início", href: "/" }, { label: "Ofertas" }]}
+        />
+        <h1 className="mt-4 text-2xl font-semibold">
+          Resultados para &quot;{query}&quot;
+        </h1>
         <p className="text-foreground/60 mt-1 text-sm">
-          Resultados reais em qualquer loja parceira, priorizados por
-          demanda e evidência.
+          Resultados reais em qualquer loja parceira, priorizados por demanda e
+          evidência.
         </p>
         {items.length === 0 ? (
-          <p className="text-foreground/60 mt-10 text-sm">Nenhum produto encontrado.</p>
+          <p className="text-foreground/60 mt-10 text-sm">
+            Nenhum produto encontrado.
+          </p>
         ) : (
           <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
             {items.map((item) => (
-              <UnifiedOfferCard key={`${item.merchant}-${item.id}`} item={item} />
+              <UnifiedOfferCard
+                key={`${item.merchant}-${item.id}`}
+                item={item}
+              />
             ))}
           </div>
         )}
@@ -108,37 +126,59 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
   }
 
   // Default (no search) — the real cross-merchant vitrine: Amazon (when
-  // it has real products) + Shopee + Mercado Livre, ONE grid, sorted by
+  // it has real products) + Shopee + Mercado Livre, ONE feed, sorted by
   // each merchant's own real, commission-free opportunity signal. Never
-  // three separate "Achados X" sections (project brief).
-  const [amazonResult, merchantOffers] = await Promise.all([
-    catalogSafe ? getOfertas({ page: 1, pageSize: UNIFIED_LIMIT }) : { items: [] },
-    getUnifiedMerchantOffers(UNIFIED_LIMIT, { source: "ofertas" }),
+  // three separate "Achados X" sections (project brief). The category
+  // column filters that same feed; it never re-ranks it.
+  const rawCategory =
+    typeof searchParams?.categoria === "string" ? searchParams.categoria : null;
+  const category =
+    rawCategory && isOfferCategorySlug(rawCategory) ? rawCategory : null;
+
+  const [firstPage, categories, pool] = await Promise.all([
+    listOffers({ category, page: 1 }),
+    getOfferCategoryCounts(),
+    getOffersPool(),
   ]);
-  const items = selectTopUnifiedOffers(
-    [...amazonResult.items.map(mapAmazonProductToUnifiedCard), ...merchantOffers],
-    UNIFIED_LIMIT,
-  );
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
-      <AnalyticsBeacon pageType="ofertas" pageSlug="ofertas" />
-      <Breadcrumbs items={[{ label: "Início", href: "/" }, { label: "Ofertas" }]} />
-      <h1 className="mt-4 text-2xl font-semibold">Melhores oportunidades agora</h1>
+    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+      <AnalyticsBeacon
+        pageType="ofertas"
+        pageSlug={category ? `ofertas:${category}` : "ofertas"}
+      />
+      <Breadcrumbs
+        items={[{ label: "Início", href: "/" }, { label: "Ofertas" }]}
+      />
+      <h1 className="mt-4 text-2xl font-semibold">
+        {category
+          ? offerCategoryLabel(category)
+          : "Melhores oportunidades agora"}
+      </h1>
       <p className="text-foreground/60 mt-1 text-sm">
-        Busque por produto, marca, modelo ou categoria. Priorizamos por
-        demanda, preço e evidência real — em qualquer loja parceira.
+        Busque por produto, marca, modelo ou categoria. Priorizamos por demanda,
+        preço e evidência real — em qualquer loja parceira.
       </p>
 
-      {!catalogSafe && items.length === 0 ? (
+      {!catalogSafe && pool.length === 0 ? (
         <PreLaunchNotice />
-      ) : items.length === 0 ? (
-        <p className="text-foreground/60 mt-10 text-sm">Nenhuma oferta real disponível agora.</p>
+      ) : pool.length === 0 ? (
+        <p className="text-foreground/60 mt-10 text-sm">
+          Nenhuma oferta real disponível agora.
+        </p>
       ) : (
-        <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {items.map((item) => (
-            <UnifiedOfferCard key={`${item.merchant}-${item.id}`} item={item} />
-          ))}
+        <div className="mt-6 grid gap-6 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-8">
+          <OffersCategoryNav
+            categories={categories}
+            active={category}
+            total={pool.length}
+          />
+          <OffersInfiniteList
+            key={category ?? "todas"}
+            initialItems={firstPage.items}
+            initialHasMore={firstPage.hasMore}
+            category={category}
+          />
         </div>
       )}
     </div>
