@@ -220,3 +220,14 @@ comissão ou venda estimada; vendas reais ficam no painel de cada marketplace.
   (8h da manhã; o servidor está em UTC, ajustar ao fuso desejado). O job usa uma imagem própria,
   `precocaindo-digest` (comando de rebuild no cabeçalho do wrapper), para não alterar o código da
   automação de 4 em 4 horas que roda em `precocaindo-scripts`.
+
+## SEO_MAINTENANCE — página pública para todo link cadastrado
+
+- Objetivo: tudo que entra como link afiliado ganha sua página `/produto/[slug]` e, se passar o portão de
+  publicação, entra no `sitemap.xml` sem ação manual.
+- Ao salvar um link (`saveAffiliateLink`) o slug é criado na hora; esta rotina é a rede de segurança que
+  cobre links importados por outros caminhos. Idempotente.
+- Endpoint: `POST /api/internal/seo-maintenance` (cabeçalho `x-cron-secret` = `CRON_SECRET` do `.env`;
+  404 se a variável não existir, 401 se errado). Wrapper: `scripts/run-seo-maintenance-cron.sh`.
+- Cron (**instalado em 2026-09-20**, a cada 30 min): `*/30 * * * * /opt/precocaindo/app/scripts/run-seo-maintenance-cron.sh >> /var/log/precocaindo-seo-maintenance-cron.log 2>&1`.
+  Primeira execução gerou 285 slugs ML + 65 Shopee; sitemap foi de 909 para 1188 URLs.
