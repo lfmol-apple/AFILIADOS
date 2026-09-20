@@ -5,6 +5,10 @@ import { AmazonShowcaseCard } from "@/components/amazon-br-showcase";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { AMAZON_SHOWCASE_ALL, type AmazonShowcaseCategory } from "@/lib/amazon/br-showcase";
 
+// The affiliate tag lives in the runtime .env, which the Docker build never
+// sees — a statically prerendered page would bake in "link indisponível".
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Achados na Amazon",
   description:

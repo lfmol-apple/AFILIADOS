@@ -29,3 +29,10 @@ describe("public Amazon page", () => {
     expect(STATIC_ROUTE_PATHS).toContain("/amazon");
   });
 });
+
+describe("public Amazon page rendering mode", () => {
+  it("renders per request, so the runtime Tracking ID is used (not a build-time empty one)", async () => {
+    const page = await import("@/app/amazon/page");
+    expect(page.dynamic).toBe("force-dynamic");
+  });
+});
