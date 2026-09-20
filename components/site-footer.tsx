@@ -4,7 +4,7 @@ import { siteConfig } from "@/lib/config/site";
 
 const LINKS = [
   { href: "/ofertas", label: "Ofertas" },
-  { href: "/amazon", label: "Amazon" },
+  { href: "/achados", label: "Achados" },
   { href: "/guias", label: "Guias" },
   { href: "/sobre", label: "Sobre" },
   { href: "/como-funciona", label: "Como funciona" },

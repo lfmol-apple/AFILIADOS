@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: "Achados na Amazon",
   description:
     "Produtos da Amazon.com.br selecionados à mão pelo PreçoCaindo, com comentário próprio sobre para quem cada um faz sentido e o que avaliar antes de comprar.",
-  alternates: { canonical: "/amazon" },
+  alternates: { canonical: "/achados" },
   openGraph: {
     title: "Achados na Amazon — PreçoCaindo",
     description:
@@ -58,7 +58,7 @@ export default function AmazonPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <AnalyticsBeacon pageType="amazon" pageSlug="amazon" />
+      <AnalyticsBeacon pageType="achados" pageSlug="achados" />
 
       <h1 className="text-3xl font-semibold tracking-tight">
         Achados na Amazon

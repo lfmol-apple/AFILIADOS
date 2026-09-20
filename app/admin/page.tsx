@@ -137,7 +137,7 @@ export default async function AdminPage(props: PagePropsWithSearch) {
             Desempenho (cliques diários) →
           </a>
           <a
-            href="/admin/amazon"
+            href="/admin/creators-api"
             className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
           >
             Amazon — caminho para a API →

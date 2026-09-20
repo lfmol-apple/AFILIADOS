@@ -42,7 +42,7 @@ export function AmazonBrShowcase() {
       <div className="mt-2">
         <AffiliateDisclosure />
         <Link
-          href="/amazon"
+          href="/achados"
           className="text-brand mt-2 inline-block text-sm font-medium underline"
         >
           Ver a página completa de achados na Amazon →

@@ -135,7 +135,8 @@ controle de engenharia, que só a Amazon confirma: (a) aprovação da conta para
 ## Revisão oficial Amazon — 2026-09-20
 
 Reconferida nas fontes oficiais (Creators API docs, Políticas e Acordo Operacional BR). Painel:
-`/admin/amazon` ("Amazon — caminho para a API").
+`/admin/creators-api` ("Amazon — caminho para a API"); a seleção pública com links fica em
+`/achados` (a palavra da marca não aparece em nenhuma URL do site que renderiza a seleção).
 
 - **Duas regras diferentes, não confundir:** (1) _aprovação da conta_ de Associados — 3 vendas
   qualificadas em até 180 dias do cadastro (fonte secundária; confirmar no painel); (2) _acesso à

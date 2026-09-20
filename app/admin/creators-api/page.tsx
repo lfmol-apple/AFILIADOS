@@ -86,7 +86,7 @@ export default async function AmazonApiPathPage() {
       title:
         "Página pública com conteúdo original e links (a Amazon avalia o site público)",
       detail:
-        "A seleção com análise própria fica em /amazon, aberta a qualquer visitante, sem login, com o aviso em destaque.",
+        "A seleção com análise própria fica em /achados, aberta a qualquer visitante, sem login, com o aviso em destaque.",
       source: "Políticas — site publicamente disponível e conteúdo original",
       kind: "auto",
       done: true,
@@ -139,7 +139,7 @@ export default async function AmazonApiPathPage() {
     },
     {
       rule: "Link sempre com o Tracking ID, sem esconder a origem",
-      how: "Usar o link com a marcação da Amazon, acessado direto do site (é o que /amazon faz: link normal amazon.com.br/dp/ASIN com o Tracking ID visível na URL). Sem redirecionamentos que disfarcem a origem. Ponto de atenção: /go/amazon/[asin] é um redirecionamento interno que preserva a tag — manter a revisão jurídica em aberto.",
+      how: "Usar o link com a marcação da Amazon, acessado direto do site (é o que /achados faz: link normal amazon.com.br/dp/ASIN com o Tracking ID visível na URL). Sem redirecionamentos que disfarcem a origem. Ponto de atenção: /go/amazon/[asin] é um redirecionamento interno que preserva a tag — manter a revisão jurídica em aberto.",
     },
     {
       rule: "Aviso de afiliado perto de cada link",

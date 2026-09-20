@@ -21,7 +21,7 @@ export const dynamic = "force-dynamic";
 export const STATIC_ROUTE_PATHS = [
   "",
   "/ofertas",
-  "/amazon",
+  "/achados",
   "/guias",
   "/transparencia",
   "/sobre",
