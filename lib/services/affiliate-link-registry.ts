@@ -1,4 +1,6 @@
 import { prisma } from "@/lib/db";
+import { ensurePublicSlugForListing } from "@/lib/queries/public-product";
+import { logger } from "@/lib/observability/logger";
 import {
   assertAllowedMerchantDestination,
   isMerchantCode,
@@ -30,7 +32,9 @@ export class AffiliateLinkValidationError extends Error {}
 export async function getAffiliateLink(
   merchantListingId: string,
 ): Promise<AffiliateLinkRegistry | null> {
-  return prisma.affiliateLinkRegistry.findUnique({ where: { merchantListingId } });
+  return prisma.affiliateLinkRegistry.findUnique({
+    where: { merchantListingId },
+  });
 }
 
 interface SaveAffiliateLinkInput {
@@ -62,7 +66,7 @@ async function saveAffiliateLink(
     throw err;
   }
 
-  return prisma.affiliateLinkRegistry.upsert({
+  const saved = await prisma.affiliateLinkRegistry.upsert({
     where: { merchantListingId: input.merchantListingId },
     create: {
       merchantListingId: input.merchantListingId,
@@ -83,6 +87,22 @@ async function saveAffiliateLink(
       lastValidatedAt: new Date(),
     },
   });
+
+  // Everything the owner registers must be able to reach Google: give the
+  // listing its public page right away (it enters the sitemap once it passes
+  // the publication gate). Best-effort — a slug problem must never fail or
+  // roll back saving the link itself; the periodic maintenance run
+  // (app/api/internal/seo-maintenance) catches anything missed here.
+  try {
+    await ensurePublicSlugForListing(input.merchantListingId);
+  } catch (error) {
+    logger.warn("affiliate_link.public_slug_failed", {
+      merchantListingId: input.merchantListingId,
+      message: String(error),
+    });
+  }
+
+  return saved;
 }
 
 /**

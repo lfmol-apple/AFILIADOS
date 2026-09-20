@@ -320,6 +320,37 @@ export async function getRelatedMerchantProducts(input: {
   return results;
 }
 
+/**
+ * Makes sure the public /produto page exists for ONE listing — called right
+ * after an affiliate link is saved so a link the owner registers gets its
+ * page (and, if it passes the publication gate, its sitemap entry) without
+ * waiting for a manual backfill. Idempotent; returns null when the listing
+ * cannot have a page (unknown id, ML row without a catalog product,
+ * marketplaces that have no public pages).
+ */
+export async function ensurePublicSlugForListing(listingId: string): Promise<string | null> {
+  const listing = await prisma.merchantListing.findUnique({
+    where: { id: listingId },
+    select: {
+      canonicalProductId: true,
+      merchant: { select: { code: true } },
+      canonicalProduct: { select: { title: true } },
+    },
+  });
+  if (!listing) return null;
+
+  if (listing.merchant.code === "MERCADO_LIVRE") {
+    if (!listing.canonicalProductId || !listing.canonicalProduct) return null;
+    return ensureCanonicalProductPublicSlug(listing.canonicalProductId, listing.canonicalProduct.title);
+  }
+  if (listing.merchant.code === "SHOPEE") {
+    const facts = await loadMerchantListingFactsByListingId(listingId);
+    if (!facts) return null;
+    return ensureShopeeListingSlug(listingId, facts.title);
+  }
+  return null;
+}
+
 export interface BackfillPublicSlugsSummary {
   canonicalProductsProcessed: number;
   canonicalProductsSlugGenerated: number;

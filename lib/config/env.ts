@@ -166,6 +166,10 @@ const envSchema = z.object({
   // docs/PRODUCTION_READINESS.md.
   ADMIN_PASSWORD_HASH: z.string().default(""),
 
+  // Shared secret for the internal maintenance endpoint the VPS cron calls
+  // (app/api/internal/seo-maintenance). Empty = endpoint disabled (404).
+  CRON_SECRET: z.string().default(""),
+
   // --- Daily performance email (jobs/daily-performance-digest.ts) ---
   // Sent through Resend's HTTP API (lib/services/email-sender.ts). Empty
   // RESEND_API_KEY or recipient means "not configured": the job refuses to
