@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
+import { HeroCarousel } from "@/components/hero-carousel";
 import { RadarSummary } from "@/components/radar-summary";
 import { getPublicRadarFeed } from "@/lib/queries/radar-events";
 
@@ -49,16 +50,52 @@ const SECTIONS = [
 
 const CATEGORY_TILES = [
   { slug: "pet", label: "Pet", hint: "Ração, antipulgas, camas e acessórios" },
-  { slug: "celulares", label: "Celulares e Acessórios", hint: "Celulares, carregadores e power banks" },
-  { slug: "casa", label: "Casa e Decoração", hint: "Cama, tapetes, cortinas e utilidades" },
-  { slug: "eletrodomesticos", label: "Eletrodomésticos", hint: "Ventiladores, aspiradores, fritadeiras" },
-  { slug: "beleza", label: "Beleza e Cuidados", hint: "Pele, cabelo e higiene pessoal" },
+  {
+    slug: "celulares",
+    label: "Celulares e Acessórios",
+    hint: "Celulares, carregadores e power banks",
+  },
+  {
+    slug: "casa",
+    label: "Casa e Decoração",
+    hint: "Cama, tapetes, cortinas e utilidades",
+  },
+  {
+    slug: "eletrodomesticos",
+    label: "Eletrodomésticos",
+    hint: "Ventiladores, aspiradores, fritadeiras",
+  },
+  {
+    slug: "beleza",
+    label: "Beleza e Cuidados",
+    hint: "Pele, cabelo e higiene pessoal",
+  },
   { slug: "bebe", label: "Bebê", hint: "Fraldas, mamadeiras e itens de bebê" },
-  { slug: "esporte-suplementos", label: "Esporte e Suplementos", hint: "Suplementos, treino e fitness" },
-  { slug: "audio-games", label: "Áudio, TV e Games", hint: "Fones, controles, TV e games" },
-  { slug: "informatica", label: "Informática e Impressão 3D", hint: "Mouses, cabos, filamentos e mais" },
-  { slug: "limpeza", label: "Limpeza e Papel", hint: "Sabão, papel higiênico e limpeza" },
-  { slug: "ferramentas", label: "Ferramentas e Jardim", hint: "Furadeiras, lâmpadas e jardim" },
+  {
+    slug: "esporte-suplementos",
+    label: "Esporte e Suplementos",
+    hint: "Suplementos, treino e fitness",
+  },
+  {
+    slug: "audio-games",
+    label: "Áudio, TV e Games",
+    hint: "Fones, controles, TV e games",
+  },
+  {
+    slug: "informatica",
+    label: "Informática e Impressão 3D",
+    hint: "Mouses, cabos, filamentos e mais",
+  },
+  {
+    slug: "limpeza",
+    label: "Limpeza e Papel",
+    hint: "Sabão, papel higiênico e limpeza",
+  },
+  {
+    slug: "ferramentas",
+    label: "Ferramentas e Jardim",
+    hint: "Furadeiras, lâmpadas e jardim",
+  },
   { slug: "moda", label: "Moda e Acessórios", hint: "Tênis, bolsas e roupas" },
 ];
 
@@ -87,19 +124,15 @@ export default async function Home() {
     <div>
       <AnalyticsBeacon pageType="home" pageSlug="/" />
 
-      {/* ---------------- 1. HERO + BUSCA ---------------- */}
-      <section className="border-border-subtle bg-surface-muted border-b">
-        <div className="mx-auto max-w-3xl px-4 py-12 text-center sm:px-6 sm:py-20">
-          <h1 className="text-3xl font-semibold tracking-tight text-balance sm:text-5xl">
-            Descubra o que realmente vale a pena comprar
-          </h1>
-          <p className="text-foreground/70 mt-4 text-base leading-relaxed text-balance sm:text-lg">
-            O PreçoCaindo acompanha ofertas do Mercado Livre, Shopee e Amazon e
-            separa o que merece a sua atenção, para você não precisar abrir dez
-            abas.
-          </p>
+      {/* ---------------- 1. CARROSSEL + BUSCA ---------------- */}
+      <HeroCarousel />
 
-          <form action="/ofertas" method="GET" role="search" className="mx-auto mt-8 max-w-xl">
+      <section
+        className="relative z-10 mx-auto -mt-7 max-w-3xl px-4 sm:px-6"
+        aria-label="Buscar"
+      >
+        <div className="bg-background border-border-subtle rounded-2xl border p-4 shadow-xl sm:p-5">
+          <form action="/ofertas" method="GET" role="search">
             <label htmlFor="hero-search" className="sr-only">
               O que você está pensando em comprar?
             </label>
@@ -109,7 +142,7 @@ export default async function Home() {
                 type="search"
                 name="q"
                 placeholder="Produto, marca ou modelo"
-                className="border-border-subtle bg-background focus:border-brand min-h-14 w-full rounded-full border px-6 py-3 text-base outline-none"
+                className="border-border-subtle bg-surface-muted focus:border-brand min-h-14 w-full rounded-full border px-6 py-3 text-base outline-none"
               />
               <button
                 type="submit"
@@ -119,10 +152,12 @@ export default async function Home() {
               </button>
             </div>
           </form>
-
-          <p className="text-foreground/60 mt-5 text-sm">
+          <p className="text-foreground/60 mt-3 text-center text-sm">
             Prefere navegar?{" "}
-            <Link href="/ofertas" className="text-brand font-semibold underline underline-offset-2">
+            <Link
+              href="/ofertas"
+              className="text-brand font-semibold underline underline-offset-2"
+            >
               Veja todas as ofertas
             </Link>{" "}
             ou escolha uma categoria abaixo.
@@ -130,14 +165,48 @@ export default async function Home() {
         </div>
       </section>
 
+      {/* ---------------- 4. CATEGORIAS ---------------- */}
+      <section
+        className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16"
+        aria-labelledby="categorias"
+      >
+        <h2 id="categorias" className="text-2xl font-semibold tracking-tight">
+          Explore por categoria
+        </h2>
+        <ul className="mt-6 grid grid-cols-1 gap-3 min-[480px]:grid-cols-2 lg:grid-cols-3">
+          {CATEGORY_TILES.map((c) => (
+            <li key={c.slug}>
+              <Link
+                href={`/ofertas?categoria=${c.slug}`}
+                className="border-border-subtle hover:border-brand block min-h-16 rounded-xl border px-4 py-3 transition"
+              >
+                <span className="block text-sm font-semibold">{c.label}</span>
+                <span className="text-foreground/60 mt-0.5 block text-xs leading-snug">
+                  {c.hint}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       {/* ---------------- 2. COMO FUNCIONA ---------------- */}
-      <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16" aria-labelledby="como-funciona">
-        <h2 id="como-funciona" className="text-2xl font-semibold tracking-tight">
+      <section
+        className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16"
+        aria-labelledby="como-funciona"
+      >
+        <h2
+          id="como-funciona"
+          className="text-2xl font-semibold tracking-tight"
+        >
           Como funciona
         </h2>
         <ol className="mt-6 grid gap-4 sm:grid-cols-3">
           {STEPS.map((step, i) => (
-            <li key={step.title} className="border-border-subtle rounded-xl border p-5">
+            <li
+              key={step.title}
+              className="border-border-subtle rounded-xl border p-5"
+            >
               <span
                 aria-hidden
                 className="bg-brand text-brand-foreground flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold"
@@ -145,14 +214,19 @@ export default async function Home() {
                 {i + 1}
               </span>
               <h3 className="mt-3 text-base font-semibold">{step.title}</h3>
-              <p className="text-foreground/70 mt-1.5 text-sm leading-relaxed">{step.body}</p>
+              <p className="text-foreground/70 mt-1.5 text-sm leading-relaxed">
+                {step.body}
+              </p>
             </li>
           ))}
         </ol>
       </section>
 
       {/* ---------------- 3. O QUE TEM AQUI ---------------- */}
-      <section className="border-border-subtle bg-surface-muted border-y" aria-labelledby="o-que-tem">
+      <section
+        className="border-border-subtle bg-surface-muted border-y"
+        aria-labelledby="o-que-tem"
+      >
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
           <h2 id="o-que-tem" className="text-2xl font-semibold tracking-tight">
             O que você encontra aqui
@@ -165,7 +239,9 @@ export default async function Home() {
                 className="bg-background border-border-subtle hover:border-brand group flex flex-col rounded-xl border p-5 transition"
               >
                 <h3 className="text-base font-semibold">{s.title}</h3>
-                <p className="text-foreground/70 mt-1.5 flex-1 text-sm leading-relaxed">{s.body}</p>
+                <p className="text-foreground/70 mt-1.5 flex-1 text-sm leading-relaxed">
+                  {s.body}
+                </p>
                 <span className="text-brand mt-4 text-sm font-semibold group-hover:underline">
                   {s.cta} →
                 </span>
@@ -175,47 +251,41 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ---------------- 4. CATEGORIAS ---------------- */}
-      <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16" aria-labelledby="categorias">
-        <h2 id="categorias" className="text-2xl font-semibold tracking-tight">
-          Explore por categoria
-        </h2>
-        <ul className="mt-6 grid grid-cols-1 gap-3 min-[480px]:grid-cols-2 lg:grid-cols-3">
-          {CATEGORY_TILES.map((c) => (
-            <li key={c.slug}>
-              <Link
-                href={`/ofertas?categoria=${c.slug}`}
-                className="border-border-subtle hover:border-brand block min-h-16 rounded-xl border px-4 py-3 transition"
-              >
-                <span className="block text-sm font-semibold">{c.label}</span>
-                <span className="text-foreground/60 mt-0.5 block text-xs leading-snug">{c.hint}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
-
       {/* ---------------- 5. POR QUE CONFIAR ---------------- */}
-      <section className="border-border-subtle bg-surface-muted border-y" aria-labelledby="confianca">
+      <section
+        className="border-border-subtle bg-surface-muted border-y"
+        aria-labelledby="confianca"
+      >
         <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
           <h2 id="confianca" className="text-2xl font-semibold tracking-tight">
             Por que confiar
           </h2>
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
             {TRUST.map((t) => (
-              <div key={t.title} className="bg-background border-border-subtle rounded-xl border p-5">
+              <div
+                key={t.title}
+                className="bg-background border-border-subtle rounded-xl border p-5"
+              >
                 <h3 className="text-base font-semibold">{t.title}</h3>
-                <p className="text-foreground/70 mt-1.5 text-sm leading-relaxed">{t.body}</p>
+                <p className="text-foreground/70 mt-1.5 text-sm leading-relaxed">
+                  {t.body}
+                </p>
               </div>
             ))}
           </div>
           <p className="text-foreground/60 mt-6 text-sm">
             Quer entender os detalhes? Veja a{" "}
-            <Link href="/metodologia" className="text-brand underline underline-offset-2">
+            <Link
+              href="/metodologia"
+              className="text-brand underline underline-offset-2"
+            >
               metodologia
             </Link>{" "}
             e a página de{" "}
-            <Link href="/transparencia" className="text-brand underline underline-offset-2">
+            <Link
+              href="/transparencia"
+              className="text-brand underline underline-offset-2"
+            >
               transparência
             </Link>
             .
@@ -228,7 +298,9 @@ export default async function Home() {
 
       {/* ---------------- 7. CHAMADA FINAL ---------------- */}
       <section className="mx-auto max-w-3xl px-4 py-12 text-center sm:px-6 sm:py-16">
-        <h2 className="text-2xl font-semibold tracking-tight">Pronto para ver o que está valendo?</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">
+          Pronto para ver o que está valendo?
+        </h2>
         <p className="text-foreground/70 mt-2 text-sm">
           As ofertas são atualizadas automaticamente, várias vezes ao dia.
         </p>
