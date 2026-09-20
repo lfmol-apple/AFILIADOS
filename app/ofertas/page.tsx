@@ -5,9 +5,7 @@ import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { recordSearchEvent } from "@/lib/analytics/search-event";
 import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 import type { PagePropsWithSearch } from "@/lib/next-route-types";
-import { searchUnifiedOffers } from "@/lib/queries/unified-offers";
 import { isOffersPageIndexable } from "@/lib/seo/offers-indexability";
-import { stripNoindexDetailLinks } from "@/lib/seo/indexable-product-links";
 import { UnifiedOfferCard } from "@/components/unified-offer-card";
 import { OffersCategoryNav } from "@/components/offers-category-nav";
 import { OffersInfiniteList } from "@/components/offers-infinite-list";
@@ -17,6 +15,7 @@ import {
   getOfferCategoryCounts,
   getOffersPool,
   listOffers,
+  searchOffers,
 } from "@/lib/queries/offers-feed";
 import { offerCategoryLabel } from "@/lib/offers/categories";
 
@@ -70,13 +69,10 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
     // público fechado — exatamente o que já foi corrigido antes na Home e
     // na grade padrão de /ofertas (ver getUnifiedMerchantOffers acima).
     const {
-      items: rawItems,
+      items,
       page: currentPage,
       totalPages,
-    } = await searchUnifiedOffers({ query, page });
-    // Never link the crawler to a noindex product page (Search Console:
-    // "Excluded by noindex") — see lib/seo/indexable-product-links.ts.
-    const items = stripNoindexDetailLinks(rawItems);
+    } = await searchOffers({ query, page });
 
     await recordSearchEvent(query, items.length);
 

@@ -214,3 +214,72 @@ describe("GET /api/ofertas", () => {
     });
   });
 });
+
+import {
+  matchesQuery,
+  retagForSearch,
+  searchPoolCards,
+} from "@/lib/queries/offers-feed";
+
+describe("search over the full pool", () => {
+  it("matches every word in any order, ignoring accents and case", () => {
+    expect(
+      matchesQuery(
+        "Creatina Monohidratada 500g em Pó (Growth)",
+        "creatina growth",
+      ),
+    ).toBe(true);
+    expect(matchesQuery("Ração Úmida para Gatos", "RACAO gatos")).toBe(true);
+    expect(matchesQuery("Creatina Monohidratada", "creatina whey")).toBe(false);
+    expect(matchesQuery("Qualquer coisa", "   ")).toBe(false);
+  });
+
+  it("re-tags the outbound link as coming from search and keeps everything else", () => {
+    const c = {
+      ...card(1, "pet"),
+      href: "/go/shopee/123?pageType=ofertas&pageSlug=ofertas&source=ofertas",
+      detailHref: "/produto/x",
+    };
+    const out = retagForSearch(c, "ração gato");
+    const url = new URL(out.href as string, "https://x.invalid");
+    expect(url.pathname).toBe("/go/shopee/123");
+    expect(url.searchParams.get("source")).toBe("search");
+    expect(url.searchParams.get("campaign")).toBe("ração gato");
+    expect(url.searchParams.get("pageType")).toBe("ofertas");
+    expect(out.detailHref).toBe("/produto/x");
+    expect(c.href).toContain("source=ofertas"); // input untouched
+  });
+
+  it("returns only matching marketplace offers, best signal first, never Amazon", () => {
+    const pool = [
+      {
+        ...card(1, "pet"),
+        title: "Ração gatos adultos",
+        opportunitySignal: 40,
+        href: "/go/shopee/1?source=ofertas",
+      },
+      {
+        ...card(2, "pet"),
+        title: "Ração gatos filhotes",
+        opportunitySignal: 90,
+        href: "/go/shopee/2?source=ofertas",
+      },
+      {
+        ...card(3, "pet"),
+        title: "Ração gatos amazon",
+        merchant: "AMAZON" as const,
+        opportunitySignal: 99,
+      },
+      {
+        ...card(4, "casa"),
+        title: "Tapete",
+        opportunitySignal: 95,
+        href: "/go/shopee/4?source=ofertas",
+      },
+    ];
+    expect(searchPoolCards(pool, "racao gatos").map((c) => c.id)).toEqual([
+      "2",
+      "1",
+    ]);
+  });
+});

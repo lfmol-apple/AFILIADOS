@@ -125,8 +125,8 @@ export function mapAmazonProductToUnifiedCard(product: ProductListItem): Unified
 const CANDIDATE_POOL_MULTIPLIER = 5;
 const CANDIDATE_POOL_CEILING = 200;
 
-function candidatePoolSize(limit: number): number {
-  return Math.min(limit * CANDIDATE_POOL_MULTIPLIER, CANDIDATE_POOL_CEILING);
+function candidatePoolSize(limit: number, ceiling: number = CANDIDATE_POOL_CEILING): number {
+  return Math.min(limit * CANDIDATE_POOL_MULTIPLIER, ceiling);
 }
 
 /**
@@ -148,8 +148,13 @@ export async function getUnifiedMerchantOffers(
    * `source=search&query=...` without duplicating the href-building or
    * eligibility logic. */
   linkParams?: Record<string, string>,
+  /** Only the cached /ofertas feed passes this (lib/queries/offers-feed.ts):
+   * it builds ONE big pool per few minutes, off the request path, so it can
+   * afford to reach every active link. Every per-request caller keeps the
+   * default ceiling (the 2026-09-12/13 performance incidents). */
+  options?: { poolCeiling?: number },
 ): Promise<UnifiedOfferCard[]> {
-  const poolSize = candidatePoolSize(limit);
+  const poolSize = candidatePoolSize(limit, options?.poolCeiling);
 
   // Pool MEMBERSHIP is decided by a commission-free proxy (demand +
   // offerQuality only — see candidate-pool.ts's doc comment for why this

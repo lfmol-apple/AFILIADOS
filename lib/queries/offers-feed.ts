@@ -5,6 +5,7 @@ import {
   getUnifiedMerchantOffers,
   mapAmazonProductToUnifiedCard,
   selectTopUnifiedOffers,
+  type SearchUnifiedOffersResult,
   type UnifiedOfferCard,
 } from "@/lib/queries/unified-offers";
 import {
@@ -34,7 +35,14 @@ export const FEED_PAGE_SIZE = 24;
  * slices the merged list to `limit`. 400 therefore returns every one of
  * those bounded candidates (up to 200 Mercado Livre + all Shopee) without
  * adding any database work over asking for 200. */
-const POOL_LIMIT = 400;
+const POOL_LIMIT = 4000;
+/** Per-merchant DB candidate ceiling for the cached pool: high enough to
+ * reach EVERY active affiliate link (977 Mercado Livre + 174 Shopee today),
+ * so no link the owner registers stays invisible. Safe only because this is
+ * built once per few minutes, in the background — see getOffersPool. */
+const FEED_POOL_CEILING = 2000;
+/** Plan B if the deep build fails (DB pressure): the previous bounded pool. */
+const FALLBACK_POOL_LIMIT = 400;
 const AMAZON_POOL_SIZE = 96;
 const POOL_TTL_MS = 5 * 60 * 1000;
 
@@ -47,7 +55,16 @@ async function buildPool(): Promise<UnifiedOfferCard[]> {
     catalogSafe
       ? getOfertas({ page: 1, pageSize: AMAZON_POOL_SIZE })
       : { items: [] },
-    getUnifiedMerchantOffers(POOL_LIMIT, { source: "ofertas" }),
+    getUnifiedMerchantOffers(
+      POOL_LIMIT,
+      { source: "ofertas" },
+      { poolCeiling: FEED_POOL_CEILING },
+    ).catch((error) => {
+      console.error("offers_feed.deep_pool_failed_using_fallback", error);
+      return getUnifiedMerchantOffers(FALLBACK_POOL_LIMIT, {
+        source: "ofertas",
+      });
+    }),
   ]);
   const all = [
     ...amazonResult.items.map(mapAmazonProductToUnifiedCard),
@@ -202,4 +219,80 @@ export async function getOfferCategoryCounts(
   return countByCategory(
     merchant ? pool.filter((c) => c.merchant === merchant) : pool,
   );
+}
+
+// ---------------------------------------------------------------- search
+
+const SEARCH_PAGE_SIZE = 24;
+const AMAZON_SEARCH_LIMIT = 96;
+
+function normalizeText(value: string): string {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+/** Every word of the query must appear in the title, in any order, ignoring
+ * accents and case ("creatina growth" finds "Creatina Monohidratada Growth").
+ * The old check was one exact substring, so multi-word searches missed. */
+export function matchesQuery(title: string, query: string): boolean {
+  const words = normalizeText(query).split(/\s+/).filter(Boolean);
+  if (words.length === 0) return false;
+  const haystack = normalizeText(title);
+  return words.every((w) => haystack.includes(w));
+}
+
+/** Same card, but its outbound link is tagged as coming from search (what
+ * getUnifiedMerchantOffers' linkParams did per request) so clicks stay
+ * attributable to the query. */
+export function retagForSearch(
+  card: UnifiedOfferCard,
+  query: string,
+): UnifiedOfferCard {
+  if (!card.href) return card;
+  const url = new URL(card.href, "https://placeholder.invalid");
+  url.searchParams.set("source", "search");
+  url.searchParams.set("campaign", query);
+  return { ...card, href: `${url.pathname}${url.search}` };
+}
+
+/** Pure: marketplace offers (never Amazon, which has its own search path)
+ * from the pool whose title matches, best signal first. */
+export function searchPoolCards(
+  pool: UnifiedOfferCard[],
+  query: string,
+): UnifiedOfferCard[] {
+  return pool
+    .filter((c) => c.merchant !== "AMAZON" && matchesQuery(c.title, query))
+    .map((c) => retagForSearch(c, query))
+    .sort((a, b) => (b.opportunitySignal ?? -1) - (a.opportunitySignal ?? -1));
+}
+
+/**
+ * Search over EVERY active offer (the cached pool, not only the top 200 the
+ * per-request path can afford), merged with Amazon's own search, ranked by
+ * the same commission-free signal and paged in memory.
+ */
+export async function searchOffers(input: {
+  query: string;
+  page?: number;
+}): Promise<SearchUnifiedOffersResult> {
+  const page = Math.max(1, Math.floor(input.page ?? 1));
+  const [amazonResult, pool] = await Promise.all([
+    getOfertas({ query: input.query, page: 1, pageSize: AMAZON_SEARCH_LIMIT }),
+    getOffersPool(),
+  ]);
+  const all = [
+    ...amazonResult.items.map(mapAmazonProductToUnifiedCard),
+    ...searchPoolCards(pool, input.query),
+  ].sort((a, b) => (b.opportunitySignal ?? -1) - (a.opportunitySignal ?? -1));
+
+  const totalPages = Math.max(1, Math.ceil(all.length / SEARCH_PAGE_SIZE));
+  const start = (page - 1) * SEARCH_PAGE_SIZE;
+  return {
+    items: stripNoindexDetailLinks(all.slice(start, start + SEARCH_PAGE_SIZE)),
+    page,
+    totalPages,
+  };
 }
