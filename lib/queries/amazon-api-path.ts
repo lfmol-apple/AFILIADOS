@@ -13,23 +13,28 @@ export async function getAmazonApiPathSnapshot(): Promise<AmazonApiPathSnapshot>
   const since = new Date();
   since.setDate(since.getDate() - 30);
 
-  const [clicksLast30d, clicksTotal, sourceRows, activeRows, publishedGuides] = await Promise.all([
-    prisma.affiliateClick.count({ where: { provider: "AMAZON", createdAt: { gte: since } } }),
-    prisma.affiliateClick.count({ where: { provider: "AMAZON" } }),
-    prisma.product.groupBy({
-      by: ["dataSource"],
-      where: { marketplace: "BR", provider: "AMAZON" },
-      _count: { _all: true },
-    }),
-    prisma.product.groupBy({
-      by: ["dataSource"],
-      where: { marketplace: "BR", provider: "AMAZON", active: true },
-      _count: { _all: true },
-    }),
-    prisma.generatedContent.count({ where: { status: "PUBLISHED" } }),
-  ]);
+  const [clicksLast30d, clicksTotal, sourceRows, activeRows, publishedGuides] =
+    await Promise.all([
+      prisma.affiliateClick.count({
+        where: { provider: "AMAZON", createdAt: { gte: since } },
+      }),
+      prisma.affiliateClick.count({ where: { provider: "AMAZON" } }),
+      prisma.product.groupBy({
+        by: ["dataSource"],
+        where: { marketplace: "BR", provider: "AMAZON" },
+        _count: { _all: true },
+      }),
+      prisma.product.groupBy({
+        by: ["dataSource"],
+        where: { marketplace: "BR", provider: "AMAZON", active: true },
+        _count: { _all: true },
+      }),
+      prisma.generatedContent.count({ where: { status: "PUBLISHED" } }),
+    ]);
 
-  const activeBySource = new Map(activeRows.map((r) => [r.dataSource, r._count._all]));
+  const activeBySource = new Map(
+    activeRows.map((r) => [r.dataSource, r._count._all]),
+  );
   return {
     clicksLast30d,
     clicksTotal,

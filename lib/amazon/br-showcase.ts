@@ -21,10 +21,7 @@
 import { buildAmazonProductUrl } from "@/lib/amazon/policy-guard";
 
 export type AmazonShowcaseCategory =
-  | "Tecnologia"
-  | "Casa & Eletrodomésticos"
-  | "Esporte & Fitness"
-  | "Pet";
+  "Tecnologia" | "Casa & Eletrodomésticos" | "Esporte & Fitness" | "Pet";
 
 export interface AmazonShowcaseProduct {
   /** Stable key for React lists and tests — not shown to users. */
@@ -84,7 +81,7 @@ export const AMAZON_SHOWCASE_FEATURED: AmazonShowcaseProduct[] = [
     brand: "Fábrica Pet",
     category: "Pet",
     description:
-      "Cama grande pra cães de porte médio a grande, pensada pro conforto no dia a dia do pet. Antes de comprar, vale conferir as medidas exatas do produto contra o tamanho real do seu cão — \"grande\" varia bastante de marca pra marca.",
+      'Cama grande pra cães de porte médio a grande, pensada pro conforto no dia a dia do pet. Antes de comprar, vale conferir as medidas exatas do produto contra o tamanho real do seu cão — "grande" varia bastante de marca pra marca.',
   },
   {
     id: "smart-tv-semp-32",
@@ -178,7 +175,7 @@ export const AMAZON_SHOWCASE_MORE: AmazonShowcaseProduct[] = [
     brand: "Muvin",
     category: "Esporte & Fitness",
     description:
-      'Tapete de EVA para yoga, pilates ou ginástica em casa, indicado pra quem está começando. Tamanho padrão (180cm x 60cm) atende a maioria das pessoas, mas vale conferir se cobre sua altura confortavelmente. Item de ticket baixo que complementa uma rotina de exercícios em casa.',
+      "Tapete de EVA para yoga, pilates ou ginástica em casa, indicado pra quem está começando. Tamanho padrão (180cm x 60cm) atende a maioria das pessoas, mas vale conferir se cobre sua altura confortavelmente. Item de ticket baixo que complementa uma rotina de exercícios em casa.",
   },
   {
     id: "projetor-benq-th671st",

@@ -12,7 +12,10 @@ export const amazonDisclosure = getDisclosureText();
 export const AMAZON_REQUIRED_DISCLOSURE =
   "Como participante do Programa de Associados da Amazon, sou remunerado pelas compras qualificadas efetuadas.";
 
-export function isDisclosureCompliant(text: string = amazonDisclosure): boolean {
-  const normalize = (s: string) => s.trim().replace(/\s+/g, " ").replace(/\.$/, "").toLowerCase();
+export function isDisclosureCompliant(
+  text: string = amazonDisclosure,
+): boolean {
+  const normalize = (s: string) =>
+    s.trim().replace(/\s+/g, " ").replace(/\.$/, "").toLowerCase();
   return normalize(text) === normalize(AMAZON_REQUIRED_DISCLOSURE);
 }

@@ -19,7 +19,7 @@ export function AffiliateDisclosure({
     return (
       <p
         role="note"
-        className="border-brand/40 bg-brand/5 text-foreground rounded-lg border px-4 py-3 text-sm font-medium leading-relaxed"
+        className="border-brand/40 bg-brand/5 text-foreground rounded-lg border px-4 py-3 text-sm leading-relaxed font-medium"
       >
         {amazonDisclosure}
       </p>

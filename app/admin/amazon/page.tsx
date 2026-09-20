@@ -1,10 +1,21 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
-import { ADMIN_SESSION_COOKIE, isAdminRequestAuthorized } from "@/lib/admin/auth";
+import {
+  ADMIN_SESSION_COOKIE,
+  isAdminRequestAuthorized,
+} from "@/lib/admin/auth";
 import { AdminLoginForm } from "@/components/admin-login-form";
-import { StatCard, StatusPill, DashboardGroup, SubSection } from "@/components/admin/dashboard-ui";
+import {
+  StatCard,
+  StatusPill,
+  DashboardGroup,
+  SubSection,
+} from "@/components/admin/dashboard-ui";
 import { getBrazilAmazonStatus } from "@/lib/amazon/status";
-import { checkLiveActivationReadiness, isPolicyReviewRecent } from "@/lib/amazon/policy-guard";
+import {
+  checkLiveActivationReadiness,
+  isPolicyReviewRecent,
+} from "@/lib/amazon/policy-guard";
 import { getAmazonApiPathSnapshot } from "@/lib/queries/amazon-api-path";
 import {
   AMAZON_REQUIRED_DISCLOSURE,
@@ -72,7 +83,8 @@ export default async function AmazonApiPathPage() {
       done: disclosureOk,
     },
     {
-      title: "Página pública com conteúdo original e links (a Amazon avalia o site público)",
+      title:
+        "Página pública com conteúdo original e links (a Amazon avalia o site público)",
       detail:
         "A seleção com análise própria fica em /amazon, aberta a qualquer visitante, sem login, com o aviso em destaque.",
       source: "Políticas — site publicamente disponível e conteúdo original",
@@ -87,14 +99,16 @@ export default async function AmazonApiPathPage() {
       done: status.trackingIdConfigured,
     },
     {
-      title: "Conta de Associados aprovada (3 vendas qualificadas em até 180 dias do cadastro)",
+      title:
+        "Conta de Associados aprovada (3 vendas qualificadas em até 180 dias do cadastro)",
       detail:
         "Regra de aprovação da conta, anterior à API. Confirme no painel de Associados — fonte secundária, verifique o prazo da sua própria conta.",
       source: "Central de Associados / FAQ de candidaturas",
       kind: "manual",
     },
     {
-      title: "Mínimo de 10 vendas qualificadas nos últimos 30 dias (janela móvel)",
+      title:
+        "Mínimo de 10 vendas qualificadas nos últimos 30 dias (janela móvel)",
       detail:
         "É o requisito da Creators API. Sem isso as chamadas retornam AssociateNotEligible. Cliques e pedidos do painel NÃO provam isso — só a confirmação da Amazon.",
       source: "Documentação oficial da Creators API",
@@ -129,7 +143,7 @@ export default async function AmazonApiPathPage() {
     },
     {
       rule: "Aviso de afiliado perto de cada link",
-      how: "Texto exigido: \"Como participante do Programa de Associados da Amazon, sou remunerado pelas compras qualificadas efetuadas.\" Deve aparecer de forma clara e destacada — use <AffiliateDisclosure prominent /> no topo de qualquer página de links Amazon.",
+      how: 'Texto exigido: "Como participante do Programa de Associados da Amazon, sou remunerado pelas compras qualificadas efetuadas." Deve aparecer de forma clara e destacada — use <AffiliateDisclosure prominent /> no topo de qualquer página de links Amazon.',
     },
     {
       rule: "Sem preço, imagem ou dado da Amazon sem a API",
@@ -159,10 +173,12 @@ export default async function AmazonApiPathPage() {
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Amazon — caminho para a API</h1>
+          <h1 className="text-2xl font-semibold">
+            Amazon — caminho para a API
+          </h1>
           <p className="text-foreground/50 mt-1 text-sm">
-            Critérios da Amazon para liberar a Creators API e o que publicar com link até lá. Regras
-            conferidas nas fontes oficiais em {REVIEWED_ON}.
+            Critérios da Amazon para liberar a Creators API e o que publicar com
+            link até lá. Regras conferidas nas fontes oficiais em {REVIEWED_ON}.
           </p>
         </div>
         <a
@@ -175,8 +191,9 @@ export default async function AmazonApiPathPage() {
 
       {!policyRecent && (
         <div className="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-300">
-          ⚠️ AMAZON_POLICY_REVIEW_DATE está a mais de 90 dias. As regras abaixo foram reconferidas em{" "}
-          {REVIEWED_ON}; atualize a variável de ambiente e docs/AMAZON_COMPLIANCE.md.
+          ⚠️ AMAZON_POLICY_REVIEW_DATE está a mais de 90 dias. As regras abaixo
+          foram reconferidas em {REVIEWED_ON}; atualize a variável de ambiente e
+          docs/AMAZON_COMPLIANCE.md.
         </div>
       )}
 
@@ -185,13 +202,25 @@ export default async function AmazonApiPathPage() {
         description="Números reais deste sistema. Vendas qualificadas só existem no painel da Amazon."
       >
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatCard label="Cliques Amazon (30d)" value={snapshot.clicksLast30d} />
-          <StatCard label="Cliques Amazon (total)" value={snapshot.clicksTotal} />
-          <StatCard label="Guias/páginas publicadas" value={snapshot.publishedGuides} />
+          <StatCard
+            label="Cliques Amazon (30d)"
+            value={snapshot.clicksLast30d}
+          />
+          <StatCard
+            label="Cliques Amazon (total)"
+            value={snapshot.clicksTotal}
+          />
+          <StatCard
+            label="Guias/páginas publicadas"
+            value={snapshot.publishedGuides}
+          />
           <StatCard label="Provider" value={status.provider.toUpperCase()} />
         </div>
         <div className="flex flex-wrap gap-2">
-          <StatusPill ok={status.trackingIdConfigured} label={`Tracking ID: ${status.trackingId}`} />
+          <StatusPill
+            ok={status.trackingIdConfigured}
+            label={`Tracking ID: ${status.trackingId}`}
+          />
           <StatusPill
             ok={status.qualifiedSalesRequirementMet}
             label={
@@ -203,13 +232,17 @@ export default async function AmazonApiPathPage() {
           <StatusPill
             ok={status.creatorsApiAccountApproved}
             label={
-              status.creatorsApiAccountApproved ? "Creators API aprovada" : "Creators API NÃO aprovada"
+              status.creatorsApiAccountApproved
+                ? "Creators API aprovada"
+                : "Creators API NÃO aprovada"
             }
           />
         </div>
         <SubSection title="Produtos Amazon BR por origem do dado">
           {snapshot.productsBySource.length === 0 ? (
-            <p className="text-foreground/50 text-sm">Nenhum produto Amazon cadastrado.</p>
+            <p className="text-foreground/50 text-sm">
+              Nenhum produto Amazon cadastrado.
+            </p>
           ) : (
             <ul className="space-y-1.5 text-sm">
               {snapshot.productsBySource.map((r) => (
@@ -236,27 +269,52 @@ export default async function AmazonApiPathPage() {
                 <div className="text-sm font-medium">{c.title}</div>
                 <StatusPill
                   ok={c.done === true}
-                  label={c.done === true ? "OK" : c.kind === "auto" ? "Pendente" : "A confirmar"}
+                  label={
+                    c.done === true
+                      ? "OK"
+                      : c.kind === "auto"
+                        ? "Pendente"
+                        : "A confirmar"
+                  }
                 />
               </div>
               <p className="text-foreground/60 mt-1.5 text-xs">{c.detail}</p>
-              <p className="text-foreground/40 mt-1 text-xs">Fonte: {c.source}</p>
+              <p className="text-foreground/40 mt-1 text-xs">
+                Fonte: {c.source}
+              </p>
             </li>
           ))}
         </ol>
         <SubSection title="O que conta como venda qualificada">
           <ul className="text-foreground/70 list-disc space-y-1.5 pl-5 text-sm">
-            <li>Sessão de 24h a partir do clique (ou até outro link de afiliado assumir a sessão).</li>
-            <li>Produto físico no carrinho dentro da sessão pode ser comprado em até 89 dias.</li>
-            <li>Envio/entrega e pagamento em até 180 dias (regra do Acordo de 14/04/2026).</li>
-            <li>Venda revertida, autocompra e compra via anúncio pago ligado à Amazon não contam.</li>
-            <li>Comissão paga ~60 dias após o fim do mês; mínimo de R$ 30,00.</li>
+            <li>
+              Sessão de 24h a partir do clique (ou até outro link de afiliado
+              assumir a sessão).
+            </li>
+            <li>
+              Produto físico no carrinho dentro da sessão pode ser comprado em
+              até 89 dias.
+            </li>
+            <li>
+              Envio/entrega e pagamento em até 180 dias (regra do Acordo de
+              14/04/2026).
+            </li>
+            <li>
+              Venda revertida, autocompra e compra via anúncio pago ligado à
+              Amazon não contam.
+            </li>
+            <li>
+              Comissão paga ~60 dias após o fim do mês; mínimo de R$ 30,00.
+            </li>
           </ul>
         </SubSection>
         <SubSection title="Checklist técnico de ativação (BR)">
           <ul className="space-y-1.5 text-sm">
             {readiness.map((c) => (
-              <li key={c.key} className="flex items-center justify-between gap-3">
+              <li
+                key={c.key}
+                className="flex items-center justify-between gap-3"
+              >
                 <span>{c.label}</span>
                 <StatusPill ok={c.pass} label={c.pass ? "PASS" : "PENDENTE"} />
               </li>
@@ -264,8 +322,8 @@ export default async function AmazonApiPathPage() {
           </ul>
           {pendingReadiness.length > 0 && (
             <p className="text-foreground/50 mt-2 text-xs">
-              As credenciais só existem depois que a Amazon liberar a Creators API — ver critérios
-              acima.
+              As credenciais só existem depois que a Amazon liberar a Creators
+              API — ver critérios acima.
             </p>
           )}
         </SubSection>
@@ -277,7 +335,10 @@ export default async function AmazonApiPathPage() {
       >
         <div className="space-y-3">
           {writingRules.map((r) => (
-            <div key={r.rule} className="border-border-subtle rounded-lg border p-4">
+            <div
+              key={r.rule}
+              className="border-border-subtle rounded-lg border p-4"
+            >
               <div className="text-sm font-medium">{r.rule}</div>
               <p className="text-foreground/60 mt-1.5 text-xs">{r.how}</p>
             </div>
@@ -286,20 +347,21 @@ export default async function AmazonApiPathPage() {
         <SubSection title="Roteiro sugerido">
           <ol className="text-foreground/70 list-decimal space-y-1.5 pl-5 text-sm">
             <li>
-              Cadastrar produtos reais à mão (origem MANUAL_VERIFIED) com fatos conferidos — sem
-              preço, sem imagem copiada.
+              Cadastrar produtos reais à mão (origem MANUAL_VERIFIED) com fatos
+              conferidos — sem preço, sem imagem copiada.
             </li>
             <li>
-              Publicar guias/comparativos com critério próprio e o aviso de afiliado junto de cada
-              link (<code>/guias</code>).
+              Publicar guias/comparativos com critério próprio e o aviso de
+              afiliado junto de cada link (<code>/guias</code>).
             </li>
             <li>
-              Acompanhar cliques Amazon aqui e as vendas qualificadas no painel da Amazon (nunca
-              inferir uma coisa da outra).
+              Acompanhar cliques Amazon aqui e as vendas qualificadas no painel
+              da Amazon (nunca inferir uma coisa da outra).
             </li>
             <li>
-              Ao confirmar 10 vendas em 30 dias: marcar AMAZON_BR_QUALIFIED_SALES_MET, gerar as
-              credenciais e aguardar até 48h.
+              Ao confirmar 10 vendas em 30 dias: marcar
+              AMAZON_BR_QUALIFIED_SALES_MET, gerar as credenciais e aguardar até
+              48h.
             </li>
           </ol>
         </SubSection>
@@ -309,7 +371,12 @@ export default async function AmazonApiPathPage() {
         <ul className="space-y-1.5 text-sm">
           {SOURCES.map((s) => (
             <li key={s.href}>
-              <a href={s.href} target="_blank" rel="noopener noreferrer" className="underline">
+              <a
+                href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline"
+              >
                 {s.label}
               </a>
             </li>

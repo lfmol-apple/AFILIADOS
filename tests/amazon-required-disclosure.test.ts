@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { AMAZON_REQUIRED_DISCLOSURE, isDisclosureCompliant } from "@/lib/amazon/disclosure";
+import {
+  AMAZON_REQUIRED_DISCLOSURE,
+  isDisclosureCompliant,
+} from "@/lib/amazon/disclosure";
 import { env } from "@/lib/config/env";
 import { STATIC_ROUTE_PATHS } from "@/app/sitemap";
 
@@ -14,7 +17,11 @@ describe("Amazon required affiliate disclosure", () => {
   });
 
   it("rejects the old shortened wording", () => {
-    expect(isDisclosureCompliant("Como associado da Amazon, eu ganho com compras qualificadas.")).toBe(false);
+    expect(
+      isDisclosureCompliant(
+        "Como associado da Amazon, eu ganho com compras qualificadas.",
+      ),
+    ).toBe(false);
   });
 
   it("ships the required statement as the default configuration", () => {

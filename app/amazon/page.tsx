@@ -3,7 +3,10 @@ import Link from "next/link";
 import { AffiliateDisclosure } from "@/components/affiliate-disclosure";
 import { AmazonShowcaseCard } from "@/components/amazon-br-showcase";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
-import { AMAZON_SHOWCASE_ALL, type AmazonShowcaseCategory } from "@/lib/amazon/br-showcase";
+import {
+  AMAZON_SHOWCASE_ALL,
+  type AmazonShowcaseCategory,
+} from "@/lib/amazon/br-showcase";
 
 // The affiliate tag lives in the runtime .env, which the Docker build never
 // sees — a statically prerendered page would bake in "link indisponível".
@@ -57,10 +60,12 @@ export default function AmazonPage() {
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
       <AnalyticsBeacon pageType="amazon" pageSlug="amazon" />
 
-      <h1 className="text-3xl font-semibold tracking-tight">Achados na Amazon</h1>
+      <h1 className="text-3xl font-semibold tracking-tight">
+        Achados na Amazon
+      </h1>
       <p className="text-foreground/70 mt-3 max-w-2xl text-sm leading-relaxed">
-        Uma seleção de produtos da Amazon.com.br que valem a atenção de quem está pesquisando antes
-        de comprar, cada um com nossa análise.
+        Uma seleção de produtos da Amazon.com.br que valem a atenção de quem
+        está pesquisando antes de comprar, cada um com nossa análise.
       </p>
 
       <div className="mt-5 max-w-2xl">
@@ -73,16 +78,25 @@ export default function AmazonPage() {
         </h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           {CRITERIA.map((c) => (
-            <div key={c.title} className="border-border-subtle rounded-lg border p-4">
+            <div
+              key={c.title}
+              className="border-border-subtle rounded-lg border p-4"
+            >
               <h3 className="text-sm font-semibold">{c.title}</h3>
-              <p className="text-foreground/70 mt-1.5 text-sm leading-relaxed">{c.body}</p>
+              <p className="text-foreground/70 mt-1.5 text-sm leading-relaxed">
+                {c.body}
+              </p>
             </div>
           ))}
         </div>
       </section>
 
       {groups.map((g) => (
-        <section key={g.category} className="mt-12" aria-labelledby={`cat-${g.category}`}>
+        <section
+          key={g.category}
+          className="mt-12"
+          aria-labelledby={`cat-${g.category}`}
+        >
           <h2 id={`cat-${g.category}`} className="text-lg font-semibold">
             {g.category}
           </h2>
