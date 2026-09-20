@@ -217,5 +217,6 @@ comissão ou venda estimada; vendas reais ficam no painel de cada marketplace.
 - Cron (ainda **não instalado** — depende da chave): wrapper `scripts/run-daily-digest-cron.sh`,
   mesmo padrão do link-health-check (imagem `precocaindo-scripts`, rede `precocaindo_internal`).
   Sugestão: `0 8 * * * /opt/precocaindo/app/scripts/run-daily-digest-cron.sh --live >> /var/log/precocaindo-daily-digest-cron.log 2>&1`
-  (8h da manhã; o servidor está em UTC, ajustar ao fuso desejado). A imagem `precocaindo-scripts`
-  precisa ser reconstruída para conter o job novo.
+  (8h da manhã; o servidor está em UTC, ajustar ao fuso desejado). O job usa uma imagem própria,
+  `precocaindo-digest` (comando de rebuild no cabeçalho do wrapper), para não alterar o código da
+  automação de 4 em 4 horas que roda em `precocaindo-scripts`.
