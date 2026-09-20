@@ -141,8 +141,15 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
     getOffersPool(),
   ]);
 
+  const title = category
+    ? offerCategoryLabel(category)
+    : "Melhores oportunidades agora";
+  const merchantsPresent = Array.from(new Set(pool.map((c) => c.merchant))).map(
+    (m) => MERCHANT_NAMES[m],
+  );
+
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6">
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
       <AnalyticsBeacon
         pageType="ofertas"
         pageSlug={category ? `ofertas:${category}` : "ofertas"}
@@ -150,15 +157,39 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
       <Breadcrumbs
         items={[{ label: "Início", href: "/" }, { label: "Ofertas" }]}
       />
-      <h1 className="mt-4 text-2xl font-semibold">
-        {category
-          ? offerCategoryLabel(category)
-          : "Melhores oportunidades agora"}
-      </h1>
-      <p className="text-foreground/60 mt-1 text-sm">
-        Busque por produto, marca, modelo ou categoria. Priorizamos por demanda,
-        preço e evidência real — em qualquer loja parceira.
-      </p>
+
+      <header className="relative mt-4 overflow-hidden rounded-2xl bg-linear-to-br from-teal-700 to-teal-950 p-5 text-white sm:p-8">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-16 -right-10 h-56 w-56 rounded-full bg-white/10"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute right-28 -bottom-24 h-44 w-44 rounded-full bg-white/5"
+        />
+        <div className="relative max-w-2xl">
+          <h1 className="text-2xl font-bold tracking-tight text-balance sm:text-4xl">
+            {title}
+          </h1>
+          <p className="mt-2 text-sm leading-relaxed text-white/85 sm:text-base">
+            Priorizamos por demanda, preço e evidência real, sem olhar a
+            comissão. Atualizado automaticamente.
+          </p>
+        </div>
+        {pool.length > 0 && (
+          <ul className="relative mt-5 flex flex-wrap gap-2 text-xs font-semibold sm:text-sm">
+            <li className="rounded-full bg-white/15 px-3 py-1.5">
+              {firstPage.total} {firstPage.total === 1 ? "oferta" : "ofertas"}
+              {category ? " nesta categoria" : ""}
+            </li>
+            {merchantsPresent.length > 0 && (
+              <li className="rounded-full bg-white/15 px-3 py-1.5">
+                {merchantsPresent.join(" · ")}
+              </li>
+            )}
+          </ul>
+        )}
+      </header>
 
       {!catalogSafe && pool.length === 0 ? (
         <PreLaunchNotice />
@@ -167,7 +198,7 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
           Nenhuma oferta real disponível agora.
         </p>
       ) : (
-        <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-8">
+        <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-8">
           <OffersCategoryNav
             categories={categories}
             active={category}
@@ -184,6 +215,12 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
     </div>
   );
 }
+
+const MERCHANT_NAMES = {
+  AMAZON: "Amazon",
+  SHOPEE: "Shopee",
+  MERCADO_LIVRE: "Mercado Livre",
+} as const;
 
 function PreLaunchNotice() {
   return (

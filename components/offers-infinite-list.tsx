@@ -92,7 +92,7 @@ export function OffersInfiniteList({
 
   return (
     <div>
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
         {items.map((item) => (
           <UnifiedOfferCard key={`${item.merchant}-${item.id}`} item={item} />
         ))}
@@ -116,7 +116,7 @@ export function OffersInfiniteList({
           <button
             type="button"
             onClick={() => void loadMore()}
-            className="border-border-subtle hover:border-brand rounded-full border px-5 py-2 font-medium"
+            className="border-brand text-brand hover:bg-brand hover:text-brand-foreground min-h-11 rounded-full border-2 px-8 py-2 font-semibold transition"
           >
             {failed ? "Tentar de novo" : "Carregar mais"}
           </button>
