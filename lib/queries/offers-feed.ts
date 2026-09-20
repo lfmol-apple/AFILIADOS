@@ -23,8 +23,12 @@ import {
  * bounded pool (top offers per merchant), not the whole catalog.
  */
 export const FEED_PAGE_SIZE = 24;
-/** Same ceiling getUnifiedMerchantOffers enforces per merchant. */
-const POOL_LIMIT = 200;
+/** getUnifiedMerchantOffers caps its DB candidate pool at 200 rows PER
+ * merchant no matter what limit it is given (see candidatePoolSize), then
+ * slices the merged list to `limit`. 400 therefore returns every one of
+ * those bounded candidates (up to 200 Mercado Livre + all Shopee) without
+ * adding any database work over asking for 200. */
+const POOL_LIMIT = 400;
 const AMAZON_POOL_SIZE = 96;
 const POOL_TTL_MS = 5 * 60 * 1000;
 
