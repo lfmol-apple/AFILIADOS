@@ -20,6 +20,7 @@
     "jobs:run": "tsx jobs/run.ts",
     "jobs:run-ml-shopee": "tsx jobs/run-ml-shopee-cycle.ts",
     "jobs:run-link-health": "tsx jobs/link-health-check.ts",
+    "jobs:run-daily-digest": "tsx jobs/daily-performance-digest.ts",
     "amazon:compliance": "tsx scripts/amazon-compliance.ts",
     "seo:readiness": "tsx scripts/seo-readiness-report.ts",
     "seo:backfill-slugs": "tsx scripts/backfill-public-slugs.ts",

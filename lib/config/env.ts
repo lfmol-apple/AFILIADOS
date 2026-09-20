@@ -77,7 +77,9 @@ const envSchema = z.object({
   AMAZON_CONTENT_TTL: z.coerce.number().int().positive().default(3600),
   AMAZON_ASSOCIATE_DISCLOSURE: z
     .string()
-    .default("Como participante do Programa de Associados da Amazon, sou remunerado pelas compras qualificadas efetuadas."),
+    .default(
+      "Como participante do Programa de Associados da Amazon, sou remunerado pelas compras qualificadas efetuadas.",
+    ),
   AMAZON_POLICY_REVIEW_DATE: z.string().default("2026-08-17"),
 
   // --- Mercado Livre (lib/providers/mercado-livre-provider.ts) ---
@@ -163,6 +165,18 @@ const envSchema = z.object({
   // logs), which was never real authentication. See lib/admin/auth.ts and
   // docs/PRODUCTION_READINESS.md.
   ADMIN_PASSWORD_HASH: z.string().default(""),
+
+  // --- Daily performance email (jobs/daily-performance-digest.ts) ---
+  // Sent through Resend's HTTP API (lib/services/email-sender.ts). Empty
+  // RESEND_API_KEY or recipient means "not configured": the job refuses to
+  // send instead of guessing. Never commit a real key — production .env only.
+  RESEND_API_KEY: z.string().default(""),
+  DAILY_DIGEST_EMAIL_TO: z.string().default(""),
+  // e.g. "PreçoCaindo <relatorios@precocaindo.com.br>" once the domain is
+  // verified at Resend; onboarding@resend.dev only delivers to the account owner.
+  DAILY_DIGEST_EMAIL_FROM: z
+    .string()
+    .default("PreçoCaindo <onboarding@resend.dev>"),
 });
 
 export type Env = z.infer<typeof envSchema>;

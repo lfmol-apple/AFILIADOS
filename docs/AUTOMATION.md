@@ -199,3 +199,23 @@ ordem — HOT antes de WARM antes de COLD, e dentro do mesmo nível, o mais desa
 sem nunca exceder um `rateBudget` explícito. Deliberadamente não hardcoda uma frequência absoluta
 de chamadas por minuto/hora, porque os limites reais da Creators API ainda não foram confirmados
 (ver docs/AMAZON.md) — o orçamento é decidido por quem chama o planner, não pelo planner em si.
+
+## DAILY_PERFORMANCE_DIGEST — e-mail diário de desempenho
+
+Envia por e-mail os mesmos números de `/admin/desempenho` (cliques 7d vs 7d anteriores, ontem,
+top produtos, origem dos cliques, alertas de automação). Só cliques e tráfego do site — nunca
+comissão ou venda estimada; vendas reais ficam no painel de cada marketplace.
+
+- Código: `jobs/daily-performance-digest.ts` (job), `lib/services/performance-digest.ts` (texto/HTML,
+  função pura) e `lib/services/email-sender.ts` (API HTTP do Resend via `fetch`, sem dependência nova).
+- **Dry-run por padrão** (só imprime o e-mail); enviar exige `--live`:
+  `npm run jobs:run-daily-digest` (dry-run) · `npm run jobs:run-daily-digest -- --live`.
+- Variáveis (só no `.env` de produção, nunca no repositório): `RESEND_API_KEY`,
+  `DAILY_DIGEST_EMAIL_TO`, `DAILY_DIGEST_EMAIL_FROM`. Sem chave ou destinatário o job registra erro
+  (execução `PARTIAL`) em vez de adivinhar. Com o remetente padrão `onboarding@resend.dev` o Resend só
+  entrega para o e-mail dono da conta; para outro destinatário, verificar o domínio no Resend.
+- Cron (ainda **não instalado** — depende da chave): wrapper `scripts/run-daily-digest-cron.sh`,
+  mesmo padrão do link-health-check (imagem `precocaindo-scripts`, rede `precocaindo_internal`).
+  Sugestão: `0 8 * * * /opt/precocaindo/app/scripts/run-daily-digest-cron.sh --live >> /var/log/precocaindo-daily-digest-cron.log 2>&1`
+  (8h da manhã; o servidor está em UTC, ajustar ao fuso desejado). A imagem `precocaindo-scripts`
+  precisa ser reconstruída para conter o job novo.
