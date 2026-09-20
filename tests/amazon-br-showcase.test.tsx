@@ -5,11 +5,16 @@ const TAG = "precocaindo0c-20";
 
 type Showcase = typeof import("@/lib/amazon/br-showcase");
 type Card = typeof import("@/components/amazon-br-showcase");
+type Content = typeof import("@/lib/amazon/br-showcase-content");
 let AMAZON_SHOWCASE_ALL: Showcase["AMAZON_SHOWCASE_ALL"];
 let AMAZON_SHOWCASE_FEATURED: Showcase["AMAZON_SHOWCASE_FEATURED"];
 let AMAZON_SHOWCASE_MORE: Showcase["AMAZON_SHOWCASE_MORE"];
 let getShowcaseHref: Showcase["getShowcaseHref"];
 let AmazonShowcaseCard: Card["AmazonShowcaseCard"];
+let AmazonShowcaseDetailCard: Card["AmazonShowcaseDetailCard"];
+let AMAZON_SHOWCASE_DETAILS: Content["AMAZON_SHOWCASE_DETAILS"];
+let AMAZON_CATEGORY_GUIDES: Content["AMAZON_CATEGORY_GUIDES"];
+let AMAZON_FAQ: Content["AMAZON_FAQ"];
 
 beforeAll(async () => {
   vi.resetModules();
@@ -17,11 +22,16 @@ beforeAll(async () => {
   vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", TAG);
   const data = await import("@/lib/amazon/br-showcase");
   const card = await import("@/components/amazon-br-showcase");
+  const content = await import("@/lib/amazon/br-showcase-content");
   AMAZON_SHOWCASE_ALL = data.AMAZON_SHOWCASE_ALL;
   AMAZON_SHOWCASE_FEATURED = data.AMAZON_SHOWCASE_FEATURED;
   AMAZON_SHOWCASE_MORE = data.AMAZON_SHOWCASE_MORE;
   getShowcaseHref = data.getShowcaseHref;
   AmazonShowcaseCard = card.AmazonShowcaseCard;
+  AmazonShowcaseDetailCard = card.AmazonShowcaseDetailCard;
+  AMAZON_SHOWCASE_DETAILS = content.AMAZON_SHOWCASE_DETAILS;
+  AMAZON_CATEGORY_GUIDES = content.AMAZON_CATEGORY_GUIDES;
+  AMAZON_FAQ = content.AMAZON_FAQ;
 });
 
 afterAll(() => {
@@ -147,6 +157,90 @@ describe("AmazonShowcaseCard", () => {
     for (const product of AMAZON_SHOWCASE_ALL) {
       const text = collectText(AmazonShowcaseCard({ product }));
       expect(text).not.toMatch(forbidden);
+    }
+  });
+});
+
+describe("Achados editorial content", () => {
+  const FORBIDDEN_CLAIMS =
+    /R\$\s?\d|\d+%\s?off|\d[,.]?\d*\s?estrelas|\d+\s?avalia|mais vendid|top amazon|campe(ã|a)o de venda|mais procurad|melhor avaliad|n[úu]mero 1/i;
+
+  function allTexts(): string[] {
+    return [
+      ...Object.values(AMAZON_SHOWCASE_DETAILS).flatMap((d) => [
+        d.paraQuem,
+        d.naoIndicado,
+        ...d.antesDeComprar,
+      ]),
+      ...Object.values(AMAZON_CATEGORY_GUIDES).flatMap((g) => [
+        g.intro,
+        ...g.criterios.flatMap((c) => [c.titulo, c.texto]),
+      ]),
+      ...AMAZON_FAQ.flatMap((f) => [f.pergunta, f.resposta]),
+    ];
+  }
+
+  it("has commentary for every curated product, and none for products that do not exist", () => {
+    const ids = new Set(AMAZON_SHOWCASE_ALL.map((p) => p.id));
+    for (const product of AMAZON_SHOWCASE_ALL) {
+      expect(AMAZON_SHOWCASE_DETAILS[product.id], product.id).toBeDefined();
+    }
+    for (const id of Object.keys(AMAZON_SHOWCASE_DETAILS)) {
+      expect(ids.has(id), id).toBe(true);
+    }
+  });
+
+  it("gives each product substantive, non-duplicated guidance", () => {
+    const seen = new Set<string>();
+    for (const [id, d] of Object.entries(AMAZON_SHOWCASE_DETAILS)) {
+      expect(d.paraQuem.length, id).toBeGreaterThan(80);
+      expect(d.naoIndicado.length, id).toBeGreaterThan(50);
+      expect(d.antesDeComprar.length, id).toBeGreaterThanOrEqual(3);
+      for (const item of d.antesDeComprar)
+        expect(item.length, id).toBeGreaterThan(40);
+      expect(seen.has(d.paraQuem), id).toBe(false);
+      seen.add(d.paraQuem);
+    }
+  });
+
+  it("has a buying guide for every category used and an FAQ", () => {
+    const categories = new Set(AMAZON_SHOWCASE_ALL.map((p) => p.category));
+    for (const category of categories) {
+      const guide = AMAZON_CATEGORY_GUIDES[category];
+      expect(guide, category).toBeDefined();
+      expect(guide.intro.length).toBeGreaterThan(100);
+      expect(guide.criterios.length).toBeGreaterThanOrEqual(3);
+    }
+    expect(AMAZON_FAQ.length).toBeGreaterThanOrEqual(4);
+  });
+
+  it("never states a price, discount, rating, review count or unverified superlative", () => {
+    for (const text of allTexts()) {
+      expect(text).not.toMatch(FORBIDDEN_CLAIMS);
+    }
+  });
+
+  it("renders the detail card with the tagged Amazon link and the pre-purchase checklist", () => {
+    function collectText(node: ReactNode): string {
+      if (node == null || typeof node === "boolean") return "";
+      if (typeof node === "string" || typeof node === "number")
+        return String(node);
+      if (Array.isArray(node)) return node.map(collectText).join(" ");
+      if (!isValidElement<Record<string, unknown>>(node)) return "";
+      return collectText(node.props.children as ReactNode);
+    }
+    for (const product of AMAZON_SHOWCASE_ALL) {
+      const element = AmazonShowcaseDetailCard({ product });
+      const anchor = findAnchor(element);
+      expect(anchor?.href).toBe(getShowcaseHref(product));
+      expect(String(anchor?.href)).toContain(`tag=${TAG}`);
+      expect(anchor?.target).toBe("_blank");
+      expect(anchor?.rel).toBe("sponsored nofollow noopener noreferrer");
+      const text = collectText(element);
+      expect(text).toContain("Antes de comprar, confira");
+      expect(text).toContain(
+        AMAZON_SHOWCASE_DETAILS[product.id].antesDeComprar[0],
+      );
     }
   });
 });

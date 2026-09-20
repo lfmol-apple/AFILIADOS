@@ -6,6 +6,7 @@ import {
   getShowcaseHref,
   type AmazonShowcaseProduct,
 } from "@/lib/amazon/br-showcase";
+import { AMAZON_SHOWCASE_DETAILS } from "@/lib/amazon/br-showcase-content";
 
 /**
  * "Achados na Amazon" — home page section. Every card links straight to
@@ -103,6 +104,83 @@ export function AmazonShowcaseCard({
           Link temporariamente indisponível.
         </p>
       )}
+    </article>
+  );
+}
+
+/**
+ * Full editorial card used on /achados: the short description plus who the
+ * product suits, when it does not, and a pre-purchase checklist. The compact
+ * AmazonShowcaseCard above stays for the home section.
+ */
+export function AmazonShowcaseDetailCard({
+  product,
+}: {
+  product: AmazonShowcaseProduct;
+}) {
+  const href = getShowcaseHref(product);
+  const details = AMAZON_SHOWCASE_DETAILS[product.id];
+  return (
+    <article className="border-border-subtle flex h-full flex-col rounded-xl border p-5 sm:p-6">
+      <span className="text-foreground/50 text-xs font-semibold tracking-wide uppercase">
+        {product.category}
+      </span>
+      <h3 className="mt-1 text-base leading-snug font-semibold sm:text-lg">
+        {product.title}
+      </h3>
+      {product.brand && (
+        <p className="text-foreground/50 mt-0.5 text-xs">{product.brand}</p>
+      )}
+      <p className="text-foreground/75 mt-3 text-sm leading-relaxed">
+        {product.description}
+      </p>
+
+      {details && (
+        <div className="mt-4 space-y-4 text-sm leading-relaxed">
+          <section>
+            <h4 className="text-xs font-semibold tracking-wide uppercase">
+              Para quem faz sentido
+            </h4>
+            <p className="text-foreground/75 mt-1">{details.paraQuem}</p>
+          </section>
+          <section>
+            <h4 className="text-xs font-semibold tracking-wide uppercase">
+              Quando não é a melhor escolha
+            </h4>
+            <p className="text-foreground/75 mt-1">{details.naoIndicado}</p>
+          </section>
+          <section>
+            <h4 className="text-xs font-semibold tracking-wide uppercase">
+              Antes de comprar, confira
+            </h4>
+            <ul className="text-foreground/75 mt-1 list-disc space-y-1.5 pl-5">
+              {details.antesDeComprar.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </section>
+        </div>
+      )}
+
+      <div className="mt-auto pt-5">
+        {href ? (
+          <a
+            href={href}
+            target="_blank"
+            rel="sponsored nofollow noopener noreferrer"
+            className="bg-brand text-brand-foreground inline-flex min-h-11 w-full items-center justify-center rounded-full px-5 text-sm font-semibold hover:opacity-90 sm:w-auto"
+          >
+            Ver na Amazon
+          </a>
+        ) : (
+          <p className="text-foreground/60 text-sm" role="status">
+            Link temporariamente indisponível.
+          </p>
+        )}
+        <p className="text-foreground/50 mt-2 text-xs">
+          Link de afiliado. A compra é feita na Amazon.
+        </p>
+      </div>
     </article>
   );
 }

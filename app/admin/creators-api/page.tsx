@@ -86,7 +86,7 @@ export default async function AmazonApiPathPage() {
       title:
         "Página pública com conteúdo original e links (a Amazon avalia o site público)",
       detail:
-        "A seleção com análise própria fica em /achados, aberta a qualquer visitante, sem login, com o aviso em destaque.",
+        "A seleção com análise própria fica em /achados, aberta a qualquer visitante, sem login, com o aviso de afiliado no rodapé.",
       source: "Políticas — site publicamente disponível e conteúdo original",
       kind: "auto",
       done: true,
@@ -143,7 +143,7 @@ export default async function AmazonApiPathPage() {
     },
     {
       rule: "Aviso de afiliado perto de cada link",
-      how: 'Texto exigido: "Como participante do Programa de Associados da Amazon, sou remunerado pelas compras qualificadas efetuadas." Deve aparecer de forma clara e destacada — use <AffiliateDisclosure prominent /> no topo de qualquer página de links Amazon.',
+      how: 'Texto exigido: "Como participante do Programa de Associados da Amazon, sou remunerado pelas compras qualificadas efetuadas." A Amazon pede que apareça de forma clara e destacada. Decisão do proprietário: texto discreto no rodapé do site (todas as páginas) e ao fim de /achados, para não competir com o conteúdo — se a Amazon apontar isso na avaliação, basta destacar o texto.',
     },
     {
       rule: "Sem preço, imagem ou dado da Amazon sem a API",
