@@ -49,3 +49,89 @@ body {
   max-width: 100%;
   overflow-x: hidden;
 }
+
+/* `hidden` turns <body> into a scroll container, which silently breaks
+ * position: sticky for the site header. `clip` stops horizontal overflow
+ * without creating one. */
+@supports (overflow: clip) {
+  html,
+  body {
+    overflow-x: clip;
+  }
+}
+
+/* Header "Ofertas" call to action — deliberately loud (the site's main
+ * destination). Two layered effects: the button breathes (scale + brightness)
+ * and a ring radiates from it. Both stop for people who ask for reduced
+ * motion, and while hovered/focused so it never dodges a click. */
+.cta-offers {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.15rem;
+  border-radius: 9999px;
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  white-space: nowrap;
+  background-image: linear-gradient(135deg, #d9480f 0%, #e11d48 100%);
+  box-shadow: 0 8px 20px -8px rgba(225, 29, 72, 0.75);
+  animation: offers-breathe 1.8s ease-in-out infinite;
+}
+
+.cta-offers::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  animation: offers-ring 1.8s ease-out infinite;
+}
+
+.cta-offers:hover,
+.cta-offers:focus-visible {
+  animation-play-state: paused;
+  transform: scale(1.06);
+  filter: brightness(1.1);
+}
+
+.cta-offers:hover::after,
+.cta-offers:focus-visible::after {
+  animation: none;
+}
+
+.cta-offers:focus-visible {
+  outline: 3px solid var(--foreground);
+  outline-offset: 3px;
+}
+
+@keyframes offers-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.06);
+    filter: brightness(1.2);
+  }
+}
+
+@keyframes offers-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.6);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 10px rgba(225, 29, 72, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-offers,
+  .cta-offers::after {
+    animation: none;
+  }
+}

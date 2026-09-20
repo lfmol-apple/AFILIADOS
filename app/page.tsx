@@ -2,59 +2,86 @@ import Link from "next/link";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { RadarSummary } from "@/components/radar-summary";
 import { getPublicRadarFeed } from "@/lib/queries/radar-events";
-import {
-  getUnifiedMerchantOffers,
-  mapAmazonProductToUnifiedCard,
-  selectTopUnifiedOffers,
-  type UnifiedOfferCard as UnifiedOfferCardData,
-} from "@/lib/queries/unified-offers";
-import { getHomeSections } from "@/lib/queries/products";
-import { UnifiedOfferCard } from "@/components/unified-offer-card";
 
-// Home rewrite, Acquisition Engine V1 (third pass) — the machine's job is
-// to decide what merits attention, so the Home's only job is to hand that
-// decision to the visitor as fast as possible: hero+search, real
-// opportunities, a compact "what's happening" line. Everything
-// institutional (guias grid, methodology prose) moved out — it now
-// competes with nothing on this page. Guias remain fully alive/indexable
-// at /guias and linked from the footer/header, just not staged here. See
-// docs/HOME_ARCHITECTURE.md for the earlier passes' diagnostic trail.
+// Home, explanatory version (2026-09): the home's job is to say what
+// PreçoCaindo is, how it works and where to go — it deliberately shows NO
+// product cards (the owner's call). Products live at /ofertas, /achados and
+// /produto/*. The only live data here is the radar's category counts
+// ("3 preços caíram recentemente"), never a per-product list.
 
 export const dynamic = "force-dynamic";
 
-export default async function Home() {
-  const [amazonBestOpportunities, merchantOffers, radarItems] = await Promise.all([
-    getHomeSections()
-      .then((s) => s.bestOpportunities)
-      .catch((error) => {
-        console.error("home.amazon_opportunities_unavailable", error);
-        return [];
-      }),
-    getUnifiedMerchantOffers(24, { source: "home" }).catch((error) => {
-      console.error("home.merchant_offers_unavailable", error);
-      return [] as UnifiedOfferCardData[];
-    }),
-    // A wider real sample than what's displayed individually — this only
-    // feeds the compact category counts below (components/radar-summary.tsx),
-    // never a per-product list, so a larger sample gives a more
-    // representative "acontecendo agora" than 4 events would. Bounded on
-    // the query side regardless of catalog size — see
-    // lib/queries/radar-events.ts's candidatePoolSize doc comment.
-    getPublicRadarFeed(20).catch((error) => {
-      console.error("home.radar_unavailable", error);
-      return [];
-    }),
-  ]);
+const STEPS = [
+  {
+    title: "Busque ou navegue",
+    body: "Digite o que você quer comprar ou escolha uma categoria. Reunimos ofertas do Mercado Livre, Shopee e Amazon num só lugar.",
+  },
+  {
+    title: "Veja o que merece atenção",
+    body: "Ordenamos pelo que tem demanda e uma oferta de qualidade de verdade, não pelo que paga mais comissão.",
+  },
+  {
+    title: "Compre na loja",
+    body: "Levamos você direto à página do produto na loja parceira. O pagamento e a entrega são feitos por ela.",
+  },
+];
 
-  // "O que vale a pena agora" — the ONE commercial vitrine on this page,
-  // a sample of the exact same real, cross-merchant, fail-closed data
-  // /ofertas shows in full (lib/queries/unified-offers.ts) — no separate
-  // query, no separate ranking rule, no per-marketplace section. Never
-  // padded to 8 — selectTopUnifiedOffers just ranks+caps what's real.
-  const bestOffers = selectTopUnifiedOffers(
-    [...amazonBestOpportunities.map(mapAmazonProductToUnifiedCard), ...merchantOffers],
-    8,
-  );
+const SECTIONS = [
+  {
+    href: "/ofertas",
+    title: "Ofertas",
+    body: "As melhores oportunidades do momento, de várias lojas, com filtro por categoria e rolagem sem fim.",
+    cta: "Ver ofertas",
+  },
+  {
+    href: "/achados",
+    title: "Achados na Amazon",
+    body: "Uma seleção comentada: para quem cada produto faz sentido, quando não vale e o que conferir antes de comprar.",
+    cta: "Ver achados",
+  },
+  {
+    href: "/guias",
+    title: "Guias",
+    body: "Como saber se uma promoção é boa, entender histórico de preço e evitar compra por impulso.",
+    cta: "Ler os guias",
+  },
+];
+
+const CATEGORY_TILES = [
+  { slug: "pet", label: "Pet", hint: "Ração, antipulgas, camas e acessórios" },
+  { slug: "celulares", label: "Celulares e Acessórios", hint: "Celulares, carregadores e power banks" },
+  { slug: "casa", label: "Casa e Decoração", hint: "Cama, tapetes, cortinas e utilidades" },
+  { slug: "eletrodomesticos", label: "Eletrodomésticos", hint: "Ventiladores, aspiradores, fritadeiras" },
+  { slug: "beleza", label: "Beleza e Cuidados", hint: "Pele, cabelo e higiene pessoal" },
+  { slug: "bebe", label: "Bebê", hint: "Fraldas, mamadeiras e itens de bebê" },
+  { slug: "esporte-suplementos", label: "Esporte e Suplementos", hint: "Suplementos, treino e fitness" },
+  { slug: "audio-games", label: "Áudio, TV e Games", hint: "Fones, controles, TV e games" },
+  { slug: "informatica", label: "Informática e Impressão 3D", hint: "Mouses, cabos, filamentos e mais" },
+  { slug: "limpeza", label: "Limpeza e Papel", hint: "Sabão, papel higiênico e limpeza" },
+  { slug: "ferramentas", label: "Ferramentas e Jardim", hint: "Furadeiras, lâmpadas e jardim" },
+  { slug: "moda", label: "Moda e Acessórios", hint: "Tênis, bolsas e roupas" },
+];
+
+const TRUST = [
+  {
+    title: "Ranking sem viés de comissão",
+    body: "A ordem das ofertas usa sinais de demanda e qualidade da oferta. A comissão que uma loja paga nunca entra nessa conta.",
+  },
+  {
+    title: "Nada de número inventado",
+    body: "Só mostramos preço, desconto e avaliação quando a loja informa. Sem o dado, não mostramos — em vez de chutar.",
+  },
+  {
+    title: "Você decide, a loja entrega",
+    body: "O PreçoCaindo não vende nem entrega nada. Ajudamos você a escolher melhor; a compra é sempre na loja parceira.",
+  },
+];
+
+export default async function Home() {
+  const radarItems = await getPublicRadarFeed(20).catch((error) => {
+    console.error("home.radar_unavailable", error);
+    return [];
+  });
 
   return (
     <div>
@@ -62,15 +89,17 @@ export default async function Home() {
 
       {/* ---------------- 1. HERO + BUSCA ---------------- */}
       <section className="border-border-subtle bg-surface-muted border-b">
-        <div className="mx-auto max-w-3xl px-4 py-14 text-center sm:px-6 sm:py-20">
-          <h1 className="text-3xl font-semibold tracking-tight sm:text-5xl">
-            Descubra o que realmente está valendo a pena agora
+        <div className="mx-auto max-w-3xl px-4 py-12 text-center sm:px-6 sm:py-20">
+          <h1 className="text-3xl font-semibold tracking-tight text-balance sm:text-5xl">
+            Descubra o que realmente vale a pena comprar
           </h1>
-          <p className="text-foreground/70 mt-3 text-base leading-relaxed">
-            O PreçoCaindo monitora preços e oportunidades automaticamente para encontrar o que
-            mudou e merece sua atenção.
+          <p className="text-foreground/70 mt-4 text-base leading-relaxed text-balance sm:text-lg">
+            O PreçoCaindo acompanha ofertas do Mercado Livre, Shopee e Amazon e
+            separa o que merece a sua atenção, para você não precisar abrir dez
+            abas.
           </p>
-          <form action="/ofertas" method="GET" className="mx-auto mt-8 max-w-xl">
+
+          <form action="/ofertas" method="GET" role="search" className="mx-auto mt-8 max-w-xl">
             <label htmlFor="hero-search" className="sr-only">
               O que você está pensando em comprar?
             </label>
@@ -90,45 +119,126 @@ export default async function Home() {
               </button>
             </div>
           </form>
-          <p className="text-foreground/40 mt-4 text-xs">Preços monitorados automaticamente</p>
+
+          <p className="text-foreground/60 mt-5 text-sm">
+            Prefere navegar?{" "}
+            <Link href="/ofertas" className="text-brand font-semibold underline underline-offset-2">
+              Veja todas as ofertas
+            </Link>{" "}
+            ou escolha uma categoria abaixo.
+          </p>
         </div>
       </section>
 
-      {/* ---------------- 2. O QUE VALE A PENA AGORA ---------------- */}
-      {bestOffers.length > 0 && (
-        <HomeSection title="O que vale a pena agora" href="/ofertas">
-          {bestOffers.map((item) => (
-            <UnifiedOfferCard key={`${item.merchant}-${item.id}`} item={item} />
+      {/* ---------------- 2. COMO FUNCIONA ---------------- */}
+      <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16" aria-labelledby="como-funciona">
+        <h2 id="como-funciona" className="text-2xl font-semibold tracking-tight">
+          Como funciona
+        </h2>
+        <ol className="mt-6 grid gap-4 sm:grid-cols-3">
+          {STEPS.map((step, i) => (
+            <li key={step.title} className="border-border-subtle rounded-xl border p-5">
+              <span
+                aria-hidden
+                className="bg-brand text-brand-foreground flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold"
+              >
+                {i + 1}
+              </span>
+              <h3 className="mt-3 text-base font-semibold">{step.title}</h3>
+              <p className="text-foreground/70 mt-1.5 text-sm leading-relaxed">{step.body}</p>
+            </li>
           ))}
-        </HomeSection>
-      )}
+        </ol>
+      </section>
 
-      {/* ---------------- 3. RADAR (resumido) ---------------- */}
+      {/* ---------------- 3. O QUE TEM AQUI ---------------- */}
+      <section className="border-border-subtle bg-surface-muted border-y" aria-labelledby="o-que-tem">
+        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
+          <h2 id="o-que-tem" className="text-2xl font-semibold tracking-tight">
+            O que você encontra aqui
+          </h2>
+          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+            {SECTIONS.map((s) => (
+              <Link
+                key={s.href}
+                href={s.href}
+                className="bg-background border-border-subtle hover:border-brand group flex flex-col rounded-xl border p-5 transition"
+              >
+                <h3 className="text-base font-semibold">{s.title}</h3>
+                <p className="text-foreground/70 mt-1.5 flex-1 text-sm leading-relaxed">{s.body}</p>
+                <span className="text-brand mt-4 text-sm font-semibold group-hover:underline">
+                  {s.cta} →
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ---------------- 4. CATEGORIAS ---------------- */}
+      <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16" aria-labelledby="categorias">
+        <h2 id="categorias" className="text-2xl font-semibold tracking-tight">
+          Explore por categoria
+        </h2>
+        <ul className="mt-6 grid grid-cols-1 gap-3 min-[480px]:grid-cols-2 lg:grid-cols-3">
+          {CATEGORY_TILES.map((c) => (
+            <li key={c.slug}>
+              <Link
+                href={`/ofertas?categoria=${c.slug}`}
+                className="border-border-subtle hover:border-brand block min-h-16 rounded-xl border px-4 py-3 transition"
+              >
+                <span className="block text-sm font-semibold">{c.label}</span>
+                <span className="text-foreground/60 mt-0.5 block text-xs leading-snug">{c.hint}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* ---------------- 5. POR QUE CONFIAR ---------------- */}
+      <section className="border-border-subtle bg-surface-muted border-y" aria-labelledby="confianca">
+        <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
+          <h2 id="confianca" className="text-2xl font-semibold tracking-tight">
+            Por que confiar
+          </h2>
+          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+            {TRUST.map((t) => (
+              <div key={t.title} className="bg-background border-border-subtle rounded-xl border p-5">
+                <h3 className="text-base font-semibold">{t.title}</h3>
+                <p className="text-foreground/70 mt-1.5 text-sm leading-relaxed">{t.body}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-foreground/60 mt-6 text-sm">
+            Quer entender os detalhes? Veja a{" "}
+            <Link href="/metodologia" className="text-brand underline underline-offset-2">
+              metodologia
+            </Link>{" "}
+            e a página de{" "}
+            <Link href="/transparencia" className="text-brand underline underline-offset-2">
+              transparência
+            </Link>
+            .
+          </p>
+        </div>
+      </section>
+
+      {/* ---------------- 6. ACONTECENDO AGORA (só contagens) ---------------- */}
       <RadarSummary items={radarItems} />
-    </div>
-  );
-}
 
-function HomeSection({
-  title,
-  href,
-  children,
-}: {
-  title: string;
-  href: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">{title}</h2>
-        <Link href={href} className="text-brand text-sm hover:underline">
-          Ver todas as ofertas
+      {/* ---------------- 7. CHAMADA FINAL ---------------- */}
+      <section className="mx-auto max-w-3xl px-4 py-12 text-center sm:px-6 sm:py-16">
+        <h2 className="text-2xl font-semibold tracking-tight">Pronto para ver o que está valendo?</h2>
+        <p className="text-foreground/70 mt-2 text-sm">
+          As ofertas são atualizadas automaticamente, várias vezes ao dia.
+        </p>
+        <Link
+          href="/ofertas"
+          className="bg-brand text-brand-foreground mt-6 inline-flex min-h-14 items-center rounded-full px-8 text-base font-semibold hover:opacity-90"
+        >
+          Ver as ofertas de agora
         </Link>
-      </div>
-      <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        {children}
-      </div>
-    </section>
+      </section>
+    </div>
   );
 }
