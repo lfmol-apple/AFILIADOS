@@ -214,7 +214,7 @@ comissão ou venda estimada; vendas reais ficam no painel de cada marketplace.
   `DAILY_DIGEST_EMAIL_TO`, `DAILY_DIGEST_EMAIL_FROM`. Sem chave ou destinatário o job registra erro
   (execução `PARTIAL`) em vez de adivinhar. Com o remetente padrão `onboarding@resend.dev` o Resend só
   entrega para o e-mail dono da conta; para outro destinatário, verificar o domínio no Resend.
-- Cron (ainda **não instalado** — depende da chave): wrapper `scripts/run-daily-digest-cron.sh`,
+- Cron (**instalado em 2026-09-20**, 08:00 de Brasília = `0 11 * * *` UTC; envio de teste confirmado): wrapper `scripts/run-daily-digest-cron.sh`,
   mesmo padrão do link-health-check (imagem `precocaindo-scripts`, rede `precocaindo_internal`).
   Sugestão: `0 8 * * * /opt/precocaindo/app/scripts/run-daily-digest-cron.sh --live >> /var/log/precocaindo-daily-digest-cron.log 2>&1`
   (8h da manhã; o servidor está em UTC, ajustar ao fuso desejado). O job usa uma imagem própria,
