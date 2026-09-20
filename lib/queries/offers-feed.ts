@@ -1,4 +1,5 @@
 import { getOfertas } from "@/lib/queries/products";
+import { withIndexableDetailLinks } from "@/lib/seo/indexable-product-links";
 import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 import {
   getUnifiedMerchantOffers,
@@ -52,7 +53,8 @@ async function buildPool(): Promise<UnifiedOfferCard[]> {
     ...amazonResult.items.map(mapAmazonProductToUnifiedCard),
     ...merchantOffers,
   ];
-  return selectTopUnifiedOffers(all, all.length);
+  // Sequential on purpose: the DB pool is small, and this is the heavy read.
+  return withIndexableDetailLinks(selectTopUnifiedOffers(all, all.length));
 }
 
 export async function getOffersPool(
