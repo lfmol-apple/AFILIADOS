@@ -1,11 +1,33 @@
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { isValidElement, type ReactNode } from "react";
-import {
-  AMAZON_SHOWCASE_ALL,
-  AMAZON_SHOWCASE_FEATURED,
-  AMAZON_SHOWCASE_MORE,
-} from "@/lib/amazon/br-showcase";
-import { AmazonShowcaseCard } from "@/components/amazon-br-showcase";
+
+const TAG = "precocaindo0c-20";
+
+type Showcase = typeof import("@/lib/amazon/br-showcase");
+type Card = typeof import("@/components/amazon-br-showcase");
+let AMAZON_SHOWCASE_ALL: Showcase["AMAZON_SHOWCASE_ALL"];
+let AMAZON_SHOWCASE_FEATURED: Showcase["AMAZON_SHOWCASE_FEATURED"];
+let AMAZON_SHOWCASE_MORE: Showcase["AMAZON_SHOWCASE_MORE"];
+let getShowcaseHref: Showcase["getShowcaseHref"];
+let AmazonShowcaseCard: Card["AmazonShowcaseCard"];
+
+beforeAll(async () => {
+  vi.resetModules();
+  vi.stubEnv("AMAZON_BR_ENABLED", "true");
+  vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", TAG);
+  const data = await import("@/lib/amazon/br-showcase");
+  const card = await import("@/components/amazon-br-showcase");
+  AMAZON_SHOWCASE_ALL = data.AMAZON_SHOWCASE_ALL;
+  AMAZON_SHOWCASE_FEATURED = data.AMAZON_SHOWCASE_FEATURED;
+  AMAZON_SHOWCASE_MORE = data.AMAZON_SHOWCASE_MORE;
+  getShowcaseHref = data.getShowcaseHref;
+  AmazonShowcaseCard = card.AmazonShowcaseCard;
+});
+
+afterAll(() => {
+  vi.unstubAllEnvs();
+  vi.resetModules();
+});
 
 function findAnchor(
   node: ReactNode,
@@ -30,61 +52,31 @@ function findAnchor(
   return findAnchor(node.props.children as ReactNode);
 }
 
-// The 23 links resolved during investigation (audit report), kept here only
-// as the source-of-truth list to check nothing in the curated data drifted
-// from what the owner actually provided.
-const OWNER_PROVIDED_LINKS = [
-  "https://link.amazon/B020jq5FB",
-  "https://link.amazon/B05YapY8I",
-  "https://link.amazon/B0exELazz",
-  "https://link.amazon/B0aBqetEg",
-  "https://link.amazon/B04YdvDQ6",
-  "https://link.amazon/B0cb08CIe",
-  "https://link.amazon/B07iZVIqD",
-  "https://link.amazon/B0fsSHKLn",
-  "https://link.amazon/B01zhRCK3",
-  "https://link.amazon/B08M0fbGT",
-  "https://link.amazon/B0c9o6oxz",
-  "https://link.amazon/B0hRoLohL",
-  "https://link.amazon/B0a7vEgIA",
-  "https://link.amazon/B021Bb2iJ",
-  "https://link.amazon/B01i7Mim3",
-  "https://link.amazon/B01aNODqz",
-  "https://link.amazon/B03nI5847",
-  "https://link.amazon/B0giO4cYA",
-  "https://link.amazon/B0ah5JBqp",
-  "https://link.amazon/B04mcATEB",
-  "https://link.amazon/B05prdSCD",
-  "https://link.amazon/B0cNQIPrK",
-  "https://link.amazon/B09zEyZef",
-];
-
 describe("Amazon BR showcase data", () => {
-  it("uses only hosts of exactly link.amazon, nothing else", () => {
+  it("builds a normal amazon.com.br product URL carrying the Tracking ID, for every product", () => {
     for (const product of AMAZON_SHOWCASE_ALL) {
-      const url = new URL(product.href);
-      expect(url.hostname).toBe("link.amazon");
+      const href = getShowcaseHref(product);
+      expect(href).not.toBeNull();
+      const url = new URL(href as string);
       expect(url.protocol).toBe("https:");
+      expect(url.hostname).toBe("www.amazon.com.br");
+      expect(url.pathname).toBe(`/dp/${product.asin}`);
+      expect(url.searchParams.get("tag")).toBe(TAG);
+      expect([...url.searchParams.keys()]).toEqual(["tag"]);
     }
   });
 
-  it("every curated href is one of the links the owner actually provided — never invented, never reconstructed", () => {
-    for (const product of AMAZON_SHOWCASE_ALL) {
-      expect(OWNER_PROVIDED_LINKS).toContain(product.href);
-    }
+  it("returns no link at all when the Tracking ID is not configured — never a tagless URL", async () => {
+    vi.resetModules();
+    vi.stubEnv("AMAZON_ASSOCIATE_TAG", "");
+    vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", "");
+    const data = await import("@/lib/amazon/br-showcase");
+    expect(data.getShowcaseHref(data.AMAZON_SHOWCASE_ALL[0])).toBeNull();
+    vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", TAG);
   });
 
-  it("never carries a query string — the owner's links have none, so nothing was appended (no ?tag=, no tracking params)", () => {
-    for (const product of AMAZON_SHOWCASE_ALL) {
-      expect(product.href).not.toContain("?");
-      expect(product.href).not.toContain("tag=");
-    }
-  });
-
-  it("no duplicate hrefs and no duplicate ASINs across the curated selection", () => {
-    const hrefs = AMAZON_SHOWCASE_ALL.map((p) => p.href);
+  it("no duplicate ASINs across the curated selection", () => {
     const asins = AMAZON_SHOWCASE_ALL.map((p) => p.asin);
-    expect(new Set(hrefs).size).toBe(hrefs.length);
     expect(new Set(asins).size).toBe(asins.length);
   });
 
@@ -101,8 +93,7 @@ describe("Amazon BR showcase data", () => {
     }
   });
 
-  it("shows editorially fewer than all 23 resolved links — curation, not a dump", () => {
-    expect(AMAZON_SHOWCASE_ALL.length).toBeLessThan(OWNER_PROVIDED_LINKS.length);
+  it("is a curated selection of a reasonable size", () => {
     expect(AMAZON_SHOWCASE_ALL.length).toBeGreaterThanOrEqual(8);
   });
 
@@ -132,12 +123,12 @@ describe("Amazon BR showcase data", () => {
 });
 
 describe("AmazonShowcaseCard", () => {
-  it("renders the CTA anchor with the exact href, correct rel, and target=_blank, for every curated product", () => {
+  it("renders the CTA anchor with the tagged product URL, correct rel, and target=_blank, for every curated product", () => {
     for (const product of AMAZON_SHOWCASE_ALL) {
       const element = AmazonShowcaseCard({ product });
       const anchor = findAnchor(element);
       expect(anchor).not.toBeNull();
-      expect(anchor?.href).toBe(product.href);
+      expect(anchor?.href).toBe(getShowcaseHref(product));
       expect(anchor?.target).toBe("_blank");
       expect(anchor?.rel).toBe("sponsored nofollow noopener noreferrer");
     }

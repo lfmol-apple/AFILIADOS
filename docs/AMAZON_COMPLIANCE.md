@@ -13,7 +13,9 @@ variável de ambiente _e_ esta data sempre que revisar as políticas oficiais.
 - **US** — Associate ID `petmol07-20`, vinculado a `petmol.com.br`. `precocaindo.com.br` **não**
   cadastrado nessa conta. Pagamento pendente. Marketplace desabilitado no PreçoCaindo.
 
-Ver docs/AMAZON.md para o detalhamento completo.
+Ver docs/AMAZON.md para o detalhamento completo. Regras reconferidas nas fontes oficiais em
+**2026-09-20** (seção "Revisão oficial Amazon — 2026-09-20"); o valor de
+`AMAZON_POLICY_REVIEW_DATE` no `.env` real ainda precisa ser atualizado por um humano.
 
 Documentos oficiais a revisar periodicamente (não versionados aqui — sempre consultar a fonte
 vigente no momento da revisão):

@@ -103,6 +103,9 @@ export function SiteHeader() {
           <Link href="/ofertas" className="hover:text-brand hidden sm:inline">
             Ofertas
           </Link>
+          <Link href="/amazon" className="hover:text-brand hidden sm:inline">
+            Amazon
+          </Link>
         </nav>
       </div>
     </header>

@@ -136,6 +136,12 @@ export default async function AdminPage(props: PagePropsWithSearch) {
           >
             Desempenho (cliques diários) →
           </a>
+          <a
+            href="/admin/amazon"
+            className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
+          >
+            Amazon — caminho para a API →
+          </a>
           {isAdminAuthConfigured() && <AdminLogoutButton />}
         </div>
       </div>
@@ -288,8 +294,9 @@ export default async function AdminPage(props: PagePropsWithSearch) {
         {env.MANUAL_PRODUCTS_ENABLED && (
           <SubSection title="Candidatos Amazon">
             <p className="text-foreground/60 mb-3 text-xs">
-              Sem PA-API ainda (precisa de 3 vendas qualificadas em 180 dias) —
-              descoberta é manual. Registre um ASIN real que valha a pena
+              Sem API ainda (a Creators API exige 10 vendas qualificadas nos
+              últimos 30 dias — ver Amazon — caminho para a API) — descoberta
+              é manual. Registre um ASIN real que valha a pena
               avaliar, aprove os que se confirmarem, e promova a produto real
               (rascunho, ativação continua um passo separado).
             </p>

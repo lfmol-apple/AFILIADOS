@@ -132,6 +132,25 @@ controle de engenharia, que só a Amazon confirma: (a) aprovação da conta para
 (b) volume de vendas qualificadas suficiente. O Tracking ID da candidatura atual também permanece
 `PENDING_HUMAN_CONFIRMATION` até validação explícita pelo proprietário.
 
+## Revisão oficial Amazon — 2026-09-20
+
+Reconferida nas fontes oficiais (Creators API docs, Políticas e Acordo Operacional BR). Painel:
+`/admin/amazon` ("Amazon — caminho para a API").
+
+- **Duas regras diferentes, não confundir:** (1) _aprovação da conta_ de Associados — 3 vendas
+  qualificadas em até 180 dias do cadastro (fonte secundária; confirmar no painel); (2) _acesso à
+  API_ — mínimo de **10 vendas qualificadas nos últimos 30 dias**, janela móvel (doc oficial da
+  Creators API). A "3 em 180 dias" era a regra da PA-API antiga e não vale para a Creators API.
+- Acordo Operacional BR vigente desde **14/04/2026**: conteúdo original exige comentário, análise
+  ou transformação; comissão exige envio/entrega e pagamento em até 180 dias; compras via anúncio
+  pago/impulsionado ligado à Amazon foram excluídas (exceções limitadas).
+- Políticas de API: cache de conteúdo até 24h (imagens não podem ser armazenadas, só o link por
+  24h); timestamp visível junto de preço/disponibilidade se a atualização for menos que horária;
+  proibido usar a API para desenvolver/aprimorar LLMs ou modelos de ML sem autorização escrita —
+  **confirmar o impacto no `GENERATE_CONTENT` antes de ligar a API**.
+- A página de ajuda BR da API não publica os números; eles vêm da doc oficial da Creators API
+  (Associates Central US). Confirmar no painel BR antes de agir.
+
 ## O que falta para `AMAZON_PROVIDER=live`
 
 `AmazonProvider` (`lib/providers/amazon-provider.ts`) existe como classe que implementa a mesma

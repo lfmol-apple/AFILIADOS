@@ -30,7 +30,7 @@ jobs:
       AMAZON_PROVIDER: mock
       CONTENT_GENERATION: mock
       AMAZON_ASSOCIATE_TAG: precocaindo-ci-20
-      AMAZON_ASSOCIATE_DISCLOSURE: "Como associado da Amazon, eu ganho com compras qualificadas."
+      AMAZON_ASSOCIATE_DISCLOSURE: "Como participante do Programa de Associados da Amazon, sou remunerado pelas compras qualificadas efetuadas."
       AMAZON_POLICY_REVIEW_DATE: "2026-08-17"
 
     steps:

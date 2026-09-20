@@ -77,7 +77,7 @@ const envSchema = z.object({
   AMAZON_CONTENT_TTL: z.coerce.number().int().positive().default(3600),
   AMAZON_ASSOCIATE_DISCLOSURE: z
     .string()
-    .default("Como associado da Amazon, eu ganho com compras qualificadas."),
+    .default("Como participante do Programa de Associados da Amazon, sou remunerado pelas compras qualificadas efetuadas."),
   AMAZON_POLICY_REVIEW_DATE: z.string().default("2026-08-17"),
 
   // --- Mercado Livre (lib/providers/mercado-livre-provider.ts) ---

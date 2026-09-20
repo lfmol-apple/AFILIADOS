@@ -1,15 +1,18 @@
+import Link from "next/link";
 import { AffiliateDisclosure } from "@/components/affiliate-disclosure";
 import {
   AMAZON_SHOWCASE_FEATURED,
   AMAZON_SHOWCASE_MORE,
+  getShowcaseHref,
   type AmazonShowcaseProduct,
 } from "@/lib/amazon/br-showcase";
 
 /**
  * "Achados na Amazon" — home page section. Every card links straight to
- * the owner-provided Special Link (see lib/amazon/br-showcase.ts), never
- * through /go/amazon — that path reconstructs a URL from our own
- * configured tag, which would not preserve these links byte-for-byte.
+ * the normal amazon.com.br product URL with our Tracking ID (see
+ * lib/amazon/br-showcase.ts), never through /go/amazon — Amazon requires
+ * links to be accessed directly from the site, with the Associate ID
+ * visible in the URL.
  *
  * Deliberately a Server Component, not "use client": AffiliateDisclosure
  * transitively reads server-only env config (lib/config/env.ts) at module
@@ -38,6 +41,9 @@ export function AmazonBrShowcase() {
 
       <div className="mt-2">
         <AffiliateDisclosure />
+        <Link href="/amazon" className="text-brand mt-2 inline-block text-sm font-medium underline">
+          Ver a página completa de achados na Amazon →
+        </Link>
       </div>
 
       <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -67,6 +73,7 @@ export function AmazonShowcaseCard({
 }: {
   product: AmazonShowcaseProduct;
 }) {
+  const href = getShowcaseHref(product);
   return (
     <article className="border-border-subtle flex h-full flex-col rounded-lg border p-4">
       <span className="text-foreground/50 text-xs font-semibold tracking-wide uppercase">
@@ -79,14 +86,20 @@ export function AmazonShowcaseCard({
       <p className="text-foreground/70 mt-2 flex-1 text-sm leading-relaxed">
         {product.description}
       </p>
-      <a
-        href={product.href}
-        target="_blank"
-        rel="sponsored nofollow noopener noreferrer"
-        className="bg-brand text-brand-foreground mt-4 inline-flex min-h-11 items-center justify-center rounded-full px-5 text-sm font-semibold hover:opacity-90"
-      >
-        Ver na Amazon
-      </a>
+      {href ? (
+        <a
+          href={href}
+          target="_blank"
+          rel="sponsored nofollow noopener noreferrer"
+          className="bg-brand text-brand-foreground mt-4 inline-flex min-h-11 items-center justify-center rounded-full px-5 text-sm font-semibold hover:opacity-90"
+        >
+          Ver na Amazon
+        </a>
+      ) : (
+        <p className="text-foreground/60 mt-4 text-sm" role="status">
+          Link temporariamente indisponível.
+        </p>
+      )}
     </article>
   );
 }
