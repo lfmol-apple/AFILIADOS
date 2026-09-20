@@ -9,8 +9,9 @@ const chip =
 /**
  * Phone-only shortcut strip under the header search. On /ofertas the page
  * already shows its own category chips right below, so repeating the
- * categories here would be noise: there the strip keeps only the section
- * links. Everywhere else the categories are one swipe away.
+ * categories here would be noise: there the strip keeps only "Achados".
+ * (Guias is deliberately not in the menu — the owner's call; it stays in
+ * the footer and is still linked from the home page.) Everywhere else the categories are one swipe away.
  */
 export function HeaderShortcuts({
   categories,
@@ -28,11 +29,6 @@ export function HeaderShortcuts({
       <li className="shrink-0">
         <Link href="/achados" className={`${chip} bg-surface-muted`}>
           Achados
-        </Link>
-      </li>
-      <li className="shrink-0">
-        <Link href="/guias" className={`${chip} bg-surface-muted`}>
-          Guias
         </Link>
       </li>
       {showCategories &&

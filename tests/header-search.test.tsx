@@ -39,7 +39,7 @@ describe("HeaderShortcuts", () => {
       <HeaderShortcuts categories={categories} />,
     );
     expect(html).toContain('href="/achados"');
-    expect(html).toContain('href="/guias"');
+    expect(html).not.toContain('href="/guias"');
     expect(html).toContain('href="/ofertas?categoria=pet"');
   });
 

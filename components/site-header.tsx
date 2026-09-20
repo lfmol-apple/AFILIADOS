@@ -96,12 +96,6 @@ export function SiteHeader() {
               Achados
             </Link>
             <Link
-              href="/guias"
-              className="hover:text-brand hidden font-medium sm:inline"
-            >
-              Guias
-            </Link>
-            <Link
               href="/ofertas"
               className="cta-offers text-[0.95rem] sm:text-base"
             >
