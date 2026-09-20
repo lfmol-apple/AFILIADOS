@@ -1,41 +1,8 @@
 import Link from "next/link";
+import { HeaderSearch } from "@/components/header-search";
 import { OFFER_CATEGORIES } from "@/lib/offers/categories";
 
 const NAV_CATEGORIES = OFFER_CATEGORIES.filter((c) => c.slug !== "outros");
-
-function SearchIcon({ className }: { className: string }) {
-  return (
-    <svg viewBox="0 0 20 20" fill="none" className={className} aria-hidden>
-      <circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.5" />
-      <path
-        d="m14 14 4 4"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
-
-function SearchForm({ id, className }: { id: string; className: string }) {
-  return (
-    <form action="/ofertas" method="GET" role="search" className={className}>
-      <label htmlFor={id} className="sr-only">
-        Buscar produto
-      </label>
-      <div className="relative">
-        <SearchIcon className="text-foreground/40 pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2" />
-        <input
-          id={id}
-          type="search"
-          name="q"
-          placeholder="Buscar produto, marca ou categoria"
-          className="border-border-subtle bg-surface-muted focus:border-brand w-full rounded-full border py-2.5 pr-4 pl-10 text-sm outline-none"
-        />
-      </div>
-    </form>
-  );
-}
 
 const chip =
   "border-border-subtle hover:border-brand flex min-h-11 items-center rounded-full border px-4 text-sm font-medium whitespace-nowrap";
@@ -78,14 +45,14 @@ export function SiteHeader() {
             </span>
           </Link>
 
-          <SearchForm
+          <HeaderSearch
             id="header-search"
             className="ml-auto hidden max-w-sm flex-1 lg:block"
           />
 
           <nav
             aria-label="Principal"
-            className="ml-auto flex items-center gap-3 text-sm sm:gap-5 lg:ml-0"
+            className="ml-auto flex items-center gap-3 text-sm sm:gap-5"
           >
             <div className="group relative hidden sm:block">
               <Link
@@ -162,7 +129,7 @@ export function SiteHeader() {
 
       <div className="border-border-subtle border-b sm:hidden">
         <div className="mx-auto w-full max-w-6xl px-4 py-3">
-          <SearchForm id="header-search-mobile" className="w-full" />
+          <HeaderSearch id="header-search-mobile" className="w-full" />
           <ul
             aria-label="Atalhos"
             className="-mx-4 mt-2.5 flex gap-2 overflow-x-auto px-4 pb-0.5"
