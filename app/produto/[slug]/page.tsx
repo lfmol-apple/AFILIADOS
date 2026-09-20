@@ -27,6 +27,7 @@ import {
 import { isProductPageIndexable } from "@/lib/seo/indexability";
 import Link from "next/link";
 import { loadPublicMerchantProduct, getRelatedMerchantProducts } from "@/lib/queries/public-product";
+import { getSimilarOffers } from "@/lib/queries/similar-offers";
 import { MerchantProductView } from "./MerchantProductView";
 
 export const revalidate = 900;
@@ -268,7 +269,17 @@ export default async function ProductPage(
       excludeListingId: merchantData.merchantListingId,
       categoryId: merchantData.categoryId,
     });
-    return <MerchantProductView data={merchantData} related={related} />;
+    const similar = await getSimilarOffers({
+      slug: merchantData.slug,
+      title: merchantData.title,
+    }).catch(() => ({ categorySlug: "outros", items: [] }));
+    return (
+      <MerchantProductView
+        data={merchantData}
+        related={related}
+        similar={similar}
+      />
+    );
   }
 
   const { product, offer: rawOffer, stats, decision } = data;

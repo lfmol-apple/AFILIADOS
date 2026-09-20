@@ -7,6 +7,10 @@ import { siteConfig } from "@/lib/config/site";
 import { buildBreadcrumbList, jsonLdScriptPayload } from "@/lib/seo/structured-data";
 import type { PublicMerchantProductViewModel, RelatedMerchantProduct } from "@/lib/queries/public-product";
 import type { RadarEvent, RadarEventType } from "@/lib/services/radar";
+import type { SimilarOffers } from "@/lib/queries/similar-offers";
+import { offerCategoryLabel } from "@/lib/offers/categories";
+import { guideForCategory } from "@/lib/product/category-guides";
+import { PRICE_POSITION_TEXT, summarizePriceHistory } from "@/lib/product/price-summary";
 
 const MERCHANT_LABEL: Record<PublicMerchantProductViewModel["source"], string> = {
   MERCADO_LIVRE: "no Mercado Livre",
@@ -48,10 +52,15 @@ function RadarEventCard({ event }: { event: RadarEvent }) {
 export function MerchantProductView({
   data,
   related,
+  similar,
 }: {
   data: PublicMerchantProductViewModel;
   related: RelatedMerchantProduct[];
+  similar: SimilarOffers;
 }) {
+  const priceSummary = summarizePriceHistory(data.priceHistory, data.currentPrice);
+  const guide = guideForCategory(similar.categorySlug);
+  const categoryLabel = similar.categorySlug !== "outros" ? offerCategoryLabel(similar.categorySlug) : null;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -142,7 +151,53 @@ export function MerchantProductView({
         )}
       </section>
 
-      {related.length > 0 && (
+      {priceSummary && (
+        <section className="mt-10 max-w-3xl">
+          <h2 className="text-lg font-semibold">Histórico de preço observado</h2>
+          <p className="text-foreground/70 mt-3 text-sm leading-relaxed">
+            Conferimos o preço deste produto {priceSummary.observations} vezes entre {formatDate(priceSummary.first)} e{" "}
+            {formatDate(priceSummary.last)}. O menor valor registrado foi {formatCurrency(priceSummary.min, data.currency)} e o
+            maior, {formatCurrency(priceSummary.max, data.currency)}. {PRICE_POSITION_TEXT[priceSummary.position]}
+          </p>
+        </section>
+      )}
+
+      <section className="mt-10 max-w-3xl">
+        <h2 className="text-lg font-semibold">{guide.heading}</h2>
+        <ul className="text-foreground/70 mt-3 list-disc space-y-2 pl-5 text-sm leading-relaxed">
+          {guide.checks.map((check) => (
+            <li key={check}>{check}</li>
+          ))}
+        </ul>
+        {categoryLabel && (
+          <p className="mt-4 text-sm">
+            <a href={`/ofertas?categoria=${similar.categorySlug}`} className="text-brand font-semibold underline underline-offset-2">
+              Ver todas as ofertas de {categoryLabel} →
+            </a>
+          </p>
+        )}
+      </section>
+
+      {similar.items.length > 0 && (
+        <section className="mt-10">
+          <h2 className="text-lg font-semibold">Ofertas parecidas{categoryLabel ? ` em ${categoryLabel}` : ""}</h2>
+          <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {similar.items.map((item) => (
+              <a key={item.id} href={item.detailHref} className="group block min-w-0">
+                <div className="bg-surface-muted aspect-square w-full overflow-hidden rounded-xl">
+                  <ProductImage src={item.imageUrl} alt={item.title} className="h-full w-full object-cover" />
+                </div>
+                <p className="group-hover:text-brand mt-2 line-clamp-2 text-sm font-medium">{item.title}</p>
+                {item.currentPrice !== null && (
+                  <p className="text-foreground/70 mt-0.5 text-sm">{formatCurrency(item.currentPrice, "BRL")}</p>
+                )}
+              </a>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {similar.items.length === 0 && related.length > 0 && (
         <section className="mt-10">
           <h2 className="text-lg font-semibold">Outras oportunidades que estamos acompanhando</h2>
           <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
