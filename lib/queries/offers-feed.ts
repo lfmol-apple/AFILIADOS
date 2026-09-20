@@ -46,8 +46,17 @@ const FALLBACK_POOL_LIMIT = 400;
 const AMAZON_POOL_SIZE = 96;
 const POOL_TTL_MS = 5 * 60 * 1000;
 
-let cached: { at: number; cards: UnifiedOfferCard[] } | null = null;
-let inflight: Promise<UnifiedOfferCard[]> | null = null;
+/** Process-wide singleton on globalThis, not module-level variables: Next
+ * can load this module once per route bundle (page, /api/ofertas, search),
+ * and each copy would build its own 1,000+ offer pool — several ~8 s DB
+ * builds on a 3-connection pool. One shared state means one build. */
+const g = globalThis as unknown as {
+  __offersFeedState?: {
+    cached: { at: number; cards: UnifiedOfferCard[] } | null;
+    inflight: Promise<UnifiedOfferCard[]> | null;
+  };
+};
+const state = (g.__offersFeedState ??= { cached: null, inflight: null });
 
 async function buildPool(): Promise<UnifiedOfferCard[]> {
   const catalogSafe = currentlyVisibleDataSources().length > 0;
@@ -74,15 +83,15 @@ async function buildPool(): Promise<UnifiedOfferCard[]> {
 }
 
 function refreshPool(): Promise<UnifiedOfferCard[]> {
-  inflight ??= buildPool()
+  state.inflight ??= buildPool()
     .then((cards) => {
-      cached = { at: Date.now(), cards };
+      state.cached = { at: Date.now(), cards };
       return cards;
     })
     .finally(() => {
-      inflight = null;
+      state.inflight = null;
     });
-  return inflight;
+  return state.inflight;
 }
 
 /**
@@ -94,13 +103,13 @@ function refreshPool(): Promise<UnifiedOfferCard[]> {
 export async function getOffersPool(
   now: number = Date.now(),
 ): Promise<UnifiedOfferCard[]> {
-  if (cached) {
-    if (now - cached.at >= POOL_TTL_MS) {
+  if (state.cached) {
+    if (now - state.cached.at >= POOL_TTL_MS) {
       refreshPool().catch((error) => {
         console.error("offers_feed.refresh_failed", error);
       });
     }
-    return cached.cards;
+    return state.cached.cards;
   }
   return refreshPool();
 }

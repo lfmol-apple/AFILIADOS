@@ -18,4 +18,25 @@ export async function register() {
     publicCatalogEnabled: env.PUBLIC_CATALOG_ENABLED,
     autoPublish: env.AUTO_PUBLISH,
   });
+
+  // Warm the /ofertas pool and the indexable-slug list a few seconds after
+  // boot (production only), so the first real visitor or crawler after a
+  // deploy does not pay for the ~8 s builds. Best-effort: a failure here
+  // only means the first request builds them instead, as before.
+  if (process.env.NODE_ENV === "production") {
+    setTimeout(() => {
+      void (async () => {
+        try {
+          const { getOffersPool } = await import("@/lib/queries/offers-feed");
+          await getOffersPool();
+          const { peekIndexableProductSlugs } =
+            await import("@/lib/seo/indexable-product-links");
+          peekIndexableProductSlugs();
+          logger.info("app.warmup_started");
+        } catch (error) {
+          logger.error("app.warmup_failed", { message: String(error) });
+        }
+      })();
+    }, 5000).unref?.();
+  }
 }

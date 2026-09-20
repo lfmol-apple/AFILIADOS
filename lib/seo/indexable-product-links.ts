@@ -16,20 +16,30 @@ import { listIndexableMerchantProductUrls } from "@/lib/queries/public-product";
  */
 const TTL_MS = 30 * 60 * 1000;
 
-let cached: { at: number; slugs: Set<string> } | null = null;
-let refreshing: Promise<void> | null = null;
+// Process-wide (globalThis) for the same reason as lib/queries/offers-feed.ts:
+// one copy of the list, however many route bundles load this module.
+const g = globalThis as unknown as {
+  __indexableSlugsState?: {
+    cached: { at: number; slugs: Set<string> } | null;
+    refreshing: Promise<void> | null;
+  };
+};
+const state = (g.__indexableSlugsState ??= { cached: null, refreshing: null });
 
 function refresh(): void {
-  if (refreshing) return;
-  refreshing = listIndexableMerchantProductUrls()
+  if (state.refreshing) return;
+  state.refreshing = listIndexableMerchantProductUrls()
     .then((urls) => {
-      cached = { at: Date.now(), slugs: new Set(urls.map((u) => u.slug)) };
+      state.cached = {
+        at: Date.now(),
+        slugs: new Set(urls.map((u) => u.slug)),
+      };
     })
     .catch((error) => {
       console.error("seo.indexable_slugs_unavailable", error);
     })
     .finally(() => {
-      refreshing = null;
+      state.refreshing = null;
     });
 }
 
@@ -37,8 +47,8 @@ function refresh(): void {
 export function peekIndexableProductSlugs(
   now: number = Date.now(),
 ): Set<string> | null {
-  if (!cached || now - cached.at >= TTL_MS) refresh();
-  return cached ? cached.slugs : null;
+  if (!state.cached || now - state.cached.at >= TTL_MS) refresh();
+  return state.cached ? state.cached.slugs : null;
 }
 
 /** Drops `detailHref` from any card whose product page is not indexable. */
@@ -65,9 +75,9 @@ export function setIndexableProductSlugsForTest(
   slugs: string[] | null,
   at: number = Date.now(),
 ): void {
-  cached = slugs ? { at, slugs: new Set(slugs) } : null;
-  refreshing = null;
+  state.cached = slugs ? { at, slugs: new Set(slugs) } : null;
+  state.refreshing = null;
 }
 export async function waitForIndexableRefreshForTest(): Promise<void> {
-  await refreshing;
+  await state.refreshing;
 }
