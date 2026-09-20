@@ -173,12 +173,12 @@ export default async function Home() {
         <h2 id="categorias" className="text-2xl font-semibold tracking-tight">
           Explore por categoria
         </h2>
-        <ul className="mt-6 grid grid-cols-1 gap-3 min-[480px]:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-6 grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-3">
           {CATEGORY_TILES.map((c) => (
             <li key={c.slug}>
               <Link
                 href={`/ofertas?categoria=${c.slug}`}
-                className="border-border-subtle hover:border-brand block min-h-16 rounded-xl border px-4 py-3 transition"
+                className="border-border-subtle hover:border-brand block h-full min-h-16 rounded-xl border px-3 py-3 transition sm:px-4"
               >
                 <span className="block text-sm font-semibold">{c.label}</span>
                 <span className="text-foreground/60 mt-0.5 block text-xs leading-snug">

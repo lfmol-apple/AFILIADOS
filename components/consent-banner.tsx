@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { readCachedConsent, submitConsent, type CachedConsent } from "@/lib/privacy/consent-client";
+import {
+  readCachedConsent,
+  submitConsent,
+  type CachedConsent,
+} from "@/lib/privacy/consent-client";
 
 /**
  * LGPD consent banner. All three choices (Aceitar / Recusar / Configurar)
@@ -30,11 +34,12 @@ export function ConsentBanner() {
   }
 
   return (
-    <div className="border-border-subtle bg-background fixed inset-x-0 bottom-0 z-50 max-w-[100vw] border-t p-4 shadow-lg">
+    <div className="border-border-subtle bg-background fixed inset-x-0 bottom-0 z-50 max-w-[100vw] border-t p-3 shadow-lg sm:p-4">
       <div className="mx-auto w-full max-w-3xl">
-        <p className="text-sm text-foreground/80">
-          Usamos cookies essenciais para o site funcionar. Com sua permissão, também usamos
-          cookies de análise para entender o que é útil no PreçoCaindo. Veja detalhes na{" "}
+        <p className="text-foreground/80 text-xs leading-snug sm:text-sm sm:leading-normal">
+          Usamos cookies essenciais para o site funcionar. Com sua permissão,
+          também usamos cookies de análise para entender o que é útil no
+          PreçoCaindo. Veja detalhes na{" "}
           <a href="/privacidade" className="text-brand underline">
             Política de privacidade
           </a>
@@ -42,7 +47,7 @@ export function ConsentBanner() {
         </p>
 
         {configuring && (
-          <div className="mt-3 space-y-2 rounded-lg border border-border-subtle p-3 text-sm">
+          <div className="border-border-subtle mt-3 space-y-2 rounded-lg border p-3 text-sm">
             <label className="flex items-center justify-between gap-4">
               <span>Analytics (entender uso do site)</span>
               <input
@@ -62,18 +67,20 @@ export function ConsentBanner() {
           </div>
         )}
 
-        <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+        <div className="mt-3 grid grid-cols-3 gap-2 sm:mt-4 sm:flex sm:flex-wrap">
           <button
             type="button"
-            onClick={() => choose({ analytics: "GRANTED", marketing: "GRANTED" })}
-            className="max-w-full rounded-full bg-brand px-5 py-2 text-center text-sm font-semibold text-brand-foreground whitespace-normal"
+            onClick={() =>
+              choose({ analytics: "GRANTED", marketing: "GRANTED" })
+            }
+            className="bg-brand text-brand-foreground min-h-11 max-w-full rounded-full px-2 py-2 text-center text-xs leading-tight font-semibold whitespace-normal sm:px-5 sm:text-sm"
           >
             Aceitar
           </button>
           <button
             type="button"
             onClick={() => choose({ analytics: "DENIED", marketing: "DENIED" })}
-            className="max-w-full rounded-full border border-border-subtle px-5 py-2 text-center text-sm font-semibold whitespace-normal"
+            className="border-border-subtle min-h-11 max-w-full rounded-full border px-2 py-2 text-center text-xs leading-tight font-semibold whitespace-normal sm:px-5 sm:text-sm"
           >
             Recusar não essenciais
           </button>
@@ -86,7 +93,7 @@ export function ConsentBanner() {
                   marketing: marketing ? "GRANTED" : "DENIED",
                 })
               }
-              className="max-w-full rounded-full border border-border-subtle px-5 py-2 text-center text-sm font-semibold whitespace-normal"
+              className="border-border-subtle min-h-11 max-w-full rounded-full border px-2 py-2 text-center text-xs leading-tight font-semibold whitespace-normal sm:px-5 sm:text-sm"
             >
               Salvar preferências
             </button>
@@ -94,7 +101,7 @@ export function ConsentBanner() {
             <button
               type="button"
               onClick={() => setConfiguring(true)}
-              className="max-w-full rounded-full border border-border-subtle px-5 py-2 text-center text-sm font-semibold whitespace-normal"
+              className="border-border-subtle min-h-11 max-w-full rounded-full border px-2 py-2 text-center text-xs leading-tight font-semibold whitespace-normal sm:px-5 sm:text-sm"
             >
               Configurar
             </button>

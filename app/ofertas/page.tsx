@@ -167,7 +167,7 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
           Nenhuma oferta real disponível agora.
         </p>
       ) : (
-        <div className="mt-6 grid gap-6 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-8">
+        <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-8">
           <OffersCategoryNav
             categories={categories}
             active={category}

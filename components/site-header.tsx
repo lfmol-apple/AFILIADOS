@@ -71,9 +71,9 @@ export function SiteHeader() {
               alt=""
               width={64}
               height={64}
-              className="h-14 w-14 sm:h-16 sm:w-16"
+              className="h-12 w-12 min-[360px]:h-14 min-[360px]:w-14 sm:h-16 sm:w-16"
             />
-            <span className="text-lg font-extrabold tracking-tight min-[380px]:text-xl sm:text-2xl">
+            <span className="text-base font-extrabold tracking-tight min-[360px]:text-lg min-[380px]:text-xl sm:text-2xl">
               PreçoCaindo
             </span>
           </Link>

@@ -129,6 +129,15 @@ body {
   }
 }
 
+/* 320px-wide phones: keep logo + name + button on one row without overflow. */
+@media (max-width: 359px) {
+  .cta-offers {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.875rem;
+    gap: 0.3rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cta-offers,
   .cta-offers::after {
