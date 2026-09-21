@@ -6707,6 +6707,7 @@ export const ML_PANEL_PICKS: readonly PanelPick[] = rows.map(
       group,
       ...(sponsored ? { sponsored: true } : {}),
       ...(SEARCHED_TITLES.has(title) ? { searched: true } : {}),
+      ...(ML_PANEL_URLS[title] ? { productUrl: ML_PANEL_URLS[title] } : {}),
       capturedAt: D,
     };
   },

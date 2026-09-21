@@ -13,9 +13,11 @@ const brl = (n: number) =>
  */
 export async function PanelLinkQueue({ limit = 300 }: { limit?: number }) {
   const { pending, registeredCount, onSiteCount } = await loadPanelQueue();
-  // Ready-to-click rows only: the ones whose generic product address we know.
+  // Rows with a ready generic product link come first; the rest follow (title only)
+  // so the section stays full while their addresses are still being read.
   const ready = pending.filter((e) => e.pick.productUrl);
-  const shown = ready.slice(0, limit);
+  const waiting = pending.filter((e) => !e.pick.productUrl);
+  const shown = [...ready, ...waiting].slice(0, limit);
 
   return (
     <SubSection title="Pendências de receita — Mercado Livre (fila por comissão)">
