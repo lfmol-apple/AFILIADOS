@@ -103,6 +103,16 @@ export function PanelPickRow(props: PanelPickRowProps) {
           </span>
         )}
       </p>
+      {props.productUrl && (
+        <a
+          href={props.productUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-brand mt-0.5 inline-block text-xs underline underline-offset-2"
+        >
+          ver o produto no Mercado Livre (link genérico)
+        </a>
+      )}
       {props.notes.length > 0 && (
         <p className="text-foreground/60 mt-0.5 text-xs">
           {props.notes.join(" · ")}

@@ -13,7 +13,9 @@ const brl = (n: number) =>
  */
 export async function PanelLinkQueue({ limit = 300 }: { limit?: number }) {
   const { pending, registeredCount, onSiteCount } = await loadPanelQueue();
-  const shown = pending.slice(0, limit);
+  // Ready-to-click rows only: the ones whose generic product address we know.
+  const ready = pending.filter((e) => e.pick.productUrl);
+  const shown = ready.slice(0, limit);
 
   return (
     <SubSection title="Pendências de receita — Mercado Livre (fila por comissão)">
@@ -25,8 +27,9 @@ export async function PanelLinkQueue({ limit = 300 }: { limit?: number }) {
         a página. A linha sai da lista ao salvar.
       </p>
       <p className="text-foreground/60 mb-3 text-xs">
-        Mostrando {shown.length} de {pending.length} aguardando link ·{" "}
-        {registeredCount} já salvos · {onSiteCount} já estavam no site ·{" "}
+        Mostrando {shown.length} com link genérico pronto (
+        {pending.length - ready.length} ainda sem endereço) · {registeredCount}{" "}
+        já salvos · {onSiteCount} já estavam no site ·{" "}
         <a
           href="/admin/fila-links"
           className="text-brand underline underline-offset-2"
