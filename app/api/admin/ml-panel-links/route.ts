@@ -13,7 +13,7 @@ import {
 } from "@/lib/services/ml-panel-register";
 
 const bodySchema = z.object({
-  title: z.string().min(1),
+  id: z.string().min(1),
   affiliateUrl: z.string().url().max(2000),
 });
 
@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
-  const pick = ML_PANEL_PICKS.find((p) => p.title === parsed.data.title);
+  const pick = ML_PANEL_PICKS.find((p) => p.id === parsed.data.id);
   if (!pick)
     return NextResponse.json(
       { error: "Produto da lista não encontrado." },
@@ -43,6 +43,7 @@ export async function POST(request: Request) {
 
   try {
     const result = await registerPanelPick({
+      panelId: pick.id,
       panelTitle: pick.title,
       affiliateUrl: parsed.data.affiliateUrl,
       rate: pick.rate,

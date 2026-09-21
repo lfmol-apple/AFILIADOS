@@ -9,7 +9,7 @@ import { PanelPickRow } from "@/components/panel-pick-row";
 import { prisma } from "@/lib/db";
 import { ML_PANEL_PICKS } from "@/lib/config/ml-panel-picks";
 import { rankAllForLinking } from "@/lib/services/ml-panel-queue";
-import { loadRegisteredPanelTitles } from "@/lib/services/ml-panel-register";
+import { loadRegisteredPanelIds } from "@/lib/services/ml-panel-register";
 
 export const metadata: Metadata = {
   title: "Fila de links — Admin",
@@ -47,10 +47,10 @@ export default async function LinkQueuePage() {
 
   const [slugs, registered] = await Promise.all([
     loadSiteSlugs(),
-    loadRegisteredPanelTitles(),
+    loadRegisteredPanelIds(),
   ]);
   const { toLink, onSite } = rankAllForLinking(ML_PANEL_PICKS, slugs);
-  const pending = toLink.filter((e) => !registered.has(e.pick.title));
+  const pending = toLink.filter((e) => !registered.has(e.pick.id));
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
@@ -73,9 +73,11 @@ export default async function LinkQueuePage() {
       <ul className="mt-6 space-y-3">
         {pending.map(({ pick, earningPerSale, recommended, notes }, i) => (
           <PanelPickRow
-            key={pick.title}
+            key={pick.id}
             position={i + 1}
+            id={pick.id}
             title={pick.title}
+            repeated={pick.id !== pick.title}
             rateLabel={pct(pick.rate)}
             extras={pick.extras}
             earningLabel={brl(earningPerSale)}

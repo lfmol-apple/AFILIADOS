@@ -65,6 +65,7 @@ export interface PanelRegisterResult {
  * answered so the row leaves the list.
  */
 export async function registerPanelPick(input: {
+  panelId: string;
   panelTitle: string;
   affiliateUrl: string;
   rate: number;
@@ -157,16 +158,17 @@ export async function registerPanelPick(input: {
   };
 }
 
-/** Panel titles already answered with a saved link. */
-export async function loadRegisteredPanelTitles(): Promise<Set<string>> {
+/** Panel row ids already answered with a saved link. */
+export async function loadRegisteredPanelIds(): Promise<Set<string>> {
   const rows = await prisma.merchantListingSignal.findMany({
     where: { source: "panel_pick" },
     select: { raw: true },
   });
-  const titles = new Set<string>();
+  const ids = new Set<string>();
   for (const row of rows) {
-    const t = (row.raw as { panelTitle?: string } | null)?.panelTitle;
-    if (t) titles.add(t);
+    const raw = row.raw as { panelId?: string; panelTitle?: string } | null;
+    const id = raw?.panelId ?? raw?.panelTitle;
+    if (id) ids.add(id);
   }
-  return titles;
+  return ids;
 }

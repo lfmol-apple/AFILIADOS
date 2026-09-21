@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 
 export interface PanelPickRowProps {
   position: number;
+  id: string;
+  repeated: boolean;
   title: string;
   rateLabel: string;
   extras: boolean;
@@ -30,7 +32,7 @@ export function PanelPickRow(props: PanelPickRowProps) {
       const response = await fetch("/api/admin/ml-panel-links", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: props.title, affiliateUrl: url.trim() }),
+        body: JSON.stringify({ id: props.id, affiliateUrl: url.trim() }),
       });
       const data = (await response.json().catch(() => ({}))) as {
         ok?: boolean;
@@ -69,7 +71,14 @@ export function PanelPickRow(props: PanelPickRowProps) {
         <span className="text-foreground/60">{props.soldLabel}</span>
         <span className="text-foreground/60">{props.priceLabel}</span>
       </div>
-      <p className="mt-1 text-sm font-medium">{props.title}</p>
+      <p className="mt-1 text-sm font-medium">
+        {props.title}
+        {props.repeated && (
+          <span className="text-foreground/50 ml-2 text-xs font-normal">
+            (colado mais de uma vez)
+          </span>
+        )}
+      </p>
       {props.notes.length > 0 && (
         <p className="text-foreground/60 mt-0.5 text-xs">
           {props.notes.join(" · ")}

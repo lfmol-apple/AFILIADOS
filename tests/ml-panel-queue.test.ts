@@ -8,6 +8,7 @@ import {
 import type { PanelPick } from "@/lib/config/ml-panel-picks";
 
 const pick = (over: Partial<PanelPick> = {}): PanelPick => ({
+  id: over.title ?? "Perfume Feminino Exemplo Lancôme 50ml",
   title: "Perfume Feminino Exemplo Lancôme 50ml",
   rate: 0.16,
   extras: false,
