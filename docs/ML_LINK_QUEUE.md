@@ -1,6 +1,6 @@
 # Fila para gerar link (Mercado Livre)
 
-Gerado em 2026-09-21 a partir de 131 produtos colados do painel de afiliados.
+Gerado em 2026-09-21 a partir de 140 produtos colados do painel de afiliados.
 Como usar: no painel, procure o título e clique em **Compartilhar** para gerar o link; depois cadastre no admin.
 
 Regras: comissão ≥ 10%, nota ≥ 4.5, vendas ≥ +500, ainda fora do site.
@@ -40,64 +40,71 @@ Ordem = comissão × demanda (vendas) × preço (limitado a R$ 300, por convers�
 | 30 | 16% ⚡ | R$ 12,75 | +10000 | R$ 79,70 | Liquidz Eletrólitos Em Pó Zero Açúcar Cx 14 Doses | campanha temporária: confira a taxa ao gerar o link |
 | 31 | 16% | R$ 15,52 | +5000 | R$ 96,99 | Brae Kit Divine Shampoo 250ml + Condicionador 250ml | mais buscado |
 | 32 | 24% ⚡ | R$ 23,16 | +500 | R$ 96,52 | Soloever Balaclava Moto Malha Respirável Capacete Preto | campanha temporária: confira a taxa ao gerar o link |
-| 33 | 24% ⚡ | R$ 17,26 | +1000 | R$ 71,92 | Perfumes Body Splash Linha Árabe 100ml By Primacial | campanha temporária: confira a taxa ao gerar o link |
-| 34 | 12% | R$ 17,03 | +1000 | R$ 141,90 | Capacete Moto Pro Tork Fechado Viseira Fumê Street |  |
-| 35 | 24% ⚡ | R$ 8,40 | +100000 | R$ 34,99 | Kit 2 Travesseiros 70x50 Antialérgico Lavável Oaktex | campanha temporária: confira a taxa ao gerar o link |
-| 36 | 20% ⚡ | R$ 10,47 | +50000 | R$ 52,37 | Kit 2 Refletor Super Led 400w Ip67 Holofote Bivolt | campanha temporária: confira a taxa ao gerar o link |
-| 37 | 24% ⚡ | R$ 16,39 | +1000 | R$ 68,31 | Peruca Lace Wig Fibra Orgânica Longa Franja Preta 70cm | campanha temporária: confira a taxa ao gerar o link; mais buscado |
-| 38 | 56% ⚡ | R$ 19,85 | +500 | R$ 35,45 | Ducha Íntima Ginecológica Adao & Eva Higiene Saúde Feminina | campanha temporária: confira a taxa ao gerar o link |
-| 39 | 22% ⚡ | R$ 15,40 | +1000 | R$ 69,99 | Acabamento Registro Alavanca Cromado Chuveiro Padrão Deca | campanha temporária: confira a taxa ao gerar o link |
-| 40 | 12% | R$ 9,24 | +50000 | R$ 76,99 | Kit C/ 4 Toalha De Banho Gigante 80 X 150 Cm Softmax |  |
-| 41 | 12% | R$ 13,84 | +1000 | R$ 115,36 | Jogo Com 6 Canecas De 260ml Em Porcelana Ryo Maresia Oxford |  |
-| 42 | 20% ⚡ | R$ 17,30 | +500 | R$ 86,51 | Suco Bebida Nutre Aloe Suplemento Liquido Aloe Vera 1litro | campanha temporária: confira a taxa ao gerar o link |
-| 43 | 16% | R$ 6,52 | +100000 | R$ 40,75 | NIVEA SUN Protetor Solar Facial Toque Seco Antissinais FPS70 40ml | mais buscado |
-| 44 | 20% ⚡ | R$ 8,11 | +10000 | R$ 40,54 | Kit 10 Organizador Multiuso Modular Gaveta Acrilico Rebirth | campanha temporária: confira a taxa ao gerar o link |
-| 45 | 16% | R$ 12,03 | +1000 | R$ 75,19 | Gel De Limpeza Facial Glycare Control 300g Mantecorp | mais buscado |
-| 46 | 12% | R$ 14,99 | +500 | R$ 124,90 | Capacete para moto aberto Pro Tork New Liberty Three preto | mais buscado |
-| 47 | 16% | R$ 11,97 | +1000 | R$ 74,81 | Escova Secadora Cadence Linda & Leve 4 em 1 ESC720 |  |
-| 48 | 32% ⚡ | R$ 8,73 | +5000 | R$ 27,29 | Varal Inox Suspenso 40 Prendedores Fixos Para Secagem Roupas | campanha temporária: confira a taxa ao gerar o link |
-| 49 | 12% | R$ 13,79 | +500 | R$ 114,90 | Conjunto De Bowls Inox 3 Pcs Com Tampa Electrolux |  |
-| 50 | 22% ⚡ | R$ 6,58 | +50000 | R$ 29,90 | Maquininha De Cartão Mercado Pago Point Mini D175-bt Nfc2 Bluetooth | campanha temporária: confira a taxa ao gerar o link |
-| 51 | 16% ⚡ | R$ 6,54 | +10000 | R$ 40,89 | Restaurador Renovador de Plásticos Automotivos Vonixx Restaurax 240ml | campanha temporária: confira a taxa ao gerar o link |
-| 52 | 16% | R$ 10,38 | +1000 | R$ 64,90 | Prancha de Cabelo Britânia Revestimento Cerâmico 200°C BPR03A | mais buscado |
-| 53 | 20% ⚡ | R$ 5,98 | +10000 | R$ 29,90 | Torneira Gourmet Luxo Flexível Cozinha Bancada 2 Jatos Camperluz | campanha temporária: confira a taxa ao gerar o link |
-| 54 | 12% | R$ 9,36 | +1000 | R$ 78,00 | Driver Tb6600 Para Motor De Passo 4a Cnc |  |
-| 55 | 20% ⚡ | R$ 5,78 | +50000 | R$ 28,90 | Quebra Sol Para Brisa Carro Protetor Solar Guarda Chuva | campanha temporária: confira a taxa ao gerar o link |
-| 56 | 24% ⚡ | R$ 5,64 | +10000 | R$ 23,50 | Kit Unhas Tips Postiças Realistas 100 Unidades Quadrada Rosa | campanha temporária: confira a taxa ao gerar o link |
-| 57 | 16% | R$ 6,82 | +5000 | R$ 42,65 | Kit 50 Capas De Corte De Cabelo Química Tintura Descartáveis |  |
-| 58 | 16% | R$ 11,04 | +500 | R$ 68,99 | Modelador De Cachos Profissional Cerâmica Babyliss Cônico |  |
-| 59 | 20% ⚡ | R$ 7,98 | +1000 | R$ 39,90 | Oferta Absorvente Geriatrico Com 50 Unidades | campanha temporária: confira a taxa ao gerar o link |
-| 60 | 16% | R$ 4,78 | +10000 | R$ 29,90 | Kit 10 Brocas Diamatadas Cutilagem Russa Unhas Gel Acrigel |  |
-| 61 | 16% ⚡ | R$ 7,25 | +1000 | R$ 45,32 | Sorbato De Potássio - 1kg | campanha temporária: confira a taxa ao gerar o link |
-| 62 | 10% ⚡ | R$ 7,20 | +1000 | R$ 72,01 | Kit Com 4 Farinhas Mix Premium Sem Glúten 500g Cada Schar | campanha temporária: confira a taxa ao gerar o link; mais buscado |
-| 63 | 16% ⚡ | R$ 7,12 | +1000 | R$ 44,50 | Jogo Americano Retangular 8 Lugares Mesa Posta Oferta | campanha temporária: confira a taxa ao gerar o link; mais buscado |
-| 64 | 12% | R$ 8,51 | +500 | R$ 70,90 | Kit 3 Painel Led Plafon Aluminio Embutir Quadrado 18w |  |
-| 65 | 16% | R$ 6,80 | +1000 | R$ 42,52 | Kit Aquecedor Rollon + Cera Mel Rollon + 50 Folhas Tnt |  |
-| 66 | 16% ⚡ | R$ 6,70 | +1000 | R$ 41,90 | Identificador Notas Falsas Luz UV Detector Cédulas Dinheiro Verificador | campanha temporária: confira a taxa ao gerar o link |
-| 67 | 20% ⚡ | R$ 7,99 | +500 | R$ 39,96 | Bolsa Feminina Grande Capacidade E Impermeável Crossbody Preto | campanha temporária: confira a taxa ao gerar o link; mais buscado |
-| 68 | 22% ⚡ | R$ 6,38 | +1000 | R$ 28,99 | Kit 2 Escovas De Dental Dente Elétrica Recarregável Usb | campanha temporária: confira a taxa ao gerar o link |
-| 69 | 24% ⚡ | R$ 6,27 | +1000 | R$ 26,13 | Navalha Navalhete Barbear Aço Inoxidável C/ 2 Travas | campanha temporária: confira a taxa ao gerar o link |
-| 70 | 16% | R$ 7,76 | +500 | R$ 48,50 | 100 Agulhas Para Jato De Plasma Ru Eletrocautério |  |
-| 71 | 16% | R$ 5,83 | +1000 | R$ 36,46 | Maquina Acabamento Cortar Cabelo Barba E Pelos Kemei 032 |  |
-| 72 | 11% ⚡ | R$ 5,53 | +1000 | R$ 50,27 | Par De Alto Falantes Compatível Com Samsung Un46d5000 Un46d5500 Un46d6000 | campanha temporária: confira a taxa ao gerar o link |
-| 73 | 10% ⚡ | R$ 6,79 | +500 | R$ 67,90 | Kit 12 Snack Alga Tradicional Repeat | campanha temporária: confira a taxa ao gerar o link |
-| 74 | 10% ⚡ | R$ 4,90 | +1000 | R$ 49,00 | Kit C/ 3 Belive Pão De Batata, Sem Glúten E Sem Lactose 198g | campanha temporária: confira a taxa ao gerar o link |
-| 75 | 16% | R$ 4,72 | +1000 | R$ 29,50 | Peeling Limpeza Facial Verrugas Cravos Detox Portátil Caneta |  |
-| 76 | 10% ⚡ | R$ 5,53 | +500 | R$ 55,27 | Recheio Creme Bueno Caribe 1,01kg Confeitaria | campanha temporária: confira a taxa ao gerar o link |
-| 77 | 16% ⚡ | R$ 3,20 | +5000 | R$ 19,99 | Kit 5 Espátulas Nylon Desmontar Painel Moldura Portas Carros | campanha temporária: confira a taxa ao gerar o link |
-| 78 | 16% | R$ 3,20 | +5000 | R$ 19,99 | Prep Anylovy 120ml Higienizador Spray Anti-bactericida Unhas | mais buscado |
-| 79 | 10% ⚡ | R$ 4,70 | +500 | R$ 47,00 | Cappuccino Solúvel Bevan 1kg Preparo Em Pó Bevaccino | campanha temporária: confira a taxa ao gerar o link; mais buscado |
-| 80 | 12% ⚡ | R$ 3,60 | +1000 | R$ 29,99 | Milho Pipoca Mushroom Especial Gourmet Ltt Alimentos 1kg | campanha temporária: confira a taxa ao gerar o link |
-| 81 | 10% ⚡ | R$ 3,58 | +1000 | R$ 35,75 | Kit 5 Snack Edamame Crocante Proteico 5 Sabores Repeat | campanha temporária: confira a taxa ao gerar o link; mais buscado |
-| 82 | 15% ⚡ | R$ 3,97 | +500 | R$ 26,49 | Aveia Flocos Finos 2 Kg Sauce | campanha temporária: confira a taxa ao gerar o link |
-| 83 | 15% ⚡ | R$ 2,85 | +1000 | R$ 19,00 | Mini Batedor Misturador Elétrico Recarregável USB | campanha temporária: confira a taxa ao gerar o link |
-| 84 | 15% ⚡ | R$ 2,70 | +1000 | R$ 18,00 | Balança Digital Para Cozinha Home Utilidades 10 kg | campanha temporária: confira a taxa ao gerar o link |
-| 85 | 15% ⚡ | R$ 2,97 | +500 | R$ 19,81 | Goma Xantana 200g Mesh 200 100% Pura E Sem Glúten | campanha temporária: confira a taxa ao gerar o link; mais buscado |
-| 86 | 15% ⚡ | R$ 1,48 | +5000 | R$ 9,89 | Fone de Ouvido com Fio Intra-auricular P2 3,5mm com Microfone Anti-Ruído Eletric Teck | campanha temporária: confira a taxa ao gerar o link |
+| 33 | 22% ⚡ | R$ 11,46 | +10000 | R$ 52,11 | Kit Óculos Coloridos 50un Divertido Festa Balada Sortidos | campanha temporária: confira a taxa ao gerar o link |
+| 34 | 24% ⚡ | R$ 17,26 | +1000 | R$ 71,92 | Perfumes Body Splash Linha Árabe 100ml By Primacial | campanha temporária: confira a taxa ao gerar o link |
+| 35 | 12% | R$ 17,03 | +1000 | R$ 141,90 | Capacete Moto Pro Tork Fechado Viseira Fumê Street |  |
+| 36 | 24% ⚡ | R$ 8,40 | +100000 | R$ 34,99 | Kit 2 Travesseiros 70x50 Antialérgico Lavável Oaktex | campanha temporária: confira a taxa ao gerar o link |
+| 37 | 20% ⚡ | R$ 10,47 | +50000 | R$ 52,37 | Kit 2 Refletor Super Led 400w Ip67 Holofote Bivolt | campanha temporária: confira a taxa ao gerar o link |
+| 38 | 24% ⚡ | R$ 16,39 | +1000 | R$ 68,31 | Peruca Lace Wig Fibra Orgânica Longa Franja Preta 70cm | campanha temporária: confira a taxa ao gerar o link; mais buscado |
+| 39 | 56% ⚡ | R$ 19,85 | +500 | R$ 35,45 | Ducha Íntima Ginecológica Adao & Eva Higiene Saúde Feminina | campanha temporária: confira a taxa ao gerar o link |
+| 40 | 22% ⚡ | R$ 15,40 | +1000 | R$ 69,99 | Acabamento Registro Alavanca Cromado Chuveiro Padrão Deca | campanha temporária: confira a taxa ao gerar o link |
+| 41 | 12% | R$ 9,24 | +50000 | R$ 76,99 | Kit C/ 4 Toalha De Banho Gigante 80 X 150 Cm Softmax |  |
+| 42 | 12% | R$ 13,84 | +1000 | R$ 115,36 | Jogo Com 6 Canecas De 260ml Em Porcelana Ryo Maresia Oxford |  |
+| 43 | 20% ⚡ | R$ 17,30 | +500 | R$ 86,51 | Suco Bebida Nutre Aloe Suplemento Liquido Aloe Vera 1litro | campanha temporária: confira a taxa ao gerar o link |
+| 44 | 16% | R$ 6,52 | +100000 | R$ 40,75 | NIVEA SUN Protetor Solar Facial Toque Seco Antissinais FPS70 40ml | mais buscado |
+| 45 | 20% ⚡ | R$ 8,11 | +10000 | R$ 40,54 | Kit 10 Organizador Multiuso Modular Gaveta Acrilico Rebirth | campanha temporária: confira a taxa ao gerar o link |
+| 46 | 16% | R$ 12,03 | +1000 | R$ 75,19 | Gel De Limpeza Facial Glycare Control 300g Mantecorp | mais buscado |
+| 47 | 12% | R$ 14,99 | +500 | R$ 124,90 | Capacete para moto aberto Pro Tork New Liberty Three preto | mais buscado |
+| 48 | 16% | R$ 11,97 | +1000 | R$ 74,81 | Escova Secadora Cadence Linda & Leve 4 em 1 ESC720 |  |
+| 49 | 32% ⚡ | R$ 8,73 | +5000 | R$ 27,29 | Varal Inox Suspenso 40 Prendedores Fixos Para Secagem Roupas | campanha temporária: confira a taxa ao gerar o link |
+| 50 | 12% | R$ 13,79 | +500 | R$ 114,90 | Conjunto De Bowls Inox 3 Pcs Com Tampa Electrolux |  |
+| 51 | 22% ⚡ | R$ 6,58 | +50000 | R$ 29,90 | Maquininha De Cartão Mercado Pago Point Mini D175-bt Nfc2 Bluetooth | campanha temporária: confira a taxa ao gerar o link |
+| 52 | 16% ⚡ | R$ 6,54 | +10000 | R$ 40,89 | Restaurador Renovador de Plásticos Automotivos Vonixx Restaurax 240ml | campanha temporária: confira a taxa ao gerar o link |
+| 53 | 16% | R$ 10,38 | +1000 | R$ 64,90 | Prancha de Cabelo Britânia Revestimento Cerâmico 200°C BPR03A | mais buscado |
+| 54 | 20% ⚡ | R$ 6,24 | +10000 | R$ 31,21 | Kit Romântico 300 Pétalas + 10 Velas + 06 Balões + 01 Te Amo | campanha temporária: confira a taxa ao gerar o link |
+| 55 | 20% ⚡ | R$ 5,98 | +10000 | R$ 29,90 | Torneira Gourmet Luxo Flexível Cozinha Bancada 2 Jatos Camperluz | campanha temporária: confira a taxa ao gerar o link |
+| 56 | 12% | R$ 9,48 | +1000 | R$ 78,99 | Fantasia Guerreiras Kpop Festa Pop Infantil Dança Palco Luxo Rumi |  |
+| 57 | 12% | R$ 9,36 | +1000 | R$ 78,00 | Driver Tb6600 Para Motor De Passo 4a Cnc |  |
+| 58 | 20% ⚡ | R$ 5,78 | +50000 | R$ 28,90 | Quebra Sol Para Brisa Carro Protetor Solar Guarda Chuva | campanha temporária: confira a taxa ao gerar o link |
+| 59 | 24% ⚡ | R$ 5,64 | +10000 | R$ 23,50 | Kit Unhas Tips Postiças Realistas 100 Unidades Quadrada Rosa | campanha temporária: confira a taxa ao gerar o link |
+| 60 | 16% | R$ 6,82 | +5000 | R$ 42,65 | Kit 50 Capas De Corte De Cabelo Química Tintura Descartáveis |  |
+| 61 | 16% | R$ 11,04 | +500 | R$ 68,99 | Modelador De Cachos Profissional Cerâmica Babyliss Cônico |  |
+| 62 | 20% ⚡ | R$ 7,98 | +1000 | R$ 39,90 | Oferta Absorvente Geriatrico Com 50 Unidades | campanha temporária: confira a taxa ao gerar o link |
+| 63 | 16% | R$ 4,78 | +10000 | R$ 29,90 | Kit 10 Brocas Diamatadas Cutilagem Russa Unhas Gel Acrigel |  |
+| 64 | 22% ⚡ | R$ 4,54 | +10000 | R$ 20,62 | Kit C/4 Cortinas Metalizada Lisa Franja Festa | campanha temporária: confira a taxa ao gerar o link |
+| 65 | 16% ⚡ | R$ 7,25 | +1000 | R$ 45,32 | Sorbato De Potássio - 1kg | campanha temporária: confira a taxa ao gerar o link |
+| 66 | 10% ⚡ | R$ 7,20 | +1000 | R$ 72,01 | Kit Com 4 Farinhas Mix Premium Sem Glúten 500g Cada Schar | campanha temporária: confira a taxa ao gerar o link; mais buscado |
+| 67 | 16% ⚡ | R$ 7,12 | +1000 | R$ 44,50 | Jogo Americano Retangular 8 Lugares Mesa Posta Oferta | campanha temporária: confira a taxa ao gerar o link; mais buscado |
+| 68 | 12% | R$ 8,51 | +500 | R$ 70,90 | Kit 3 Painel Led Plafon Aluminio Embutir Quadrado 18w |  |
+| 69 | 16% | R$ 6,80 | +1000 | R$ 42,52 | Kit Aquecedor Rollon + Cera Mel Rollon + 50 Folhas Tnt |  |
+| 70 | 16% ⚡ | R$ 6,70 | +1000 | R$ 41,90 | Identificador Notas Falsas Luz UV Detector Cédulas Dinheiro Verificador | campanha temporária: confira a taxa ao gerar o link |
+| 71 | 20% ⚡ | R$ 7,99 | +500 | R$ 39,96 | Bolsa Feminina Grande Capacidade E Impermeável Crossbody Preto | campanha temporária: confira a taxa ao gerar o link; mais buscado |
+| 72 | 22% ⚡ | R$ 6,38 | +1000 | R$ 28,99 | Kit 2 Escovas De Dental Dente Elétrica Recarregável Usb | campanha temporária: confira a taxa ao gerar o link |
+| 73 | 12% | R$ 6,37 | +1000 | R$ 53,12 | Kit C/ 20 Tintas Em Pó Holi Party 100g Cada Cores Sortidas |  |
+| 74 | 24% ⚡ | R$ 6,27 | +1000 | R$ 26,13 | Navalha Navalhete Barbear Aço Inoxidável C/ 2 Travas | campanha temporária: confira a taxa ao gerar o link |
+| 75 | 16% | R$ 7,76 | +500 | R$ 48,50 | 100 Agulhas Para Jato De Plasma Ru Eletrocautério |  |
+| 76 | 16% | R$ 5,83 | +1000 | R$ 36,46 | Maquina Acabamento Cortar Cabelo Barba E Pelos Kemei 032 |  |
+| 77 | 11% ⚡ | R$ 5,53 | +1000 | R$ 50,27 | Par De Alto Falantes Compatível Com Samsung Un46d5000 Un46d5500 Un46d6000 | campanha temporária: confira a taxa ao gerar o link |
+| 78 | 10% ⚡ | R$ 6,79 | +500 | R$ 67,90 | Kit 12 Snack Alga Tradicional Repeat | campanha temporária: confira a taxa ao gerar o link |
+| 79 | 12% | R$ 5,16 | +1000 | R$ 43,00 | Fantasia Infantil Menino Personagens Herois Aniversario 2-10 | mais buscado |
+| 80 | 19% ⚡ | R$ 5,13 | +1000 | R$ 26,99 | Peruca Black Power Para Festas Cor Preto | campanha temporária: confira a taxa ao gerar o link |
+| 81 | 10% ⚡ | R$ 4,90 | +1000 | R$ 49,00 | Kit C/ 3 Belive Pão De Batata, Sem Glúten E Sem Lactose 198g | campanha temporária: confira a taxa ao gerar o link |
+| 82 | 16% | R$ 4,72 | +1000 | R$ 29,50 | Peeling Limpeza Facial Verrugas Cravos Detox Portátil Caneta |  |
+| 83 | 10% ⚡ | R$ 5,53 | +500 | R$ 55,27 | Recheio Creme Bueno Caribe 1,01kg Confeitaria | campanha temporária: confira a taxa ao gerar o link |
+| 84 | 16% ⚡ | R$ 3,20 | +5000 | R$ 19,99 | Kit 5 Espátulas Nylon Desmontar Painel Moldura Portas Carros | campanha temporária: confira a taxa ao gerar o link |
+| 85 | 16% | R$ 3,20 | +5000 | R$ 19,99 | Prep Anylovy 120ml Higienizador Spray Anti-bactericida Unhas | mais buscado |
+| 86 | 10% ⚡ | R$ 4,70 | +500 | R$ 47,00 | Cappuccino Solúvel Bevan 1kg Preparo Em Pó Bevaccino | campanha temporária: confira a taxa ao gerar o link; mais buscado |
+| 87 | 12% ⚡ | R$ 3,60 | +1000 | R$ 29,99 | Milho Pipoca Mushroom Especial Gourmet Ltt Alimentos 1kg | campanha temporária: confira a taxa ao gerar o link |
+| 88 | 10% ⚡ | R$ 3,58 | +1000 | R$ 35,75 | Kit 5 Snack Edamame Crocante Proteico 5 Sabores Repeat | campanha temporária: confira a taxa ao gerar o link; mais buscado |
+| 89 | 15% ⚡ | R$ 3,97 | +500 | R$ 26,49 | Aveia Flocos Finos 2 Kg Sauce | campanha temporária: confira a taxa ao gerar o link |
+| 90 | 15% ⚡ | R$ 2,85 | +1000 | R$ 19,00 | Mini Batedor Misturador Elétrico Recarregável USB | campanha temporária: confira a taxa ao gerar o link |
+| 91 | 15% ⚡ | R$ 2,70 | +1000 | R$ 18,00 | Balança Digital Para Cozinha Home Utilidades 10 kg | campanha temporária: confira a taxa ao gerar o link |
+| 92 | 15% ⚡ | R$ 2,97 | +500 | R$ 19,81 | Goma Xantana 200g Mesh 200 100% Pura E Sem Glúten | campanha temporária: confira a taxa ao gerar o link; mais buscado |
+| 93 | 15% ⚡ | R$ 1,48 | +5000 | R$ 9,89 | Fone de Ouvido com Fio Intra-auricular P2 3,5mm com Microfone Anti-Ruído Eletric Teck | campanha temporária: confira a taxa ao gerar o link |
 
 ⚡ = campanha temporária ("Ganhos extras").
 
-## Fora da fila (45)
+## Fora da fila (47)
 
 - Creatina (250g) Monohidratada Growth Supplements Sem Sabor — já está no site
 - Parafusadeira E Furadeira Impacto The Black Tools Tb-21pw 3/8 — já está no site
@@ -144,3 +151,5 @@ Ordem = comissão × demanda (vendas) × preço (limitado a R$ 300, por convers�
 - Caixa Cerveja Romarinho Engradado 300ml Para 23 Litrinhos Preto — poucas vendas (+100)
 - Kit 8 Pedestal Zebrado Sinalização Fila + 18 Metros Corrente Amarelo — poucas vendas (+100)
 - Hue Sync Box 8K Philips — sem nota de avaliação
+- Bolo Fake Decoração Revestido Com Eva Branco 15x10 20x10cm — poucas vendas (+100)
+- Bolsa Feminina Meia Lua Franja Moderna Alça Ombro Show Caramelo — nota 4.1 abaixo de 4,5
