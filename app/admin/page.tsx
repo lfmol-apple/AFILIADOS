@@ -27,10 +27,8 @@ import { AdminLogoutButton } from "@/components/admin-logout-button";
 import { MlAffiliateQueueItem } from "@/components/ml-affiliate-queue-item";
 import { PanelLinkQueue } from "@/components/panel-link-queue";
 import {
-  buildMlAffiliateQueueShadowComparison,
   getMlAffiliateQueue,
   DEFAULT_QUEUE_DISPLAY_LIMIT,
-  type MlAffiliateQueueShadowMovement,
 } from "@/lib/queries/ml-affiliate-queue";
 import { ProductCandidateItem } from "@/components/product-candidate-item";
 import { ProductCandidateForm } from "@/components/product-candidate-form";
