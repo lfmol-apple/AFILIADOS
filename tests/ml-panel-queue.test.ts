@@ -23,8 +23,8 @@ describe("evaluatePick", () => {
   it("queues a strong product", () => {
     expect(evaluatePick(pick()).status).toBe("queue");
   });
-  it("skips low commission, weak or missing rating, and low sales", () => {
-    expect(evaluatePick(pick({ rate: 0.05 })).status).toBe("skip");
+  it("skips weak or missing rating and low sales, but never a low percentage", () => {
+    expect(evaluatePick(pick({ rate: 0.05 })).status).toBe("queue");
     expect(evaluatePick(pick({ rating: 4.3 })).status).toBe("skip");
     expect(evaluatePick(pick({ rating: null })).status).toBe("skip");
     expect(evaluatePick(pick({ sold: 100 })).status).toBe("skip");
@@ -35,13 +35,13 @@ describe("evaluatePick", () => {
       "campanha temporária",
     );
   });
-  it("caps the price so an expensive item does not dominate", () => {
-    const cheap = evaluatePick(pick({ price: 300 }));
-    const dear = evaluatePick(pick({ price: 3000 }));
+  it("ranks by commission in reais, not by percentage", () => {
+    const bigTicket = evaluatePick(pick({ rate: 0.05, price: 5000 }));
+    const smallTicket = evaluatePick(pick({ rate: 0.16, price: 100 }));
     expect(
-      cheap.status === "queue" &&
-        dear.status === "queue" &&
-        cheap.score === dear.score,
+      bigTicket.status === "queue" &&
+        smallTicket.status === "queue" &&
+        bigTicket.score > smallTicket.score,
     ).toBe(true);
   });
 });
@@ -66,9 +66,9 @@ describe("isAlreadyOnSite", () => {
 describe("buildQueue", () => {
   it("orders by score, best first, and separates skipped", () => {
     const { queue, skipped } = buildQueue([
-      pick({ title: "Produto Alfa Beta Gama", rate: 0.12 }),
-      pick({ title: "Produto Delta Eps Zeta", rate: 0.16 }),
-      pick({ title: "Produto Eta Theta Iota", rate: 0.05 }),
+      pick({ title: "Produto Alfa Beta Gama", price: 100 }),
+      pick({ title: "Produto Delta Eps Zeta", price: 300 }),
+      pick({ title: "Produto Eta Theta Iota", rating: 4.0 }),
     ]);
     expect(queue.map((q) => q.pick.title)).toEqual([
       "Produto Delta Eps Zeta",
@@ -82,12 +82,12 @@ describe("rankAllForLinking", () => {
   it("keeps every product, recommended first, injectables last, on-site apart", () => {
     const { toLink, onSite } = rankAllForLinking(
       [
-        pick({ title: "Produto Fraco Alfa Beta", rate: 0.05 }),
+        pick({ title: "Produto Fraco Alfa Beta", rating: 4.0 }),
         pick({
           title: "Seringa Exemplo Injetavel Uno",
           group: "saude-injetavel",
         }),
-        pick({ title: "Produto Forte Delta Eps", rate: 0.16 }),
+        pick({ title: "Produto Forte Delta Eps", price: 400 }),
         pick({ title: "Creatina Monohidratada Growth Supplements" }),
       ],
       ["creatina-monohidratada-growth-supplements-250g"],

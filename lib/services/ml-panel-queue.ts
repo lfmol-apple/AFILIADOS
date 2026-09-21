@@ -2,17 +2,11 @@ import type { PanelPick } from "@/lib/config/ml-panel-picks";
 
 /** Criteria a panel product must clear to enter the "generate link" queue. */
 export const QUEUE_RULES = {
-  /** Below this the payout is not worth a link slot. */
-  minRate: 0.1,
   /** Quality gate: the site already refuses weak-rated items elsewhere. A
    * product with no rating shown is excluded, never assumed good. */
   minRating: 4.5,
   /** "+N vendidos" floor: real proof people buy it. */
   minSold: 500,
-  /** Heuristic, tunable: an expensive item converts far less per click, so
-   * price only counts up to this cap when estimating value. The owner's own
-   * panel (16 clicks, 4 orders, R$ 18,75) points at cheap items converting. */
-  priceCap: 300,
 } as const;
 
 export type Verdict =
@@ -83,11 +77,6 @@ export function evaluatePick(
   pick: PanelPick,
   siteSlugs: readonly string[] = [],
 ): Verdict {
-  if (pick.rate < QUEUE_RULES.minRate)
-    return {
-      status: "skip",
-      reason: `comissão ${Math.round(pick.rate * 100)}% abaixo de 10%`,
-    };
   if (pick.rating === null)
     return { status: "skip", reason: "sem nota de avaliação" };
   if (pick.rating < QUEUE_RULES.minRating)
@@ -104,9 +93,7 @@ export function evaluatePick(
 
   const earningPerSale = pick.rate * pick.price;
   const score =
-    pick.rate *
-    demandWeight(pick.sold) *
-    Math.min(pick.price, QUEUE_RULES.priceCap);
+    earningPerSale * demandWeight(pick.sold) * (pick.searched ? 1.15 : 1);
   const reasons: string[] = [];
   if (pick.extras)
     reasons.push("campanha temporária: confira a taxa ao gerar o link");
@@ -164,10 +151,7 @@ export function rankAllForLinking(
     }
     const earningPerSale = pick.rate * pick.price;
     const rawScore =
-      pick.rate *
-      demandWeight(pick.sold) *
-      Math.min(pick.price, QUEUE_RULES.priceCap) *
-      (pick.searched ? 1.15 : 1);
+      earningPerSale * demandWeight(pick.sold) * (pick.searched ? 1.15 : 1);
     const notes: string[] = [];
     const verdict = evaluatePick(pick, []);
     const recommended = verdict.status === "queue";
