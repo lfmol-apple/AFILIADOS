@@ -66,6 +66,25 @@ async function saveAffiliateLink(
     throw err;
   }
 
+  // A hand-pasted link must belong to exactly one product. The same link saved
+  // on two listings sends visitors of one of them to the wrong product (found
+  // 2026-09-21: two different refill kits both opened one Samsung phone).
+  if (source === "MANUAL_ADMIN") {
+    const taken = await prisma.affiliateLinkRegistry.findFirst({
+      where: {
+        affiliateUrl: input.affiliateUrl,
+        status: "ACTIVE",
+        merchantListingId: { not: input.merchantListingId },
+      },
+      select: { merchantListingId: true },
+    });
+    if (taken) {
+      throw new AffiliateLinkValidationError(
+        "Esse link já está cadastrado em outro produto. Cada produto precisa do seu próprio link, gerado no painel para ele.",
+      );
+    }
+  }
+
   const saved = await prisma.affiliateLinkRegistry.upsert({
     where: { merchantListingId: input.merchantListingId },
     create: {

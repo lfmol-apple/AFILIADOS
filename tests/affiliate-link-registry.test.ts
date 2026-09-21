@@ -122,4 +122,46 @@ describe("affiliate link registry", () => {
     expect(row).not.toHaveProperty("secretKey");
     expect(row).not.toHaveProperty("token");
   });
+
+  it("refuses to save the same manual link on a second product", async () => {
+    const other = await prisma.merchantListing.create({
+      data: {
+        merchantId,
+        externalId: `TEST-AFFLINK-OTHER-${Date.now()}`,
+        externalIdType: "MERCHANT_PRODUCT_ID",
+        productUrl: "https://www.mercadolivre.com.br/outro/p/MLB888",
+      },
+    });
+    try {
+      await saveManualAffiliateLink({
+        merchantListingId,
+        merchantId,
+        merchantCode: "MERCADO_LIVRE",
+        publicUrl: "https://www.mercadolivre.com.br/produto-teste/p/MLB999",
+        affiliateUrl: "https://meli.la/DUPLICADO1",
+      });
+      await expect(
+        saveManualAffiliateLink({
+          merchantListingId: other.id,
+          merchantId,
+          merchantCode: "MERCADO_LIVRE",
+          publicUrl: other.productUrl,
+          affiliateUrl: "https://meli.la/DUPLICADO1",
+        }),
+      ).rejects.toBeInstanceOf(AffiliateLinkValidationError);
+      // saving the SAME link again on the SAME product stays fine
+      await expect(
+        saveManualAffiliateLink({
+          merchantListingId,
+          merchantId,
+          merchantCode: "MERCADO_LIVRE",
+          publicUrl: "https://www.mercadolivre.com.br/produto-teste/p/MLB999",
+          affiliateUrl: "https://meli.la/DUPLICADO1",
+        }),
+      ).resolves.toBeTruthy();
+    } finally {
+      await prisma.affiliateLinkRegistry.deleteMany({ where: { merchantListingId: other.id } });
+      await prisma.merchantListing.delete({ where: { id: other.id } });
+    }
+  });
 });
