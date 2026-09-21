@@ -41,7 +41,7 @@ type Row = [
 const rows: Row[] = [
   // Mix
   [
-    "Kit 2 Refletor Super Led 400w Ip67 Holofote Bivolt",
+    "Kit 2 Refletor Super Led 400w Ip67 Holofote Bivolt Prova D'água Branco Frio 6500k Preto",
     20,
     1,
     52.37,
@@ -50,7 +50,7 @@ const rows: Row[] = [
     "casa",
   ],
   [
-    "Creatina (250g) Monohidratada Growth Supplements Sem Sabor",
+    "Creatina (250g) Monohidratada - Growth Supplements Sem Sabor",
     16,
     0,
     42.9,
@@ -68,7 +68,7 @@ const rows: Row[] = [
     "casa",
   ],
   [
-    "Compressor Portátil Car Air Pump Digital Com Visor Calibrador De Pneu",
+    "Compressor Portátil Car Air Pump Digital Com Visor Para Carro Moto Bike Calibrador De Pneu Multifuncional",
     62,
     1,
     66,
@@ -77,7 +77,7 @@ const rows: Row[] = [
     "automotivo",
   ],
   [
-    "Lavadora Lava Jato Portátil Pressão 2 Baterias + Maleta",
+    "Lavadora Lava Jato Portátil Pressão 2 Baterias + Maleta Preto 127/220v 50 Hz X 60 Hz",
     16,
     1,
     114.79,
@@ -104,7 +104,7 @@ const rows: Row[] = [
     "automotivo",
   ],
   [
-    "Parafusadeira E Furadeira Impacto The Black Tools Tb-21pw 3/8",
+    "Parafusadeira E Furadeira Impacto The Black Tools Tb-21pw 3/8 Cor Amarelo Frequência 50/60 Hz",
     12,
     0,
     159,
@@ -113,7 +113,7 @@ const rows: Row[] = [
     "ferramentas",
   ],
   [
-    "Kit 2 Câmeras Segurança Ip Interna Externa Wifi iCSee",
+    "Kit 2 Câmeras Segurança Ip Interna Externa Wifi iCSee Infravermelho Prova D’Água - HW",
     16,
     1,
     177.84,
@@ -131,7 +131,7 @@ const rows: Row[] = [
     "moda",
   ],
   [
-    "Relógio Digital Mormaii Molcdaar8a Azul Esportivo",
+    "Relógio Digital Mormaii Molcdaar8a Azul Design Esportivo e Resistente à Água",
     12,
     0,
     129.99,
@@ -140,7 +140,7 @@ const rows: Row[] = [
     "moda",
   ],
   [
-    "Mini Ventilador Soprador Ar Turbo 130000rpm Sem Fio Davely",
+    "Mini Ventilador Soprador Ar Turbo 130000rpm Assoprador Sem Fio Recarregável USB-C 3 Níveis Jato Forte Portátil Multiuso Limpeza Teclado Carro Acende Churrasqueira Davely",
     17,
     1,
     51.9,
@@ -158,7 +158,7 @@ const rows: Row[] = [
     "games",
   ],
   [
-    "Kit 2 Travesseiros 70x50 Antialérgico Lavável Oaktex",
+    "Kit 2 Travesseiros 70x50 Antialérgico Lavável Fibra Siliconada Toque de Pluma de Ganso Oaktex Cor Branco",
     24,
     1,
     34.99,
@@ -177,7 +177,7 @@ const rows: Row[] = [
   ],
   // Eletrodomésticos e utilidades (as de 5% ficam de fora)
   [
-    "Balança Digital Para Cozinha Home Utilidades 10 kg",
+    "Balança Digital Para Cozinha Home Utilidades 10 kg Com Sensibilidade de 1 g",
     15,
     1,
     18,
@@ -204,7 +204,7 @@ const rows: Row[] = [
     "beleza",
   ],
   [
-    "Escova Secadora 4 em 1 Britânia BEC07R Cerâmica 1300W",
+    "Escova Secadora 4 em 1 Britânia BEC07R Cerâmica 1300W Bivolt Rosa - Seca, alisa, modela e dá volume aos cabelos.",
     16,
     0,
     105.31,
@@ -213,7 +213,7 @@ const rows: Row[] = [
     "beleza",
   ],
   [
-    "Mini Batedor Misturador Elétrico Recarregável USB",
+    "Mini Batedor Misturador Elétrico Recarregável USB, com 3 Velocidades e 2 Batedores em Aço Inox",
     15,
     1,
     19,
@@ -222,7 +222,7 @@ const rows: Row[] = [
     "casa",
   ],
   [
-    "Escova Secadora Cadence Linda & Leve 4 em 1 ESC720",
+    "Escova Secadora Cadence Linda & Leve 4 em 1 Preto ESC720",
     16,
     0,
     74.81,
@@ -241,7 +241,7 @@ const rows: Row[] = [
   ],
   // Alimentos e bebidas
   [
-    "Liquidz Eletrólitos Em Pó Zero Açúcar Cx 14 Doses",
+    "Liquidz® Eletrólitos Em Pó Zero Açúcar Cx 14 Doses",
     16,
     1,
     79.7,
@@ -250,7 +250,7 @@ const rows: Row[] = [
     "alimentos",
   ],
   [
-    "PROHIBIDO FUEL Energy Drink Citrus Pack 6 Unidades",
+    "PROHIBIDO FUEL Energy Drink Sabor Citrus - Pack Com 6 Unidades De 473ml - Fórmula Exclusiva E Inovadora Pré Treino em Lata",
     8,
     1,
     65.69,
@@ -324,7 +324,7 @@ const rows: Row[] = [
   ["Kit 12 Snack Alga Tradicional Repeat", 10, 1, 67.9, 500, 4.9, "alimentos"],
   ["Sorbato De Potássio - 1kg", 16, 1, 45.32, 1000, 4.9, "alimentos"],
   [
-    "Kit Com 4 Farinhas Mix Premium Sem Glúten 500g Cada Schar",
+    "Kit Com 4 Farinhas Mix Premium Sem Glúten 500g Cada - Schar",
     10,
     1,
     72.01,
@@ -360,7 +360,7 @@ const rows: Row[] = [
     "alimentos",
   ],
   [
-    "Proteina De Soja Isolada Pura Sem Sabor 1kg Bellnutry",
+    "Proteina De Soja Isolada Pura Sem Sabor 1kg - Bellnutry",
     4,
     1,
     58.9,
@@ -378,7 +378,7 @@ const rows: Row[] = [
     "alimentos",
   ],
   [
-    "Kit Cesta Presente Casillero Del Diablo + Opções De Vinho",
+    "Kit Cesta Presente - Casillero Del Diablo + Opções De Vinho",
     8,
     1,
     86.9,
@@ -386,7 +386,7 @@ const rows: Row[] = [
     4.9,
     "alimentos",
   ],
-  ["Aveia Flocos Finos 2 Kg Sauce", 15, 1, 26.49, 500, 4.7, "alimentos"],
+  ["Aveia Flocos Finos 2 Kg - Sauce", 15, 1, 26.49, 500, 4.7, "alimentos"],
   [
     "Kit C/ 3 Belive Pão De Batata, Sem Glúten E Sem Lactose 198g",
     10,
@@ -396,10 +396,10 @@ const rows: Row[] = [
     4.9,
     "alimentos",
   ],
-  ["Ácido Cítrico Anidro 2 Kg Sauce", 15, 1, 55.92, 100, 5.0, "alimentos"],
+  ["Ácido Cítrico Anidro 2 Kg - Sauce", 15, 1, 55.92, 100, 5.0, "alimentos"],
   // Casa, móveis e construção
   [
-    "Soprador Costal Vonder SCV 427 A Gasolina 1.7 hp",
+    "Soprador Costal Vonder SCV 427 A Gasolina 1.7 hp Amarelo",
     12,
     0,
     622.38,
@@ -408,7 +408,7 @@ const rows: Row[] = [
     "ferramentas",
   ],
   [
-    "Armário De Cozinha Compacta Emilly Top Madesa Rustic",
+    "Armário De Cozinha Compacta Emilly Top Madesa Cor Rustic",
     17,
     1,
     689.99,
@@ -417,7 +417,7 @@ const rows: Row[] = [
     "casa",
   ],
   [
-    "Kit 2 Prendedores De Cortina Magnético Bege Cortineiro",
+    "Kit 2 Prendedores De Cortina Magnético Bege Presilha Abraçadeira Ímã Forte Cortineiro Sem Furar Parede Decoração Sala Quarto Escritório Luxo Moderno",
     20,
     1,
     25.19,
@@ -426,7 +426,7 @@ const rows: Row[] = [
     "casa",
   ],
   [
-    "Kit 10 Placas Adesivas Decorativa Ripada Parede Mdf 45x11",
+    "Kit 10 Placas Adesivas Decorativa Ripada Parede Mdf 45x11 Painel Ripado Freijó",
     12,
     0,
     26.99,
@@ -435,7 +435,7 @@ const rows: Row[] = [
     "casa",
   ],
   [
-    "Guarda-roupa Casal 6 Portas 2 Gavetas França Espresso Móveis",
+    "Guarda-roupa Casal 6 Portas 2 Gavetas França Espresso Móveis cor cinamomo off-white",
     12,
     0,
     699,
@@ -480,7 +480,7 @@ const rows: Row[] = [
     "casa",
   ],
   [
-    "Espelho Mirano Orgânico Madrid 100x40cm Lapidado",
+    "Espelho Mirano Orgânico Madrid 100x40cm Lapidado Design Luxo Suporte",
     22,
     1,
     89.9,
@@ -489,7 +489,7 @@ const rows: Row[] = [
     "casa",
   ],
   [
-    "Kit 10 Potes Herméticos Vidro 640ml Starhouse Marmita",
+    "Kit 10 Potes Herméticos Vidro 640ml Starhouse Marmita Forno Micro-ondas Airfryer com 4 travas de super vedação",
     16,
     1,
     107.77,
@@ -498,7 +498,7 @@ const rows: Row[] = [
     "casa",
   ],
   [
-    "Jogo De Panela Cerâmica Premium 20 Pç Antiaderente Marrom",
+    "Jogo De Panela Cerâmica Premium 20 Pç - Antiaderente Marrom Marrom-escuro",
     12,
     0,
     565.9,
@@ -507,7 +507,7 @@ const rows: Row[] = [
     "casa",
   ],
   [
-    "Varal Inox Suspenso 40 Prendedores Fixos Para Secagem Roupas",
+    "Varal Inox Suspenso 40 Prendedores Fixos Para Secagem Roupas Prata",
     32,
     1,
     27.29,
@@ -525,7 +525,7 @@ const rows: Row[] = [
     "casa",
   ],
   [
-    "Colchão Casal Emma Basics 17 138x188cm Espuma D28",
+    "Colchão Casal Emma Basics 17 – 138x188cm - Espuma D28 17cm com Tecnologia Alemã, Embalado à Vácuo, Firmeza Ideal, Suporte Confortável",
     12,
     0,
     1169,
@@ -543,7 +543,7 @@ const rows: Row[] = [
     "casa",
   ],
   [
-    "Kit 3 Painel Led Plafon Aluminio Embutir Quadrado 18w",
+    "Kit 3 Painel Led Plafon Aluminio Embutir Quadrado 6500K Branco Frio 18w 22x22Cm",
     12,
     0,
     70.9,
@@ -561,7 +561,7 @@ const rows: Row[] = [
     "casa",
   ],
   [
-    "Torneira Gourmet Luxo Flexível Cozinha Bancada 2 Jatos Camperluz",
+    "Torneira Gourmet Luxo Flexível Cozinha Bancada 2 Jatos Pia Cor Preto - Marca Camperluz",
     20,
     1,
     29.9,
@@ -570,7 +570,7 @@ const rows: Row[] = [
     "casa",
   ],
   [
-    "Kit C/ 4 Toalha De Banho Gigante 80 X 150 Cm Softmax",
+    "Kit C/ 4 Toalha De Banho Gigante 80 X 150 Cm Atacado + Softmax",
     12,
     0,
     76.99,
@@ -579,7 +579,7 @@ const rows: Row[] = [
     "casa",
   ],
   [
-    "Jogo Americano Retangular 8 Lugares Mesa Posta Oferta",
+    "Jogo Americano Retangular 8 Lugares - Mesa Posta Oferta",
     16,
     1,
     44.5,
@@ -588,7 +588,7 @@ const rows: Row[] = [
     "casa",
   ],
   [
-    "Aparelho De Jantar E Chá/café 20 Peças Vidro Opaline Floral",
+    "Aparelho De Jantar E Chá/café 20 Peças Vidro Opaline Branco Branco Floral",
     12,
     0,
     188.95,
@@ -597,7 +597,7 @@ const rows: Row[] = [
     "casa",
   ],
   [
-    "Cuba De Apoio Branca Cerâmica 40x30cm hidrófuga Winda",
+    "Cuba De Apoio Branca Cerâmica 40x30cm acabamento premium hidrófuga para banheiro moderno Winda",
     12,
     0,
     212.43,
@@ -607,7 +607,7 @@ const rows: Row[] = [
   ],
   // Automotivo e moto
   [
-    "Auxiliar De Partida Bateria Carro Compressor De Ar 12V 4 em 1 MidiaFone",
+    "Auxiliar De Partida Bateria Carro Compressor De Ar Portátil 12V 4 funções em 1 Inflador Digital Calibrador Pneu Power Bank Lanterna LED Emergência Automotiva Moto SUV Bicicleta Caminhonete MidiaFone",
     21,
     1,
     170.99,
@@ -616,7 +616,7 @@ const rows: Row[] = [
     "automotivo",
   ],
   [
-    "Capacete para moto aberto Pro Tork New Liberty Three preto",
+    "Capacete para moto aberto Pro Tork New Liberty Three preto brilhante sólido tamanho 57/58",
     12,
     0,
     124.9,
@@ -625,7 +625,7 @@ const rows: Row[] = [
     "automotivo",
   ],
   [
-    "Bateria Moura Ma5-d Para Moto Titan Fan Biz Bros Fazer",
+    "Bateria Moura Ma5-d Para Moto Titan Fan Biz Bros Fazer Direito 12v",
     16,
     1,
     139.2,
@@ -634,7 +634,7 @@ const rows: Row[] = [
     "automotivo",
   ],
   [
-    "Suporte De Painel Veicular Starlink Mini Ventosas Antimulta",
+    "Suporte De Painel Veicular Starlink Mini Ventosas Antimulta Preto",
     24,
     1,
     89.91,
@@ -643,7 +643,7 @@ const rows: Row[] = [
     "automotivo",
   ],
   [
-    "Bateria Moura MA5-D 5 Ah 12V Selada para Honda, Yamaha",
+    "Bateria Moura MA5-D 5 Ah 12V Selada para Honda, Yamaha e Mais",
     12,
     0,
     145.99,
@@ -661,7 +661,7 @@ const rows: Row[] = [
     "automotivo",
   ],
   [
-    "Capa De Chuva 100% Impermeável Moto Alba Europa",
+    "Capa De Chuva 100% Impermeável Moto Alba Europa P M G Gg Eg Capa De Chuva Preto Pvc Motocilclista G",
     18,
     1,
     186.09,
@@ -679,7 +679,7 @@ const rows: Row[] = [
     "automotivo",
   ],
   [
-    "Módulo Amplificador Automotivo Stetsom HL4004 400W RMS 4 Canais",
+    "Módulo Amplificador Automotivo Stetsom HL4004 400W RMS 4 Canais DSP Player Bluetooth USB FM",
     12,
     0,
     299,
@@ -688,7 +688,7 @@ const rows: Row[] = [
     "automotivo",
   ],
   [
-    "Capacete Moto Pro Tork Fechado Viseira Fumê Street",
+    "Capacete Moto Pro Tork Fechado Viseira Fumê Street Promoção",
     12,
     0,
     141.9,
@@ -706,7 +706,7 @@ const rows: Row[] = [
     "automotivo",
   ],
   [
-    "Kit 5 Espátulas Nylon Desmontar Painel Moldura Portas Carros",
+    "Kit 5 Espátulas Nylon Desmontar Painel Moldura Portas Carros Amarelo",
     16,
     1,
     19.99,
@@ -715,7 +715,7 @@ const rows: Row[] = [
     "automotivo",
   ],
   [
-    "Soloever Balaclava Moto Malha Respirável Capacete Preto",
+    "Soloever Balaclava Moto Malha Respirável Capacete Preto Preto Liso 30x34cm",
     24,
     1,
     96.52,
@@ -733,7 +733,7 @@ const rows: Row[] = [
     "automotivo",
   ],
   [
-    "Mini Rastreador Veicular Carro Moto Localizador Gps Android",
+    "Mini Rastreador Veicular Carro Moto Localizador Gps Android Preto/branco",
     12,
     0,
     55.99,
@@ -752,7 +752,7 @@ const rows: Row[] = [
     "beleza",
   ],
   [
-    "Maquina Acabamento Cortar Cabelo Barba E Pelos Kemei 032",
+    "Maquina Acabamento Cortar Cabelo Barba E Pelos Kemei 032 Prateado 127/220v",
     16,
     0,
     36.46,
@@ -761,7 +761,7 @@ const rows: Row[] = [
     "beleza",
   ],
   [
-    "Navalha Navalhete Barbear Aço Inoxidável C/ 2 Travas",
+    "Navalha Navalhete Barbear Aço Inoxidável C/ 2 Travas - Preto",
     24,
     1,
     26.13,
@@ -770,7 +770,7 @@ const rows: Row[] = [
     "beleza",
   ],
   [
-    "Perfume Asad Elixir 100ml Eau De Parfum Original",
+    "Perfume Asad Elixir 100ml Eau De Parfum Original Edp Lançamento 2026",
     16,
     0,
     219.92,
@@ -779,7 +779,7 @@ const rows: Row[] = [
     "beleza",
   ],
   [
-    "Medicube Zero Pore Pad 2.0 70 Almofadas Tônicas Faciais",
+    "Medicube Zero Pore Pad 2.0 - 70 Almofadas Tônicas Faciais Momento de Aplicação Dia/Noite Tipo De Pele Todo Tipo De Pele",
     24,
     1,
     130,
@@ -824,7 +824,7 @@ const rows: Row[] = [
     "beleza",
   ],
   [
-    "Teeth White 28x Fitas Branqueador Clareador Dentes",
+    "Teeth White - 28x Fitas Branqueador Clareador Dentes Branco",
     20,
     1,
     57.55,
@@ -842,7 +842,7 @@ const rows: Row[] = [
     "beleza",
   ],
   [
-    "4 Lisinha Sérum Telocapil Reduz Pelos Corporais",
+    "4 Lisinha Sérum Telocapil Reduz Pelos Corporais P/ Depilação",
     26,
     1,
     189.97,
@@ -851,7 +851,7 @@ const rows: Row[] = [
     "beleza",
   ],
   [
-    "Prancha De Cabelo Mq Pro 480°f Titânio Automatico Chumbo",
+    "Prancha De Cabelo Mq Pro 480°f Titânio Automatico Chumbo 127/220v",
     16,
     0,
     408.41,
@@ -878,7 +878,7 @@ const rows: Row[] = [
     "beleza",
   ],
   [
-    "Shampoo 300ml + Creme Multifuncional 300ml Cachos Ostentação Salon Line",
+    "Shampoo 300ml + Creme Multifuncional 300ml Cachos Ostentação",
     23,
     1,
     29.95,
@@ -897,7 +897,7 @@ const rows: Row[] = [
     "beleza",
   ],
   [
-    "Kit Unhas Tips Postiças Realistas 100 Unidades Quadrada Rosa",
+    "Kit Unhas Tips Postiças Realistas 100 Unidades Quadrada Rosa CS",
     24,
     1,
     23.5,
@@ -915,7 +915,7 @@ const rows: Row[] = [
     "beleza",
   ],
   [
-    "Ducha Íntima Ginecológica Adao & Eva Higiene Saúde Feminina",
+    "Ducha Íntima Ginecológica Adao & Eva para Higiene e Saúde Feminina",
     56,
     1,
     35.45,
@@ -924,7 +924,7 @@ const rows: Row[] = [
     "beleza",
   ],
   [
-    "Escova Modeladora Rotativa Britânia Ber20pd 3 Temperaturas",
+    "Escova Modeladora Rotativa Britânia Ber20pd 3 Temperaturas Cor Preto e Dourado",
     16,
     0,
     155.79,
@@ -933,7 +933,7 @@ const rows: Row[] = [
     "beleza",
   ],
   [
-    "Peeling Limpeza Facial Verrugas Cravos Detox Portátil Caneta",
+    "Peeling Limpeza Facial Verrugas Cravos Detox Portátil Caneta Branco",
     16,
     0,
     29.5,
@@ -942,7 +942,7 @@ const rows: Row[] = [
     "beleza",
   ],
   [
-    "L'Oréal Paris Elseve Óleo Extraordinário 100ml Leave In",
+    "L'Oréal Paris Elseve Óleo Extraordinário 100ml - Leave In Anti Frizz Protetor Térmico Tratamento Reconstrutor Para Todos Os Tipos De Cabelo",
     16,
     0,
     35.35,
@@ -951,7 +951,7 @@ const rows: Row[] = [
     "beleza",
   ],
   [
-    "Perfume Feminino La Vie Est Belle Lancôme 50ml",
+    "Perfume Feminino Eau de Parfum Fragrância Floral Gourmand Inebriante com Notas de Íris Nobre, Baunilha e Pralinê La Vie Est Belle Lancôme, Frasco com 50ml",
     16,
     0,
     572.85,
@@ -960,7 +960,7 @@ const rows: Row[] = [
     "beleza",
   ],
   [
-    "NIVEA SUN Protetor Solar Facial Toque Seco Antissinais FPS70 40ml",
+    "NIVEA SUN Protetor Solar Facial Toque Seco Antissinais FPS70 40ml, Alta Proteção UVA/UVB, Controla a Oleosidade, Previne Envelhecimento, Textura Leve",
     16,
     0,
     40.75,
@@ -978,7 +978,7 @@ const rows: Row[] = [
     "beleza",
   ],
   [
-    "Máscara Facial Led 7 Cores Terapia De Rejuvenescimento Pele",
+    "Máscara Facial Led 7 Cores Terapia De Rejuvenescimento Pele 127/220v",
     30,
     1,
     103,
@@ -996,7 +996,7 @@ const rows: Row[] = [
     "beleza",
   ],
   [
-    "Kit 10 Organizador Multiuso Modular Gaveta Acrilico Rebirth",
+    "Kit 10 Organizador Multiuso Modular Gaveta Acrilico Rebirth Cor Cristal",
     20,
     1,
     40.54,
@@ -1005,7 +1005,7 @@ const rows: Row[] = [
     "casa",
   ],
   [
-    "Kit 50 Capas De Corte De Cabelo Química Tintura Descartáveis",
+    "Kit 50 Capas De Corte De Cabelo Química Tintura Descartáveis Branco",
     16,
     0,
     42.65,
@@ -1023,7 +1023,7 @@ const rows: Row[] = [
     "beleza",
   ],
   [
-    "Modelador De Cachos Profissional Cerâmica Babyliss Cônico",
+    "Modelador De Cachos Profissional Cerâmica Babyliss Cônico Preto 127/220v",
     16,
     0,
     68.99,
@@ -1032,7 +1032,7 @@ const rows: Row[] = [
     "beleza",
   ],
   [
-    "Kit 10 Dedeira Protetor De Dedo Silicone Calo Atrito",
+    "Kit 10 Dedeira Protetor De Dedo Silicone Dedeira Calo Atrito Transparente",
     20,
     1,
     19.99,
@@ -1059,7 +1059,7 @@ const rows: Row[] = [
     "beleza",
   ],
   [
-    "Carrinho Auxiliar Multiuso Modelo Industrial Com 3 Bandejas",
+    "Carrinho Auxiliar Multiuso Modelo Industrial Com 3 Bandejas Dourado-escuro",
     26,
     1,
     128.79,
@@ -1096,7 +1096,7 @@ const rows: Row[] = [
     "outros",
   ],
   [
-    "Identificador Notas Falsas Luz UV Detector Cédulas Dinheiro Verificador",
+    "Identificador Notas Falsas Luz UV Detector Cédulas Dinheiro Documentos Bivolt Verificador Ultravioleta Comércio Caixa Loja Portátil",
     16,
     1,
     41.9,
@@ -1114,7 +1114,7 @@ const rows: Row[] = [
     "outros",
   ],
   [
-    "Seringa Insulina 1ml Agulha Fixa 6x0,25mm C/100 Un Venper",
+    "Seringa Insulina 1ml Agulha Fixa 6x0,25mm C/100 Un Venper 1 Ml",
     12,
     0,
     149.99,
@@ -1123,7 +1123,7 @@ const rows: Row[] = [
     "saude-injetavel",
   ],
   [
-    "Seringa Insulina/botox 1ml 8x0,30 Agulha Fixa 10 Unidades",
+    "Seringa Insulina/botox 1ml 8x0,30 Agulha Fixa - 10 Unidades 1 Ml",
     12,
     0,
     19,
@@ -1132,7 +1132,7 @@ const rows: Row[] = [
     "saude-injetavel",
   ],
   [
-    "Seringa Insulina/Mounjaro Venper 0,5ml 6x0,25mm 31g 50un",
+    "Seringa Insulina/Mounjaro Venper 0,5ml 6x0,25mm 31g 50un.",
     12,
     0,
     95.25,
@@ -1159,7 +1159,7 @@ const rows: Row[] = [
     "outros",
   ],
   [
-    "Driver Tb6600 Para Motor De Passo 4a Cnc",
+    "Driver Tb6600 Para Motor De Passo 4a Cnc - Com",
     12,
     0,
     78,
@@ -1169,7 +1169,7 @@ const rows: Row[] = [
   ],
   // Eletrônicos, áudio e TV (a base é 5%; só as campanhas passam de 10%)
   [
-    "Par De Alto Falantes Compatível Com Samsung Un46d5000 Un46d5500 Un46d6000",
+    "Par De Alto Falantes Compatível Com Samsung Un46d5000 Un46d5500 Un46d6000 Pci",
     11,
     1,
     50.27,
@@ -1178,7 +1178,7 @@ const rows: Row[] = [
     "audio",
   ],
   [
-    "Fone de Ouvido com Fio Intra-auricular P2 3,5mm com Microfone Anti-Ruído Eletric Teck",
+    "Fone de Ouvido com Fio Intra-auricular P2 3,5mm com Microfone Anti-Ruído Graves Potentes Cabo Nylon Reforçado Compativel Com Celular Notebook PC Xbox Games Uso Esportivo Academia Corrida Eletric Teck",
     15,
     1,
     9.89,
@@ -1198,7 +1198,7 @@ const rows: Row[] = [
     "festa",
   ],
   [
-    "Fantasia Guerreiras Kpop Festa Pop Infantil Dança Palco Luxo Rumi",
+    "Fantasia Guerreiras Kpop Festa Pop Infantil Dança Palco Luxo Rumi Menina P: 4 A 6 Anos",
     12,
     0,
     78.99,
@@ -1225,7 +1225,7 @@ const rows: Row[] = [
     "festa",
   ],
   [
-    "Peruca Black Power Para Festas Cor Preto",
+    "Peruca Black Power Para Festas Cor Preto Preto",
     19,
     1,
     26.99,
@@ -1261,7 +1261,7 @@ const rows: Row[] = [
     "festa",
   ],
   [
-    "Bolsa Feminina Meia Lua Franja Moderna Alça Ombro Show Caramelo",
+    "Bolsa Feminina Meia Lua Franja Moderna Alça Ombro Show Caramelo Franja Dourado Mesma Da Bolsa",
     12,
     0,
     28.49,
@@ -1271,7 +1271,7 @@ const rows: Row[] = [
   ],
   // Presentes, religião, esporte e diversos
   [
-    "Suporte Organizador Porta Medalhas De Parede Em Mdf Preto",
+    "Suporte Organizador Porta Medalhas De Parede Em Mdf Preto Preto",
     22,
     1,
     24.51,
@@ -1289,7 +1289,7 @@ const rows: Row[] = [
     "celulares",
   ],
   [
-    "Bandeira Do Brasil Para Capô De Carro Copa Do Mundo Elastico",
+    "Bandeira Do Brasil Para Capô De Carro Copa Do Mundo Elastico Brasil",
     17,
     1,
     31.04,
@@ -1361,7 +1361,7 @@ const rows: Row[] = [
     "casa",
   ],
   [
-    "Vitrola Raveo Sonetto Wood Marrom Bivolt",
+    "Vitrola Raveo Sonetto Wood Marrom -Bivolt",
     12,
     0,
     521.9,
@@ -1390,7 +1390,7 @@ const rows: Row[] = [
   ],
   ["Controlador Dual Switch Hx Stomp Line 6", 12, 0, 154.64, 50, 5.0, "musica"],
   [
-    "Escova Limpeza Vinil Antiestática Para Toca-disco E Agulha Preto",
+    "Escova Limpeza Vinil Antiestática Para Toca-disco E Agulha Preto Escova Para Limpeza Antiestática Para Toca-discos E Agulha",
     13,
     1,
     60.33,
@@ -1399,7 +1399,7 @@ const rows: Row[] = [
     "musica",
   ],
   [
-    "Traste Fino De Alpaca Made Kore P/cavaco Bandolim Dhp 15",
+    "Traste Fino De Alpaca Made Kore P/cavaco Bandolim Dhp 15.",
     12,
     0,
     26,
@@ -1408,7 +1408,7 @@ const rows: Row[] = [
     "musica",
   ],
   [
-    "Harpa New Lyre De Madeira Maciça De 16 Cordas",
+    "Harpa New Lyre De Madeira Maciça De 16 Cordas Com Padrão De",
     12,
     0,
     256.59,
@@ -1417,7 +1417,7 @@ const rows: Row[] = [
     "musica",
   ],
   [
-    "Teclado Casio Cts300 Iniciante Kit Suporte Pedal Fonte",
+    "Teclado Casio Cts300 Iniciante Kit Suporte Pedal Fonte Leve 127/220v Preto",
     12,
     0,
     1154,
@@ -1426,7 +1426,7 @@ const rows: Row[] = [
     "musica",
   ],
   [
-    "Kit Violão Eletroacústico de 38 Polegadas para Iniciantes Dc Music",
+    "Kit Violão Eletroacústico de 38 Polegadas para Iniciantes, Preto, com Afinador e Acessórios Dc Music",
     16,
     1,
     369.99,
@@ -1444,7 +1444,7 @@ const rows: Row[] = [
     "musica",
   ],
   [
-    "Bateria Eletrônica Completa Groove Drums Edg100 Midi Usb 7 Peças",
+    "Bateria Eletrônica Completa Groove Drums Edg100 Midi Usb 7 Peças 4 Pads 3 Pratos Profissional e Banco e Fone de Ouvido Cor Preto",
     24,
     1,
     1859,
@@ -1480,7 +1480,7 @@ const rows: Row[] = [
     "musica",
   ],
   [
-    "Mini Saxofone Infantil Brinquedo Musical Instrumento Educativo",
+    "Mini Saxofone Infantil Brinquedo Musical Instrumento Educativo Iniciante Som Real Presente Unissex Criança",
     17,
     1,
     54.95,
@@ -1489,7 +1489,7 @@ const rows: Row[] = [
     "musica",
   ],
   [
-    "Banco de Bateria Don Caprini TR25 Cinza Escuro 3 Pés",
+    "Banco de Bateria Don Caprini TR25 Cinza Escuro 3 Pés Altura Ajustável 60cm",
     12,
     0,
     145.4,
@@ -1498,7 +1498,7 @@ const rows: Row[] = [
     "musica",
   ],
   [
-    "Capa para Violão Folk e Clássico Dc Music Acolchoada com Alça Mochila",
+    'Capa para Violão Folk e Clássico Dc Music Acolchoada com Alça Mochila e Bolso Frontal (39" a 41") Preta',
     12,
     0,
     73.95,
@@ -1507,7 +1507,7 @@ const rows: Row[] = [
     "musica",
   ],
   [
-    "Kit Guitarra Stratocaster Iniciante Estudante Bravo Music Beg100",
+    "Kit Guitarra Stratocaster Iniciante Estudante Bravo Music Beg100 Elétrica Com Acessórios Orientação Da Mão Destro Cor Black",
     27,
     1,
     798,
@@ -1525,7 +1525,7 @@ const rows: Row[] = [
     "musica",
   ],
   [
-    "Mini Violino Infantil Brinquedo Musical Instrumento Educativo Cordas e Arco",
+    "Mini Violino Infantil Brinquedo Musical Instrumento Educativo Iniciante Cordas e Arco Presente Unissex Menino Menina",
     17,
     1,
     55.15,
@@ -1543,7 +1543,7 @@ const rows: Row[] = [
     "musica",
   ],
   [
-    "Capotraste Braçadeira Dolphin Prata Violão Aço Guitarra Dc Music",
+    "Capotraste Braçadeira Dolphin Prata Violão Aço / Guitarra Dc Music",
     12,
     0,
     19.39,
@@ -1552,7 +1552,7 @@ const rows: Row[] = [
     "musica",
   ],
   [
-    "Gaita Sanfona Acordeão Iniciante 8 Baixos 17 Teclas Petite Flô",
+    "Gaita Sanfona Acordeão Iniciante 8 Baixos 17 Teclas Brinquedo Crianças Sanfona Infantil Brinquedo Musical Vermelho - Petite Flô",
     12,
     0,
     198.77,
@@ -1570,7 +1570,7 @@ const rows: Row[] = [
     "musica",
   ],
   [
-    "Vedo Trompete Iniciantes Instrumentos Em Si Bemol Com Bocal Dourado",
+    "Vedo Trompete Iniciantes Instrumentos Em Si Bemol Com Bocal Cor Dourado",
     20,
     1,
     649.52,
@@ -1579,7 +1579,7 @@ const rows: Row[] = [
     "musica",
   ],
   [
-    "Pandeiro Profissional Abs Preto 10 Polegadas Pele Leitosa Zaidan's",
+    "Pandeiro Profissional Abs Preto 10 Polegadas Pele Leitosa Nylon Samba Zaidan's",
     12,
     0,
     62.91,
@@ -1624,7 +1624,7 @@ const rows: Row[] = [
     "musica",
   ],
   [
-    "Amplificador De Fone De Ouvido 4 Canais Stereo Podcast Banda",
+    "Amplificador De Fone De Ouvido 4 Canais Stereo Podcast Banda 127/220v",
     16,
     1,
     72.91,
@@ -1633,7 +1633,7 @@ const rows: Row[] = [
     "musica",
   ],
   [
-    "Kit Violão Elétrico Folk Bravo Music Tf300 Com Afinador Digital",
+    "Kit Violão Elétrico Folk Bravo Music Tf300 Com Afinador Digital Cordas De Aço + Acessórios Cor Mgs Mahogany Orientação Da Mão Destro Acabamento Fosco",
     27,
     1,
     804,
@@ -1643,7 +1643,7 @@ const rows: Row[] = [
   ],
   // Produtos de 5% (ficam na lista, no fim, para o dono decidir)
   [
-    "Fritadeira Elétrica Air Fryer Quad Fry 4,2 L 1400w Preto Elgin",
+    "Fritadeira Elétrica Air Fryer Quad Fry 4,2 L,1400w Preto Elgin",
     5,
     0,
     262.28,
@@ -1661,7 +1661,7 @@ const rows: Row[] = [
     "eletro",
   ],
   [
-    "Cafeteira elétrica Electrolux inox filtro permanente 600ml ECM10",
+    "Cafeteira elétrica Electrolux inox filtro permanente removivel corta pingos capacidade 600ml 15 xicaras função manter aquecido sistema ECM10",
     5,
     0,
     113.25,
@@ -1679,7 +1679,7 @@ const rows: Row[] = [
     "eletro",
   ],
   [
-    "Churrasqueira Elétrica Britânia 1500w Menos Fumaça Bcq10a",
+    "Churrasqueira Elétrica Britânia 1500w Menos Fumaça Bcq10a Cor Preto",
     5,
     0,
     135.79,
@@ -1688,7 +1688,7 @@ const rows: Row[] = [
     "eletro",
   ],
   [
-    "Panela Elétrica Multicook Premium Mondial 1200W PE-49",
+    "Panela Elétrica Multicook Premium, Mondial, 1200W - PE-49",
     5,
     0,
     230.46,
@@ -1697,7 +1697,7 @@ const rows: Row[] = [
     "eletro",
   ],
   [
-    "Cafeteira Espresso Oster Perfect Brew 15 barras C/molino",
+    "Cafeteira Espresso Oster Perfect Brew 15 barras C/molino Color Plateado",
     5,
     0,
     2399,
@@ -1706,7 +1706,7 @@ const rows: Row[] = [
     "eletro",
   ],
   [
-    "Geladeira Brastemp Frost Free 385 Litros Duplex Inox BRM46MK",
+    "Geladeira Brastemp Frost Free 385 Litros Duplex Inox - BRM46MK",
     5,
     0,
     2993,
@@ -1715,7 +1715,7 @@ const rows: Row[] = [
     "eletro",
   ],
   [
-    "Philco Aspirador de Pó Vertical Pas4000v 2000W Power Clean",
+    "Philco Aspirador de Pó Vertical Philco Pas4000v 2000W Power Clean 2 Litros Preto",
     5,
     0,
     247,
@@ -1751,7 +1751,7 @@ const rows: Row[] = [
     "eletro",
   ],
   [
-    "Panela Elétrica Electrolux vapor arroz 1,3L RCB50 branca Rita Lobo",
+    "Panela Elétrica Electrolux vapor arroz capacidade 1,3L 7 xícaras manter aquecido panela removível antiaderente tampa vidro RCB50 branca por Rita Lobo​",
     5,
     0,
     212.56,
@@ -1769,7 +1769,7 @@ const rows: Row[] = [
     "eletro",
   ],
   [
-    "Smartphone Motorola Moto G06 256gb 12gb Camera 50mp Bege",
+    "Smartphone Motorola Moto G06 - 256gb 12gb (4gb Ram + 8gb Ram Boost), e Camera 50mp Com Ai Bateria De 5200 Mah Tela 6.9 - Bege",
     5,
     0,
     782.1,
@@ -1805,7 +1805,7 @@ const rows: Row[] = [
     "audio",
   ],
   [
-    "Caixa de Som Portátil Basike Bluetooth 200W Graves Reforçados",
+    "Caixa de Som Portátil Basike Bluetooth 200W Com Graves Reforçados e À Prova D'Água",
     5,
     0,
     625.01,
@@ -1823,7 +1823,7 @@ const rows: Row[] = [
     "audio",
   ],
   [
-    "Smart Tv Tcl 55 Polegadas Qled 4k P7l Wifi Google Tv 55p7l",
+    "Smart Tv Tcl 55 Polegadas Qled 4k P7l Wifi Bluetooth Google Tv Hdr10+ 120 Hz Vrr Aipq 55p7l",
     5,
     0,
     2899,
@@ -1832,7 +1832,7 @@ const rows: Row[] = [
     "audio",
   ],
   [
-    "Fone De Ouvido Bluetooth Sem Fio Tws Open Ear Esportivo 3tech",
+    "Fone De Ouvido Bluetooth Sem Fio Tws Open Ear Esportivo Display Digital Caixinha Case Carregadora Tipo C Compatível iPhone Samsung Xiaomi Android Para Corrida Academia Com Microfone Anatel Preto 3tech",
     5,
     0,
     59.9,
@@ -1841,7 +1841,7 @@ const rows: Row[] = [
     "audio",
   ],
   [
-    "Televisão Smart Tv Hq 50 Qled 4k Uhd Dolby Audio",
+    "Televisão Smart Tv Hq 50 Qled, 4k Uhd, Dolby Audio, Wi-fi, Bluetooth, 3 Hdmi, 2 Usb, Netflix, Prime Video, Bivolt",
     5,
     0,
     1849,
@@ -1850,7 +1850,7 @@ const rows: Row[] = [
     "audio",
   ],
   [
-    "Fone de Ouvido Bluetooth Clip-Ear Rmira M161 Sem Fio",
+    "Fone de Ouvido Bluetooth Clip-Ear Rmira M161 Sem Fio para Academia e Corrida Com Brincos",
     5,
     0,
     88,
@@ -1868,7 +1868,7 @@ const rows: Row[] = [
     "festa",
   ],
   [
-    "Espuma Acústica C/ 20 Placas 50cm X 50cm X 2,0cm Preto",
+    "Espuma Acústica C/ 20 Placas - 50cm X 50cm X 2,0cm Preto",
     5,
     0,
     69.84,
@@ -1877,7 +1877,7 @@ const rows: Row[] = [
     "musica",
   ],
   [
-    "Interface de Áudio Joyo MOMIX CAB Celular/PC Preto Gravação Streaming",
+    "Interface de Áudio Joyo MOMIX CAB Celular/PC Preto p/ Gravação e Streaming",
     5,
     0,
     125,
@@ -1923,7 +1923,7 @@ const rows: Row[] = [
     "esporte",
   ],
   [
-    "Bicicleta Infantil 2–5 Anos Nathor Homem-Aranha Aro 12 com rodinhas",
+    "Bicicleta Infantil 2–5 Anos Nathor Homem-Aranha Aro 12 azul/vermelho com rodinhas",
     21,
     1,
     258.9,
@@ -1968,7 +1968,7 @@ const rows: Row[] = [
     "casa",
   ],
   [
-    "Bicicleta Elétrica Nado C2 1000W Bateria Removível 48V 60km Preto",
+    "Bicicleta Elétrica Nado C2 1000W Bateria Removível 48V 60km PretoBicicleta Elétrica Nado C2 1000W Bateria Removível 48V 60km Preto",
     16,
     0,
     5146,
@@ -2013,7 +2013,7 @@ const rows: Row[] = [
     "moda",
   ],
   [
-    "Bicicleta Aro 29 Gts Alumínio Rdx 24v Freio A Disco",
+    "Bicicleta Aro 29 Gts Alumínio Rdx 24v Freio A Disco Cor Azul Claro/preto Tamanho Do Quadro 17",
     16,
     0,
     752.56,
@@ -2032,7 +2032,7 @@ const rows: Row[] = [
   ],
   ["Hyaluronic Hair 60 Cápsulas Vitafor", 12, 0, 68.89, 10000, 4.9, "beleza"],
   [
-    "Patinete Infantil 3 Rodas De Led Dobrável Scooter Crianças Rosa",
+    "Patinete Infantil 3 Rodas De Led Dobrável Scooter Crianças Cor Rosa",
     12,
     0,
     47.89,
@@ -2078,7 +2078,7 @@ const rows: Row[] = [
     "casa",
   ],
   [
-    "Chinelo Dedo Havaianas Adulto Unissex Time Torcedor Flamengo",
+    "Chinelo Dedo Havaianas Adulto Unissex Time Torcedor Original Flamengo Time 39.40",
     16,
     0,
     48.89,
@@ -2105,7 +2105,7 @@ const rows: Row[] = [
     "moda",
   ],
   [
-    "Kit Viagem 9 Frascos Organizador para Cosméticos com Necessaire",
+    "Kit Viagem 9 Frascos Organizador para Cosméticos com Necessaire Transparente",
     16,
     0,
     23.9,
@@ -2114,7 +2114,7 @@ const rows: Row[] = [
     "beleza",
   ],
   [
-    "Kit 50unid Presilhas Estrela Colorida Tic Tac Cores Sortidas",
+    "Kit 50unid Presilhas Estrela Colorida Tic Tac Cores Sortidas Coloridas/sortidas",
     21,
     1,
     24.99,
@@ -2123,7 +2123,7 @@ const rows: Row[] = [
     "beleza",
   ],
   [
-    "Mochila Tática Militar Grande Forte Impermeável 50 Litros Preto",
+    "Mochila Tática Militar Grande Forte Impermeável 50 Litros Cor Preto Desenho Do Tecido Liso",
     16,
     0,
     98.99,
@@ -2133,7 +2133,7 @@ const rows: Row[] = [
   ],
   // Saúde e suplementos
   [
-    "Whey Core 70% de Proteina Concentrada Chocolate 900g Soldiers Nutrition",
+    "Whey Core 70% de Proteina Concentrada - Chocolate 900g - Soldiers Nutrition",
     20,
     1,
     78.21,
@@ -2142,7 +2142,7 @@ const rows: Row[] = [
     "suplementos",
   ],
   [
-    "Aparelho Medidor de Pressão Arterial Aferidor Monitor Digital Nixzen",
+    "Aparelho Medidor de Pressão Arterial Aferidor Monitor Digital Uso Doméstico Automático Residencial Pressão De Braço Braçadeira Pulso Manguito Ajustável Memória Leitura Adultos Crianças Portátil Nixzen",
     22,
     1,
     37.63,
@@ -2197,7 +2197,7 @@ const rows: Row[] = [
     "informatica",
   ],
   [
-    "Pc Gamer Completo Intel I7 16gb Ssd 512gb Mon 21 Strong Tech",
+    "Pc Gamer Completo Intel I7 16gb Ssd 512gb Mon 21 Strong Tech 512 Gb 16 Gb Placa Gráfica Onboard",
     5,
     0,
     1697,
@@ -2206,7 +2206,7 @@ const rows: Row[] = [
     "informatica",
   ],
   [
-    "Notebook ASUS Vivobook Go 15 AMD Athlon Silver 10 8GB 128GB SSD",
+    "Notebook ASUS Vivobook Go 15, AMD Athlon Silver 10, 8GB RAM, 128GB SSD, Windows 11 Home, Tela 15,6' FHD nível IPS, Mixed Black - E1504FA-BQ5315WS",
     5,
     0,
     2909,
@@ -2215,7 +2215,7 @@ const rows: Row[] = [
     "informatica",
   ],
   [
-    "Notebook Gamer Acer Nitro V15 Anv15-52-778t Intel Core I7-13620h",
+    "Notebook Gamer Acer Nitro V15 Anv15-52-778t Intel Core I7-13620h De 13ªg 8gb Ram 512gb Ssd Rtx4050 15.6 Linux",
     5,
     0,
     5999,
@@ -2233,7 +2233,7 @@ const rows: Row[] = [
     "informatica",
   ],
   [
-    "Controle Gamesir G7 Se Com Fio Para Xbox One S X Pc Hall",
+    "Controle Gamesir G7 Se Com Fio Para Xbox One S X Pc Hall Cor Cinza",
     15,
     1,
     249.9,
@@ -2242,7 +2242,7 @@ const rows: Row[] = [
     "games",
   ],
   [
-    "Monitor Gamer Philips Evnia 27 Ips 144Hz 0.5ms Fhd27m2n3200nf",
+    "Monitor Gamer Philips Evnia 27'' Ips 144Hz 0.5ms Fhd27m2n3200nf Preto",
     5,
     0,
     678,
@@ -2251,7 +2251,7 @@ const rows: Row[] = [
     "informatica",
   ],
   [
-    "Notebook Gamer Acer Nitro V15 ANV15-41-R6J0 AMD Ryzen 7 7735HS",
+    "Notebook Gamer Acer Nitro V15 ANV15-41-R6J0 AMD Ryzen 7 7735HS 8GB RAM 512GB SSD RTX 4050 Linux 15.6”",
     5,
     0,
     7067,
@@ -2260,7 +2260,7 @@ const rows: Row[] = [
     "informatica",
   ],
   [
-    "Repetidor Sinal Wifi Gigabit 1200mb 5g 2.4g Dual Band XCOLD'S",
+    "Repetidor Sinal Wifi Gigabit 1200mb 5g 2.4g Dual Band Wireless 4 Antenas Ap Roteador XCOLD'S",
     5,
     0,
     96.81,
@@ -2307,7 +2307,7 @@ const rows: Row[] = [
     "automotivo",
   ],
   [
-    "Parafusadeira Furadeira 48v Profissional 2 Baterias Sem Fio Amarelo Dewen",
+    "Parafusadeira Furadeira 48v Profissional 2 Baterias Sem Fio Amarelo - Dewen",
     16,
     1,
     122,
@@ -2316,7 +2316,7 @@ const rows: Row[] = [
     "ferramentas",
   ],
   [
-    "Pistola Aplicador Silicone Pu Aberto Catraca Metálica Selante Cola Tubo",
+    "Pistola Aplicador Silicone Pu Aberto Catraca Metálica Aplicador Manual Selante Cola Tubo Estrutura Reforçada Uso Construção Reparos Vedação",
     16,
     1,
     22.95,
@@ -2325,7 +2325,7 @@ const rows: Row[] = [
     "ferramentas",
   ],
   [
-    "Kit 7 Brocas De Aço Liga Dura Universal Fura Tudo 3mm a 12mm",
+    "Kit 7 Brocas De Aço Liga Dura Universal Fura Tudo 3mm 4mm 5mm 6mm 8mm 10mm 12mm Para Concreto Madeira Ferro Videa Aço",
     12,
     0,
     38.14,
@@ -2352,7 +2352,7 @@ const rows: Row[] = [
     "ferramentas",
   ],
   [
-    "Multímetro Digital Profissional Lcd Iluminado Portátil Multifunções",
+    "Multímetro Digital Profissional Lcd Iluminado Portátil Multifunções Ac Dc Bip Com Bateria",
     12,
     0,
     32.9,
@@ -2370,7 +2370,7 @@ const rows: Row[] = [
     "ferramentas",
   ],
   [
-    "Calibrador Portátil Bomba De Ar Para Encher Pneu Compressor Multicontrol",
+    "Calibrador Portátil Bomba De Ar Para Encher Pneu Compressor Automotivo Para Calibrar Moto Carro Bike Preto - Multicontrol",
     20,
     1,
     89.9,
@@ -2379,7 +2379,7 @@ const rows: Row[] = [
     "automotivo",
   ],
   [
-    "Guia Base De Serra Circular Gabarito Maquina Corte Ajustavel",
+    "Guia Base De Serra Circular Gabarito Maquina Corte Ajustavel 0",
     12,
     0,
     24.99,
@@ -2388,7 +2388,7 @@ const rows: Row[] = [
     "ferramentas",
   ],
   [
-    "Kit 5 Lixas Grão 100 Para Porcelanato E 1 Suporte Acabamento",
+    "Kit 5 Lixas Grão 100 Para Porcelanato E 1 Suporte Acabamento 0",
     42,
     1,
     53.2,
@@ -2397,7 +2397,7 @@ const rows: Row[] = [
     "ferramentas",
   ],
   [
-    "Pá Reta Multifuncional De Jardim Externo De Aço Inoxidável Plana",
+    "Pá Reta Multifuncional De Jardim Externo De Aço Inoxidável Plana Prateado",
     27,
     1,
     32.9,
@@ -2406,7 +2406,7 @@ const rows: Row[] = [
     "ferramentas",
   ],
   [
-    "Motoserra Eletrica 3600w Profissional 16 Polegadas Brushless 2 Bateria",
+    "Motoserra Eletrica 3600w Profissional 16 Polegadas Portátil Brushless 2 Bateria 3 Corrente",
     18,
     1,
     387.03,
@@ -2416,7 +2416,7 @@ const rows: Row[] = [
   ],
   // Rural, máquinas e ferramentas pesadas
   [
-    "Lavadora de Alta Pressão Kärcher K3 Force Car 1815PS 360L/h 1500W Kit Auto",
+    "Lavadora de Alta Pressão Kärcher K3 Force Car 1815PS 360L/h 1500W Bico articulado e Kit Auto 127v",
     12,
     0,
     835.75,
@@ -2425,7 +2425,7 @@ const rows: Row[] = [
     "ferramentas",
   ],
   [
-    "Lavadora de Alta Pressão Kärcher HD 585 Profi Portable 2.176 PSI 220v",
+    "Lavadora de Alta Pressão Kärcher HD 585 Profi Portable 2.176 PSI/Libras 500 L/h uso fixo (sem rodas) com motor a indução 220v",
     12,
     0,
     2662,
@@ -2443,7 +2443,7 @@ const rows: Row[] = [
     "ferramentas",
   ],
   [
-    "Plato De Embreagem Trator Valtra Valmet 60 62 360 600 280mm",
+    "Plato De Embreagem Trator Valtra Valmet 60 62 360 600 280mm Preto",
     12,
     0,
     474.9,
@@ -2517,7 +2517,7 @@ const rows: Row[] = [
   // Celulares e acessórios
   ["Samsung Galaxy Buds3 FE SM-R420", 5, 0, 667.43, 1000, 4.9, "celulares"],
   [
-    "Samsung Smartwatch Galaxy Fit3 Grafite Mesh",
+    "Samsung Smartwatch Galaxy Fit3 Grafite Grafite Mesh",
     5,
     0,
     236.66,
@@ -2571,7 +2571,7 @@ const rows: Row[] = [
     "celulares",
   ],
   [
-    "Power Bank 20000mah Carregador Portátil 4 Cabos Integrados Visor Digital",
+    "Power Bank 20000mah Carregador Portátil 4 Cabos Integrados Visor Digital Lanterna Led Usb Tipo C Compatível iPhone Samsung Xiaomi Android Bateria Externa Carrega 4 Dispositivos Preto",
     5,
     0,
     67.9,
@@ -2589,7 +2589,7 @@ const rows: Row[] = [
     "celulares",
   ],
   [
-    "Carregador Portátil Power Bank 20.000mah Turbo 22.5w Premium Nixzen",
+    "Carregador Portátil Power Bank 20.000mah Turbo Celular Carga Rápida 22.5w Premium Display Visor Grande Universal Usb-c Viagens Festa Para los E Android iPhone Samsung Motorola Xiaomi Preto Nixzen",
     15,
     1,
     68.06,
@@ -2598,7 +2598,7 @@ const rows: Row[] = [
     "celulares",
   ],
   [
-    "Cartão De Memória 128 Gb Micro Sd Classe 10 Ultra 100mb/s Adaptador Sd",
+    "Cartão De Memória 128 Gb Micro Sd Classe 10 Ultra 100mb/s, Para Drones, Celulares, Câmeras Wi-fi, Com Adaptador Sd",
     5,
     0,
     24.06,
@@ -2608,7 +2608,7 @@ const rows: Row[] = [
   ],
   // Eletrodomésticos (mais)
   [
-    "Cozedor De Ovos Automático Panela A Vapor Elétrica Legumes 7 Ovos",
+    "Cozedor De Ovos Automático Panela A Vapor Elétrica Legumes Elétrica Portátil Prático Rápido 7 Ovos Em 5min",
     9,
     1,
     33.99,
@@ -2654,7 +2654,7 @@ const rows: Row[] = [
     "eletro",
   ],
   [
-    "Mini Ferro De Passar Roupa A Vapor Bolsa Viagem Bivolt CTRPRIME",
+    "Mini Ferro De Passar Roupa A Vapor Bolsa Viagem Bivolt Cor Verde-escuro CTRPRIME",
     10,
     1,
     37.9,
@@ -2672,7 +2672,7 @@ const rows: Row[] = [
     "eletro",
   ],
   [
-    "Conjunto Instalação Parede Secadora Roupas Electrolux Electramix Svb11",
+    "Conjunto Instalação Parede Secadora Roupas Electrolux Electramix Svb11 A27922901 Suporte Bucha Parafuso Amortecedor",
     13,
     1,
     75.99,
@@ -2681,7 +2681,7 @@ const rows: Row[] = [
     "eletro",
   ],
   [
-    "Ar condicionado Split Hi Wall Gree G-Side Auto Inverter 12.000 Btus",
+    "Ar condicionado Split Hi Wall Gree G-Side Auto Inverter 12.000 Btus Frio 220V R-32",
     5,
     0,
     2199,
@@ -2709,7 +2709,7 @@ const rows: Row[] = [
     "bebe",
   ],
   [
-    "Carrinho de Bebê Com Alça Reversível YouTurn Maxi Baby Gold",
+    "Carrinho de Bebê Com Alça Reversível YouTurn Maxi Baby - Gold",
     12,
     0,
     474.05,
@@ -2718,7 +2718,7 @@ const rows: Row[] = [
     "bebe",
   ],
   [
-    "Banheira Para Bebês Dobrável Com Suporte 35l Até 16kg Azul-celeste",
+    "Banheira Para Bebês Dobrável Com Suporte 35l Até 16kg Azul-celeste Lisa",
     27,
     1,
     289.57,
@@ -2763,7 +2763,7 @@ const rows: Row[] = [
     "bebe",
   ],
   [
-    "Kit Chocalho Bebe E Mordedores 8 Peças Estímulo Sensorial",
+    "Kit Chocalho Bebe E Mordedores 8 Peças Estímulo Sensorial Brinquedo Educativo",
     12,
     0,
     38.9,
@@ -2781,7 +2781,7 @@ const rows: Row[] = [
     "bebe",
   ],
   [
-    "Tapete Tatame Infantil Emborrachado Dobrável Dupla Face Floresta Dos Ursos",
+    "Tapete Tatame Infantil Emborrachado Dobrável Dupla Face 10mm Floresta Dos Ursos Floresta Dos Ursos",
     27,
     1,
     99.9,
@@ -2799,7 +2799,7 @@ const rows: Row[] = [
     "bebe",
   ],
   [
-    "Combo 6 Peças De Roupas Bebê Menino Regata Kit 3 Conjuntos Sortidos",
+    "Combo 6 Peças De Roupas Bebê Menino Regata Kit 3 Conjuntos Sortidos 3 - Veste 2 Anos",
     12,
     0,
     67.9,
@@ -2817,7 +2817,7 @@ const rows: Row[] = [
     "bebe",
   ],
   [
-    "Berço 3 em 1 para Colchão 60 x 130cm vira sofá e minicama Multimóveis",
+    "Berço 3 em 1 para Colchão 60 x 130cm vira sofá e minicama 3 anos de garantia Multimóveis Branco",
     27,
     1,
     446.49,
@@ -2873,7 +2873,7 @@ const rows: Row[] = [
     "pet",
   ],
   [
-    "Porta Ração Pote Com Tampa Pet Gato Cachorro Dispenser 2kg Ecommind",
+    "Porta Ração Pote Com Tampa Pet Gato Cachorro Dispenser 2kg Ecommind Transparente",
     16,
     1,
     23.12,
@@ -2891,7 +2891,7 @@ const rows: Row[] = [
     "pet",
   ],
   [
-    "Termostato Aquário Aquecedor 70 a 100 litros 100w Roxin",
+    "termostato aquário aquecedor 70 a 100 litros 100w roxin",
     16,
     1,
     66.99,
@@ -2900,7 +2900,7 @@ const rows: Row[] = [
     "pet",
   ],
   [
-    "Guia Unificada Coleira 2,00 Mt Enforcador Cães Adestramento Preto",
+    "Guia Unificada Coleira 2,00 Mt Enforcador Cães Adestramento Cor Preto",
     12,
     0,
     25.34,
@@ -2909,7 +2909,7 @@ const rows: Row[] = [
     "pet",
   ],
   [
-    "Casinha Gato Toca Arranhador Madeira Mdf Carpete 30x47x36cm",
+    "Casinha Gato Toca Arranhador Madeira Mdf Carpete 30x47x36cm - ACB Torneados em Madeiras",
     22,
     1,
     27.9,
@@ -2918,7 +2918,7 @@ const rows: Row[] = [
     "pet",
   ],
   [
-    "Chocadeira Incubadora 130 Ovos Bivolt Automática Beltempo BT-400",
+    "Chocadeira Incubadora 130 Ovos Bivolt Certificada Inmetro Automática Profissional Beltempo BT-400 Marrom",
     12,
     0,
     644.55,
@@ -2928,7 +2928,7 @@ const rows: Row[] = [
   ],
   // Relógios, joias e religião
   [
-    "Smartwatch Inteligente Relógio À Prova D'água Ip68 Bluetooth Eletromind",
+    "Smartwatch Inteligente Relógio À Prova D'água Ip68 Bluetooth Chamadas Redondo Monitoramento Sono Saúde Esporte Cinza Eletromind",
     9,
     1,
     119.58,
@@ -2937,7 +2937,7 @@ const rows: Row[] = [
     "celulares",
   ],
   [
-    "Colar Prata 925 Legítima Corrente Veneziana Fino Luxo 70cm",
+    "Colar Prata 925 Legítima Corrente Veneziana Fino Luxo Prata 925 Maciça Veneziana Luxo 70cm",
     17,
     1,
     29,
@@ -2946,7 +2946,7 @@ const rows: Row[] = [
     "moda",
   ],
   [
-    "Relogio Smartwatch 10 Ultra Plus Preto Tela AMOLED Monitor Saúde GPS",
+    "Relogio Smartwatch 10 Ultra Plus Preto Tela AMOLED Monitor Saúde GPS Bluetooth",
     5,
     0,
     51,
@@ -2955,7 +2955,7 @@ const rows: Row[] = [
     "celulares",
   ],
   [
-    "Relógio Inteligente WGP Smartwatch GPS Embutido Tela AMOLED 1,39",
+    'Relógio Inteligente WGP Smartwatch GPS Embutido Masculino Feminino Tela AMOLED 1,39" Bluetooth 5.3 Chamadas Telefônicas 107 Modos Esportivos Compatível com Strava Monitor Saúde Para Android iOS',
     13,
     1,
     193.08,
@@ -2964,7 +2964,7 @@ const rows: Row[] = [
     "celulares",
   ],
   [
-    "Alicate Meia Cana Reto 6.1/2 R28502165 Gedore Red",
+    "Alicate Meia Cana Reto 6.1/2 - R28502165 - Gedore Red",
     12,
     0,
     39.36,
@@ -2973,7 +2973,7 @@ const rows: Row[] = [
     "ferramentas",
   ],
   [
-    "Relógio Smartwatch Forestory Inteligente Tela 1.83 Bluetooth Ip68",
+    "Relógio Smartwatch Forestory Inteligente Tela 1.83 Bluetooth Ip68 À Prova D'água Notificações Chamadas Saúde Smart Watch Relogio Corrida Com Android E Ios Com 2 Pulseiras Feminino Masculino",
     5,
     0,
     123.35,
@@ -2982,7 +2982,7 @@ const rows: Row[] = [
     "celulares",
   ],
   [
-    "Porta Joias 3 Camadas Couro Caixa De Jóias Feminina Preto",
+    "Porta Joias 3 Camadas Couro Caixa De Jóias Feminina Cor Preto",
     37,
     1,
     71.58,
@@ -2991,7 +2991,7 @@ const rows: Row[] = [
     "casa",
   ],
   [
-    "Trio De Brincos Femininos Argolas Finas Cravejadas Banho Prata 925 Evidence",
+    "Trio De Brincos Femininos Argolas Finas Cravejadas Banho Prata 925 Evidence P M G",
     20,
     1,
     27.57,
@@ -3028,7 +3028,15 @@ const rows: Row[] = [
     4.7,
     "foto",
   ],
-  ["Monitor Feelworld F6 Plus V2 6 Pol. 4k", 13, 1, 1125, 100, 4.8, "foto"],
+  [
+    "Monitor Feelworld F6 Plus V2 - 6 Pol. 4k - Pronta Entrega!",
+    13,
+    1,
+    1125,
+    100,
+    4.8,
+    "foto",
+  ],
   [
     "Tapa Olho Pirata Neoprene Oclusor Estrabismo Ambliopia",
     20,
@@ -3048,7 +3056,7 @@ const rows: Row[] = [
     "celulares",
   ],
   [
-    "Kit Cartão Balanço 3 em 1 Equilíbrio de cores 18% Foto Vídeo",
+    "Kit Cartão Balanço 3 em 1 Equilíbrio de cores Branco Preto Cinza 18% Foto Vídeo",
     9,
     1,
     22.41,
@@ -3077,7 +3085,7 @@ const rows: Row[] = [
     "papelaria",
   ],
   [
-    "100 Adesivos Pegadas Patinhas De Coelho Para A Páscoa",
+    "100 Adesivos Pegadas Patinhas De Coelho Para A Páscoa.",
     20,
     1,
     35.9,
@@ -3113,7 +3121,7 @@ const rows: Row[] = [
     "papelaria",
   ],
   [
-    "Globo Terrestre Mapa Mundi Giratório De Mesa Em Português",
+    "Globo Terrestre Mapa Mundi Giratório De Mesa Em Português Globo Terrestre Mapa Mundi Giratório",
     32,
     1,
     29.19,
@@ -3132,7 +3140,7 @@ const rows: Row[] = [
   ],
   // Games e periféricos
   [
-    "Headphone Bluetooth 5.4 Com Anc+enc 40h Bateria Basike Branco",
+    "Headphone Bluetooth 5.4 Com Anc+enc 40h Bateria Basike Fone Headset Bluetooth Com Microfone Hi-fi Estéreo Branco",
     5,
     0,
     166,
@@ -3149,7 +3157,7 @@ const rows: Row[] = [
     4.8,
     "games",
   ],
-  ["Nintendo Switch Sports Resort NS2", 12, 0, 379.9, 100, 5.0, "games"],
+  ["Nintendo Switch Sports Resort - NS2", 12, 0, 379.9, 100, 5.0, "games"],
   [
     "Cadeira Gamer Profissional Reclinável Apoio De Pés X-ray",
     5,
@@ -3160,7 +3168,7 @@ const rows: Row[] = [
     "games",
   ],
   [
-    "Kit 10 Grip Protetor Analógico Compatível Ps3 Ps4 Ps5 Xbox",
+    "Kit 10 Grip Protetor Analógico Compatível Ps3 Ps4 Ps5 Xbox Diversos",
     24,
     1,
     19.9,
@@ -3169,7 +3177,7 @@ const rows: Row[] = [
     "games",
   ],
   [
-    "Cadeira De Escritorio Gamer Ergonômica Dunamis Marqs Home Reclinável 180kg",
+    "Cadeira De Escritorio Gamer Ergonômica Dunamis Preta Marqs Home Reclinável 180kg Resistente Giratória Confortavel Computador",
     13,
     1,
     486.39,
@@ -3178,7 +3186,7 @@ const rows: Row[] = [
     "games",
   ],
   [
-    "Stand Mesa Base Vertical Playstation 5 Ps5 Slim Fat Preto",
+    "Stand Mesa Base Vertical Playstation 5 Ps5 Slim Fat Todos Preto",
     22,
     1,
     19,
@@ -3187,7 +3195,7 @@ const rows: Row[] = [
     "games",
   ],
   [
-    "Headset Gamer Havit H2002d Edição Cores White Red Roxo Pink",
+    "Headset Gamer Havit H2002d Edição Cores White Red Roxo Pink Cor Azul",
     16,
     1,
     219.19,
@@ -3232,7 +3240,7 @@ const rows: Row[] = [
     "games",
   ],
   [
-    "Ssd 256gb Notebooks Desktops Armazenamento Interno Sata Iii Pholex",
+    "Ssd 256gb Notebooks Desktops Armazenamento Interno Sata Iii 2.5 Leitura Até 500mb/s Pholex",
     12,
     0,
     270,
@@ -3251,7 +3259,7 @@ const rows: Row[] = [
   ],
   // Brinquedos e infantil
   [
-    "Centopéia Espiral Bichinho Pelúcia Brinquedo Carrinho Berço Bebê Chocalho",
+    "Centopéia Espiral Bichinho Pelúcia Brinquedo Carrinho Berço Bebê Conforto com Chocalho de Pendurar Sensorial",
     20,
     1,
     29.45,
@@ -3269,7 +3277,7 @@ const rows: Row[] = [
     "bebe",
   ],
   [
-    "Mesinha Didática Educativa Com Atividades Infantil Divertida Vermelho",
+    "Mesinha Didática Educativa Com Atividades Infantil Divertida Cor Vermelho",
     16,
     1,
     44.9,
@@ -3296,7 +3304,7 @@ const rows: Row[] = [
     "brinquedos",
   ],
   [
-    "Mesinha Didática Educativa Com Atividades Infantil Divertida Verde",
+    "Mesinha Didática Educativa Com Atividades Infantil Divertida Cor Verde",
     16,
     1,
     44.9,
@@ -3305,7 +3313,7 @@ const rows: Row[] = [
     "brinquedos",
   ],
   [
-    "Carrinho Controle Remoto 4x4 Bateria Recarregavel Rally Off Road Luzes Led",
+    "Carrinho Controle Remoto 4x4 Bateria Recarregavel Rally Off Road Luzes Led Presente Brinquedo Kids Sem Fio Rápido Infantil Acrobatico Cross Gira 360 Graus Drift Looping Corrida Maluco Eletrico Carro",
     17,
     1,
     93,
@@ -3314,7 +3322,7 @@ const rows: Row[] = [
     "brinquedos",
   ],
   [
-    "Patinete Elétrico 350w Com Amortecedor E App Gps Dobrável Adultos 150kg",
+    "Patinete Elétrico 350w Com Amortecedor E App Gps Bateria Recarregável Dobrável Super Autonomia Para Adultos Até 150kg Preto",
     17,
     1,
     1115,
@@ -3332,7 +3340,7 @@ const rows: Row[] = [
     "esporte",
   ],
   [
-    "Jogo Tapple Português Relé Letras Brinquedo Educativo Pedagógico",
+    "Jogo Tapple Português Relé Letras Brinquedo Educativo Pedagógico Familiar",
     12,
     0,
     31.9,
@@ -3353,59 +3361,60 @@ const rows: Row[] = [
 
 /** Titles the panel tagged "MAIS BUSCADO" (the panel's own search signal). */
 const SEARCHED_PREFIXES = [
-  "Kit Lavagem Automotiva",
-  "Tênis Masculino Feminino Kappa",
-  "Bolsa Feminina Grande",
-  "PROHIBIDO FUEL",
-  "Goma Xantana",
-  "Kit Com 4 Farinhas",
-  "Cappuccino Solúvel",
-  "Kit 5 Snack Edamame",
-  "Deo Colônia Natura",
-  "Prep Anylovy",
-  "Peruca Lace",
-  "Suporte Fio Dental",
-  "Brae Kit Divine",
-  "NIVEA SUN",
-  "Gel De Limpeza Facial",
-  "Jogo Americano",
-  "Jogo De Panela Cerâmica Premium",
-  "Kit 10 Placas Adesivas",
-  "Prancha de Cabelo Britânia",
-  "Jogo De Panelas Tefal",
-  "Capacete para moto aberto",
-  "Seringa Insulina/botox",
-  "Fantasia Infantil Menino",
-  "Smartwatch Inteligente",
-  "Controle Gamer Sem Fio",
-  "Fone De Ouvido In-ear Sem Fio Jbl",
-  "Maleta Transporte",
-  "Samsung Smartwatch Galaxy Fit3",
-  "Braçadeira Esportiva",
-  "Máquina De Café Automática Krups",
-  "Mini Ferro De Passar",
-  "Banheira Para Bebês",
-  "Patinho Dançante",
-  "Kit Refrigeração Ar Condicionado",
-  "Kit 5 Lixas Grão 100",
-  "Motoserra Eletrica",
-  "Bicicleta Ergométrica",
-  "Kit 3 Short Duplo",
-  "Kit 2 Calças Jogger",
-  "Kit 2 Shorts 2 Em 1",
-  "Garrafa Térmica 800ml",
-  "Camiseta Proteção Solar",
-  "Tênis Fila Progress",
-  "Hyaluronic Hair",
-  "Maio Body",
-  "Pré Treino Core",
-  "Colic Zen",
-  "Notebook ASUS Vivobook",
-  "Repetidor Sinal Wifi",
-  "Fone De Ouvido Bluetooth Sem Fio Tws Open Ear",
-  "Fone de Ouvido Bluetooth Clip-Ear",
-  "Espuma Acústica",
-  "Microfone Sem Fio Duplo Dylan",
+  "Repetidor Sinal Wifi Gigabit 1200mb 5g 2.4g Dual Band Wireless 4 Antenas Ap Roteador XCOLD'S",
+  "Notebook ASUS Vivobook Go 15, AMD Athlon Silver 10, 8GB RAM, 128GB SSD, Windows 11 Home, Tela 15,6' FHD nível IPS, Mixed Black - E1504FA-BQ5315WS",
+  "Kit 3 Short Duplo 2 Em 1 Com Bolso Celular Academia Treino",
+  "Fone De Ouvido In-ear Sem Fio Jbl Wave 300tws Azul",
+  "Banheira Para Bebês Dobrável Com Suporte 35l Até 16kg Azul-celeste Lisa",
+  "Mini Ferro De Passar Roupa A Vapor Bolsa Viagem Bivolt Cor Verde-escuro CTRPRIME",
+  "Kit 5 Lixas Grão 100 Para Porcelanato E 1 Suporte Acabamento 0",
+  "Fone De Ouvido Bluetooth Sem Fio Tws Open Ear Esportivo Display Digital Caixinha Case Carregadora Tipo C Compatível iPhone Samsung Xiaomi Android Para Corrida Academia Com Microfone Anatel Preto 3tech",
+  "Kit Com 4 Farinhas Mix Premium Sem Glúten 500g Cada - Schar",
+  "Controle Gamer Sem Fio Compatível Pc Ps4 Bluetooth Joystick Preto",
+  "Smartwatch Inteligente Relógio À Prova D'água Ip68 Bluetooth Chamadas Redondo Monitoramento Sono Saúde Esporte Cinza Eletromind",
+  "Kit Refrigeração Ar Condicionado Bomba Vácuo Completo Pro Cor Preto",
+  "Garrafa Térmica 800ml Inox Bico Duplo Canudo Alça Esporte Preto",
+  "Espuma Acústica C/ 20 Placas - 50cm X 50cm X 2,0cm Preto",
+  "Fone de Ouvido Bluetooth Clip-Ear Rmira M161 Sem Fio para Academia e Corrida Com Brincos",
+  "Microfone Sem Fio Duplo Dylan Udx02 Multi Dinâmico Cardioide Preto",
+  "Seringa Insulina/botox 1ml 8x0,30 Agulha Fixa - 10 Unidades 1 Ml",
+  "NIVEA SUN Protetor Solar Facial Toque Seco Antissinais FPS70 40ml, Alta Proteção UVA/UVB, Controla a Oleosidade, Previne Envelhecimento, Textura Leve",
+  "Capacete para moto aberto Pro Tork New Liberty Three preto brilhante sólido tamanho 57/58",
+  "Goma Xantana 200g Mesh 200 100% Pura E Sem Glúten",
+  "Maleta Transporte P/ Nintendo Switch 2 Case Bolsa Portátil",
+  "Patinho Dançante Brinquedo Musical Dança, Luz E Som Infantil",
+  "Máquina De Café Automática Krups Coffee Crush Experience Cce1",
+  "Braçadeira Esportiva Para Celular Corrida Academia Com Zíper Preto",
+  "Motoserra Eletrica 3600w Profissional 16 Polegadas Portátil Brushless 2 Bateria 3 Corrente",
+  "Maio Body Maiô Plus Size Curve Nozinho G1 G2 G3",
+  "Camiseta Proteção Solar Uv 50+ Segunda Pele Unissex Leve",
+  "Kit 2 Shorts 2 Em 1 Feminino Academia Duplo Compressão",
+  "Suporte Fio Dental Com Haste Reutilizável 5 Unidades Preto",
+  "Peruca Lace Wig Fibra Orgânica Longa Franja Preta 70cm",
+  "Jogo De Panela Cerâmica Premium 20 Pç - Antiaderente Marrom Marrom-escuro",
+  "Kit 10 Placas Adesivas Decorativa Ripada Parede Mdf 45x11 Painel Ripado Freijó",
+  "Prancha de Cabelo Britânia Revestimento Cerâmico 200°C BPR03A",
+  "Colic Zen 10ml Phitobaby Óleo Essencial Para Massagem",
+  "Pré Treino Core 150g Growth Supplements Purple Berry",
+  "Kit 2 Calças Jogger Tactel Com Elastano Impulse",
+  "Fantasia Infantil Menino Personagens Herois Aniversario 2-10",
+  "Gel De Limpeza Facial Glycare Control 300g Mantecorp",
+  "Prep Anylovy 120ml Higienizador Spray Anti-bactericida Unhas",
+  "Jogo Americano Retangular 8 Lugares - Mesa Posta Oferta",
+  "Jogo De Panelas Tefal Ceramic Vitality 4 Peças",
+  "Kit 5 Snack Edamame Crocante Proteico 5 Sabores Repeat",
+  "Cappuccino Solúvel Bevan 1kg Preparo Em Pó Bevaccino",
+  "PROHIBIDO FUEL Energy Drink Sabor Citrus - Pack Com 6 Unidades De 473ml - Fórmula Exclusiva E Inovadora Pré Treino em Lata",
+  "Bolsa Feminina Grande Capacidade E Impermeável Crossbody Preto",
+  "Tênis Masculino Feminino Kappa Park 2.0 Original",
+  "Tênis Fila Progress Lite Feminino Confortável Original",
+  "4 Lisinha Sérum Telocapil Reduz Pelos Corporais P/ Depilação",
+  "Kit Lavagem Automotiva Completa Profissional Produtos Vonixx",
+  "Samsung Smartwatch Galaxy Fit3 Grafite Grafite Mesh",
+  "Bicicleta Ergométrica Movitsports Spinning Preto 127v",
+  "Brae Kit Divine Shampoo 250ml + Condicionador 250ml",
+  "Deo Colônia Natura Hoje Masculino 100ml",
+  "Hyaluronic Hair 60 Cápsulas Vitafor",
 ];
 
 export const ML_PANEL_PICKS: readonly PanelPick[] = rows.map(
