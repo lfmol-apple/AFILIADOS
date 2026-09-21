@@ -45,11 +45,7 @@ export function PanelPickRow(props: PanelPickRowProps) {
         "Não consegui copiar automaticamente; copie o endereço do produto manualmente.",
       );
     }
-    window.open(
-      props.productUrl ? LINKBUILDER_URL : PANEL_URL,
-      "_blank",
-      "noopener",
-    );
+    window.open(LINKBUILDER_URL, "_blank", "noopener");
   }
 
   async function save(value: string = url) {
