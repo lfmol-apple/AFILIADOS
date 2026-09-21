@@ -137,6 +137,12 @@ export default async function AdminPage(props: PagePropsWithSearch) {
             Desempenho (cliques diários) →
           </a>
           <a
+            href="/admin/fila-links"
+            className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
+          >
+            Fila de links (Mercado Livre) →
+          </a>
+          <a
             href="/admin/creators-api"
             className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
           >
