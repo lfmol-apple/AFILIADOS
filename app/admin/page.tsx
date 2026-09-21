@@ -25,9 +25,12 @@ import {
 import { AdminLoginForm } from "@/components/admin-login-form";
 import { AdminLogoutButton } from "@/components/admin-logout-button";
 import { MlAffiliateQueueItem } from "@/components/ml-affiliate-queue-item";
+import { PanelLinkQueue } from "@/components/panel-link-queue";
 import {
+  buildMlAffiliateQueueShadowComparison,
   getMlAffiliateQueue,
   DEFAULT_QUEUE_DISPLAY_LIMIT,
+  type MlAffiliateQueueShadowMovement,
 } from "@/lib/queries/ml-affiliate-queue";
 import { ProductCandidateItem } from "@/components/product-candidate-item";
 import { ProductCandidateForm } from "@/components/product-candidate-form";
@@ -265,6 +268,8 @@ export default async function AdminPage(props: PagePropsWithSearch) {
         <SubSection title="Oportunidades de hoje">
           <OperationsOpportunityList items={todaysOpportunities} />
         </SubSection>
+
+        <PanelLinkQueue limit={300} />
 
         <SubSection title="Pendências de receita — Mercado Livre">
           <p className="text-foreground/60 mb-3 text-xs">
