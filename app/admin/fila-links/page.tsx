@@ -61,6 +61,7 @@ export default async function LinkQueuePage() {
             priceLabel={brl(pick.price)}
             notes={notes}
             recommended={recommended}
+            productUrl={pick.productUrl}
           />
         ))}
       </ul>

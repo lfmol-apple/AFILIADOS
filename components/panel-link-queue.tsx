@@ -52,6 +52,7 @@ export async function PanelLinkQueue({ limit = 300 }: { limit?: number }) {
             priceLabel={brl(pick.price)}
             notes={notes}
             recommended={recommended}
+            productUrl={pick.productUrl}
           />
         ))}
       </ul>

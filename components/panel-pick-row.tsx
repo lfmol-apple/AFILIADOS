@@ -15,24 +15,54 @@ export interface PanelPickRowProps {
   priceLabel: string;
   notes: string[];
   recommended: boolean;
+  /** Product page address from the panel card; enables the one-click Linkbuilder flow. */
+  productUrl?: string;
 }
 
 /** One product of the link list: shows the numbers and takes the pasted link. */
+// Same tools the old admin queue used: the official Linkbuilder takes a product
+// address and returns the affiliate link; the panel hub is the fallback when we
+// only know the title.
+const LINKBUILDER_URL =
+  "https://www.mercadolivre.com.br/afiliados/linkbuilder#hub";
+const PANEL_URL = "https://www.mercadolivre.com.br/afiliados/hub";
+
 export function PanelPickRow(props: PanelPickRowProps) {
   const router = useRouter();
   const [url, setUrl] = useState("");
   const [state, setState] = useState<"idle" | "saving" | "done">("idle");
   const [message, setMessage] = useState("");
 
-  async function save() {
-    if (!url.trim() || state === "saving") return;
+  async function openTool() {
+    const toCopy = props.productUrl ?? props.title;
+    try {
+      await navigator.clipboard.writeText(toCopy);
+      setMessage(
+        props.productUrl
+          ? "Endereço copiado. Cole no Linkbuilder."
+          : "Título copiado. Procure no painel e clique em Compartilhar.",
+      );
+    } catch {
+      setMessage(
+        "Não consegui copiar automaticamente; copie o endereço do produto manualmente.",
+      );
+    }
+    window.open(
+      props.productUrl ? LINKBUILDER_URL : PANEL_URL,
+      "_blank",
+      "noopener",
+    );
+  }
+
+  async function save(value: string = url) {
+    if (!value.trim() || state === "saving") return;
     setState("saving");
     setMessage("");
     try {
       const response = await fetch("/api/admin/ml-panel-links", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: props.id, affiliateUrl: url.trim() }),
+        body: JSON.stringify({ id: props.id, affiliateUrl: value.trim() }),
       });
       const data = (await response.json().catch(() => ({}))) as {
         ok?: boolean;
@@ -84,7 +114,22 @@ export function PanelPickRow(props: PanelPickRowProps) {
           {props.notes.join(" · ")}
         </p>
       )}
-      <div className="mt-2 flex flex-col gap-2 sm:flex-row">
+      <div className="mt-2">
+        <button
+          type="button"
+          onClick={openTool}
+          className="border-border-subtle hover:border-brand min-h-10 rounded-lg border px-3 text-sm font-medium"
+        >
+          {props.productUrl
+            ? "1. Copiar endereço + abrir Linkbuilder →"
+            : "1. Copiar título + abrir painel →"}
+        </button>
+      </div>
+      <p className="text-foreground/60 mt-2 text-xs">
+        2. Cole aqui o link gerado (meli.la/… ou mercadolivre.com/sec/…): salva
+        sozinho ao colar.
+      </p>
+      <div className="mt-1 flex flex-col gap-2 sm:flex-row">
         <input
           type="url"
           value={url}
@@ -92,7 +137,9 @@ export function PanelPickRow(props: PanelPickRowProps) {
           onPaste={(e) => {
             const pasted = e.clipboardData.getData("text").trim();
             if (/^https?:\/\//.test(pasted)) {
+              e.preventDefault();
               setUrl(pasted);
+              void save(pasted);
             }
           }}
           disabled={state !== "idle"}
@@ -101,7 +148,7 @@ export function PanelPickRow(props: PanelPickRowProps) {
         />
         <button
           type="button"
-          onClick={save}
+          onClick={() => void save()}
           disabled={state !== "idle" || !url.trim()}
           className="bg-brand text-brand-foreground min-h-10 rounded-lg px-4 text-sm font-semibold disabled:opacity-50"
         >

@@ -25,8 +25,12 @@ export interface PanelPick {
   sponsored?: boolean;
   /** Tagged "MAIS BUSCADO" by the panel. */
   searched?: boolean;
+  /** Product page address read from the panel card (what the Linkbuilder needs). */
+  productUrl?: string;
   capturedAt: string;
 }
+
+import { ML_PANEL_URLS } from "@/lib/config/ml-panel-urls";
 
 const D = "2026-09-21";
 type Row = [
