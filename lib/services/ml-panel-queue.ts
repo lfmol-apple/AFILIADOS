@@ -170,8 +170,11 @@ export function rankAllForLinking(
       notes,
     });
   }
-  // Strictly by commission in reais, biggest first (owner's rule). Quality
-  // is shown as a note, not used to reorder. Sensitive items score -1: last.
-  toLink.sort((a, b) => b.score - a.score);
+  // Best sellers with a good rating first, each group by commission in reais
+  // (biggest first). Sensitive items score -1 and are never recommended: last.
+  toLink.sort(
+    (a, b) =>
+      Number(b.recommended) - Number(a.recommended) || b.score - a.score,
+  );
   return { toLink, onSite };
 }
