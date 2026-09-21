@@ -41,9 +41,10 @@ export const SHOPEE_SWEEP_KEYWORDS: readonly string[] = [
 export const SWEEP_KEYWORDS_PER_CYCLE = 3;
 export const SWEEP_PAGES_PER_KEYWORD = 2;
 export const SWEEP_PAGE_LIMIT = 50;
-/** Only established, well-rated items: a fresh listing with 3 sales and a
- * 5.0 average is noise, and a low-rated one would hurt visitors' trust. */
-export const SWEEP_MIN_SALES = 100;
+/** Shopee's `sales` field runs low (most items are under 10, the best keyword
+ * results reach a few hundred), so the floor is small: it only screens out
+ * items nobody has bought, and a low rating would hurt visitors' trust. */
+export const SWEEP_MIN_SALES = 10;
 export const SWEEP_MIN_RATING = 4.5;
 export const SWEEP_MAX_NEW_PER_CYCLE = 25;
 
