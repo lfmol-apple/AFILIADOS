@@ -134,3 +134,60 @@ export function buildQueue(
   const skipped = evaluated.filter((e) => e.verdict.status === "skip");
   return { queue, skipped };
 }
+
+export interface QueueEntry {
+  pick: PanelPick;
+  /** Passes every rule in QUEUE_RULES; the rest are still listed, lower. */
+  recommended: boolean;
+  score: number;
+  earningPerSale: number;
+  notes: string[];
+}
+
+/**
+ * Every pasted product goes to the "generate link" list — nothing is dropped.
+ * The rules only order it: recommended products first (best score first),
+ * then the rest with the reason they were ranked lower. Products the site
+ * already has are returned separately (no link needed). Sensitive
+ * injectable-health items are kept but always last, with a warning.
+ */
+export function rankAllForLinking(
+  picks: readonly PanelPick[],
+  siteSlugs: readonly string[] = [],
+) {
+  const onSite: PanelPick[] = [];
+  const toLink: QueueEntry[] = [];
+  for (const pick of picks) {
+    if (isAlreadyOnSite(pick.title, siteSlugs)) {
+      onSite.push(pick);
+      continue;
+    }
+    const earningPerSale = pick.rate * pick.price;
+    const rawScore =
+      pick.rate *
+      demandWeight(pick.sold) *
+      Math.min(pick.price, QUEUE_RULES.priceCap) *
+      (pick.searched ? 1.15 : 1);
+    const notes: string[] = [];
+    const verdict = evaluatePick(pick, []);
+    const recommended = verdict.status === "queue";
+    if (verdict.status === "skip") notes.push(verdict.reason);
+    if (pick.extras)
+      notes.push("campanha temporária: confira a taxa ao gerar o link");
+    if (pick.searched) notes.push("mais buscado");
+    if (pick.sponsored) notes.push("patrocinado");
+    const sensitive = pick.group === "saude-injetavel";
+    toLink.push({
+      pick,
+      recommended: recommended && !sensitive,
+      score: sensitive ? -1 : rawScore,
+      earningPerSale,
+      notes,
+    });
+  }
+  toLink.sort(
+    (a, b) =>
+      Number(b.recommended) - Number(a.recommended) || b.score - a.score,
+  );
+  return { toLink, onSite };
+}

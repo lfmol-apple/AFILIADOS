@@ -3,6 +3,7 @@ import {
   buildQueue,
   evaluatePick,
   isAlreadyOnSite,
+  rankAllForLinking,
 } from "@/lib/services/ml-panel-queue";
 import type { PanelPick } from "@/lib/config/ml-panel-picks";
 
@@ -74,5 +75,31 @@ describe("buildQueue", () => {
       "Produto Alfa Beta Gama",
     ]);
     expect(skipped).toHaveLength(1);
+  });
+});
+
+describe("rankAllForLinking", () => {
+  it("keeps every product, recommended first, injectables last, on-site apart", () => {
+    const { toLink, onSite } = rankAllForLinking(
+      [
+        pick({ title: "Produto Fraco Alfa Beta", rate: 0.05 }),
+        pick({
+          title: "Seringa Exemplo Injetavel Uno",
+          group: "saude-injetavel",
+        }),
+        pick({ title: "Produto Forte Delta Eps", rate: 0.16 }),
+        pick({ title: "Creatina Monohidratada Growth Supplements" }),
+      ],
+      ["creatina-monohidratada-growth-supplements-250g"],
+    );
+    expect(onSite).toHaveLength(1);
+    expect(toLink.map((e) => e.pick.title)).toEqual([
+      "Produto Forte Delta Eps",
+      "Produto Fraco Alfa Beta",
+      "Seringa Exemplo Injetavel Uno",
+    ]);
+    expect(toLink[0]!.recommended).toBe(true);
+    expect(toLink[1]!.recommended).toBe(false);
+    expect(toLink[2]!.notes.join()).toContain("injetável");
   });
 });

@@ -1,6 +1,6 @@
 import { writeFileSync } from "node:fs";
 import { ML_PANEL_PICKS } from "@/lib/config/ml-panel-picks";
-import { buildQueue, QUEUE_RULES } from "@/lib/services/ml-panel-queue";
+import { rankAllForLinking, QUEUE_RULES } from "@/lib/services/ml-panel-queue";
 
 /**
  * Evaluates every product pasted from the ML affiliate panel and writes the
@@ -23,38 +23,37 @@ const brl = (n: number) =>
 
 async function main() {
   const slugs = await siteSlugs();
-  const { queue, skipped } = buildQueue(ML_PANEL_PICKS, slugs);
+  const { toLink, onSite } = rankAllForLinking(ML_PANEL_PICKS, slugs);
+  const recommended = toLink.filter((e) => e.recommended).length;
   const lines: string[] = [
     "# Fila para gerar link (Mercado Livre)",
     "",
     `Gerado em ${new Date().toISOString().slice(0, 10)} a partir de ${ML_PANEL_PICKS.length} produtos colados do painel de afiliados.`,
     "Como usar: no painel, procure o título e clique em **Compartilhar** para gerar o link; depois cadastre no admin.",
+    "Todos os produtos colados estão na lista. A ordem só coloca os melhores primeiro.",
     "",
-    `Regras: comissão ≥ ${pct(QUEUE_RULES.minRate)}, nota ≥ ${QUEUE_RULES.minRating}, vendas ≥ +${QUEUE_RULES.minSold}, ainda fora do site.`,
+    `Recomendados (comissão ≥ ${pct(QUEUE_RULES.minRate)}, nota ≥ ${QUEUE_RULES.minRating}, vendas ≥ +${QUEUE_RULES.minSold}): ${recommended}. Demais: ${toLink.length - recommended}.`,
     "Ordem = comissão × demanda (vendas) × preço (limitado a R$ 300, por conversão). Não mexe na ordem pública do site.",
     "",
     "| # | Comissão | Ganho/venda | Vendas | Preço | Produto | Obs. |",
     "|---|---|---|---|---|---|---|",
   ];
-  queue.forEach(({ pick, verdict }, i) => {
+  toLink.forEach(({ pick, earningPerSale, recommended: rec, notes }, i) => {
     lines.push(
-      `| ${i + 1} | ${pct(pick.rate)}${pick.extras ? " ⚡" : ""} | ${brl(verdict.earningPerSale)} | +${pick.sold} | ${brl(pick.price)} | ${pick.title} | ${verdict.reasons.join("; ")} |`,
+      `| ${i + 1}${rec ? "" : " ↓"} | ${pct(pick.rate)}${pick.extras ? " ⚡" : ""} | ${brl(earningPerSale)} | +${pick.sold} | ${brl(pick.price)} | ${pick.title} | ${notes.join("; ")} |`,
     );
   });
   lines.push(
     "",
-    '⚡ = campanha temporária ("Ganhos extras").',
+    '⚡ = campanha temporária ("Ganhos extras"). ↓ = fora das regras recomendadas, mantido na lista.',
     "",
-    `## Fora da fila (${skipped.length})`,
+    `## Já estão no site (${onSite.length}), sem link a gerar`,
     "",
   );
-  for (const { pick, verdict } of skipped) {
-    if (verdict.status === "skip")
-      lines.push(`- ${pick.title} — ${verdict.reason}`);
-  }
+  for (const pick of onSite) lines.push(`- ${pick.title}`);
   writeFileSync("docs/ML_LINK_QUEUE.md", lines.join("\n") + "\n");
   console.log(
-    `Fila: ${queue.length} | fora: ${skipped.length} | já no site: ${skipped.filter((s) => s.verdict.status === "skip" && s.verdict.reason === "já está no site").length}`,
+    `Para gerar link: ${toLink.length} (recomendados ${recommended}) | já no site: ${onSite.length}`,
   );
 }
 main();
