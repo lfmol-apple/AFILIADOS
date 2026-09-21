@@ -44,7 +44,12 @@ export const ML_COMMISSION_TIERS: Readonly<Record<string, CommissionTier>> = {
  * 20%). Not in ML_GENERAL_SCAN_CATEGORY_GROUPS and not an /ofertas category
  * yet, so nothing in the catalog covers it today.
  */
-export const ML_OBSERVED_FOOD_COMMISSION = { min: 0.04, median: 0.1, max: 0.2, sample: 21 } as const;
+export const ML_OBSERVED_FOOD_COMMISSION = {
+  min: 0.04,
+  median: 0.1,
+  max: 0.2,
+  sample: 21,
+} as const;
 
 export function estimatedCommissionRate(categorySlug: string): number | null {
   return ML_COMMISSION_TIERS[categorySlug]?.rate ?? null;
