@@ -20,12 +20,10 @@ export interface PanelPickRowProps {
 }
 
 /** One product of the link list: shows the numbers and takes the pasted link. */
-// Same tools the old admin queue used: the official Linkbuilder takes a product
-// address and returns the affiliate link; the panel hub is the fallback when we
-// only know the title.
+// The official Linkbuilder: takes a product address and returns the affiliate link
+// (the same tool the old admin queue opened).
 const LINKBUILDER_URL =
   "https://www.mercadolivre.com.br/afiliados/linkbuilder#hub";
-const PANEL_URL = "https://www.mercadolivre.com.br/afiliados/hub";
 
 export function PanelPickRow(props: PanelPickRowProps) {
   const router = useRouter();
@@ -40,7 +38,7 @@ export function PanelPickRow(props: PanelPickRowProps) {
       setMessage(
         props.productUrl
           ? "Endereço copiado. Cole no Linkbuilder."
-          : "Título copiado. Procure no painel e clique em Compartilhar.",
+          : "Título copiado. No Linkbuilder, cole o endereço do produto (se não tiver, procure pelo título).",
       );
     } catch {
       setMessage(
@@ -122,7 +120,7 @@ export function PanelPickRow(props: PanelPickRowProps) {
         >
           {props.productUrl
             ? "1. Copiar endereço + abrir Linkbuilder →"
-            : "1. Copiar título + abrir painel →"}
+            : "1. Copiar título + abrir Linkbuilder →"}
         </button>
       </div>
       <p className="text-foreground/60 mt-2 text-xs">
