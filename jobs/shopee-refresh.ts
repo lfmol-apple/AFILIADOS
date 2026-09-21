@@ -5,6 +5,7 @@ import { withRetry } from "@/lib/jobs/retry";
 import { logger } from "@/lib/observability/logger";
 import { ShopeeProvider, type ShopeeProductOfferNode } from "@/lib/providers/shopee-provider";
 import { scoreOffer, processShopeeOffer } from "@/lib/services/shopee-cycle-collector";
+import { planSweep, selectNewSweepOffers } from "@/lib/services/shopee-discovery-sweep";
 
 /** Same conservative default as scripts/shopee-first-cycle.ts's `--top` —
  * a documented, explicit constant, not a rediscovered "magic 15". Real
@@ -48,17 +49,44 @@ export async function runShopeeRefreshJob(): Promise<JobCounters> {
       });
       ctx.metadata.offersFetched = offers.length;
 
+      // Discovery sweep: rotating high-demand keywords/pages so the catalog
+      // keeps finding NEW offers instead of re-reading page 1. A failed
+      // request is counted and skipped, never fatal to the run.
+      const priorRuns = await prisma.automationRun.count({ where: { job: "SHOPEE_REFRESH" } });
+      const sweepPlan = planSweep(priorRuns);
+      const sweepFetched: ShopeeProductOfferNode[] = [];
+      for (const request of sweepPlan) {
+        try {
+          const found = await withRetry(
+            () => provider.listOffers({ keyword: request.keyword, page: request.page, limit: 50 }),
+            { label: `shopee_refresh.sweep.${request.keyword}.${request.page}` },
+          );
+          sweepFetched.push(...found);
+        } catch (err) {
+          logger.error("shopee_refresh.sweep_failed", { ...request, message: String(err) });
+          ctx.counters.errors += 1;
+        }
+      }
+      const known = await prisma.merchantListing.findMany({
+        where: { marketplace: "BR", externalId: { in: sweepFetched.map((o) => String(o.itemId)) }, merchant: { code: "SHOPEE" } },
+        select: { externalId: true },
+      });
+      const sweepNew = selectNewSweepOffers(sweepFetched, new Set(known.map((k) => k.externalId)));
+      ctx.metadata.sweepRequests = sweepPlan.map((r) => `${r.keyword}#${r.page}`);
+      ctx.metadata.sweepFetched = sweepFetched.length;
+      ctx.metadata.sweepNew = sweepNew.length;
+
       const merchant = await prisma.merchant.upsert({
         where: { code: "SHOPEE" },
         create: { code: "SHOPEE", name: "Shopee", active: true, affiliateEnabled: true },
         update: { affiliateEnabled: true },
       });
 
-      const scored = offers
+      const scored = [...offers, ...sweepNew]
         .map((offer) => ({ offer, score: scoreOffer(offer) }))
         .filter((x) => (x.score.score ?? 0) >= DEFAULT_MIN_SCORE)
         .sort((a, b) => (b.score.score ?? 0) - (a.score.score ?? 0))
-        .slice(0, DEFAULT_TOP);
+        .slice(0, DEFAULT_TOP + sweepNew.length);
 
       let linksGenerated = 0;
       let linksReused = 0;
