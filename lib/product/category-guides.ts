@@ -113,6 +113,42 @@ export const CATEGORY_GUIDES: Record<string, CategoryGuide> = {
       "Olhe as fotos de clientes nas avaliações para conferir caimento e cor reais.",
     ],
   },
+  automotivo: {
+    heading: "Antes de comprar itens automotivos e de moto",
+    checks: [
+      "Confirme a compatibilidade com o modelo e o ano do seu veículo: a aplicação errada é o motivo mais comum de devolução.",
+      "Para capacete, escolha o tamanho certo e verifique o selo do Inmetro; item de segurança não é lugar para economizar sem critério.",
+      "Baterias e peças elétricas: confira tensão, capacidade e o formato dos terminais.",
+      "Compressores e calibradores: veja a pressão máxima e se funcionam com a tomada do seu carro.",
+    ],
+  },
+  alimentos: {
+    heading: "Antes de comprar alimentos e bebidas online",
+    checks: [
+      "Confira a data de validade e o prazo de entrega, principalmente em itens perecíveis.",
+      "Compare o preço por quilo ou por litro, e não só o preço da embalagem.",
+      "Veja se há restrições que importam para você, como glúten, lactose ou açúcar, na descrição do produto.",
+      "Prefira vendedores com boa reputação e avaliações recentes que falem do estado da embalagem.",
+    ],
+  },
+  musica: {
+    heading: "Antes de comprar instrumentos musicais",
+    checks: [
+      "Veja o tamanho e o nível do instrumento: modelos para iniciantes e para profissionais mudam muito.",
+      "Confira o que acompanha a compra, como capa, afinador, palhetas ou fonte de energia.",
+      "Em instrumentos elétricos, olhe a tensão e os conectores para o seu amplificador ou interface.",
+      "Leia as avaliações sobre acabamento e afinação, que variam entre marcas.",
+    ],
+  },
+  "brinquedos-festas": {
+    heading: "Antes de comprar brinquedos e itens de festa",
+    checks: [
+      "Respeite a faixa de idade indicada e o selo do Inmetro em brinquedos.",
+      "Meça o tamanho real: fantasias e decoração costumam vir menores do que aparentam nas fotos.",
+      "Confira a quantidade de peças do kit e se pilhas ou baterias estão incluídas.",
+      "Para datas festivas, compre com folga no prazo de entrega.",
+    ],
+  },
 };
 
 export const DEFAULT_GUIDE: CategoryGuide = {

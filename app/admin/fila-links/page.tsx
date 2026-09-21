@@ -57,10 +57,10 @@ export default async function LinkQueuePage() {
       <p className="text-foreground/70 mt-2 text-sm leading-relaxed">
         Todos os produtos colados do painel de afiliados estão aqui. No painel,
         procure o título e clique em <strong>Compartilhar</strong> para gerar o
-        link, depois cadastre-o. A ordem coloca os melhores primeiro (comissão ×
-        vendas × preço). {recommended} recomendados,{" "}
-        {toLink.length - recommended} abaixo das regras (marcados ↓),{" "}
-        {onSite.length} já estão no site.
+        link, depois cadastre-o. A ordem coloca primeiro a maior comissão em
+        reais, ponderada pela força de venda (mais vendidos). {recommended}{" "}
+        recomendados, {toLink.length - recommended} abaixo das regras (marcados
+        ↓), {onSite.length} já estão no site.
       </p>
       <div className="mt-6 overflow-x-auto">
         <table className="w-full min-w-[720px] text-left text-sm">

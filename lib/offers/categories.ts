@@ -32,6 +32,10 @@ export const OFFER_CATEGORIES: readonly OfferCategory[] = [
   { slug: "pet", label: "Pet" },
   { slug: "ferramentas", label: "Ferramentas e Jardim" },
   { slug: "moda", label: "Moda e Acessórios" },
+  { slug: "automotivo", label: "Automotivo e Moto" },
+  { slug: "alimentos", label: "Alimentos e Bebidas" },
+  { slug: "musica", label: "Instrumentos Musicais" },
+  { slug: "brinquedos-festas", label: "Brinquedos e Festas" },
   { slug: "outros", label: "Outros" },
 ] as const;
 
@@ -183,12 +187,40 @@ const DOMAIN_TO_CATEGORY: Map<string, string> = new Map(
  * lower-cased, accent-stripped title. */
 const KEYWORD_RULES: readonly (readonly [string, RegExp])[] = [
   [
+    "eletrodomesticos",
+    /\b(lava e seca|geladeira|freezer|fogao|maquina de lavar|ar condicionado|climatizador|secadora de roupas|air fryer|fritadeira|cafeteira|chaleira|sanduicheira|churrasqueira eletrica|multiprocessador|liquidificador|aspirador|panela eletrica|ferro de passar|ventilador)\b/,
+  ],
+  [
     "pet",
     /\b(antipulga|carrapato|cachorro|cachorros|cao|caes|gato|gatos|pet|pets|racao|coleira|cercadinho|adestramento|tosador|dog chow|nexgard|simparic|bravecto|frontline)\b/,
   ],
   [
+    "musica",
+    /\b(violao|guitarra|contrabaixo|cavaquinho|ukulele|bandolim|violino|flauta|saxofone|clarinete|trompete|gaita|acordeao|sanfona|pandeiro|atabaque|congas|percussao|afinador|capotraste|piano|teclado musical|teclado casio|bateria eletronica|banco de bateria|estante de partitura|estante partitura|prato de bateria|pedal de efeito|mesa de som|interface de audio|microfone sem fio|harpa|vitrola|toca-disco|hinario)\b/,
+  ],
+  [
+    "automotivo",
+    /\b(automotivo|automotiva|carro|carros|moto|motos|motocicleta|capacete|pneu|pneus|pisca|para-brisa|brisa|balaclava|rastreador veicular|veicular|retrovisor|estepe|trator|bateria moura|calibrador de pneu|compressor portatil|compressor de ar portatil|auxiliar de partida|lava jato|kit ignicao)\b/,
+  ],
+  [
+    "brinquedos-festas",
+    /\b(brinquedo|brinquedos|fantasia|festa|festas|balao|baloes|pelucia|pinata|confete|boneca|quebra-cabeca|jogo educativo|tatame|chocalho|mordedor|peruca|petalas|tenis de mesa|ping pong|quadriciclo|gira ginga|mesinha didatica|patinho)\b/,
+  ],
+  [
     "bebe",
     /\b(bebe|baby|maternidade|fralda|fraldas|mamadeira|berco|infantil)\b/,
+  ],
+  [
+    "beleza",
+    /\b(ducha intima|absorvente|escova secadora|prancha|maquina de cortar cabelo|maquina acabamento|aparador de pelo|maquininha para pezinho|navalha|unhas|unha|esmalte|peeling|dilatador nasal|escova de dente|escovas de dental|fitas branqueador|clareador|massageador|desodorante|colonia|hialuronic|hyaluronic|modelador de cachos|escova modeladora|toalhas umedecidas)\b/,
+  ],
+  [
+    "moda",
+    /\b(short|shorts|legging|camiseta|camisa|jogger|calca|calcas|tenis|jaleco|maio|chinelo|turbante|colar|brincos|relogio digital|oculos de sol|mochila|bolsa|bolsas)\b/,
+  ],
+  [
+    "casa",
+    /\b(canecas|caneca|bowls|panela|panelas|talheres|faqueiro|colchao|guarda-roupa|cortina|cortinas|espelho|varal|torneira|fechadura|toalha|toalhas|jogo americano|potes|organizador|armario|cuba|almofada|travesseiro|travesseiros|refletor|plafon|painel led|balanca digital|copo termico|garrafa termica|crucifixo|porta joias|prendedor|prendedores|camera de seguranca|cameras seguranca|cadeira|aparelho de jantar|placas adesivas|mini batedor|mini ventilador)\b/,
   ],
   [
     "celulares",
@@ -205,6 +237,10 @@ const KEYWORD_RULES: readonly (readonly [string, RegExp])[] = [
   [
     "moda",
     /\b(tenis|sapato|sapatos|bolsa|bolsas|vestido|moletom|chinelo|slide|short|shorts|bermuda|legging|top|camiseta|regata|macaquinho|conjunto|guarda-chuva|guarda chuva|capa de chuva|oculos|mochila)\b/,
+  ],
+  [
+    "alimentos",
+    /\b(chocolate|cacau|farinha|aveia|cappuccino|cafe soluvel|snack|snacks|queijo|leite em po|composto lacteo|tempero|acucar|edulcorante|chips|pipoca|milho|granola|castanha|azeite|vinho|cerveja|energy drink|energetico|goma xantana|acido citrico|sorbato|baunilha|psyllium|linhaca|eletrolitos|aloe vera|confeitaria)\b/,
   ],
   [
     "esporte-suplementos",
@@ -224,7 +260,7 @@ const KEYWORD_RULES: readonly (readonly [string, RegExp])[] = [
   ],
   [
     "ferramentas",
-    /\b(parafusadeira|furadeira|chave catraca|ferramenta|ferramentas|lampada|lampadas|serra|alicate|mangueira|compressor)\b/,
+    /\b(parafusadeira|furadeira|chave catraca|ferramenta|ferramentas|lampada|lampadas|serra|alicate|mangueira|compressor|brocas|multimetro|lixas|motoserra|soprador|lavadora de alta pressao|pistola|plaina|adaptador de soquete|escovas aco|vazador|guia base|pa reta|bomba de vacuo|parafusadeira|furadeira)\b/,
   ],
   [
     "casa",

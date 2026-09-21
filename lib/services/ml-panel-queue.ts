@@ -23,6 +23,7 @@ export interface Evaluated {
   verdict: Verdict;
 }
 
+/** Sales strength from the "+N vendidos" badge: how likely a click becomes a sale. */
 function demandWeight(sold: number): number {
   if (sold >= 100000) return 1;
   if (sold >= 10000) return 0.8;

@@ -18,6 +18,19 @@ export interface CommissionTier {
 export const ML_COMMISSION_TIERS: Readonly<Record<string, CommissionTier>> = {
   "esporte-suplementos": { rate: 0.16, evidence: "creatina 16%" },
   beleza: { rate: 0.16, evidence: "escova secadora e prancha 16%" },
+  automotivo: {
+    rate: 0.12,
+    evidence: "capacete, bateria, amplificador, rastreador 12%",
+  },
+  alimentos: { rate: 0.1, evidence: "mediana de 21 itens: 4% a 20%" },
+  musica: {
+    rate: 0.12,
+    evidence: "instrumentos e acessórios 12% (extras 16% a 27%)",
+  },
+  "brinquedos-festas": {
+    rate: 0.12,
+    evidence: "fantasias, jogos e infantil 12% (extras 16% a 27%)",
+  },
   moda: { rate: 0.16, evidence: "tênis 16% (relógio 12%)" },
   casa: { rate: 0.12, evidence: "canecas, bowls 12%" },
   ferramentas: { rate: 0.12, evidence: "parafusadeira, kit de lavagem 12%" },

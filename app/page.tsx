@@ -97,6 +97,26 @@ const CATEGORY_TILES = [
     hint: "Furadeiras, lâmpadas e jardim",
   },
   { slug: "moda", label: "Moda e Acessórios", hint: "Tênis, bolsas e roupas" },
+  {
+    slug: "automotivo",
+    label: "Automotivo e Moto",
+    hint: "Capacetes, baterias e acessórios",
+  },
+  {
+    slug: "alimentos",
+    label: "Alimentos e Bebidas",
+    hint: "Snacks, farinhas, cafés e mais",
+  },
+  {
+    slug: "musica",
+    label: "Instrumentos Musicais",
+    hint: "Violões, teclados e acessórios",
+  },
+  {
+    slug: "brinquedos-festas",
+    label: "Brinquedos e Festas",
+    hint: "Brinquedos, fantasias e decoração",
+  },
 ];
 
 const TRUST = [
