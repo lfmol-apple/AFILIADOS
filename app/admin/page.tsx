@@ -25,7 +25,6 @@ import {
 import { AdminLoginForm } from "@/components/admin-login-form";
 import { AdminLogoutButton } from "@/components/admin-logout-button";
 import { MlAffiliateQueueItem } from "@/components/ml-affiliate-queue-item";
-import { PanelLinkQueue } from "@/components/panel-link-queue";
 import {
   getMlAffiliateQueue,
   DEFAULT_QUEUE_DISPLAY_LIMIT,
@@ -136,12 +135,6 @@ export default async function AdminPage(props: PagePropsWithSearch) {
             className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
           >
             Desempenho (cliques diários) →
-          </a>
-          <a
-            href="/admin/fila-links"
-            className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
-          >
-            Fila de links (Mercado Livre) →
           </a>
           <a
             href="/admin/creators-api"
@@ -266,8 +259,6 @@ export default async function AdminPage(props: PagePropsWithSearch) {
         <SubSection title="Oportunidades de hoje">
           <OperationsOpportunityList items={todaysOpportunities} />
         </SubSection>
-
-        <PanelLinkQueue limit={300} />
 
         <SubSection title="Pendências de receita — Mercado Livre">
           <p className="text-foreground/60 mb-3 text-xs">
