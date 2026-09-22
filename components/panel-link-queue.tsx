@@ -18,7 +18,6 @@ export async function PanelLinkQueue({ limit = 300 }: { limit?: number }) {
   const ready = pending.filter((e) => e.pick.productUrl);
   const waiting = pending.filter((e) => !e.pick.productUrl);
   const shown = [...ready, ...waiting].slice(0, limit);
-  const shownReady = shown.filter((e) => e.pick.productUrl).length;
 
   return (
     <SubSection title="Pendências de receita — Mercado Livre (fila por comissão)">
@@ -30,22 +29,14 @@ export async function PanelLinkQueue({ limit = 300 }: { limit?: number }) {
         a página. A linha sai da lista ao salvar.
       </p>
       <p className="text-foreground/60 mb-3 text-xs">
-        Mostrando {shown.length} itens: {shownReady} com link genérico pronto e{" "}
-        {shown.length - shownReady} ainda só com título. No total,{" "}
-        {ready.length} aguardando link já têm endereço · {registeredCount} já
-        salvos · {onSiteCount} já estavam no site ·{" "}
+        Mostrando {shown.length} com link genérico pronto (
+        {pending.length - ready.length} ainda sem endereço) · {registeredCount}{" "}
+        já salvos · {onSiteCount} já estavam no site ·{" "}
         <a
           href="/admin/fila-links"
           className="text-brand underline underline-offset-2"
         >
           ver a lista completa
-        </a>
-        {" · "}
-        <a
-          href="/admin/auditoria-links"
-          className="text-brand underline underline-offset-2"
-        >
-          auditar links antigos
         </a>
         . ⚡ = campanha temporária (confira a taxa ao gerar).
       </p>

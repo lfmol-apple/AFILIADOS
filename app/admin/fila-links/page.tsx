@@ -26,7 +26,6 @@ export default async function LinkQueuePage() {
   if (!authorized) return <AdminLoginForm />;
 
   const { pending, registeredCount, onSiteCount } = await loadPanelQueue();
-  const readyCount = pending.filter((entry) => entry.pick.productUrl).length;
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
@@ -41,16 +40,9 @@ export default async function LinkQueuePage() {
         no Mercado Livre e cria a página. A linha sai da lista ao salvar.
       </p>
       <p className="text-foreground/60 mt-2 text-sm">
-        {pending.length} aguardando link · {readyCount} com link genérico pronto
-        · {registeredCount} já salvos por aqui · {onSiteCount} já estavam no
-        site ·{" "}
-        <a
-          href="/admin/auditoria-links"
-          className="text-brand underline underline-offset-2"
-        >
-          auditar links antigos
-        </a>
-        . ⚡ = campanha temporária (confira a taxa ao gerar).
+        {pending.length} aguardando link · {registeredCount} já salvos por aqui
+        · {onSiteCount} já estavam no site. ⚡ = campanha temporária (confira a
+        taxa ao gerar).
       </p>
       <ul className="mt-6 space-y-3">
         {pending.map(({ pick, earningPerSale, recommended, notes }, i) => (
