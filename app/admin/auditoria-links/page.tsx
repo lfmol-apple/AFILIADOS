@@ -32,6 +32,13 @@ function shortUrl(url: string): string {
   }
 }
 
+const SOURCE_LABEL: Record<string, string> = {
+  MANUAL_ADMIN: "Fila original (Pendências de receita)",
+  MANUAL_ADMIN_CATEGORY: "Fila por categoria (/admin/fila-links)",
+  API: "Gerado por API (Shopee)",
+  LEGACY: "Importado, origem não registrada",
+};
+
 export default async function MlLinkAuditPage() {
   const cookieStore = await cookies();
   const authorized = await isAdminRequestAuthorized(
@@ -67,6 +74,28 @@ export default async function MlLinkAuditPage() {
           value={audit.summary.clickedLast30d}
         />
       </div>
+
+      <section className="border-border-subtle mt-8 border-t pt-6">
+        <h2 className="text-lg font-semibold">Links antigos x links novos</h2>
+        <p className="text-foreground/60 mt-1 text-sm">
+          Delimitação pedida pelo dono, 2026-09-22: nada muda no banco dos links
+          já existentes — a fila por categoria só usa um <code>source</code>{" "}
+          diferente (<code>MANUAL_ADMIN_CATEGORY</code>) a partir de agora, para
+          os dois grupos ficarem separáveis se algum precisar de correção em
+          lote depois.
+        </p>
+        <div className="mt-3 space-y-1.5">
+          {audit.summary.linksBySource.map((row) => (
+            <div
+              key={row.source}
+              className="border-border-subtle flex items-center justify-between rounded-lg border px-3 py-2 text-sm"
+            >
+              <span>{SOURCE_LABEL[row.source] ?? row.source}</span>
+              <span className="font-semibold">{row.count}</span>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <section className="border-border-subtle mt-8 border-t pt-6">
         <h2 className="text-lg font-semibold">Duplicatas confirmadas</h2>

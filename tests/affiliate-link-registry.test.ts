@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import {
   getAffiliateLink,
   saveManualAffiliateLink,
+  saveManualAffiliateLinkFromCategoryQueue,
   saveApiGeneratedAffiliateLink,
   AffiliateLinkValidationError,
 } from "@/lib/services/affiliate-link-registry";
@@ -34,7 +35,9 @@ afterAll(async () => {
 });
 
 afterEach(async () => {
-  await prisma.affiliateLinkRegistry.deleteMany({ where: { merchantListingId } });
+  await prisma.affiliateLinkRegistry.deleteMany({
+    where: { merchantListingId },
+  });
 });
 
 describe("affiliate link registry", () => {
@@ -59,6 +62,23 @@ describe("affiliate link registry", () => {
 
     const fetched = await getAffiliateLink(merchantListingId);
     expect(fetched?.id).toBe(row.id);
+  });
+
+  it("saveManualAffiliateLinkFromCategoryQueue persists source MANUAL_ADMIN_CATEGORY — distinct from the original queue's MANUAL_ADMIN, so old and new links stay separable in the database for future correction work", async () => {
+    const row = await saveManualAffiliateLinkFromCategoryQueue({
+      merchantListingId,
+      merchantId,
+      merchantCode: "MERCADO_LIVRE",
+      publicUrl: "https://www.mercadolivre.com.br/produto-teste/p/MLB999",
+      affiliateUrl: "https://mercadolivre.com/sec/2CategoryQueue",
+    });
+
+    expect(row.status).toBe("ACTIVE");
+    expect(row.source).toBe("MANUAL_ADMIN_CATEGORY");
+    expect(row.attributionTag).toBe("precocaindo");
+    expect(row.affiliateUrl).toBe(
+      "https://mercadolivre.com/sec/2CategoryQueue",
+    );
   });
 
   it("rejects a pasted URL whose host isn't an allowed Mercado Livre host — never persists it", async () => {
@@ -160,7 +180,9 @@ describe("affiliate link registry", () => {
         }),
       ).resolves.toBeTruthy();
     } finally {
-      await prisma.affiliateLinkRegistry.deleteMany({ where: { merchantListingId: other.id } });
+      await prisma.affiliateLinkRegistry.deleteMany({
+        where: { merchantListingId: other.id },
+      });
       await prisma.merchantListing.delete({ where: { id: other.id } });
     }
   });

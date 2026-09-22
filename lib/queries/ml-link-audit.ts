@@ -6,6 +6,12 @@ export interface MlLinkAuditSummary {
   duplicatedAffiliateUrls: number;
   duplicatedRows: number;
   clickedLast30d: number;
+  /** How many ACTIVE ML links came from the site's original "Pendências de
+   * receita" queue (MANUAL_ADMIN, plus any LEGACY/API row) versus the newer
+   * category-by-category queue at /admin/fila-links (MANUAL_ADMIN_CATEGORY,
+   * added 2026-09-22 at the owner's request) — kept apart so a future
+   * correction pass can target one batch without touching the other. */
+  linksBySource: { source: string; count: number }[];
 }
 
 export interface MlDuplicateAffiliateLink {
@@ -46,15 +52,16 @@ const DAYS_30_MS = 30 * 24 * 60 * 60 * 1000;
 export async function getMlLinkAudit(): Promise<MlLinkAudit> {
   const since = new Date(Date.now() - DAYS_30_MS);
 
-  const [summaryRows, duplicateRows, priorityRows] = await Promise.all([
-    prisma.$queryRaw<
-      {
-        active_links: bigint;
-        duplicated_affiliate_urls: bigint;
-        duplicated_rows: bigint;
-        clicked_last_30d: bigint;
-      }[]
-    >`
+  const [summaryRows, sourceRows, duplicateRows, priorityRows] =
+    await Promise.all([
+      prisma.$queryRaw<
+        {
+          active_links: bigint;
+          duplicated_affiliate_urls: bigint;
+          duplicated_rows: bigint;
+          clicked_last_30d: bigint;
+        }[]
+      >`
       with ml_links as (
         select al.id, al."affiliateUrl"
         from "AffiliateLinkRegistry" al
@@ -83,17 +90,25 @@ export async function getMlLinkAudit(): Promise<MlLinkAudit> {
         coalesce((select sum(link_count) from duplicated), 0) as duplicated_rows,
         (select count(*) from clicked) as clicked_last_30d
     `,
-    prisma.$queryRaw<
-      {
-        affiliate_url: string;
-        merchant_listing_id: string;
-        title: string | null;
-        public_url: string;
-        clicks_last_30d: bigint;
-        total_clicks: bigint;
-        last_click_at: Date | null;
-      }[]
-    >`
+      prisma.$queryRaw<{ source: string; count: bigint }[]>`
+      select al.source::text as source, count(*) as count
+      from "AffiliateLinkRegistry" al
+      join "Merchant" m on m.id = al."merchantId"
+      where m.code = 'MERCADO_LIVRE' and al.status = 'ACTIVE'
+      group by al.source
+      order by count desc
+    `,
+      prisma.$queryRaw<
+        {
+          affiliate_url: string;
+          merchant_listing_id: string;
+          title: string | null;
+          public_url: string;
+          clicks_last_30d: bigint;
+          total_clicks: bigint;
+          last_click_at: Date | null;
+        }[]
+      >`
       with ml_links as (
         select
           al."affiliateUrl",
@@ -129,17 +144,17 @@ export async function getMlLinkAudit(): Promise<MlLinkAudit> {
       group by l."affiliateUrl", l."merchantListingId", l.title, l."publicUrl"
       order by l."affiliateUrl", clicks_last_30d desc, total_clicks desc, l.title
     `,
-    prisma.$queryRaw<
-      {
-        merchant_listing_id: string;
-        title: string | null;
-        public_url: string;
-        affiliate_url: string;
-        clicks_last_30d: bigint;
-        total_clicks: bigint;
-        last_click_at: Date | null;
-      }[]
-    >`
+      prisma.$queryRaw<
+        {
+          merchant_listing_id: string;
+          title: string | null;
+          public_url: string;
+          affiliate_url: string;
+          clicks_last_30d: bigint;
+          total_clicks: bigint;
+          last_click_at: Date | null;
+        }[]
+      >`
       select
         al."merchantListingId" as merchant_listing_id,
         coalesce(cp.title, p.title, ml.slug, ml."externalId", 'sem titulo') as title,
@@ -166,7 +181,7 @@ export async function getMlLinkAudit(): Promise<MlLinkAudit> {
       order by clicks_last_30d desc, total_clicks desc, last_click_at desc
       limit 100
     `,
-  ]);
+    ]);
 
   const duplicates = new Map<string, MlDuplicateAffiliateLink>();
   for (const row of duplicateRows) {
@@ -193,6 +208,10 @@ export async function getMlLinkAudit(): Promise<MlLinkAudit> {
       ),
       duplicatedRows: Number(summaryRows[0]?.duplicated_rows ?? 0),
       clickedLast30d: Number(summaryRows[0]?.clicked_last_30d ?? 0),
+      linksBySource: sourceRows.map((r) => ({
+        source: r.source,
+        count: Number(r.count),
+      })),
     },
     duplicates: [...duplicates.values()],
     priorityReview: priorityRows.map((row) => ({

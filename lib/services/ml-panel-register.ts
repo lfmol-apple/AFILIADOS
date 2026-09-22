@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import { createMercadoLivreProvider } from "@/lib/services/ml-token-store";
 import { ensureMercadoLivreMerchant } from "@/lib/services/ml-demand-collector";
 import { enrichCatalogListing } from "@/lib/services/ml-enrichment-collector";
-import { saveManualAffiliateLink } from "@/lib/services/affiliate-link-registry";
+import { saveManualAffiliateLinkFromCategoryQueue } from "@/lib/services/affiliate-link-registry";
 import { logger } from "@/lib/observability/logger";
 
 export class PanelRegisterError extends Error {}
@@ -143,7 +143,7 @@ export async function registerPanelPick(input: {
     },
   });
 
-  await saveManualAffiliateLink({
+  await saveManualAffiliateLinkFromCategoryQueue({
     merchantListingId: listing.id,
     merchantId: merchant.id,
     merchantCode: "MERCADO_LIVRE",

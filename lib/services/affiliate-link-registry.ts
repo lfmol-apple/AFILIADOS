@@ -48,7 +48,7 @@ interface SaveAffiliateLinkInput {
 
 async function saveAffiliateLink(
   input: SaveAffiliateLinkInput,
-  source: "API" | "MANUAL_ADMIN" | "LEGACY",
+  source: "API" | "MANUAL_ADMIN" | "LEGACY" | "MANUAL_ADMIN_CATEGORY",
 ): Promise<AffiliateLinkRegistry> {
   const routingCode = toRoutingMerchantCode(input.merchantCode);
   if (!routingCode) {
@@ -129,7 +129,8 @@ async function saveAffiliateLink(
  * link they generated in ML's own official tool, tagged "precocaindo".
  * Validates the pasted URL is actually an allowed Mercado Livre host before
  * ever persisting it — a typo'd/wrong-merchant paste is rejected, never
- * silently stored.
+ * silently stored. Always source=MANUAL_ADMIN — the site's original queue
+ * (app/admin/page.tsx's "Pendências de receita"), unchanged since 2026-09-08.
  */
 export async function saveManualAffiliateLink(
   input: Omit<SaveAffiliateLinkInput, "attributionTag">,
@@ -137,6 +138,27 @@ export async function saveManualAffiliateLink(
   return saveAffiliateLink(
     { ...input, attributionTag: "precocaindo" },
     "MANUAL_ADMIN",
+  );
+}
+
+/**
+ * Same human-assisted Mercado Livre flow, byte-for-byte, for links pasted
+ * through the newer /admin/fila-links queue (2026-09-22) — products read off
+ * the affiliate panel category by category, never the "Pendências de
+ * receita" one. The only difference is `source=MANUAL_ADMIN_CATEGORY`, kept
+ * apart from MANUAL_ADMIN on purpose (owner's request): every link this
+ * queue creates from now on is queryable as its own batch, distinct from
+ * the ~1,280 links already ACTIVE before this value existed — precaution in
+ * case those two batches need different correction work later. Public
+ * behavior is identical: same validation, same publication-gate slug, same
+ * duplicate-link guard, same rendering on /ofertas.
+ */
+export async function saveManualAffiliateLinkFromCategoryQueue(
+  input: Omit<SaveAffiliateLinkInput, "attributionTag">,
+): Promise<AffiliateLinkRegistry> {
+  return saveAffiliateLink(
+    { ...input, attributionTag: "precocaindo" },
+    "MANUAL_ADMIN_CATEGORY",
   );
 }
 

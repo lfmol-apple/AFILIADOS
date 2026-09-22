@@ -38,15 +38,23 @@ enum MatchStatus {
 }
 
 /// How an AffiliateLinkRegistry row's affiliateUrl was obtained.
-/// MANUAL_ADMIN: a human pasted it via the /admin queue (today's Mercado
-/// Livre flow — see docs/AFFILIATE_LINK_REGISTRY.md). API: generated
-/// programmatically through an official affiliate API (today, Shopee's
-/// generateShortLink). LEGACY: pre-existing link recorded during a
-/// backfill, source not tracked at generation time.
+/// MANUAL_ADMIN: a human pasted it via the /admin "Pendências de receita"
+/// queue (the original Mercado Livre flow — see
+/// docs/AFFILIATE_LINK_REGISTRY.md). API: generated programmatically
+/// through an official affiliate API (today, Shopee's generateShortLink).
+/// LEGACY: pre-existing link recorded during a backfill, source not
+/// tracked at generation time. MANUAL_ADMIN_CATEGORY: a human pasted it via
+/// the newer /admin/fila-links queue (2026-09-22), built from products read
+/// off the affiliate panel category by category — added so the 1,280 rows
+/// already ACTIVE before this value existed (all MANUAL_ADMIN/API/LEGACY)
+/// stay the clean "old" batch, and everything registered this way from now
+/// on is queryably "new" without touching a single existing row. See
+/// lib/services/ml-panel-register.ts.
 enum AffiliateLinkSource {
   API
   MANUAL_ADMIN
   LEGACY
+  MANUAL_ADMIN_CATEGORY
 }
 
 enum AffiliateLinkStatus {
