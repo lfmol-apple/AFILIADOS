@@ -25,7 +25,8 @@ export default async function LinkQueuePage() {
   );
   if (!authorized) return <AdminLoginForm />;
 
-  const { pending, registeredCount, onSiteCount } = await loadPanelQueue();
+  const { pending, readyCount, registeredCount, onSiteCount } =
+    await loadPanelQueue();
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
@@ -33,16 +34,19 @@ export default async function LinkQueuePage() {
         Fila para gerar link (Mercado Livre)
       </h1>
       <p className="text-foreground/70 mt-2 text-sm leading-relaxed">
-        Todos os produtos do painel de afiliados: os mais vendidos com nota alta
-        vêm primeiro, cada grupo pela maior comissão em reais por venda. No
-        painel, procure o título e clique em <strong>Compartilhar</strong>; cole
-        o link aqui e salve. O sistema identifica o produto, busca foto e preço
-        no Mercado Livre e cria a página. A linha sai da lista ao salvar.
+        Todos os produtos do painel de afiliados. Os que já têm o link genérico
+        do produto vêm primeiro — clique em{" "}
+        <strong>1. Copiar endereço + abrir Linkbuilder</strong> e cole o link
+        gerado abaixo; ele salva sozinho. Dentro desse grupo, e entre os que
+        ainda não têm endereço, a ordem vai do maior valor de comissão em reais
+        e melhor nota para o menor. O sistema busca foto e preço no Mercado
+        Livre e cria a página; a linha sai da lista ao salvar.
       </p>
       <p className="text-foreground/60 mt-2 text-sm">
-        {pending.length} aguardando link · {registeredCount} já salvos por aqui
-        · {onSiteCount} já estavam no site. ⚡ = campanha temporária (confira a
-        taxa ao gerar).
+        {pending.length} aguardando link ({readyCount} com link genérico pronto,{" "}
+        {pending.length - readyCount} ainda sem endereço) · {registeredCount} já
+        salvos por aqui · {onSiteCount} já estavam no site. ⚡ = campanha
+        temporária (confira a taxa ao gerar).
       </p>
       <ul className="mt-6 space-y-3">
         {pending.map(({ pick, earningPerSale, recommended, notes }, i) => (

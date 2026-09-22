@@ -24,8 +24,16 @@ async function loadSiteSlugs(): Promise<string[]> {
 }
 
 export interface PanelQueueData {
-  /** Rows still waiting for a link, best first (best sellers with a good rating, biggest commission in reais). */
+  /** Rows still waiting for a link. Rows with a ready generic product
+   * address (the owner can click "copy address + open Linkbuilder" right
+   * away) come first; the rest follow. Each of the two groups keeps the
+   * money+reputation score order internally — nothing is dropped or
+   * reordered beyond that split, and it's applied once here so every screen
+   * that lists this queue behaves the same way. */
   pending: QueueEntry[];
+  /** How many of `pending` are in the "ready" (has productUrl) group — for
+   * display, e.g. "312 com link pronto, 900 ainda sem endereço". */
+  readyCount: number;
   registeredCount: number;
   onSiteCount: number;
 }
@@ -37,8 +45,12 @@ export async function loadPanelQueue(): Promise<PanelQueueData> {
     loadRegisteredPanelIds(),
   ]);
   const { toLink, onSite } = rankAllForLinking(ML_PANEL_PICKS, slugs);
+  const notRegistered = toLink.filter((e) => !registered.has(e.pick.id));
+  const ready = notRegistered.filter((e) => e.pick.productUrl);
+  const waiting = notRegistered.filter((e) => !e.pick.productUrl);
   return {
-    pending: toLink.filter((e) => !registered.has(e.pick.id)),
+    pending: [...ready, ...waiting],
+    readyCount: ready.length,
     registeredCount: registered.size,
     onSiteCount: onSite.length,
   };

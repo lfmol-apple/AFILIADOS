@@ -12,12 +12,11 @@ const brl = (n: number) =>
  * reais. Paste the link generated in the panel and save; the row leaves the list.
  */
 export async function PanelLinkQueue({ limit = 300 }: { limit?: number }) {
-  const { pending, registeredCount, onSiteCount } = await loadPanelQueue();
-  // Rows with a ready generic product link come first; the rest follow (title only)
-  // so the section stays full while their addresses are still being read.
-  const ready = pending.filter((e) => e.pick.productUrl);
-  const waiting = pending.filter((e) => !e.pick.productUrl);
-  const shown = [...ready, ...waiting].slice(0, limit);
+  const { pending, readyCount, registeredCount, onSiteCount } =
+    await loadPanelQueue();
+  // pending already comes ready-first (see loadPanelQueue) so this section
+  // stays full of clickable rows while the rest are still being read.
+  const shown = pending.slice(0, limit);
 
   return (
     <SubSection title="Pendências de receita — Mercado Livre (fila por comissão)">
@@ -29,9 +28,9 @@ export async function PanelLinkQueue({ limit = 300 }: { limit?: number }) {
         a página. A linha sai da lista ao salvar.
       </p>
       <p className="text-foreground/60 mb-3 text-xs">
-        Mostrando {shown.length} com link genérico pronto (
-        {pending.length - ready.length} ainda sem endereço) · {registeredCount}{" "}
-        já salvos · {onSiteCount} já estavam no site ·{" "}
+        Mostrando {shown.length} de {pending.length} aguardando link (
+        {Math.min(shown.length, readyCount)} já com link genérico pronto) ·{" "}
+        {registeredCount} já salvos · {onSiteCount} já estavam no site ·{" "}
         <a
           href="/admin/fila-links"
           className="text-brand underline underline-offset-2"

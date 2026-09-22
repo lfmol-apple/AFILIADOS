@@ -1924,4 +1924,102 @@ export const ML_PANEL_URLS: Readonly<Record<string, string>> = {
     "https://www.mercadolivre.com.br/kit-3-potes-de-vidro-nadir-600ml-c-tampa-tigelas-microondas/up/MLBU4998641043?pdp_filters=deal%3AMLB1578289-1",
   "Rodinho De Pia Sem Cabo Limpeza Bancada Cozinha Compacto":
     "https://www.mercadolivre.com.br/rodinho-de-pia-sem-cabo-limpeza-bancada-cozinha-compacto/p/MLB2091035192?pdp_filters=deal%3AMLB1578289-1",
+  "Ducha Relax Ultra Branca 5500w Lorenzetti":
+    "https://www.mercadolivre.com.br/ducha-relax-ultra-branca-5500w-lorenzetti/p/MLB15483796?pdp_filters=deal%3AMLB1578289-1",
+  "Jogo De Jantar E Chá 20 Peças Unni Brisa Oxford Aw20-5903":
+    "https://www.mercadolivre.com.br/jogo-de-jantar-e-cha-20-pecas-unni-brisa-oxford-aw20-5903/p/MLB33795714?pdp_filters=deal%3AMLB1578289-1",
+  "Aparelho De Jantar 30 Peças - Pratos, Copos E Talheres Transparente":
+    "https://www.mercadolivre.com.br/aparelho-de-jantar-30-pecas--pratos-copos-e-talheres/up/MLBU3952048230?pdp_filters=item_id%3AMLB4659973281",
+  "Kit Cobre Leito Colcha Casal 3 Peças Boutis Lisas Dupla Face Porta Travesseiro Aba Americana Isabel Areia":
+    "https://www.mercadolivre.com.br/kit-cobre-leito-colcha-casal-3-pecas-boutis-lisas-dupla-face-porta-travesseiro-aba-americana-isabel-areia/p/MLB67977426?pdp_filters=item_id%3AMLB4436848309",
+  "Lustre Pendente Moderna Led,luminaria Dourado Redondo Sala 127/220v Dourado":
+    "https://www.mercadolivre.com.br/lustre-pendente-moderna-ledluminaria-dourado-redondo-sala/up/MLBU3389318166?pdp_filters=item_id%3AMLB5644117516",
+  "Jogo De Panelas 10 Peças Antiaderente Frigideira Tampa Vidro Marfim":
+    "https://www.mercadolivre.com.br/jogo-de-panelas-10-pecas-antiaderente-frigideira-tampa-vidro-marfim/p/MLB69001679?pdp_filters=item_id%3AMLB4647606299",
+  "Varal Dobrável De Chão 3 Andares De Roupas Grande Com Rodinha Aba Lateral Retrátil Para Cabide Irsina":
+    "https://www.mercadolivre.com.br/varal-dobravel-de-chao-3-andares-de-roupas-grande-com-rodinha-aba-lateral-retratil-para-cabide-irsina/p/MLB51534391?pdp_filters=item_id%3AMLB5528348396",
+  "Caixa Grande Organizadora 270l Baú Multiuso Marvel Keter Preto Listras":
+    "https://www.mercadolivre.com.br/caixa-grande-organizadora-270l-bau-multiuso-marvel-keter/up/MLBU1953284036?pdp_filters=deal%3AMLB1578289-1",
+  "Câmera Lâmpada De Segurança Wifi Ip App Yoosee Visão Noturna Câmera Segurança Lampada Ip Wifi":
+    "https://www.mercadolivre.com.br/camera-lampada-de-seguranca-wifi-ip-app-yoosee-visao-noturna/up/MLBU3226072371?pdp_filters=item_id%3AMLB4090804305",
+  "Kit 100 Placas Ripada Mdf Autocolante Decoração Parede 45x11":
+    "https://produto.mercadolivre.com.br/MLB-4181602941-kit-100-placas-ripada-mdf-autocolante-decoraco-parede-45x11-_JM",
+  "Conjunto De 6 Canecas Ryo Maresia 260ml Oxford Branco":
+    "https://www.mercadolivre.com.br/conjunto-de-6-canecas-ryo-maresia-260ml-oxford/up/MLBU1964008727?pdp_filters=item_id%3AMLB1953153394",
+  "Câmera de segurança Wi-Fi interna/externa TP-Link Tapo C216 branca":
+    "https://www.mercadolivre.com.br/camera-de-seguranca-wi-fi-internaexterna-tp-link-tapo-c216-branca/p/MLB56102173?pdp_filters=deal%3AMLB1578289-1",
+  "Jogo De Panelas Antiaderente 10 Peças Prime Alumínio Teflon Cor Marrom-escuro":
+    "https://www.mercadolivre.com.br/jogo-de-panelas-antiaderente-10-pecas-prime-aluminio-teflon-cor-marrom-escuro/p/MLB64318530?pdp_filters=item_id%3AMLB7029015864",
+  "Jogo De Panela Cerâmica Premium 20 Pç - Antiaderente Marrom Marrom-escuro":
+    "https://www.mercadolivre.com.br/jogo-de-panela-ceramica-premium-20-pc--antiaderente-marrom/up/MLBU3567222336?pdp_filters=deal%3AMLB1578289-1",
+  "Cama Box Baú Casal Colchão Gazin Molas Flora Bege 138x188x63cm":
+    "https://www.mercadolivre.com.br/cama-box-bau-casal-colchao-gazin-molas-flora-bege-138x188x63cm/p/MLB26886277?pdp_filters=item_id%3AMLB5318608904",
+  "Mop Giratório 8l Rodinhas Esfregão 130cm Cesto Inox C/ Refil":
+    "https://www.mercadolivre.com.br/mop-giratorio-8l-rodinhas-esfregao-130cm-cesto-inox-c-refil/p/MLB44676406?pdp_filters=item_id%3AMLB4215460487",
+  "Kit 10 Potes Herméticos Vidro Tampa Bambu Seiri Para Mantimentos Cozinha":
+    "https://www.mercadolivre.com.br/kit-10-potes-hermeticos-vidro-tampa-bambu-seiri-para-mantimentos-cozinha/p/MLB57492845?pdp_filters=item_id%3AMLB5764953630",
+  "Cobertor Manta De Casal 2,00x1,80 Canelada Sherpa Cores":
+    "https://produto.mercadolivre.com.br/MLB-5665514196-cobertor-manta-de-casal-200x180-canelada-sherpa-cores-_JM?pdp_filters=item_id%3AMLB5665514196",
+  "Árvore De Natal Verde Luxo 150 500 Galho - Pé De Ferro DEKASA":
+    "https://www.mercadolivre.com.br/arvore-de-natal-verde-luxo-150-500-galho-pe-de-ferro-dekasa/p/MLB54096512?pdp_filters=item_id%3AMLB5643054880",
+  "Guarda-roupa Casal Com Espelho 6 Portas 2 Gavetas França":
+    "https://www.mercadolivre.com.br/guarda-roupa-casal-com-espelho-6-portas-2-gavetas-franca/p/MLB50525645?pdp_filters=deal%3AMLB1578289-1",
+  "Escrivaninha Penteadeira Branco/Rosa Com Espelho MDP Notável Móveis":
+    "https://www.mercadolivre.com.br/escrivaninha-penteadeira-brancorosa-com-espelho-mdp-notavel-moveis/p/MLB25345486?pdp_filters=item_id%3AMLB3396402689",
+  "Leiteira Caneco Tramontina 1,7 Litros Canecão Fervedor Antiaderente Starflon Max Turim Cor Chumbo 14 Cm De Diâmetro Fogão A Gás Elétrico E Vitrocerâmico Fácil De Limpar Mais Durável Cabo Baquelite":
+    "https://www.mercadolivre.com.br/leiteira-caneco-tramontina-17-litros-canecao-fervedor-antiaderente-starflon-max-turim-cor-chumbo-14-cm-de-diametro-fogao-a-gas-eletrico-e-vitroceramico-facil-de-limpar-mais-duravel-cabo-baquelite/p/MLB47631250?pdp_filters=item_id%3AMLB4019438161",
+  "Espelho De Chão Corpo Inteiro Com Moldura E Suporte Dourado":
+    "https://www.mercadolivre.com.br/espelho-de-chao-corpo-inteiro-com-moldura-e-suporte-dourado/p/MLB65153572?pdp_filters=item_id%3AMLB4656490845",
+  "Cozinha Compacta Arizona Glam Com Armário E Balcão Carraro Cor Carvalho/Preto":
+    "https://www.mercadolivre.com.br/cozinha-compacta-arizona-glam-com-armario-e-balcao-carraro-cor-carvalhopreto/p/MLB27690155?pdp_filters=item_id%3AMLB3604975437",
+  "Espelho De Chão Base Reta Corpo Inteiro Com Moldura E Suporte Dourado 146x36cm":
+    "https://www.mercadolivre.com.br/espelho-de-chao-base-reta-corpo-inteiro-com-moldura-e-suporte-dourado-146x36cm/p/MLB52062423?pdp_filters=item_id%3AMLB4415219211",
+  "Jogo De Panelas Induçao Antiaderente Cerâmica 10 Peças Ppg Pfoa Free Baunilha":
+    "https://www.mercadolivre.com.br/jogo-de-panelas-inducao-antiaderente-ceramica-10-pecas-ppg-pfoa-free-baunilha/p/MLB62276296?pdp_filters=item_id%3AMLB5946286600",
+  "Mesa Tabua De Passar Roupa Slim Dobrável Reforçada Passadera Cor Branca Liso":
+    "https://www.mercadolivre.com.br/mesa-tabua-de-passar-roupa-slim-dobravel-reforcada-passadera-cor-branca-liso/p/MLB64578882?pdp_filters=item_id%3AMLB5979802832",
+  "Tapete Sala Quarto Grande 300x200 Jacquard Antiderrapante 2 M 3 M Boho Marrom":
+    "https://www.mercadolivre.com.br/tapete-sala-quarto-grande-300x200-jacquard-antiderrapante/up/MLBU3941206193?pdp_filters=item_id%3AMLB6732538538",
+  "Guarda Roupa Casal 3 Portas 4 Gavetas Costa Rica Cinamomo/off-white":
+    "https://www.mercadolivre.com.br/guarda-roupa-casal-3-portas-4-gavetas-costa-rica/up/MLBU2720298530?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Faqueiro Dourado Luxo Jogo Talheres Inox 24pçs + Maleta Caixa De Papel Bourada":
+    "https://www.mercadolivre.com.br/kit-faqueiro-dourado-luxo-jogo-talheres-inox-24pcs--maleta/up/MLBU3994476114?pdp_filters=item_id%3AMLB4701043187",
+  "Gabinete Armário Banheiro Completo 80cm - Puxador Alumínio":
+    "https://produto.mercadolivre.com.br/MLB-1305093917-gabinete-armario-banheiro-completo-80cm-puxador-aluminio-_JM?pdp_filters=item_id%3AMLB1305093917",
+  "Ducha Eletrônica Intense Fame 5400w Preta E Inox Cor Preto Potência":
+    "https://www.mercadolivre.com.br/ducha-eletronica-intense-fame-5400w-preta-e-inox-cor-preto-potencia/p/MLB39457109?pdp_filters=deal%3AMLB1578289-1",
+  "Câmera de Segurança Wi-Fi iCSee/Yoosee A28B 4K Dupla Lente Visão Noturna Colorida Full Hd Externa Prova D'água Ip66 Sensor Movimento Woosh":
+    "https://www.mercadolivre.com.br/camera-de-seguranca-wi-fi-icseeyoosee-a28b-4k-dupla-lente-visao-noturna-colorida-full-hd-externa-prova-dagua-ip66-sensor-movimento-woosh/p/MLB60074213?pdp_filters=deal%3AMLB1578289-1",
+  "Pingômetro 03 Litros Barrica Revestido Madeira Whisky, Pinga":
+    "https://www.mercadolivre.com.br/pingometro-03-litros-barrica-revestido-madeira-whisky-pinga/p/MLB2083007227?pdp_filters=item_id%3AMLB5324112096",
+  "Cama Box Casal Colchão Gazin Molas Ensacadas Pillow Maximus Cinza e Preto 138x188x62cm":
+    "https://www.mercadolivre.com.br/cama-box-casal-colchao-gazin-molas-ensacadas-pillow-maximus-cinza-e-preto-138x188x62cm/p/MLB27492296?pdp_filters=item_id%3AMLB4111944180",
+  "Escorredor de Louças Suspenso 65cm Preto Zelvi para Pratos Copos Talheres Organizador Pia Cozinha com Armário em Aço":
+    "https://www.mercadolivre.com.br/escorredor-de-loucas-suspenso-65cm-preto-zelvi-para-pratos-copos-talheres-organizador-pia-cozinha-com-armario-em-aco/p/MLB55052720?pdp_filters=item_id%3AMLB5682525312",
+  "Mesa De Centro Lateral Apoio Sala Oval Pé Madeira Decorativa Off White":
+    "https://www.mercadolivre.com.br/mesa-de-centro-lateral-apoio-sala-oval-pe-madeira-decorativa/up/MLBU4030075612?pdp_filters=item_id%3AMLB6857962850",
+  "Estante Armário Prateleira de Aço 6 Bandejas Organizador Galvanizada Suporta 150kg 190cm x 90cm x 28cm":
+    "https://www.mercadolivre.com.br/estante-armario-prateleira-de-aco-6-bandejas-organizador-galvanizada-suporta-150kg-190cm-x-90cm-x-28cm/p/MLB45892583?pdp_filters=deal%3AMLB1578289-1",
+  "Lustre Led Sala Moderno 60w, 3 Arcos Pendente Luminária Teto 127/220v Dourado":
+    "https://www.mercadolivre.com.br/lustre-led-sala-moderno-60w-3-arcos-pendente-luminaria-teto/up/MLBU3320959149?pdp_filters=item_id%3AMLB5522151066",
+  "Frigideira Cerâmica Antiaderente Fogão Cooktop Indução Gás Bege 20cm":
+    "https://www.mercadolivre.com.br/frigideira-ceramica-antiaderente-fogao-cooktop-inducao-gas-bege-20cm/p/MLB65696785?pdp_filters=item_id%3AMLB4479093319",
+  "Mini Ventilador Soprador Ar Turbo 130000rpm Assoprador Sem Fio Recarregável USB-C 3 Níveis Jato Forte Portátil Multiuso Limpeza Teclado Carro Acende Churrasqueira Davely":
+    "https://www.mercadolivre.com.br/mini-ventilador-soprador-ar-turbo-130000rpm-assoprador-sem-fio-recarregavel-usb-c-3-niveis-jato-forte-portatil-multiuso-limpeza-teclado-carro-acende-churrasqueira-davely/p/MLB69649128?pdp_filters=item_id%3AMLB6781687878",
+  "Espelho De Chão Corpo Inteiro Com Moldura E Suporte Dourado Lhp E-commerce":
+    "https://www.mercadolivre.com.br/espelho-de-chao-corpo-inteiro-com-moldura-e-suporte-dourado-lhp-e-commerce/p/MLB66384747?pdp_filters=item_id%3AMLB6720103320",
+  "Tenda Gazebo Sanfonada Articulada Desmontável 3x3 Metros Marqs Home Impermeável Estrutura Aço Leve E Reforçada Proteção Solar Uv Chuva Vento Barraca Camping Praia Eventos Feira Carro Azul":
+    "https://www.mercadolivre.com.br/tenda-gazebo-sanfonada-articulada-desmontavel-3x3-metros-marqs-home-impermeavel-estrutura-aco-leve-e-reforcada-protecao-solar-uv-chuva-vento-barraca-camping-praia-eventos-feira-carro-azul/p/MLB64971022?pdp_filters=item_id%3AMLB6928133034",
+  "Torneira Gourmet Luxo Flexível Cozinha Bancada 2 Jatos Pia Cor Preto - Marca Camperluz":
+    "https://www.mercadolivre.com.br/torneira-gourmet-luxo-flexivel-cozinha-bancada-2-jatos-pia-cor-preto-marca-camperluz/p/MLB57743043?pdp_filters=item_id%3AMLB5742201726",
+  "Jogo 6 Taças Cristal Titanium Vinho Tinto 560ml Xtra Bohemia Incolor":
+    "https://www.mercadolivre.com.br/jogo-6-tacas-cristal-titanium-vinho-tinto-560ml-xtra-bohemia/up/MLBU3903195352?pdp_filters=item_id%3AMLB4602043427",
+  "Cama box baú Ortobom Airtech Springpocket casal colchão bege":
+    "https://www.mercadolivre.com.br/cama-box-bau-ortobom-airtech-springpocket-casal-colchao-bege/p/MLB37263374?pdp_filters=deal%3AMLB1578289-1",
+  "LUMAI Kit Tábua Grande Para Queijos e Frios de Bambu Premium Polimento Duplo + Petisqueira - Suporte Magnético - Tabua para Servir de 40cm x 29,5cm - Qualidade para Receber em Casa Familia e Amigos":
+    "https://www.mercadolivre.com.br/lumai-kit-tabua-grande-para-queijos-e-frios-de-bambu-premium-polimento-duplo-petisqueira-suporte-magnetico-tabua-para-servir-de-40cm-x-295cm-qualidade-para-receber-em-casa-familia-e-amigos/p/MLB51230564?pdp_filters=item_id%3AMLB4469866875",
+  "Fechadura Digital De Sobrepor Fd 1000 D Preta Intelbras":
+    "https://www.mercadolivre.com.br/fechadura-digital-de-sobrepor-fd-1000-d-preta-intelbras/p/MLB63323182?pdp_filters=deal%3AMLB1578289-1",
+  "Espelho Orgânico com LED 170x70 cm Ideal para Quarto, Banheiro, Escritório, Hall e Sala - Modelo Flame com Iluminação LED Quente, Perfeito para Ambientes com Decoração Moderna":
+    "https://www.mercadolivre.com.br/espelho-organico-com-led-170x70-cm-ideal-para-quarto-banheiro-escritorio-hall-e-sala-modelo-flame-com-iluminacao-led-quente-perfeito-para-ambientes-com-decoracao-moderna/p/MLB61433721?pdp_filters=item_id%3AMLB4281111781",
 };
