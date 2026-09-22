@@ -80,7 +80,7 @@ describe("buildQueue", () => {
 });
 
 describe("rankAllForLinking", () => {
-  it("keeps every product, recommended first, injectables last, on-site apart", () => {
+  it("keeps every product, best money+reputation score first, injectables last, on-site apart", () => {
     const { toLink, onSite } = rankAllForLinking(
       [
         pick({ title: "Produto Fraco Alfa Beta", rating: 4.0 }),
@@ -102,5 +102,35 @@ describe("rankAllForLinking", () => {
     expect(toLink[0]!.recommended).toBe(true);
     expect(toLink[1]!.recommended).toBe(false);
     expect(toLink[2]!.notes.join()).toContain("injetável");
+  });
+
+  it("weighs reputation continuously: a better rating outranks an equal-money worse one", () => {
+    const { toLink } = rankAllForLinking([
+      pick({ title: "Nota Alta", rating: 4.9 }),
+      pick({ title: "Nota Baixa", rating: 4.5 }),
+    ]);
+    expect(toLink.map((e) => e.pick.title)).toEqual([
+      "Nota Alta",
+      "Nota Baixa",
+    ]);
+  });
+
+  it("has no hard 'recommended' bucket — big money below the gate still outranks small money above it", () => {
+    const { toLink } = rankAllForLinking([
+      // Not recommended (rating 4.4 < 4.5), but far more money per sale.
+      pick({
+        title: "Muito Dinheiro Nota Quase Boa",
+        price: 1000,
+        rating: 4.4,
+      }),
+      // Recommended (rating 4.9, sold ok), but little money per sale.
+      pick({ title: "Pouco Dinheiro Nota Ótima", price: 200, rating: 4.9 }),
+    ]);
+    expect(toLink.map((e) => e.pick.title)).toEqual([
+      "Muito Dinheiro Nota Quase Boa",
+      "Pouco Dinheiro Nota Ótima",
+    ]);
+    expect(toLink[0]!.recommended).toBe(false);
+    expect(toLink[1]!.recommended).toBe(true);
   });
 });

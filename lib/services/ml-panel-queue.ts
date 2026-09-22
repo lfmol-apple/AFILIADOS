@@ -32,6 +32,14 @@ function demandWeight(sold: number): number {
   return 0.4;
 }
 
+/** Reputation weight from the panel's own star rating — a continuous factor,
+ * not a pass/fail gate, so a 4.6 genuinely outranks a 4.5 at the same money.
+ * A missing rating is never assumed good: it scores below every known one. */
+function ratingWeight(rating: number | null): number {
+  if (rating === null) return 0.5;
+  return Math.max(0, rating / 5);
+}
+
 const STOP = new Set([
   "de",
   "da",
@@ -94,7 +102,10 @@ export function evaluatePick(
 
   const earningPerSale = pick.rate * pick.price;
   const score =
-    earningPerSale * demandWeight(pick.sold) * (pick.searched ? 1.15 : 1);
+    earningPerSale *
+    demandWeight(pick.sold) *
+    ratingWeight(pick.rating) *
+    (pick.searched ? 1.15 : 1);
   const reasons: string[] = [];
   if (pick.extras)
     reasons.push("campanha temporária: confira a taxa ao gerar o link");
@@ -134,10 +145,12 @@ export interface QueueEntry {
 
 /**
  * Every pasted product goes to the "generate link" list — nothing is dropped.
- * The rules only order it: recommended products first (best score first),
- * then the rest with the reason they were ranked lower. Products the site
- * already has are returned separately (no link needed). Sensitive
- * injectable-health items are kept but always last, with a warning.
+ * Ordered best-to-worst by one continuous score combining money (commission
+ * in reais) and reputation (star rating), weighted by sales strength — never
+ * a hard cutoff. `recommended` (rating >= 4.5, sold >= 500) is kept as a note
+ * for the UI, not a sorting bucket. Products the site already has are
+ * returned separately (no link needed). Sensitive injectable-health items
+ * are kept but always score last, with a warning.
  */
 export function rankAllForLinking(
   picks: readonly PanelPick[],
@@ -152,7 +165,10 @@ export function rankAllForLinking(
     }
     const earningPerSale = pick.rate * pick.price;
     const rawScore =
-      earningPerSale * demandWeight(pick.sold) * (pick.searched ? 1.15 : 1);
+      earningPerSale *
+      demandWeight(pick.sold) *
+      ratingWeight(pick.rating) *
+      (pick.searched ? 1.15 : 1);
     const notes: string[] = [];
     const verdict = evaluatePick(pick, []);
     const recommended = verdict.status === "queue";
@@ -170,11 +186,10 @@ export function rankAllForLinking(
       notes,
     });
   }
-  // Best sellers with a good rating first, each group by commission in reais
-  // (biggest first). Sensitive items score -1 and are never recommended: last.
-  toLink.sort(
-    (a, b) =>
-      Number(b.recommended) - Number(a.recommended) || b.score - a.score,
-  );
+  // The owner's rule: best money AND reputation first, worst last — one
+  // continuous score (commission in reais x sales strength x rating), never a
+  // hard "recommended" bucket. `recommended` stays as information only (shown
+  // as a note), it no longer decides the order. Sensitive items score -1: last.
+  toLink.sort((a, b) => b.score - a.score);
   return { toLink, onSite };
 }
