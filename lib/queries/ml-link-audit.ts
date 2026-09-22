@@ -157,7 +157,11 @@ export async function getMlLinkAudit(): Promise<MlLinkAudit> {
       where m.code = 'MERCADO_LIVRE'
         and al.status = 'ACTIVE'
         and al."affiliateUrl" is not null
-      group by al."merchantListingId", title, al."publicUrl", al."affiliateUrl"
+      group by
+        al."merchantListingId",
+        coalesce(cp.title, p.title, ml.slug, ml."externalId", 'sem titulo'),
+        al."publicUrl",
+        al."affiliateUrl"
       having count(ac.id) filter (where ac."createdAt" >= ${since} and ${REAL_VISITOR_CLICKS_SQL}) > 0
       order by clicks_last_30d desc, total_clicks desc, last_click_at desc
       limit 100
