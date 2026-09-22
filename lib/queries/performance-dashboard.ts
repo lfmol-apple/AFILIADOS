@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { startOfDayInBrasilDaysAgo } from "@/lib/time/brasil";
 import { REAL_VISITOR_CLICKS_SQL, realClicks } from "@/lib/admin/owner-traffic";
 
 /**
@@ -25,14 +26,12 @@ export interface DailyMerchantClicks {
 export async function getClicksDailyByMerchant(
   days: number,
 ): Promise<DailyMerchantClicks[]> {
-  const since = new Date();
-  since.setDate(since.getDate() - days);
-  since.setHours(0, 0, 0, 0);
+  const since = startOfDayInBrasilDaysAgo(days);
 
   const rows = await prisma.$queryRaw<
     { day: Date; merchant: ClickMerchantCode | null; clicks: bigint }[]
   >`
-    select date_trunc('day', ac."createdAt")::date as day,
+    select date_trunc('day', (ac."createdAt" AT TIME ZONE 'UTC') AT TIME ZONE 'America/Sao_Paulo')::date as day,
            coalesce(m.code::text, 'AMAZON') as merchant,
            count(*) as clicks
     from "AffiliateClick" ac
@@ -57,12 +56,10 @@ export interface DailyPageviews {
 export async function getPageviewsDaily(
   days: number,
 ): Promise<DailyPageviews[]> {
-  const since = new Date();
-  since.setDate(since.getDate() - days);
-  since.setHours(0, 0, 0, 0);
+  const since = startOfDayInBrasilDaysAgo(days);
 
   const rows = await prisma.$queryRaw<{ day: Date; pageviews: bigint }[]>`
-    select date_trunc('day', "createdAt")::date as day, count(*) as pageviews
+    select date_trunc('day', ("createdAt" AT TIME ZONE 'UTC') AT TIME ZONE 'America/Sao_Paulo')::date as day, count(*) as pageviews
     from "PageView"
     where "createdAt" >= ${since}
     group by 1
@@ -90,9 +87,7 @@ export async function getTopProductsByClicks(
   days: number,
   limit = 15,
 ): Promise<TopClickedProduct[]> {
-  const since = new Date();
-  since.setDate(since.getDate() - days);
-  since.setHours(0, 0, 0, 0);
+  const since = startOfDayInBrasilDaysAgo(days);
 
   const rows = await prisma.$queryRaw<
     {
@@ -134,9 +129,7 @@ export interface ClickSourceBreakdown {
 export async function getClickSourceBreakdown(
   days: number,
 ): Promise<ClickSourceBreakdown[]> {
-  const since = new Date();
-  since.setDate(since.getDate() - days);
-  since.setHours(0, 0, 0, 0);
+  const since = startOfDayInBrasilDaysAgo(days);
 
   const rows = await prisma.$queryRaw<
     { source: string | null; page_type: string; clicks: bigint }[]

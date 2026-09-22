@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { startOfDayInBrasil } from "@/lib/time/brasil";
 import { realClicks } from "@/lib/admin/owner-traffic";
 
 /**
@@ -136,9 +137,7 @@ export interface OperationsSummary {
 }
 
 function startOfToday(): Date {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  return d;
+  return startOfDayInBrasil();
 }
 
 /**

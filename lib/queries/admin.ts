@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { startOfDayInBrasil } from "@/lib/time/brasil";
 import { realClicks } from "@/lib/admin/owner-traffic";
 import { getRemarketingProvider } from "@/lib/remarketing";
 import {
@@ -9,9 +10,7 @@ import {
 import type { MarketplaceCode } from "@/types/marketplace";
 
 function startOfToday(): Date {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  return d;
+  return startOfDayInBrasil();
 }
 
 function daysAgo(days: number): Date {
