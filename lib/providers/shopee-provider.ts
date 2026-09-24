@@ -47,7 +47,11 @@ export class ShopeeProvider implements CommerceProvider {
         "ShopeeProvider requires SHOPEE_AFFILIATE_ENABLED=true. See docs/AFFILIATE_LINK_REGISTRY.md.",
       );
     }
-    if (!env.SHOPEE_AFFILIATE_API_ENABLED || !env.SHOPEE_APP_ID || !env.SHOPEE_SECRET_KEY) {
+    if (
+      !env.SHOPEE_AFFILIATE_API_ENABLED ||
+      !env.SHOPEE_APP_ID ||
+      !env.SHOPEE_SECRET_KEY
+    ) {
       throw new Error(
         "ShopeeProvider requires SHOPEE_AFFILIATE_API_ENABLED=true plus SHOPEE_APP_ID/SHOPEE_SECRET_KEY. " +
           "See docs/AFFILIATE_LINK_REGISTRY.md.",
@@ -57,7 +61,9 @@ export class ShopeeProvider implements CommerceProvider {
     this.secretKey = env.SHOPEE_SECRET_KEY;
   }
 
-  async searchProducts(query: ProductSearchQuery): Promise<ProductSearchResult> {
+  async searchProducts(
+    query: ProductSearchQuery,
+  ): Promise<ProductSearchResult> {
     const nodes = await this.queryProductOffers({
       keyword: query.keywords,
       page: query.page ?? 1,
@@ -110,12 +116,20 @@ export class ShopeeProvider implements CommerceProvider {
     keyword?: string;
     page?: number;
     limit?: number;
+    /** 2 = most sold first (confirmed live 2026-09-24). Other values
+     * (1,3,4,5) were ignored by the API in the same test. */
+    sortType?: number;
+    /** true = only offers with the seller's extra ("comissão extra")
+     * commission, i.e. Shopee's AMS offers (confirmed live 2026-09-24). */
+    isAMSOffer?: boolean;
   }): Promise<ShopeeProductOfferNode[]> {
     return this.queryProductOffers({
       itemId: input.itemId,
       keyword: input.keyword,
       page: input.page ?? 1,
       limit: input.limit ?? 20,
+      sortType: input.sortType,
+      isAMSOffer: input.isAMSOffer,
     });
   }
 
@@ -145,10 +159,16 @@ export class ShopeeProvider implements CommerceProvider {
     keyword?: string;
     page: number;
     limit: number;
+    sortType?: number;
+    isAMSOffer?: boolean;
   }): Promise<ShopeeProductOfferNode[]> {
     const args: string[] = [`page:${input.page}`, `limit:${input.limit}`];
+    if (input.sortType !== undefined) args.push(`sortType:${input.sortType}`);
+    if (input.isAMSOffer !== undefined)
+      args.push(`isAMSOffer:${input.isAMSOffer}`);
     if (input.itemId !== undefined) args.push(`itemId:${input.itemId}`);
-    if (input.keyword) args.push(`keyword:"${escapeGraphqlString(input.keyword)}"`);
+    if (input.keyword)
+      args.push(`keyword:"${escapeGraphqlString(input.keyword)}"`);
 
     const query = `{productOfferV2(${args.join(",")}){nodes{itemId productName imageUrl productLink offerLink priceMin priceMax priceDiscountRate commissionRate sellerCommissionRate shopeeCommissionRate commission sales ratingStar shopId shopName shopType}}}`;
 
@@ -178,8 +198,12 @@ export class ShopeeProvider implements CommerceProvider {
     });
 
     if (!response.ok) {
-      logger.error("shopee.graphql_request_failed", { status: response.status });
-      throw new Error(`ShopeeProvider GraphQL request failed: HTTP ${response.status}`);
+      logger.error("shopee.graphql_request_failed", {
+        status: response.status,
+      });
+      throw new Error(
+        `ShopeeProvider GraphQL request failed: HTTP ${response.status}`,
+      );
     }
 
     const json = (await response.json()) as { data?: T; errors?: unknown[] };
@@ -238,7 +262,9 @@ export interface ShopeeProductOfferNode {
  * shopee-first-cycle.ts) works with real numbers, never re-implementing
  * the same parseFloat. Returns undefined for undefined/unparseable input,
  * never NaN or a fabricated 0. */
-export function shopeeNumeric(value: string | number | undefined): number | undefined {
+export function shopeeNumeric(
+  value: string | number | undefined,
+): number | undefined {
   if (value === undefined) return undefined;
   const n = typeof value === "number" ? value : Number(value);
   return Number.isFinite(n) ? n : undefined;

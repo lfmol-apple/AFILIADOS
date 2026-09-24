@@ -2,8 +2,6 @@ import "dotenv/config";
 import { runJob } from "@/lib/jobs/automation-run";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/observability/logger";
-import { runMlDemandJob } from "./ml-demand";
-import { runMlEnrichmentJob } from "./ml-enrichment";
 import { runShopeeRefreshJob } from "./shopee-refresh";
 import { runShopeeDemandDrivenJob } from "./shopee-demand-driven";
 import { runProductMatcherShadowJob } from "./product-matcher-shadow";
@@ -42,8 +40,10 @@ import { runProductMatcherShadowJob } from "./product-matcher-shadow";
 export async function runMlShopeeCycle(): Promise<void> {
   await runJob("ML_SHOPEE_CYCLE", async (ctx) => {
     const steps: Array<{ name: string; run: () => Promise<{ processed: number; created: number; updated: number; errors: number }> }> = [
-      { name: "ML_DEMAND", run: runMlDemandJob },
-      { name: "ML_ENRICHMENT", run: runMlEnrichmentJob },
+      // ML_DEMAND / ML_ENRICHMENT removed 2026-09-24 (owner's decision): the
+      // Mercado Livre catalog is now built only from the affiliate panel,
+      // category by category, highest commission first (/admin/fila-links).
+      // The automated scan had filled the DB with ~41k unlinked listings.
       { name: "SHOPEE_REFRESH", run: runShopeeRefreshJob },
       { name: "SHOPEE_DEMAND_DRIVEN", run: runShopeeDemandDrivenJob },
       { name: "PRODUCT_MATCHER_SHADOW", run: runProductMatcherShadowJob },

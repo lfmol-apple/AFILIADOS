@@ -3,17 +3,17 @@ import { env } from "@/lib/config/env";
 import { runJob, type JobCounters } from "@/lib/jobs/automation-run";
 import { withRetry } from "@/lib/jobs/retry";
 import { logger } from "@/lib/observability/logger";
-import { ShopeeProvider, type ShopeeProductOfferNode } from "@/lib/providers/shopee-provider";
-import { scoreOffer, processShopeeOffer } from "@/lib/services/shopee-cycle-collector";
-import { planSweep, selectNewSweepOffers } from "@/lib/services/shopee-discovery-sweep";
-
-/** Same conservative default as scripts/shopee-first-cycle.ts's `--top` —
- * a documented, explicit constant, not a rediscovered "magic 15". Real
- * Shopee catalog today is small (~12 offers total), so this comfortably
- * covers everything eligible without inventing a bigger cap than has ever
- * been exercised for real. */
-const DEFAULT_TOP = 15;
-const DEFAULT_MIN_SCORE = 0;
+import {
+  ShopeeProvider,
+  type ShopeeProductOfferNode,
+} from "@/lib/providers/shopee-provider";
+import { processShopeeOffer } from "@/lib/services/shopee-cycle-collector";
+import {
+  AMS_SORT_MOST_SOLD,
+  SWEEP_PAGE_LIMIT,
+  planAmsSweep,
+  selectExtraCommissionOffers,
+} from "@/lib/services/shopee-discovery-sweep";
 
 /**
  * Automação Operacional V1 (2026-09-08) — the automated counterpart of
@@ -44,58 +44,85 @@ export async function runShopeeRefreshJob(): Promise<JobCounters> {
       }
 
       const provider = new ShopeeProvider();
-      const offers = await withRetry(() => provider.listOffers({ page: 1, limit: 50 }), {
-        label: "shopee_refresh.list_offers",
-      });
-      ctx.metadata.offersFetched = offers.length;
 
-      // Discovery sweep: rotating high-demand keywords/pages so the catalog
-      // keeps finding NEW offers instead of re-reading page 1. A failed
-      // request is counted and skipped, never fatal to the run.
-      const priorRuns = await prisma.automationRun.count({ where: { job: "SHOPEE_REFRESH" } });
-      const sweepPlan = planSweep(priorRuns);
-      const sweepFetched: ShopeeProductOfferNode[] = [];
-      for (const request of sweepPlan) {
+      // Discovery (owner's decision 2026-09-24): Shopee's own list of offers
+      // with the seller's extra commission, most sold first, a few pages per
+      // cycle (rotating, so deeper pages surface as the run count grows).
+      // Only offers paying at least AMS_MIN_COMMISSION_BRL per sale, with
+      // enough sales and rating, are kept — biggest commission in reais
+      // first. A failed page is counted and skipped, never fatal to the run.
+      const priorRuns = await prisma.automationRun.count({
+        where: { job: "SHOPEE_REFRESH" },
+      });
+      const pages = planAmsSweep(priorRuns);
+      const fetched: ShopeeProductOfferNode[] = [];
+      for (const page of pages) {
         try {
           const found = await withRetry(
-            () => provider.listOffers({ keyword: request.keyword, page: request.page, limit: 50 }),
-            { label: `shopee_refresh.sweep.${request.keyword}.${request.page}` },
+            () =>
+              provider.listOffers({
+                sortType: AMS_SORT_MOST_SOLD,
+                isAMSOffer: true,
+                page,
+                limit: SWEEP_PAGE_LIMIT,
+              }),
+            { label: `shopee_refresh.ams.page${page}` },
           );
-          sweepFetched.push(...found);
+          fetched.push(...found);
         } catch (err) {
-          logger.error("shopee_refresh.sweep_failed", { ...request, message: String(err) });
+          logger.error("shopee_refresh.ams_page_failed", {
+            page,
+            message: String(err),
+          });
           ctx.counters.errors += 1;
         }
       }
+      ctx.metadata.offersFetched = fetched.length;
       const known = await prisma.merchantListing.findMany({
-        where: { marketplace: "BR", externalId: { in: sweepFetched.map((o) => String(o.itemId)) }, merchant: { code: "SHOPEE" } },
+        where: {
+          marketplace: "BR",
+          externalId: { in: fetched.map((o) => String(o.itemId)) },
+          merchant: { code: "SHOPEE" },
+        },
         select: { externalId: true },
       });
-      const sweepNew = selectNewSweepOffers(sweepFetched, new Set(known.map((k) => k.externalId)));
-      ctx.metadata.sweepRequests = sweepPlan.map((r) => `${r.keyword}#${r.page}`);
-      ctx.metadata.sweepFetched = sweepFetched.length;
-      ctx.metadata.sweepNew = sweepNew.length;
+      const selected = selectExtraCommissionOffers(
+        fetched,
+        new Set(known.map((k) => k.externalId)),
+      );
+      ctx.metadata.amsPages = pages;
+      ctx.metadata.amsNew = selected.length;
 
       const merchant = await prisma.merchant.upsert({
         where: { code: "SHOPEE" },
-        create: { code: "SHOPEE", name: "Shopee", active: true, affiliateEnabled: true },
+        create: {
+          code: "SHOPEE",
+          name: "Shopee",
+          active: true,
+          affiliateEnabled: true,
+        },
         update: { affiliateEnabled: true },
       });
 
-      const scored = [...offers, ...sweepNew]
-        .map((offer) => ({ offer, score: scoreOffer(offer) }))
-        .filter((x) => (x.score.score ?? 0) >= DEFAULT_MIN_SCORE)
-        .sort((a, b) => (b.score.score ?? 0) - (a.score.score ?? 0))
-        .slice(0, DEFAULT_TOP + sweepNew.length);
+      const scored = selected.map((offer) => ({ offer }));
 
       let linksGenerated = 0;
       let linksReused = 0;
-      const failures: Array<{ itemId: ShopeeProductOfferNode["itemId"]; error: string }> = [];
+      const failures: Array<{
+        itemId: ShopeeProductOfferNode["itemId"];
+        error: string;
+      }> = [];
 
       for (const { offer } of scored) {
         try {
           const result = await withRetry(
-            () => processShopeeOffer(provider, merchant.id, offer, "shopee_refresh"),
+            () =>
+              processShopeeOffer(
+                provider,
+                merchant.id,
+                offer,
+                "shopee_refresh",
+              ),
             { label: `shopee_refresh.offer.${offer.itemId}` },
           );
           ctx.counters.processed += 1;
@@ -129,7 +156,10 @@ if (isMainModule) {
       console.log("SHOPEE_REFRESH done:", JSON.stringify(counters));
     })
     .catch((err) => {
-      console.error("SHOPEE_REFRESH failed:", err instanceof Error ? err.message : err);
+      console.error(
+        "SHOPEE_REFRESH failed:",
+        err instanceof Error ? err.message : err,
+      );
       process.exitCode = 1;
     })
     .finally(() => prisma.$disconnect());
