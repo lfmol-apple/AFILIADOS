@@ -145,10 +145,9 @@ export interface QueueEntry {
 
 /**
  * Every pasted product goes to the "generate link" list — nothing is dropped.
- * Ordered best-to-worst by one continuous score combining money (commission
- * in reais) and reputation (star rating), weighted by sales strength — never
- * a hard cutoff. `recommended` (rating >= 4.5, sold >= 500) is kept as a note
- * for the UI, not a sorting bucket. Products the site already has are
+ * Ordered by: not-a-temporary-campaign first, then commission in reais, then
+ * most sold, then best rated — never a hard cutoff. `recommended` (rating
+ * >= 4.5, sold >= 500) is kept as a note for the UI, not a sorting bucket. Products the site already has are
  * returned separately (no link needed). Sensitive injectable-health items
  * are kept but always score last, with a warning.
  */
@@ -186,10 +185,18 @@ export function rankAllForLinking(
       notes,
     });
   }
-  // The owner's rule: best money AND reputation first, worst last — one
-  // continuous score (commission in reais x sales strength x rating), never a
-  // hard "recommended" bucket. `recommended` stays as information only (shown
-  // as a note), it no longer decides the order. Sensitive items score -1: last.
-  toLink.sort((a, b) => b.score - a.score);
+  // The owner's rule (2026-09-24): first the offers that are NOT a temporary
+  // campaign (their rate is stable), each group by commission in reais, then
+  // most sold, then best rated (no rating last). `score` is no longer the sort
+  // key — it stays on the entry for callers that show it. Sensitive
+  // injectable-health items (score -1) always go last.
+  toLink.sort(
+    (a, b) =>
+      Number(a.score < 0) - Number(b.score < 0) ||
+      Number(a.pick.extras) - Number(b.pick.extras) ||
+      b.earningPerSale - a.earningPerSale ||
+      b.pick.sold - a.pick.sold ||
+      (b.pick.rating ?? -1) - (a.pick.rating ?? -1),
+  );
   return { toLink, onSite };
 }

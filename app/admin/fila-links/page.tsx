@@ -35,16 +35,19 @@ export default async function LinkQueuePage() {
       </h1>
       <p className="text-foreground/70 mt-2 text-sm leading-relaxed">
         Só os produtos do painel de afiliados que já têm o link genérico do
-        produto, do maior valor de comissão em reais (com vendas e nota) para o
-        menor. Clique em <strong>1. Copiar endereço + abrir Linkbuilder</strong>{" "}
-        e cole o link gerado abaixo; ele salva sozinho. O sistema busca foto e
-        preço no Mercado Livre e cria a página; a linha sai da lista ao salvar.
+        produto, do maior valor de comissão em reais para o menor (empate: mais
+        vendido, depois melhor avaliado). As ofertas estáveis vêm primeiro; as
+        campanhas temporárias (⚡) só depois. Clique em{" "}
+        <strong>1. Copiar endereço + abrir Linkbuilder</strong> e cole o link
+        gerado abaixo; ele salva sozinho. O sistema busca foto e preço no
+        Mercado Livre e cria a página; a linha sai da lista ao salvar.
       </p>
       <p className="text-foreground/60 mt-2 text-sm">
         {pending.length} aguardando link · {registeredCount} já salvos por aqui
-        · {onSiteCount} já estavam no site · {withoutAddressCount} ocultos por
-        ainda não terem o link genérico. ⚡ = campanha temporária (confira a
-        taxa ao gerar).
+        · {onSiteCount} já estavam no site
+        {withoutAddressCount > 0 &&
+          ` · ${withoutAddressCount} ocultos por ainda não terem o link genérico`}
+        . ⚡ = campanha temporária (confira a taxa ao gerar).
       </p>
       <ul className="mt-6 space-y-3">
         {pending.map(({ pick, earningPerSale, recommended, notes }, i) => (

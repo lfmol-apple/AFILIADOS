@@ -133,4 +133,28 @@ describe("rankAllForLinking", () => {
     expect(toLink[0]!.recommended).toBe(false);
     expect(toLink[1]!.recommended).toBe(true);
   });
+  it("orders by commission in reais, then most sold, then best rated, with temporary campaigns after the stable offers", () => {
+    const { toLink } = rankAllForLinking([
+      // Biggest money, but a temporary campaign: goes after every stable offer.
+      pick({ title: "Campanha Temporaria Grande", price: 2000, extras: true }),
+      pick({ title: "Estavel Dinheiro Medio", price: 500, sold: 100 }),
+      pick({ title: "Estavel Mais Vendido", price: 500, sold: 5000 }),
+      pick({
+        title: "Estavel Mesma Venda Nota Melhor",
+        price: 500,
+        sold: 5000,
+        rating: 4.9,
+      }),
+      pick({ title: "Estavel Maior Comissao", price: 900, sold: 50 }),
+      pick({ title: "Campanha Temporaria Pequena", price: 100, extras: true }),
+    ]);
+    expect(toLink.map((e) => e.pick.title)).toEqual([
+      "Estavel Maior Comissao",
+      "Estavel Mesma Venda Nota Melhor",
+      "Estavel Mais Vendido",
+      "Estavel Dinheiro Medio",
+      "Campanha Temporaria Grande",
+      "Campanha Temporaria Pequena",
+    ]);
+  });
 });
