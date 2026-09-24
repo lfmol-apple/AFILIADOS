@@ -36,8 +36,7 @@ export default async function LinkQueuePage() {
       <p className="text-foreground/70 mt-2 text-sm leading-relaxed">
         Só os produtos do painel de afiliados que já têm o link genérico do
         produto, do maior valor de comissão em reais para o menor (empate: mais
-        vendido, depois melhor avaliado). As ofertas estáveis vêm primeiro; as
-        campanhas temporárias (⚡) só depois. Clique em{" "}
+        vendido, depois melhor avaliado). Clique em{" "}
         <strong>1. Copiar endereço + abrir Linkbuilder</strong> e cole o link
         gerado abaixo; ele salva sozinho. O sistema busca foto e preço no
         Mercado Livre e cria a página; a linha sai da lista ao salvar.

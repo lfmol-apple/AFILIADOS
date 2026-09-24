@@ -145,8 +145,8 @@ export interface QueueEntry {
 
 /**
  * Every pasted product goes to the "generate link" list — nothing is dropped.
- * Ordered by: not-a-temporary-campaign first, then commission in reais, then
- * most sold, then best rated — never a hard cutoff. `recommended` (rating
+ * Ordered by commission in reais, then most sold, then best rated — never a
+ * hard cutoff. `recommended` (rating
  * >= 4.5, sold >= 500) is kept as a note for the UI, not a sorting bucket. Products the site already has are
  * returned separately (no link needed). Sensitive injectable-health items
  * are kept but always score last, with a warning.
@@ -185,15 +185,14 @@ export function rankAllForLinking(
       notes,
     });
   }
-  // The owner's rule (2026-09-24): first the offers that are NOT a temporary
-  // campaign (their rate is stable), each group by commission in reais, then
-  // most sold, then best rated (no rating last). `score` is no longer the sort
-  // key — it stays on the entry for callers that show it. Sensitive
+  // The owner's rule (2026-09-24): commission in reais, highest first; ties
+  // by most sold, then best rated (no rating last). Temporary campaigns are
+  // mixed in like any other row (flagged in the notes). `score` is no longer
+  // the sort key — it stays on the entry for callers that show it. Sensitive
   // injectable-health items (score -1) always go last.
   toLink.sort(
     (a, b) =>
       Number(a.score < 0) - Number(b.score < 0) ||
-      Number(a.pick.extras) - Number(b.pick.extras) ||
       b.earningPerSale - a.earningPerSale ||
       b.pick.sold - a.pick.sold ||
       (b.pick.rating ?? -1) - (a.pick.rating ?? -1),
