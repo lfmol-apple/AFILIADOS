@@ -24,16 +24,19 @@ async function loadSiteSlugs(): Promise<string[]> {
 }
 
 export interface PanelQueueData {
-  /** Rows still waiting for a link. Rows with a ready generic product
+  /** Rows still waiting for a link AND already carrying a generic product
    * address (the owner can click "copy address + open Linkbuilder" right
-   * away) come first; the rest follow. Each of the two groups keeps the
-   * money+reputation score order internally — nothing is dropped or
-   * reordered beyond that split, and it's applied once here so every screen
-   * that lists this queue behaves the same way. */
+   * away), in money+reputation score order. Rows without an address are not
+   * listed (owner's decision, 2026-09-24: only work what can be linked now);
+   * they stay in the data and return once their address is read — see
+   * `withoutAddressCount`. Applied once here so every screen that lists this
+   * queue behaves the same way. */
   pending: QueueEntry[];
-  /** How many of `pending` are in the "ready" (has productUrl) group — for
-   * display, e.g. "312 com link pronto, 900 ainda sem endereço". */
+  /** Same as pending.length, kept for the screens that show "N ready". */
   readyCount: number;
+  /** Panel rows still waiting for a link but hidden because their generic
+   * product address hasn't been read yet. */
+  withoutAddressCount: number;
   registeredCount: number;
   onSiteCount: number;
 }
@@ -49,8 +52,9 @@ export async function loadPanelQueue(): Promise<PanelQueueData> {
   const ready = notRegistered.filter((e) => e.pick.productUrl);
   const waiting = notRegistered.filter((e) => !e.pick.productUrl);
   return {
-    pending: [...ready, ...waiting],
+    pending: ready,
     readyCount: ready.length,
+    withoutAddressCount: waiting.length,
     registeredCount: registered.size,
     onSiteCount: onSite.length,
   };

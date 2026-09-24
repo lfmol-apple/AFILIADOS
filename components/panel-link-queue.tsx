@@ -12,10 +12,9 @@ const brl = (n: number) =>
  * reais. Paste the link generated in the panel and save; the row leaves the list.
  */
 export async function PanelLinkQueue({ limit = 300 }: { limit?: number }) {
-  const { pending, readyCount, registeredCount, onSiteCount } =
+  const { pending, withoutAddressCount, registeredCount, onSiteCount } =
     await loadPanelQueue();
-  // pending already comes ready-first (see loadPanelQueue) so this section
-  // stays full of clickable rows while the rest are still being read.
+  // pending only holds rows with a ready generic address (see loadPanelQueue).
   const shown = pending.slice(0, limit);
 
   return (
@@ -28,9 +27,9 @@ export async function PanelLinkQueue({ limit = 300 }: { limit?: number }) {
         a página. A linha sai da lista ao salvar.
       </p>
       <p className="text-foreground/60 mb-3 text-xs">
-        Mostrando {shown.length} de {pending.length} aguardando link (
-        {Math.min(shown.length, readyCount)} já com link genérico pronto) ·{" "}
-        {registeredCount} já salvos · {onSiteCount} já estavam no site ·{" "}
+        Mostrando {shown.length} de {pending.length} aguardando link (todos com
+        link genérico pronto) · {registeredCount} já salvos · {onSiteCount} já
+        estavam no site · {withoutAddressCount} ocultos sem link genérico ·{" "}
         <a
           href="/admin/fila-links"
           className="text-brand underline underline-offset-2"
