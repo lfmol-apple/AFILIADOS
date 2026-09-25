@@ -640,4 +640,56 @@ export const ML_PANEL_URLS: Readonly<Record<string, string>> = {
     "https://www.mercadolivre.com.br/painel-rack-denver-para-tv-55-polegadas-com-espelho-e-led/up/MLBU4253075109?pdp_filters=deal%3AMLB1578289-1",
   "Mesa de Jantar Redonda 90cm Mel Viero Flipp Slim Tampo MDF Base Robusta Moderna 2 a 4 Pessoas Cozinha Sala Refeição Design Amadeirado":
     "https://www.mercadolivre.com.br/mesa-de-jantar-redonda-90cm-mel-viero-flipp-slim-tampo-mdf-base-robusta-moderna-2-a-4-pessoas-cozinha-sala-refeicao-design-amadeirado/p/MLB61988153?pdp_filters=deal%3AMLB1578289-1",
+  "Trio Quadro Grande Com Moldura 40x60 Coleção Abstrato Sala":
+    "https://produto.mercadolivre.com.br/MLB-6187700924-trio-quadro-grande-com-moldura-40x60-coleco-abstrato-sala-_JM?pdp_filters=item_id%3AMLB6187700924",
+  "Rack Sala Estante Tv 58 Polegadas Home Bancada Helena Off White/nature":
+    "https://www.mercadolivre.com.br/rack-sala-estante-tv-58-polegadas-home-bancada-helena/up/MLBU3861103283?pdp_filters=item_id%3AMLB4562170927",
+  "Kit 9 Panelas Alumínio Antiaderente Com Panela De Pressão 2l Preto":
+    "https://www.mercadolivre.com.br/kit-9-panelas-aluminio-antiaderente-com-panela-de-pressao-2l-preto/p/MLB70083305?pdp_filters=item_id%3AMLB7643148354",
+  "Frigideira Supreme Total Inox Corpo Triplo No 28 - Gp Inox Cor Cinza":
+    "https://www.mercadolivre.com.br/frigideira-supreme-total-inox-corpo-triplo-no-28-gp-inox-cor-cinza/p/MLB53420124?pdp_filters=item_id%3AMLB5556601362",
+  "Kit Colcha Casal King Cobre Leito Renda Inglesa 3 Pçs Macia":
+    "https://produto.mercadolivre.com.br/MLB-5643561528-kit-colcha-casal-king-cobre-leito-renda-inglesa-3-pcs-macia-_JM?pdp_filters=item_id%3AMLB5643561528",
+  "Gabinete de Pia Marrom 120cm (1,20m) Balcão de Cozinha Multiuso 3 Portas 1 Gaveta MDP Armário de Pia Armário de Cozinha Organizador Ideal para cozinha compacta e área de serviço Corrediça Telescópica":
+    "https://www.mercadolivre.com.br/gabinete-de-pia-marrom-120cm-120m-balcao-de-cozinha-multiuso-3-portas-1-gaveta-mdp-armario-de-pia-armario-de-cozinha-organizador-ideal-para-cozinha-compacta-e-area-de-servico-corredica-telescopica/p/MLB62796423?pdp_filters=deal%3AMLB1578289-1",
+  "Conjunto Kit Sala de Jantar Mesa Gabriela Quadrada Com 4 Cadeiras Design Moderno Compacto Cozinha Cor Freijó Black":
+    "https://www.mercadolivre.com.br/conjunto-kit-sala-de-jantar-mesa-gabriela-quadrada-com-4-cadeiras-design-moderno-compacto-cozinha-cor-freijo-black/p/MLB74605507?pdp_filters=deal%3AMLB1578289-1",
+  "Jogo De Facas Com 7 Peças Em Aço Inox E Suporte De Madeira":
+    "https://www.mercadolivre.com.br/jogo-de-facas-com-7-pecas-em-aco-inox-e-suporte-de-madeira/p/MLB44241770?pdp_filters=item_id%3AMLB4732199793",
+  "Rack Aparador Suspenso P/ Tv Até 55 Sala De Estar Estante Nature / Off White":
+    "https://www.mercadolivre.com.br/rack-aparador-suspenso-p-tv-ate-55--sala-de-estar-estante/up/MLBU5062718691?pdp_filters=item_id%3AMLB5178364285",
+  "Mesa De Jantar Mdf 4 Lugares Retangular Moderna - Blue Moby Off Write Freijó":
+    "https://www.mercadolivre.com.br/mesa-de-jantar-mdf-4-lugares-retangular-moderna--blue-moby/up/MLBU4036939854?pdp_filters=deal%3AMLB1578289-1",
+  "Mesa De Jantar Industrial 1,20 X 0,45 Tampa Off White Pés Cobre":
+    "https://www.mercadolivre.com.br/mesa-de-jantar-industrial-120-x-045-tampa-off-white-pes-cobre/p/MLB56613400?pdp_filters=item_id%3AMLB4654715713",
+  "Rack Suspenso Clean White Para Tv Até 65 Pol Branco 155cm Branco":
+    "https://www.mercadolivre.com.br/rack-suspenso-clean-white-para-tv-ate-65-pol-branco-155cm/up/MLBU3178143487?pdp_filters=item_id%3AMLB4065260449",
+  "Conjunto 5 Tigelas Aço Inox Com Tampa 18-26 Cm Cinza":
+    "https://www.mercadolivre.com.br/conjunto-5-tigelas-aco-inox-com-tampa-1826-cm/up/MLBU4093630185?pdp_filters=item_id%3AMLB6968142592",
+  "Kit Churrasco Dia Dos Pais - Presente E Brinde":
+    "https://www.mercadolivre.com.br/kit-churrasco-dia-dos-pais-presente-e-brinde/p/MLB2095743244?pdp_filters=item_id%3AMLB4837395581",
+  "Guarda-roupa Solteiro Zeus 4 Portas 2 Gavetas Freijó":
+    "https://www.mercadolivre.com.br/guarda-roupa-solteiro-zeus-4-portas-2-gavetas-freijo/p/MLB69037817?pdp_filters=deal%3AMLB1578289-1",
+  "Pufe Mesa Tecido Bouclê 45x38cm Porta Copos Estofado Redondo Bouclê Cru":
+    "https://www.mercadolivre.com.br/pufe-mesa-tecido-boucle-45x38cm-porta-copos-estofado-redondo/up/MLBU3829754188?pdp_filters=deal%3AMLB1578289-1",
+  "Luminaria De Piso Curva Abajur De Chão Pedestal Coluna Preto":
+    "https://www.mercadolivre.com.br/luminaria-de-piso-curva-abajur-de-chao-pedestal-coluna/up/MLBU2993533923?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 100 Bolas + Estrela Pendentes P/ Decoração Árvore De Natal Bolinhas Dekasa Premium Lisas/foscas/glitter - Mesclado Vermelho E Dourado":
+    "https://www.mercadolivre.com.br/kit-100-bolas-estrela-pendentes-p-decoracao-arvore-de-natal-bolinhas-dekasa-premium-lisasfoscasglitter-mesclado-vermelho-e-dourado/p/MLB61057561?pdp_filters=item_id%3AMLB4290233229",
+  "Cadeira De Balanço Suspensa Rede Teto Sacada Varanda Luxo":
+    "https://produto.mercadolivre.com.br/MLB-5048857730-cadeira-de-balanco-suspensa-rede-teto-sacada-varanda-luxo-_JM",
+  "Kit Colcha Casal 3 Peças Itália 150 Fios Poá Dupla Face":
+    "https://produto.mercadolivre.com.br/MLB-5395235934-kit-colcha-casal-3-pecas-italia-150-fios-poa-dupla-face-_JM?pdp_filters=item_id%3AMLB5395235934",
+  "Aparelho De Jantar 30 Peças Copos Diamond Pratos E Talheres Transparente Diamond":
+    "https://www.mercadolivre.com.br/aparelho-de-jantar-30-pecas-copos-diamond-pratos-e-talheres/up/MLBU3953061463?pdp_filters=item_id%3AMLB4671541793",
+  "Gabinete Armário Banheiro Estilo Industrial Cuba Balcão Pia Pia Branco Móvel Dourado/branco Quantidade De Furos Para Torneira Um Furo":
+    "https://www.mercadolivre.com.br/gabinete-armario-banheiro-estilo-industrial-cuba-balcao-pia-pia-branco-movel-douradobranco-quantidade-de-furos-para-torneira-um-furo/p/MLB62928376?pdp_filters=item_id%3AMLB6181728878",
+  "Kit Cobre Leito Colcha Casal 3 Peças Boutis Dupla Face Porta Travesseiro Aba Americana Sofia Rosé":
+    "https://www.mercadolivre.com.br/kit-cobre-leito-colcha-casal-3-pecas-boutis-dupla-face-porta-travesseiro-aba-americana-sofia-rose/p/MLB65809370?pdp_filters=item_id%3AMLB6288688794",
+  "Quadros Decorativos Abstrato Folhagem Bege Sala Com Moldura":
+    "https://produto.mercadolivre.com.br/MLB-3729602147-quadros-decorativos-abstrato-folhagem-bege-sala-com-moldura-_JM?pdp_filters=item_id%3AMLB3729602147",
+  "Sapateira Caixa De Sapato Empilhável Vertical 6 Andares Branco":
+    "https://www.mercadolivre.com.br/sapateira-caixa-de-sapato-empilhavel-vertical-6-andares/up/MLBU3242363751?pdp_filters=item_id%3AMLB5443349604",
+  "Cobre Leito Size King Borboleta Piquet Hotel Ss Têxtil Bege Borboleta":
+    "https://www.mercadolivre.com.br/cobre-leito-size-king-borboleta-piquet-hotel-ss-textil/up/MLBU3934476432?pdp_filters=item_id%3AMLB4640716425",
 };
