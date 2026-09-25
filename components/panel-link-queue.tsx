@@ -20,11 +20,12 @@ export async function PanelLinkQueue({ limit = 300 }: { limit?: number }) {
   return (
     <SubSection title="Pendências de receita — Mercado Livre (fila por comissão)">
       <p className="text-foreground/60 mb-3 text-xs">
-        Produtos do painel de afiliados, do maior valor de comissão em reais
-        para o menor (empate: mais vendido, depois melhor avaliado). No painel,
-        procure o título e clique em <strong>Compartilhar</strong>; cole o link
-        aqui e salve. O sistema identifica o produto, busca foto e preço e cria
-        a página. A linha sai da lista ao salvar.
+        Produtos do painel de afiliados, dos mais vendidos para os menos
+        vendidos, e dentro do mesmo patamar de vendas do maior valor de comissão
+        em reais para o menor. No painel, procure o título e clique em{" "}
+        <strong>Compartilhar</strong>; cole o link aqui e salve. O sistema
+        identifica o produto, busca foto e preço e cria a página. A linha sai da
+        lista ao salvar.
       </p>
       <p className="text-foreground/60 mb-3 text-xs">
         Mostrando {shown.length} de {pending.length} aguardando link (todos com
