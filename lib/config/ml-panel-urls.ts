@@ -206,8 +206,6 @@ export const ML_PANEL_URLS: Readonly<Record<string, string>> = {
     "https://www.mercadolivre.com.br/protetor-de-colchao-impermeavel-casal-matelado-antiacaro-antialergico-capa-respiravel-macio-e-silencioso-cinza/p/MLB48596339?pdp_filters=item_id%3AMLB4043098065",
   "Kit Utensílios Silicone C/ Cabo De Madeira E Facas Em Inox":
     "https://produto.mercadolivre.com.br/MLB-3404650131-kit-utensilios-silicone-c-cabo-de-madeira-e-facas-em-inox-_JM?pdp_filters=item_id%3AMLB3404650131",
-  "Varal De Chão Reforçado Com Abas Dobrável Retrátil Slim Mor Cor Branco Branco":
-    "https://www.mercadolivre.com.br/varal-de-chao-reforcado-com-abas-dobravel-retratil-slim-mor-cor-branco/up/MLBU1989071807?pdp_filters=item_id%3AMLB5064763160",
   "Poltrona Inflável Ultra Lounge Com Pufe Sofá Preguiçoso Cor Marrom":
     "https://www.mercadolivre.com.br/poltrona-inflavel-ultra-lounge-com-pufe-sofa-preguicoso-cor-marrom/p/MLB24673624?pdp_filters=deal%3AMLB1578289-1",
   "Yab - Kit 5 Potes De Vidro Marmita C/ Tampa Hermético 640ml Retangular 4 Travas Borossilicato Alimentos Micro-ondas Freezer Geladeira":
@@ -534,8 +532,6 @@ export const ML_PANEL_URLS: Readonly<Record<string, string>> = {
     "https://www.mercadolivre.com.br/conjunto-de-fondue-panela-antiaderente-preto-700ml-7pcs-le-roux/p/MLB65102208?pdp_filters=item_id%3AMLB4026985089",
   "Jogo 10 Potes 200ml Herméticos Vidro Tampa De Bambu Temperos Transparente":
     "https://www.mercadolivre.com.br/jogo-10-potes-200ml-hermeticos-vidro-tampa-de-bambu-temperos/up/MLBU1743080268?pdp_filters=item_id%3AMLB3787805565",
-  "Copo Térmico Canudo 900ml Inox Com Tampa E Alça Para Água Preto All Black":
-    "https://www.mercadolivre.com.br/copo-termico-canudo-900ml-inox-com-tampa-e-alca-para-agua/up/MLBU4455013109?pdp_filters=deal%3AMLB1578289-1",
   "Tabua De Passar Roupa Resistente Tecido Térmico 3 Alturas Branco":
     "https://www.mercadolivre.com.br/tabua-de-passar-roupa-resistente-tecido-termico-3-alturas/up/MLBU3976370908?pdp_filters=deal%3AMLB1578289-1",
   "Copo térmico Stanley Go Everyday lisa cor polar 296mL":
