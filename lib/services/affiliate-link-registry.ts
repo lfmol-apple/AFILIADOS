@@ -69,7 +69,7 @@ async function saveAffiliateLink(
   // A hand-pasted link must belong to exactly one product. The same link saved
   // on two listings sends visitors of one of them to the wrong product (found
   // 2026-09-21: two different refill kits both opened one Samsung phone).
-  if (source === "MANUAL_ADMIN") {
+  if (source === "MANUAL_ADMIN" || source === "MANUAL_ADMIN_CATEGORY") {
     const taken = await prisma.affiliateLinkRegistry.findFirst({
       where: {
         affiliateUrl: input.affiliateUrl,

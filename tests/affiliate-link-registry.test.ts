@@ -143,6 +143,40 @@ describe("affiliate link registry", () => {
     expect(row).not.toHaveProperty("token");
   });
 
+  it("the category queue refuses a link already saved on another product, too", async () => {
+    const other = await prisma.merchantListing.create({
+      data: {
+        merchantId,
+        externalId: `TEST-AFFLINK-CAT-${Date.now()}`,
+        externalIdType: "MERCHANT_PRODUCT_ID",
+        productUrl: "https://www.mercadolivre.com.br/outro/p/MLB777",
+      },
+    });
+    try {
+      await saveManualAffiliateLinkFromCategoryQueue({
+        merchantListingId,
+        merchantId,
+        merchantCode: "MERCADO_LIVRE",
+        publicUrl: "https://www.mercadolivre.com.br/produto-teste/p/MLB999",
+        affiliateUrl: "https://meli.la/DUPLICADO2",
+      });
+      await expect(
+        saveManualAffiliateLinkFromCategoryQueue({
+          merchantListingId: other.id,
+          merchantId,
+          merchantCode: "MERCADO_LIVRE",
+          publicUrl: other.productUrl,
+          affiliateUrl: "https://meli.la/DUPLICADO2",
+        }),
+      ).rejects.toBeInstanceOf(AffiliateLinkValidationError);
+    } finally {
+      await prisma.affiliateLinkRegistry.deleteMany({
+        where: { merchantListingId: other.id },
+      });
+      await prisma.merchantListing.delete({ where: { id: other.id } });
+    }
+  });
+
   it("refuses to save the same manual link on a second product", async () => {
     const other = await prisma.merchantListing.create({
       data: {
