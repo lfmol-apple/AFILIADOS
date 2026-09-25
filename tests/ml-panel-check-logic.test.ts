@@ -6,6 +6,7 @@ import {
   matchOpenedLinkToPick,
   pageTitleFromHtml,
   parseBatchLinks,
+  titleJaccard,
   titleSimilarity,
 } from "@/lib/services/ml-panel-check-logic";
 
@@ -171,5 +172,66 @@ describe("parseBatchLinks", () => {
       "https://meli.la/2ntQHuZ",
     ]);
     expect(parseBatchLinks("")).toEqual([]);
+  });
+});
+
+describe("titleJaccard / exact title", () => {
+  it("is ~1 for the same title and low for a different product", () => {
+    expect(
+      titleJaccard(
+        "4 Travesseiros Antialérgico Impermeável 50x70 Super Macio Branco",
+        "4 Travesseiros Antialérgico Impermeável 50x70 Super Macio Branco",
+      ),
+    ).toBe(1);
+    expect(
+      titleJaccard(
+        "Kit 10 Potes Herméticos Vidro 640ml Starhouse",
+        "Kit 10 Potes Herméticos Vidro 370ml Starhouse",
+      ),
+    ).toBeLessThan(0.9);
+  });
+
+  it("decideVerdict: identical title counts as a match only when ids can't be compared", () => {
+    const base = { expectedCatalogId: null, resolvedCatalogId: null };
+    expect(decideVerdict({ ...base, similarity: 1, exactTitle: true })).toBe(
+      "match",
+    );
+    expect(decideVerdict({ ...base, similarity: 1 })).toBe("likely");
+    expect(
+      decideVerdict({
+        expectedCatalogId: "MLB1",
+        resolvedCatalogId: "MLB2",
+        similarity: 1,
+        exactTitle: true,
+      }),
+    ).toBe("likely");
+  });
+
+  it("matchOpenedLinkToPick marks an identical title as title-exact, a rough one as title", () => {
+    const picks = [
+      {
+        id: "a",
+        title: "Copo Térmico Gigante 1,2l Inox Com Tampa E Inox Canudo",
+      },
+    ];
+    expect(
+      matchOpenedLinkToPick(
+        {
+          catalogId: null,
+          title: "Copo Térmico Gigante 1,2l Inox Com Tampa E Inox Canudo",
+        },
+        picks,
+      ),
+    ).toEqual({ pickId: "a", how: "title-exact" });
+    expect(
+      matchOpenedLinkToPick(
+        {
+          catalogId: null,
+          title:
+            "Copo Térmico Gigante 1,2l Inox Com Tampa Canudo Rosa Verão 2026 Promoção",
+        },
+        picks,
+      ).how,
+    ).toBe("title");
   });
 });

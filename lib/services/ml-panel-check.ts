@@ -5,7 +5,9 @@ import {
   decideVerdict,
   expectedIdsFromProductUrl,
   pageTitleFromHtml,
+  titleJaccard,
   titleSimilarity,
+  EXACT_TITLE_JACCARD,
   type LinkCheckVerdict,
 } from "@/lib/services/ml-panel-check-logic";
 
@@ -139,6 +141,9 @@ export async function checkPanelLink(input: {
     expectedCatalogId: expected.catalogId,
     resolvedCatalogId: opened.catalogId,
     similarity,
+    exactTitle:
+      !!linkTitle &&
+      titleJaccard(input.panelTitle, linkTitle) >= EXACT_TITLE_JACCARD,
   });
   const profileOk = opened.profileOk;
 

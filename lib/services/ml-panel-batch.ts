@@ -10,7 +10,7 @@ const MELI_HOSTS = /^(www\.)?(mercadolivre\.com(\.br)?|meli\.la)$/i;
 export const BATCH_MAX_LINKS = 40;
 
 export type BatchStatus =
-  | "match" // same catalog id as a queue row: safe to save
+  | "match" // same catalog id (or identical title) as a queue row: safe to save
   | "likely" // only the title agrees: owner confirms one by one
   | "none" // matches no pending row
   | "repeated" // another link of this batch already claims that row
@@ -26,6 +26,8 @@ export interface BatchRow {
   pickId: string | null;
   position: number | null;
   pickTitle: string | null;
+  /** How the row was paired: by catalog id, or by an identical title. */
+  how?: "id" | "title-exact" | "title";
 }
 
 async function pool<T, R>(
@@ -94,7 +96,9 @@ export async function previewBatch(
       pickId: match.pickId,
       position: positionOf.get(match.pickId) ?? null,
       pickTitle: titleOf.get(match.pickId) ?? null,
-      status: match.how === "id" ? "match" : "likely",
+      how: match.how ?? undefined,
+      status:
+        match.how === "id" || match.how === "title-exact" ? "match" : "likely",
     };
   });
 

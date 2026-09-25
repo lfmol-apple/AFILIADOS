@@ -75,6 +75,22 @@ export function titleSimilarity(panelTitle: string, pageTitle: string): number {
   return hit / need.length;
 }
 
+/**
+ * Share (0..1) of ALL significant words the two titles have in common (Jaccard).
+ * >= 0.9 means the titles are practically the same text.
+ */
+export function titleJaccard(a: string, b: string): number {
+  const setA = new Set(words(a));
+  const setB = new Set(words(b));
+  if (setA.size === 0 || setB.size === 0) return 0;
+  let common = 0;
+  for (const w of setA) if (setB.has(w)) common += 1;
+  return common / (setA.size + setB.size - common);
+}
+
+/** Titles this alike count as the same product when ids can't be compared. */
+export const EXACT_TITLE_JACCARD = 0.9;
+
 export type LinkCheckVerdict = "match" | "likely" | "mismatch" | "unknown";
 
 /**
@@ -87,6 +103,8 @@ export function decideVerdict(input: {
   expectedCatalogId: string | null;
   resolvedCatalogId: string | null;
   similarity: number | null;
+  /** Titles practically identical (see EXACT_TITLE_JACCARD). */
+  exactTitle?: boolean;
 }): LinkCheckVerdict {
   const { expectedCatalogId, resolvedCatalogId, similarity } = input;
   if (expectedCatalogId && resolvedCatalogId) {
@@ -94,6 +112,7 @@ export function decideVerdict(input: {
     if (similarity !== null && similarity >= 0.6) return "likely";
     return "mismatch";
   }
+  if (input.exactTitle) return "match";
   if (similarity === null) return "unknown";
   if (similarity >= 0.6) return "likely";
   if (similarity <= 0.2) return "mismatch";
@@ -127,14 +146,17 @@ export interface MatchablePick {
 
 export interface LinkMatch {
   pickId: string | null;
-  /** id = same catalog product id; title = only the title agrees. */
-  how: "id" | "title" | null;
+  /**
+   * id = same catalog product id; title-exact = ids not comparable but the
+   * titles are practically identical; title = only the title roughly agrees.
+   */
+  how: "id" | "title-exact" | "title" | null;
 }
 
 /**
  * Which queue row does an opened link belong to? By catalog id first (exact),
- * else by the best title similarity (>= 0.7). `picks` are in queue order, so
- * ties keep the earlier row.
+ * else by title (identical text, then similarity >= 0.7). `picks` are in queue
+ * order, so ties keep the earlier row.
  */
 export function matchOpenedLinkToPick(
   opened: { catalogId: string | null; title: string | null },
@@ -148,13 +170,23 @@ export function matchOpenedLinkToPick(
     if (byId) return { pickId: byId.id, how: "id" };
   }
   if (opened.title) {
-    let best: { id: string; score: number } | null = null;
+    let best: { id: string; jaccard: number; score: number } | null = null;
     for (const p of picks) {
       const score = titleSimilarity(p.title, opened.title);
-      if (score >= 0.7 && (!best || score > best.score))
-        best = { id: p.id, score };
+      const jaccard = titleJaccard(p.title, opened.title);
+      if (score < 0.7 && jaccard < EXACT_TITLE_JACCARD) continue;
+      if (
+        !best ||
+        jaccard > best.jaccard ||
+        (jaccard === best.jaccard && score > best.score)
+      )
+        best = { id: p.id, jaccard, score };
     }
-    if (best) return { pickId: best.id, how: "title" };
+    if (best)
+      return {
+        pickId: best.id,
+        how: best.jaccard >= EXACT_TITLE_JACCARD ? "title-exact" : "title",
+      };
   }
   return { pickId: null, how: null };
 }

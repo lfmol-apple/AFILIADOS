@@ -20,6 +20,7 @@ interface Row {
   pickId: string | null;
   position: number | null;
   pickTitle: string | null;
+  how?: "id" | "title-exact" | "title";
 }
 
 const LINKBUILDER_URL =
@@ -164,6 +165,28 @@ export function PanelBatch(props: {
     router.refresh();
   }
 
+  async function saveAllLikely() {
+    if (!rows || busy) return;
+    const todo = rows.filter((r) => r.status === "likely" && !saved[r.link]);
+    if (todo.length === 0) return;
+    if (
+      !window.confirm(
+        `Confirma que os ${todo.length} links "só o título bate" são mesmo dos produtos indicados? Compare os nomes na lista antes.`,
+      )
+    )
+      return;
+    setBusy("saving");
+    let ok = 0;
+    for (const [i, row] of todo.entries()) {
+      setProgress(`Salvando ${i + 1} de ${todo.length}…`);
+      if (await saveOne(row)) ok += 1;
+    }
+    setProgress("");
+    setBusy("");
+    setMessage(`${ok} de ${todo.length} salvos.`);
+    router.refresh();
+  }
+
   async function saveLikely(row: Row) {
     if (busy) return;
     setBusy("saving");
@@ -172,6 +195,9 @@ export function PanelBatch(props: {
     router.refresh();
   }
 
+  const likelyCount = rows
+    ? rows.filter((r) => r.status === "likely" && !saved[r.link]).length
+    : 0;
   const readyCount = rows
     ? rows.filter((r) => r.status === "match" && !saved[r.link]).length
     : 0;
@@ -269,6 +295,12 @@ export function PanelBatch(props: {
                     <span className="text-foreground/60">O link abre: </span>
                     {row.linkTitle ?? "(não consegui ler)"}
                   </p>
+                  {row.how === "title-exact" && (
+                    <p className="text-foreground/60 mt-0.5">
+                      Conferido pelo título idêntico (o endereço do painel não
+                      traz o código do produto).
+                    </p>
+                  )}
                   {row.pickTitle && (
                     <p className="mt-0.5">
                       <span className="text-foreground/60">
@@ -308,6 +340,16 @@ export function PanelBatch(props: {
               ? progress || "Salvando…"
               : `Salvar os ${readyCount} que conferem`}
           </button>
+          {likelyCount > 0 && (
+            <button
+              type="button"
+              onClick={() => void saveAllLikely()}
+              disabled={!!busy}
+              className="border-border-subtle hover:border-brand mt-3 ml-2 min-h-10 rounded-lg border px-4 text-sm font-medium disabled:opacity-50"
+            >
+              Confirmar e salvar os {likelyCount} com “só o título bate”
+            </button>
+          )}
         </section>
       )}
     </div>
