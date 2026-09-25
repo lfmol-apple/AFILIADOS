@@ -118,3 +118,59 @@ export function carriesOwnerProfile(finalUrlAndHtml: string): boolean {
   }
   return AFFILIATE_PROFILE_MARKERS.some((m) => text.includes(m));
 }
+
+export interface MatchablePick {
+  id: string;
+  title: string;
+  productUrl?: string;
+}
+
+export interface LinkMatch {
+  pickId: string | null;
+  /** id = same catalog product id; title = only the title agrees. */
+  how: "id" | "title" | null;
+}
+
+/**
+ * Which queue row does an opened link belong to? By catalog id first (exact),
+ * else by the best title similarity (>= 0.7). `picks` are in queue order, so
+ * ties keep the earlier row.
+ */
+export function matchOpenedLinkToPick(
+  opened: { catalogId: string | null; title: string | null },
+  picks: readonly MatchablePick[],
+): LinkMatch {
+  if (opened.catalogId) {
+    const byId = picks.find(
+      (p) =>
+        expectedIdsFromProductUrl(p.productUrl).catalogId === opened.catalogId,
+    );
+    if (byId) return { pickId: byId.id, how: "id" };
+  }
+  if (opened.title) {
+    let best: { id: string; score: number } | null = null;
+    for (const p of picks) {
+      const score = titleSimilarity(p.title, opened.title);
+      if (score >= 0.7 && (!best || score > best.score))
+        best = { id: p.id, score };
+    }
+    if (best) return { pickId: best.id, how: "title" };
+  }
+  return { pickId: null, how: null };
+}
+
+/** Splits pasted text into unique http(s) links, in order. */
+export function parseBatchLinks(text: string): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of text.split(/\s+/)) {
+    const link = raw
+      .trim()
+      .replace(/^[("'<]+/, "")
+      .replace(/[)"'>,.;]+$/, "");
+    if (!/^https?:\/\//i.test(link) || seen.has(link)) continue;
+    seen.add(link);
+    out.push(link);
+  }
+  return out;
+}

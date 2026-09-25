@@ -50,6 +50,14 @@ export default async function LinkQueuePage() {
           ` · ${withoutAddressCount} ocultos por ainda não terem o link genérico`}
         . ⚡ = campanha temporária (confira a taxa ao gerar).
       </p>
+      <p className="mt-3">
+        <a
+          href="/admin/fila-links/lote"
+          className="bg-brand text-brand-foreground inline-block rounded-lg px-4 py-2 text-sm font-semibold"
+        >
+          Gerar e colar em lote →
+        </a>
+      </p>
       <ul className="mt-6 space-y-3">
         {pending.map(({ pick, earningPerSale, recommended, notes }, i) => (
           <PanelPickRow

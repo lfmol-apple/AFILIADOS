@@ -3,7 +3,9 @@ import {
   carriesOwnerProfile,
   decideVerdict,
   expectedIdsFromProductUrl,
+  matchOpenedLinkToPick,
   pageTitleFromHtml,
+  parseBatchLinks,
   titleSimilarity,
 } from "@/lib/services/ml-panel-check-logic";
 
@@ -111,5 +113,63 @@ describe("carriesOwnerProfile", () => {
     expect(
       carriesOwnerProfile("https://www.mercadolivre.com.br/p/MLB1?foo=bar"),
     ).toBe(false);
+  });
+});
+
+describe("matchOpenedLinkToPick", () => {
+  const picks = [
+    {
+      id: "Kit 2 Câmeras Segurança Ip Interna Externa Wifi iCSee",
+      title: "Kit 2 Câmeras Segurança Ip Interna Externa Wifi iCSee",
+      productUrl:
+        "https://www.mercadolivre.com.br/kit-2-cameras/p/MLB46836439?pdp_filters=item_id%3AMLB5735296442",
+    },
+    {
+      id: "Varal De Chão Grande De Roupas 3 Andares Dobrável Azul Kontuz",
+      title: "Varal De Chão Grande De Roupas 3 Andares Dobrável Azul Kontuz",
+      productUrl:
+        "https://www.mercadolivre.com.br/varal/p/MLB26417959?pdp_filters=item_id%3AMLB3421967823",
+    },
+  ];
+
+  it("pairs by catalog id regardless of the order of the links", () => {
+    expect(
+      matchOpenedLinkToPick({ catalogId: "MLB26417959", title: null }, picks),
+    ).toEqual({ pickId: picks[1]!.id, how: "id" });
+    expect(
+      matchOpenedLinkToPick({ catalogId: "MLB46836439", title: null }, picks),
+    ).toEqual({ pickId: picks[0]!.id, how: "id" });
+  });
+
+  it("falls back to the title (>= 0.7) and gives up when nothing fits", () => {
+    expect(
+      matchOpenedLinkToPick(
+        {
+          catalogId: "MLB999999999",
+          title:
+            "Varal De Chão Grande De Roupas 3 Andares Dobrável Azul Kontuz 170 cm",
+        },
+        picks,
+      ),
+    ).toEqual({ pickId: picks[1]!.id, how: "title" });
+    expect(
+      matchOpenedLinkToPick(
+        { catalogId: "MLB999999999", title: "Panela de Pressão Elétrica 6L" },
+        picks,
+      ),
+    ).toEqual({ pickId: null, how: null });
+  });
+});
+
+describe("parseBatchLinks", () => {
+  it("keeps unique http(s) links in order and ignores everything else", () => {
+    const text =
+      "https://meli.la/2Njpcf4\nhttps://meli.la/2fy6rhK  https://meli.la/2Njpcf4\nlixo sem link\n(https://meli.la/2ntQHuZ),";
+    expect(parseBatchLinks(text)).toEqual([
+      "https://meli.la/2Njpcf4",
+      "https://meli.la/2fy6rhK",
+      "https://meli.la/2ntQHuZ",
+    ]);
+    expect(parseBatchLinks("")).toEqual([]);
   });
 });

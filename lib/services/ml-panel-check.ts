@@ -19,6 +19,50 @@ function safeDecode(text: string): string {
   }
 }
 
+export interface OpenedLink {
+  finalUrl: string;
+  /** Product title read from the page the link opens (null = unreadable). */
+  title: string | null;
+  /** Catalog product id (MLB…) the link leads to, when it can be read. */
+  catalogId: string | null;
+  /** Owner's affiliate tag visible? null = the link could not be opened. */
+  profileOk: boolean | null;
+}
+
+/**
+ * Opens a pasted affiliate link (read-only, the same thing saving already does)
+ * and reads which product it leads to. Never throws.
+ */
+export async function openAffiliateLink(
+  affiliateUrl: string,
+): Promise<OpenedLink> {
+  let finalUrl = affiliateUrl;
+  let html = "";
+  try {
+    const response = await fetch(affiliateUrl, {
+      redirect: "follow",
+      headers: {
+        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)",
+      },
+      signal: AbortSignal.timeout(20000),
+    });
+    finalUrl = response.url || finalUrl;
+    if (response.ok) html = await response.text();
+  } catch {
+    // unreadable: the caller treats it as "unknown"
+  }
+  return {
+    finalUrl,
+    title: html ? pageTitleFromHtml(html) : null,
+    catalogId: extractCatalogProductId(`${safeDecode(finalUrl)} ${html}`),
+    // Only judge the profile when the link was really opened (redirected or read).
+    profileOk:
+      html || finalUrl !== affiliateUrl
+        ? carriesOwnerProfile(`${finalUrl} ${html}`)
+        : null,
+  };
+}
+
 export type PanelLinkStatus = LinkCheckVerdict | "duplicate" | "invalid";
 
 export interface PanelLinkCheck {
@@ -85,40 +129,18 @@ export async function checkPanelLink(input: {
     };
   }
 
-  let finalUrl = input.affiliateUrl;
-  let html = "";
-  try {
-    const response = await fetch(input.affiliateUrl, {
-      redirect: "follow",
-      headers: {
-        "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)",
-      },
-      signal: AbortSignal.timeout(20000),
-    });
-    finalUrl = response.url || finalUrl;
-    if (response.ok) html = await response.text();
-  } catch {
-    // handled below as "unknown"
-  }
-
-  const linkTitle = html ? pageTitleFromHtml(html) : null;
-  const resolvedCatalogId = extractCatalogProductId(
-    `${safeDecode(finalUrl)} ${html}`,
-  );
+  const opened = await openAffiliateLink(input.affiliateUrl);
+  const linkTitle = opened.title;
   const expected = expectedIdsFromProductUrl(input.productUrl);
   const similarity = linkTitle
     ? titleSimilarity(input.panelTitle, linkTitle)
     : null;
   const status = decideVerdict({
     expectedCatalogId: expected.catalogId,
-    resolvedCatalogId,
+    resolvedCatalogId: opened.catalogId,
     similarity,
   });
-  // Only judge the profile when the link was really opened (redirected or read).
-  const profileOk =
-    html || finalUrl !== input.affiliateUrl
-      ? carriesOwnerProfile(`${finalUrl} ${html}`)
-      : null;
+  const profileOk = opened.profileOk;
 
   const messages: Record<LinkCheckVerdict, string> = {
     match: "Confere: o link leva ao mesmo produto desta linha.",
