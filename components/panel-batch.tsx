@@ -150,19 +150,37 @@ export function PanelBatch(props: {
     }
   }
 
-  async function saveMatches() {
-    if (!rows || busy) return;
-    const todo = rows.filter((r) => r.status === "match" && !saved[r.link]);
+  /** Saves the given rows one by one, then resets the screen for the next batch. */
+  async function saveRows(todo: Row[]) {
     setBusy("saving");
-    let ok = 0;
+    const okLinks: string[] = [];
     for (const [i, row] of todo.entries()) {
       setProgress(`Salvando ${i + 1} de ${todo.length}…`);
-      if (await saveOne(row)) ok += 1;
+      if (await saveOne(row)) okLinks.push(row.link);
     }
     setProgress("");
     setBusy("");
-    setMessage(`${ok} de ${todo.length} salvos.`);
+    finishBatch(okLinks, todo.length);
+  }
+
+  /** After saving: drop what was saved, clear the paste box, refresh the queue for the next batch. */
+  function finishBatch(okLinks: string[], attempted: number) {
+    setText("");
+    setRows((prev) => {
+      const left = prev ? prev.filter((r) => !okLinks.includes(r.link)) : null;
+      return left && left.length > 0 ? left : null;
+    });
+    const remaining = Math.max(0, props.pendingCount - okLinks.length);
+    setMessage(
+      `${okLinks.length} de ${attempted} salvos. Restam ${remaining} na fila — a tela já está pronta para os próximos: clique em “Copiar … endereços”.`,
+    );
+    window.scrollTo({ top: 0, behavior: "smooth" });
     router.refresh();
+  }
+
+  async function saveMatches() {
+    if (!rows || busy) return;
+    await saveRows(rows.filter((r) => r.status === "match" && !saved[r.link]));
   }
 
   async function saveAllLikely() {
@@ -175,24 +193,12 @@ export function PanelBatch(props: {
       )
     )
       return;
-    setBusy("saving");
-    let ok = 0;
-    for (const [i, row] of todo.entries()) {
-      setProgress(`Salvando ${i + 1} de ${todo.length}…`);
-      if (await saveOne(row)) ok += 1;
-    }
-    setProgress("");
-    setBusy("");
-    setMessage(`${ok} de ${todo.length} salvos.`);
-    router.refresh();
+    await saveRows(todo);
   }
 
   async function saveLikely(row: Row) {
     if (busy) return;
-    setBusy("saving");
-    await saveOne(row);
-    setBusy("");
-    router.refresh();
+    await saveRows([row]);
   }
 
   const likelyCount = rows
