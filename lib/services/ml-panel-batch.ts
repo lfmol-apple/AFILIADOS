@@ -4,6 +4,7 @@ import {
   type MatchablePick,
 } from "@/lib/services/ml-panel-check-logic";
 import { openAffiliateLink } from "@/lib/services/ml-panel-check";
+import { loadRegisteredCatalogIds } from "@/lib/services/ml-panel-queue-data";
 
 const MELI_HOSTS = /^(www\.)?(mercadolivre\.com(\.br)?|meli\.la)$/i;
 
@@ -15,6 +16,7 @@ export type BatchStatus =
   | "none" // matches no pending row
   | "repeated" // another link of this batch already claims that row
   | "duplicate" // link already saved on a product
+  | "productOnSite" // that product already has another link: never overwritten
   | "notMine" // opened, but the owner's tag is not in it
   | "unreadable" // could not open/read it
   | "invalid"; // not a Mercado Livre link
@@ -56,6 +58,7 @@ export async function previewBatch(
   links: string[],
   pending: readonly MatchablePick[],
 ): Promise<BatchRow[]> {
+  const registeredCatalog = await loadRegisteredCatalogIds();
   const titleOf = new Map(pending.map((p) => [p.id, p.title]));
   const positionOf = new Map(pending.map((p, i) => [p.id, i + 1]));
 
@@ -86,6 +89,10 @@ export async function previewBatch(
       return { ...empty, status: "unreadable" };
     if (opened.profileOk === false)
       return { ...empty, linkTitle: opened.title, status: "notMine" };
+
+    // The product behind this link already has a link: saving would overwrite it.
+    if (opened.catalogId && registeredCatalog.has(opened.catalogId))
+      return { ...empty, linkTitle: opened.title, status: "productOnSite" };
 
     const match = matchOpenedLinkToPick(opened, pending);
     if (!match.pickId)

@@ -98,6 +98,30 @@ export async function registerPanelPick(input: {
     update: {},
   });
 
+  // The site keeps ONE link per Mercado Livre product. If this product already
+  // has an active link that came from a different row of the list, a second
+  // save would silently overwrite it (found 2026-09-25: 7 links were replaced).
+  // Re-saving the SAME row (a retry) is fine.
+  const existingLink = await prisma.affiliateLinkRegistry.findFirst({
+    where: { merchantListingId: listing.id, status: "ACTIVE" },
+    select: { id: true },
+  });
+  if (existingLink) {
+    const sameRow = await prisma.merchantListingSignal.findFirst({
+      where: {
+        merchantListingId: listing.id,
+        source: "panel_pick",
+        raw: { path: ["panelTitle"], equals: input.panelTitle },
+      },
+      select: { id: true },
+    });
+    if (!sameRow) {
+      throw new PanelRegisterError(
+        "Este produto já está no site com outro link (de outra linha da fila). Não sobrescrevo: se o novo link paga mais, avise para trocarmos de propósito.",
+      );
+    }
+  }
+
   try {
     const provider = await createMercadoLivreProvider();
     await enrichCatalogListing(provider, merchant.id, listing, 60, new Map());

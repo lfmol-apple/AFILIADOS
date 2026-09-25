@@ -9,6 +9,7 @@ type Status =
   | "none"
   | "repeated"
   | "duplicate"
+  | "productOnSite"
   | "notMine"
   | "unreadable"
   | "invalid";
@@ -51,6 +52,11 @@ const LABEL: Record<Status, { icon: string; text: string; tone: string }> = {
   duplicate: {
     icon: "⛔",
     text: "Este link já está salvo em um produto",
+    tone: "text-rose-600",
+  },
+  productOnSite: {
+    icon: "⛔",
+    text: "Este produto já está no site com outro link (não sobrescrevo)",
     tone: "text-rose-600",
   },
   notMine: {

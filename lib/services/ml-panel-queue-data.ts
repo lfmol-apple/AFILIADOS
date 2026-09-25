@@ -5,22 +5,18 @@ import {
   type QueueEntry,
 } from "@/lib/services/ml-panel-queue";
 import { loadRegisteredPanelIds } from "@/lib/services/ml-panel-register";
+import { expectedIdsFromProductUrl } from "@/lib/services/ml-panel-check-logic";
 
-async function loadSiteSlugs(): Promise<string[]> {
-  const [canonical, listings] = await Promise.all([
-    prisma.canonicalProduct.findMany({
-      where: { publicSlug: { not: null } },
-      select: { publicSlug: true },
-    }),
-    prisma.merchantListing.findMany({
-      where: { slug: { not: null } },
-      select: { slug: true },
-    }),
-  ]);
-  return [
-    ...canonical.map((c) => c.publicSlug!),
-    ...listings.map((l) => l.slug!),
-  ];
+/** Catalog ids (MLB…) of the Mercado Livre products that already have an active link. */
+export async function loadRegisteredCatalogIds(): Promise<Set<string>> {
+  const links = await prisma.affiliateLinkRegistry.findMany({
+    where: {
+      status: "ACTIVE",
+      merchantListing: { merchant: { code: "MERCADO_LIVRE" } },
+    },
+    select: { merchantListing: { select: { externalId: true } } },
+  });
+  return new Set(links.map((l) => l.merchantListing.externalId));
 }
 
 export interface PanelQueueData {
@@ -43,12 +39,26 @@ export interface PanelQueueData {
 
 /** The panel products still waiting for the owner's affiliate link. */
 export async function loadPanelQueue(): Promise<PanelQueueData> {
-  const [slugs, registered] = await Promise.all([
-    loadSiteSlugs(),
+  const [registered, registeredCatalog] = await Promise.all([
     loadRegisteredPanelIds(),
+    loadRegisteredCatalogIds(),
   ]);
-  const { toLink, onSite } = rankAllForLinking(ML_PANEL_PICKS, slugs);
-  const notRegistered = toLink.filter((e) => !registered.has(e.pick.id));
+  // No title-vs-slug guessing: a row that merely LOOKS like a product already
+  // on the site is a different product (different catalog id, its own
+  // commission) and used to be hidden by mistake — 29 rows, some paying R$ 100+
+  // per sale (2026-09-25). Only an exact catalog-id match counts as "already
+  // on the site".
+  const { toLink } = rankAllForLinking(ML_PANEL_PICKS, []);
+  const sameProductOnSite = (e: (typeof toLink)[number]) => {
+    const catalogId = expectedIdsFromProductUrl(e.pick.productUrl).catalogId;
+    return !!catalogId && registeredCatalog.has(catalogId);
+  };
+  const onSite = toLink.filter(
+    (e) => !registered.has(e.pick.id) && sameProductOnSite(e),
+  );
+  const notRegistered = toLink.filter(
+    (e) => !registered.has(e.pick.id) && !sameProductOnSite(e),
+  );
   const ready = notRegistered.filter((e) => e.pick.productUrl);
   const waiting = notRegistered.filter((e) => !e.pick.productUrl);
   return {
