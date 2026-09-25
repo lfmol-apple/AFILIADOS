@@ -159,4 +159,37 @@ describe("rankAllForLinking", () => {
       "Vende Pouco Comissao Enorme",
     ]);
   });
+
+  it("puts featured rows (Top 20) first, by commission in reais, then the rest by most sold then commission; injectables still last", () => {
+    const { toLink } = rankAllForLinking([
+      pick({ title: "Vende Muito", sold: 100000, price: 100 }),
+      pick({
+        title: "Destaque Comissao Menor",
+        featured: true,
+        sold: 100,
+        price: 1000,
+      }),
+      pick({
+        title: "Destaque Comissao Maior",
+        featured: true,
+        sold: 100,
+        price: 2000,
+      }),
+      pick({ title: "Vende Medio", sold: 5000, price: 300 }),
+      pick({
+        title: "Seringa Destaque Injetavel",
+        group: "saude-injetavel",
+        featured: true,
+        price: 5000,
+      }),
+    ]);
+    expect(toLink.map((e) => e.pick.title)).toEqual([
+      "Destaque Comissao Maior",
+      "Destaque Comissao Menor",
+      "Vende Muito",
+      "Vende Medio",
+      "Seringa Destaque Injetavel",
+    ]);
+    expect(toLink[0]!.notes.join()).toContain("Top 20");
+  });
 });

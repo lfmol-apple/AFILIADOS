@@ -176,6 +176,7 @@ export function rankAllForLinking(
       notes.push("campanha temporária: confira a taxa ao gerar o link");
     if (pick.searched) notes.push("mais buscado");
     if (pick.sponsored) notes.push("patrocinado");
+    if (pick.featured) notes.push("Top 20 de maior preço");
     const sensitive = pick.group === "saude-injetavel";
     toLink.push({
       pick,
@@ -185,7 +186,8 @@ export function rankAllForLinking(
       notes,
     });
   }
-  // The owner's rule (2026-09-24, latest): most sold first ("+N vendidos"),
+  // Featured rows (the owner's Top 20 by price, 2026-09-25) come first, by
+  // commission in reais. The rest: most sold first ("+N vendidos"),
   // then biggest commission in reais within the same sales level, then best
   // rated (no rating last). Temporary campaigns are mixed in like any other
   // row (flagged in the notes). `score` is no longer the sort key — it stays
@@ -194,6 +196,10 @@ export function rankAllForLinking(
   toLink.sort(
     (a, b) =>
       Number(a.score < 0) - Number(b.score < 0) ||
+      Number(!!b.pick.featured) - Number(!!a.pick.featured) ||
+      (a.pick.featured && b.pick.featured
+        ? b.earningPerSale - a.earningPerSale || b.pick.sold - a.pick.sold
+        : 0) ||
       b.pick.sold - a.pick.sold ||
       b.earningPerSale - a.earningPerSale ||
       (b.pick.rating ?? -1) - (a.pick.rating ?? -1),

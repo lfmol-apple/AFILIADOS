@@ -25,6 +25,8 @@ export interface PanelPick {
   sponsored?: boolean;
   /** Tagged "MAIS BUSCADO" by the panel. */
   searched?: boolean;
+  /** Owner's Top 20 by price: listed first in the queue, by commission in reais. */
+  featured?: boolean;
   /** Product page address read from the panel card (what the Linkbuilder needs). */
   productUrl?: string;
   capturedAt: string;
@@ -45,8 +47,8 @@ type Row = [
 ];
 
 // Rebuilt 2026-09-25 from a fresh, passive read of the panel's "Mais vendidos" tab, Casa, Móveis e
-// Decoração (1018 products read, none suspect). Kept: the 300 with the biggest commission in reais among
-// the ones selling +1000 or more. Previous list: git history at commit 6d691d3.
+// Decoração (1018 products read, none suspect). Kept: 320 rows — the 300 with the biggest commission in reais among
+// the ones selling +1000 or more, plus a featured Top 20 by price. Previous list: git history at commit 6d691d3.
 const rows: Row[] = [
   [
     "Kit 2 Câmeras Segurança Ip Interna Externa Wifi iCSee Infravermelho Prova D’Água - HW",
@@ -2724,10 +2726,197 @@ const rows: Row[] = [
     4.8,
     "casa",
   ],
+  // Top 20 (owner, 2026-09-25): highest price outside the 300, sales >= +100; featured at the top of the queue.
+  [
+    "Guarda Roupa Casal 6 Portas Easy Slim Com Espelho E Pés",
+    27,
+    1,
+    1607,
+    500,
+    4.7,
+    "casa",
+  ],
+  [
+    "Sofá Retrátil E Reclinável Com Molas 1,80m Vegas Suede Cinza Cinza Suede",
+    22,
+    1,
+    1399,
+    100,
+    4.7,
+    "casa",
+  ],
+  [
+    "Sofá Retrátil e Reclinável 3 lugares com Molas 1,80m Livia Suede Marrom Adonai Estofados.",
+    22,
+    1,
+    1399,
+    500,
+    4.7,
+    "casa",
+  ],
+  [
+    "Sofá Retrátil Reclinável Verona 1,80m Preto Molas No Assento - King House",
+    16,
+    1,
+    1733,
+    500,
+    4.8,
+    "casa",
+  ],
+  [
+    "Guarda Roupa Casal Mônaco Madesa 3 Portas Correr De Espelho Cor Rustic",
+    17,
+    1,
+    1588,
+    100,
+    4.6,
+    "casa",
+  ],
+  [
+    "Armário de Cozinha Compacta Pequim UP Multimóveis com Balcão - Preto",
+    27,
+    1,
+    855.54,
+    100,
+    4.7,
+    "casa",
+  ],
+  [
+    "Penteadeira Camarim Espelho 11 Gavetas Banqueta Quarto Linda Rosa Flor",
+    22,
+    1,
+    995.9,
+    100,
+    4.3,
+    "casa",
+  ],
+  [
+    "Guarda-roupa Casal Honey 4 Portas 6 Gavetas Com Espelho Preto/Amêndola",
+    12,
+    0,
+    1331,
+    500,
+    4.5,
+    "casa",
+  ],
+  [
+    "Guarda-roupa Casal Odisseia 8 Portas 4 Gavetas Com Espelho C Bege",
+    12,
+    0,
+    1325,
+    500,
+    4.6,
+    "casa",
+  ],
+  [
+    "Guarda-roupa Paris 8 Portas Mdp Com Pés Cinanomo/off Ab Cinamomo/off White",
+    12,
+    0,
+    1317,
+    500,
+    null,
+    "casa",
+  ],
+  [
+    "Conjunto Gabinete Armário Com Cuba E Espelho Para Banheiro Fendi / Madeiral Branca Um Furo",
+    16,
+    1,
+    899.9,
+    500,
+    4.7,
+    "casa",
+  ],
+  [
+    "Cadeira Gamer X-ray Para Jogos/escritório Confortável Cor Black",
+    12,
+    0,
+    1190,
+    500,
+    4.7,
+    "casa",
+  ],
+  [
+    "Guarda Roupa Casal 6 Portas 9 Gavetas Bergamo Evidência Cor Preto",
+    12,
+    0,
+    970.87,
+    100,
+    3.6,
+    "casa",
+  ],
+  [
+    "Armário Cozinha Suspenso 6 Portas 1 Gaveta Aramóveis Madeirado/grafite",
+    16,
+    1,
+    698.89,
+    100,
+    4.7,
+    "casa",
+  ],
+  [
+    "Rack Organico Para Tv Até 75 Polegadas Guarapari 3porta Sala Naturalle/off-white",
+    12,
+    0,
+    929.99,
+    100,
+    4.6,
+    "casa",
+  ],
+  [
+    "Armário De Cozinha Completo 5 Portas 1 Gaveta Com Nichos Cinamomo/grafite",
+    12,
+    0,
+    899,
+    500,
+    4.4,
+    "casa",
+  ],
+  [
+    "Cômoda 10 Gavetas Quarto Casal Toronto Organizadora Roupas Cor Branco - Blue Moby",
+    12,
+    0,
+    899,
+    100,
+    3.4,
+    "casa",
+  ],
+  [
+    "Jogo De Panelas 5 Peças Ceramic Light Sand Rochedo",
+    12,
+    0,
+    849.99,
+    100,
+    4.9,
+    "casa",
+  ],
+  [
+    "Painel Rack Denver Para Tv 55 Polegadas Com Espelho E Led Off-white/naturalle",
+    12,
+    0,
+    799.99,
+    100,
+    4.7,
+    "casa",
+  ],
+  [
+    "Mesa de Jantar Redonda 90cm Mel Viero Flipp Slim Tampo MDF Base Robusta Moderna 2 a 4 Pessoas Cozinha Sala Refeição Design Amadeirado",
+    12,
+    0,
+    699,
+    100,
+    4.6,
+    "casa",
+  ],
 ];
 
 /** Titles the panel tagged "MAIS BUSCADO" (the panel's own search signal). */
 const SEARCHED_TITLES = new Set<string>([
+  "Sofá Retrátil Reclinável Verona 1,80m Preto Molas No Assento - King House",
+  "Guarda Roupa Casal Mônaco Madesa 3 Portas Correr De Espelho Cor Rustic",
+  "Penteadeira Camarim Espelho 11 Gavetas Banqueta Quarto Linda Rosa Flor",
+  "Armário Cozinha Suspenso 6 Portas 1 Gaveta Aramóveis Madeirado/grafite",
+  "Rack Organico Para Tv Até 75 Polegadas Guarapari 3porta Sala Naturalle/off-white",
+  "Painel Rack Denver Para Tv 55 Polegadas Com Espelho E Led Off-white/naturalle",
   "Cortina 3,00x2,80 Metros Blackout Blecaute Cinza Corta Luz Em Tecido Grosso Para Quarto E Sala Casa Laura Enxovais",
   "Kit 2 Câmeras de Segurança Woosh A28B Full HD Dupla Lente Wi-Fi com Visão Noturna Colorida",
   "Aparelho De Jantar 30 Peças - Pratos + Copos + Talheres Inox",
@@ -2783,6 +2972,29 @@ const SEARCHED_TITLES = new Set<string>([
   "Frigideira Cerâmica Antiaderente 24cm Indução Cooktop Fogão a Gás Não Gruda Sem Óleo Cor Cinza Granito",
 ]);
 
+const FEATURED_TITLES = new Set<string>([
+  "Guarda Roupa Casal 6 Portas Easy Slim Com Espelho E Pés",
+  "Sofá Retrátil E Reclinável Com Molas 1,80m Vegas Suede Cinza Cinza Suede",
+  "Sofá Retrátil e Reclinável 3 lugares com Molas 1,80m Livia Suede Marrom Adonai Estofados.",
+  "Sofá Retrátil Reclinável Verona 1,80m Preto Molas No Assento - King House",
+  "Guarda Roupa Casal Mônaco Madesa 3 Portas Correr De Espelho Cor Rustic",
+  "Armário de Cozinha Compacta Pequim UP Multimóveis com Balcão - Preto",
+  "Penteadeira Camarim Espelho 11 Gavetas Banqueta Quarto Linda Rosa Flor",
+  "Guarda-roupa Casal Honey 4 Portas 6 Gavetas Com Espelho Preto/Amêndola",
+  "Guarda-roupa Casal Odisseia 8 Portas 4 Gavetas Com Espelho C Bege",
+  "Guarda-roupa Paris 8 Portas Mdp Com Pés Cinanomo/off Ab Cinamomo/off White",
+  "Conjunto Gabinete Armário Com Cuba E Espelho Para Banheiro Fendi / Madeiral Branca Um Furo",
+  "Cadeira Gamer X-ray Para Jogos/escritório Confortável Cor Black",
+  "Guarda Roupa Casal 6 Portas 9 Gavetas Bergamo Evidência Cor Preto",
+  "Armário Cozinha Suspenso 6 Portas 1 Gaveta Aramóveis Madeirado/grafite",
+  "Rack Organico Para Tv Até 75 Polegadas Guarapari 3porta Sala Naturalle/off-white",
+  "Armário De Cozinha Completo 5 Portas 1 Gaveta Com Nichos Cinamomo/grafite",
+  "Cômoda 10 Gavetas Quarto Casal Toronto Organizadora Roupas Cor Branco - Blue Moby",
+  "Jogo De Panelas 5 Peças Ceramic Light Sand Rochedo",
+  "Painel Rack Denver Para Tv 55 Polegadas Com Espelho E Led Off-white/naturalle",
+  "Mesa de Jantar Redonda 90cm Mel Viero Flipp Slim Tampo MDF Base Robusta Moderna 2 a 4 Pessoas Cozinha Sala Refeição Design Amadeirado",
+]);
+
 const seenTitles = new Map<string, number>();
 
 export const ML_PANEL_PICKS: readonly PanelPick[] = rows.map(
@@ -2800,6 +3012,7 @@ export const ML_PANEL_PICKS: readonly PanelPick[] = rows.map(
       group,
       ...(sponsored ? { sponsored: true } : {}),
       ...(SEARCHED_TITLES.has(title) ? { searched: true } : {}),
+      ...(FEATURED_TITLES.has(title) ? { featured: true } : {}),
       ...(ML_PANEL_URLS[title] ? { productUrl: ML_PANEL_URLS[title] } : {}),
       capturedAt: D,
     };

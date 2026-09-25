@@ -604,4 +604,44 @@ export const ML_PANEL_URLS: Readonly<Record<string, string>> = {
     "https://www.mercadolivre.com.br/kit-acessorios-banheiro-6-pecas-lixeira-escova-sanitaria-dispenser-sabao-liquido-porta-escova-dente-saboneteira-cor-preto/p/MLB75731970?pdp_filters=deal%3AMLB1578289-1",
   "Frigideira Cerâmica Antiaderente 24cm Indução Cooktop Fogão a Gás Não Gruda Sem Óleo Cor Cinza Granito":
     "https://www.mercadolivre.com.br/frigideira-ceramica-antiaderente-24cm-inducao-cooktop-fogao-a-gas-nao-gruda-sem-oleo-cor-cinza-granito/p/MLB76151288?pdp_filters=deal%3AMLB1578289-1",
+  "Guarda Roupa Casal 6 Portas Easy Slim Com Espelho E Pés":
+    "https://www.mercadolivre.com.br/guarda-roupa-casal-6-portas-easy-slim-com-espelho-e-pes/p/MLB59113801?pdp_filters=item_id%3AMLB4595583763",
+  "Sofá Retrátil E Reclinável Com Molas 1,80m Vegas Suede Cinza Cinza Suede":
+    "https://www.mercadolivre.com.br/sofa-retratil-e-reclinavel-com-molas-180m-vegas-suede-cinza/up/MLBU599914179?pdp_filters=item_id%3AMLB2674591317",
+  "Sofá Retrátil e Reclinável 3 lugares com Molas 1,80m Livia Suede Marrom Adonai Estofados.":
+    "https://www.mercadolivre.com.br/sofa-retratil-e-reclinavel-3-lugares-com-molas-180m-livia-suede-marrom-adonai-estofados/p/MLB36759696?pdp_filters=item_id%3AMLB4689882944",
+  "Sofá Retrátil Reclinável Verona 1,80m Preto Molas No Assento - King House":
+    "https://www.mercadolivre.com.br/sofa-retratil-reclinavel-verona-180m-preto-molas-no-assento-king-house/p/MLB61703067?pdp_filters=item_id%3AMLB5903958920",
+  "Guarda Roupa Casal Mônaco Madesa 3 Portas Correr De Espelho Cor Rustic":
+    "https://www.mercadolivre.com.br/guarda-roupa-casal-monaco-madesa-3-portas-correr-de-espelho-cor-rustic/p/MLB27625125?pdp_filters=item_id%3AMLB4127165048",
+  "Armário de Cozinha Compacta Pequim UP Multimóveis com Balcão - Preto":
+    "https://www.mercadolivre.com.br/armario-de-cozinha-compacta-pequim-up-multimoveis-com-balcao-preto/p/MLB33292386?pdp_filters=item_id%3AMLB4732935382",
+  "Penteadeira Camarim Espelho 11 Gavetas Banqueta Quarto Linda Rosa Flor":
+    "https://www.mercadolivre.com.br/penteadeira-camarim-espelho-11-gavetas-banqueta-quarto-linda/up/MLBU4608761266?pdp_filters=item_id%3AMLB4999864001",
+  "Guarda-roupa Casal Honey 4 Portas 6 Gavetas Com Espelho Preto/Amêndola":
+    "https://www.mercadolivre.com.br/guarda-roupa-casal-honey-4-portas-6-gavetas-com-espelho-pretoamendola/p/MLB63072329?pdp_filters=deal%3AMLB1578289-1",
+  "Guarda-roupa Casal Odisseia 8 Portas 4 Gavetas Com Espelho C Bege":
+    "https://www.mercadolivre.com.br/guarda-roupa-casal-odisseia-8-portas-4-gavetas-com-espelho-c-bege/p/MLB67787127?pdp_filters=deal%3AMLB1578289-1",
+  "Guarda-roupa Paris 8 Portas Mdp Com Pés Cinanomo/off Ab Cinamomo/off White":
+    "https://www.mercadolivre.com.br/guardaroupa-paris-8-portas-mdp-com-pes-cinanomooff-ab/up/MLBU3221757638?pdp_filters=deal%3AMLB1578289-1",
+  "Conjunto Gabinete Armário Com Cuba E Espelho Para Banheiro Fendi / Madeiral Branca Um Furo":
+    "https://www.mercadolivre.com.br/conjunto-gabinete-armario-com-cuba-e-espelho-para-banheiro/up/MLBU3351088732?pdp_filters=item_id%3AMLB3962472679",
+  "Cadeira Gamer X-ray Para Jogos/escritório Confortável Cor Black":
+    "https://www.mercadolivre.com.br/cadeira-gamer-x-ray-para-jogosescritorio-confortavel-cor-black/p/MLB69898768?pdp_filters=deal%3AMLB1578289-1",
+  "Guarda Roupa Casal 6 Portas 9 Gavetas Bergamo Evidência Cor Preto":
+    "https://www.mercadolivre.com.br/guarda-roupa-casal-6-portas-9-gavetas-bergamo-evidencia-cor-preto/p/MLB40226534?pdp_filters=deal%3AMLB1578289-1",
+  "Armário Cozinha Suspenso 6 Portas 1 Gaveta Aramóveis Madeirado/grafite":
+    "https://www.mercadolivre.com.br/armario-cozinha-suspenso-6-portas-1-gaveta-aramoveis-madeiradografite/p/MLB59086949?pdp_filters=item_id%3AMLB4237792995",
+  "Rack Organico Para Tv Até 75 Polegadas Guarapari 3porta Sala Naturalle/off-white":
+    "https://www.mercadolivre.com.br/rack-organico-para-tv-ate-75-polegadas-guarapari-3porta-sala/up/MLBU3580912382?pdp_filters=deal%3AMLB1578289-1",
+  "Armário De Cozinha Completo 5 Portas 1 Gaveta Com Nichos Cinamomo/grafite":
+    "https://www.mercadolivre.com.br/armario-de-cozinha-completo-5-portas-1-gaveta-com-nichos/up/MLBU4397561655?pdp_filters=deal%3AMLB1578289-1",
+  "Cômoda 10 Gavetas Quarto Casal Toronto Organizadora Roupas Cor Branco - Blue Moby":
+    "https://www.mercadolivre.com.br/comoda-10-gavetas-quarto-casal-toronto-organizadora-roupas-cor-branco-blue-moby/p/MLB75697617?pdp_filters=deal%3AMLB1578289-1",
+  "Jogo De Panelas 5 Peças Ceramic Light Sand Rochedo":
+    "https://www.mercadolivre.com.br/jogo-de-panelas-5-pecas-ceramic-light-sand-rochedo/p/MLB46938331?pdp_filters=deal%3AMLB1578289-1",
+  "Painel Rack Denver Para Tv 55 Polegadas Com Espelho E Led Off-white/naturalle":
+    "https://www.mercadolivre.com.br/painel-rack-denver-para-tv-55-polegadas-com-espelho-e-led/up/MLBU4253075109?pdp_filters=deal%3AMLB1578289-1",
+  "Mesa de Jantar Redonda 90cm Mel Viero Flipp Slim Tampo MDF Base Robusta Moderna 2 a 4 Pessoas Cozinha Sala Refeição Design Amadeirado":
+    "https://www.mercadolivre.com.br/mesa-de-jantar-redonda-90cm-mel-viero-flipp-slim-tampo-mdf-base-robusta-moderna-2-a-4-pessoas-cozinha-sala-refeicao-design-amadeirado/p/MLB61988153?pdp_filters=deal%3AMLB1578289-1",
 };

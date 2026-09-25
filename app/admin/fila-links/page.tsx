@@ -35,10 +35,12 @@ export default async function LinkQueuePage() {
       </h1>
       <p className="text-foreground/70 mt-2 text-sm leading-relaxed">
         Só os produtos do painel de afiliados que já têm o link genérico do
-        produto, dos mais vendidos para os menos vendidos, e dentro do mesmo
-        patamar de vendas do maior valor de comissão em reais para o menor.
-        Clique em <strong>1. Copiar endereço + abrir Linkbuilder</strong> e cole
-        o link gerado abaixo; ele salva sozinho. O sistema busca foto e preço no
+        produto, primeiro o Top 20 de maior preço (do maior valor de comissão em
+        reais para o menor) e depois os demais, dos mais vendidos para os menos
+        vendidos e, no mesmo patamar de vendas, do maior valor de comissão em
+        reais para o menor. Clique em{" "}
+        <strong>1. Copiar endereço + abrir Linkbuilder</strong> e cole o link
+        gerado abaixo; ele salva sozinho. O sistema busca foto e preço no
         Mercado Livre e cria a página; a linha sai da lista ao salvar.
       </p>
       <p className="text-foreground/60 mt-2 text-sm">
