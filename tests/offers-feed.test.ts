@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { UnifiedOfferCard } from "@/lib/queries/unified-offers";
 import {
   countByCategory,
+  interleaveByMerchant,
   paginateOffers,
   sortOffers,
 } from "@/lib/queries/offers-feed";
@@ -281,5 +282,57 @@ describe("search over the full pool", () => {
       "2",
       "1",
     ]);
+  });
+});
+
+describe("interleaveByMerchant", () => {
+  const mk = (
+    id: string,
+    merchant: UnifiedOfferCard["merchant"],
+    signal: number,
+  ): UnifiedOfferCard => ({
+    ...card(0, "casa"),
+    id,
+    merchant,
+    opportunitySignal: signal,
+  });
+
+  it("mixes the stores in proportion and keeps each store's own order", () => {
+    // 6 Shopee and 3 Mercado Livre; ML scores higher, so a plain sort would put all 3 first
+    const ranked = [
+      mk("m1", "MERCADO_LIVRE", 99),
+      mk("m2", "MERCADO_LIVRE", 98),
+      mk("m3", "MERCADO_LIVRE", 97),
+      mk("s1", "SHOPEE", 80),
+      mk("s2", "SHOPEE", 79),
+      mk("s3", "SHOPEE", 78),
+      mk("s4", "SHOPEE", 77),
+      mk("s5", "SHOPEE", 76),
+      mk("s6", "SHOPEE", 75),
+    ];
+    const out = interleaveByMerchant(ranked);
+    expect(out).toHaveLength(9);
+    // never a run of 3 ML in a row, and roughly 2 Shopee : 1 ML through the list
+    expect(out.slice(0, 3).map((c) => c.merchant)).toContain("SHOPEE");
+    expect(
+      out.slice(0, 6).filter((c) => c.merchant === "MERCADO_LIVRE"),
+    ).toHaveLength(2);
+    // each store's internal ranking is untouched
+    expect(out.filter((c) => c.merchant === "SHOPEE").map((c) => c.id)).toEqual(
+      ["s1", "s2", "s3", "s4", "s5", "s6"],
+    );
+    expect(
+      out.filter((c) => c.merchant === "MERCADO_LIVRE").map((c) => c.id),
+    ).toEqual(["m1", "m2", "m3"]);
+  });
+
+  it("leaves a single-store list as it is and never drops or repeats a card", () => {
+    const one = [mk("a", "SHOPEE", 3), mk("b", "SHOPEE", 2)];
+    expect(interleaveByMerchant(one)).toEqual(one);
+    const many = Array.from({ length: 40 }, (_, i) =>
+      mk(`x${i}`, i % 4 === 0 ? "MERCADO_LIVRE" : "SHOPEE", 100 - i),
+    );
+    const out = interleaveByMerchant(many);
+    expect(new Set(out.map((c) => c.id)).size).toBe(40);
   });
 });

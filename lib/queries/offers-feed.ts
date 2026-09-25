@@ -79,7 +79,55 @@ async function buildPool(): Promise<UnifiedOfferCard[]> {
     ...amazonResult.items.map(mapAmazonProductToUnifiedCard),
     ...merchantOffers,
   ];
-  return selectTopUnifiedOffers(all, all.length);
+  return interleaveByMerchant(selectTopUnifiedOffers(all, all.length));
+}
+
+/**
+ * Mixes the stores in proportion to how many offers each has, keeping every
+ * store's own ranking. Without it, one store whose offers score higher takes
+ * whole pages (found 2026-09-25: after Mercado Livre products got a score they
+ * would have filled pages 1-11 and pushed all of Shopee out of the top). At
+ * each step it takes from the store that is furthest behind its fair share, so
+ * a 525/270 pool alternates roughly 2 Shopee : 1 Mercado Livre all the way.
+ */
+export function interleaveByMerchant(
+  ranked: UnifiedOfferCard[],
+): UnifiedOfferCard[] {
+  const queues = new Map<string, UnifiedOfferCard[]>();
+  for (const card of ranked) {
+    const queue = queues.get(card.merchant) ?? [];
+    queue.push(card);
+    queues.set(card.merchant, queue);
+  }
+  if (queues.size <= 1) return ranked;
+
+  const total = new Map([...queues].map(([m, q]) => [m, q.length]));
+  const taken = new Map([...queues.keys()].map((m) => [m, 0]));
+  const rank = new Map(ranked.map((card, i) => [card, i]));
+  const out: UnifiedOfferCard[] = [];
+  while (out.length < ranked.length) {
+    let best: string | null = null;
+    let bestRatio = Infinity;
+    let bestHead = Infinity;
+    for (const [merchant, queue] of queues) {
+      const done = taken.get(merchant) ?? 0;
+      if (done >= queue.length) continue;
+      // fraction of its own list already shown; the furthest behind goes next,
+      // ties go to the store whose next offer ranks higher overall
+      const ratio = done / (total.get(merchant) ?? 1);
+      const head = rank.get(queue[done]!) ?? Infinity;
+      if (ratio < bestRatio || (ratio === bestRatio && head < bestHead)) {
+        best = merchant;
+        bestRatio = ratio;
+        bestHead = head;
+      }
+    }
+    const merchant = best!;
+    const done = taken.get(merchant) ?? 0;
+    out.push(queues.get(merchant)![done]!);
+    taken.set(merchant, done + 1);
+  }
+  return out;
 }
 
 function refreshPool(): Promise<UnifiedOfferCard[]> {
