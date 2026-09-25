@@ -11,10 +11,13 @@ import {
   PanelRegisterError,
   registerPanelPick,
 } from "@/lib/services/ml-panel-register";
+import { checkPanelLink } from "@/lib/services/ml-panel-check";
 
 const bodySchema = z.object({
   id: z.string().min(1),
   affiliateUrl: z.string().url().max(2000),
+  /** Save even though the live check says the link leads to another product. */
+  force: z.boolean().optional(),
 });
 
 /** Saves the affiliate link the owner generated for one panel-list product. */
@@ -40,6 +43,22 @@ export async function POST(request: Request) {
       { error: "Produto da lista não encontrado." },
       { status: 404 },
     );
+
+  // Same live check the screen shows, enforced here too so a wrong link can
+  // never be saved by accident (a duplicate is never forced; a "different
+  // product" verdict needs the owner's explicit override).
+  const check = await checkPanelLink({
+    panelTitle: pick.title,
+    productUrl: pick.productUrl,
+    affiliateUrl: parsed.data.affiliateUrl,
+  });
+  if (
+    check.status === "duplicate" ||
+    check.status === "invalid" ||
+    (check.status === "mismatch" && !parsed.data.force)
+  ) {
+    return NextResponse.json({ error: check.message, check }, { status: 409 });
+  }
 
   try {
     const result = await registerPanelPick({
