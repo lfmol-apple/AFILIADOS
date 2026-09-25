@@ -4,6 +4,7 @@ import { ensureMercadoLivreMerchant } from "@/lib/services/ml-demand-collector";
 import { enrichCatalogListing } from "@/lib/services/ml-enrichment-collector";
 import { saveManualAffiliateLinkFromCategoryQueue } from "@/lib/services/affiliate-link-registry";
 import { logger } from "@/lib/observability/logger";
+import { scorePanelPick } from "@/lib/services/ml-panel-score";
 
 export class PanelRegisterError extends Error {}
 
@@ -70,6 +71,9 @@ export async function registerPanelPick(input: {
   affiliateUrl: string;
   rate: number;
   price: number;
+  /** "+N vendidos" and the star rating the panel showed, for the ranking score. */
+  sold?: number;
+  rating?: number | null;
 }): Promise<PanelRegisterResult> {
   const catalogProductId = await resolveCatalogProductId(input.affiliateUrl);
   if (!catalogProductId) {
@@ -152,6 +156,27 @@ export async function registerPanelPick(input: {
       where: { id: listing.id },
       data: { canonicalProductId: canonical.id },
       include: { canonicalProduct: { select: { title: true } } },
+    });
+  }
+
+  // Rank on /ofertas: without a MonetizationScore the product sinks to the end.
+  if (input.sold !== undefined) {
+    const score = scorePanelPick({
+      sold: input.sold,
+      rating: input.rating ?? null,
+      rate: input.rate,
+    });
+    const data = {
+      score: score.score,
+      confidence: score.confidence,
+      components: score.components as unknown as object,
+      reasons: score.reasons,
+      missingSignals: score.missingSignals,
+    };
+    await prisma.monetizationScore.upsert({
+      where: { merchantListingId: listing.id },
+      create: { merchantListingId: listing.id, ...data },
+      update: { ...data, calculatedAt: new Date() },
     });
   }
 

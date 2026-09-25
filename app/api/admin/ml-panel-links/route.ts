@@ -67,6 +67,8 @@ export async function POST(request: Request) {
       affiliateUrl: parsed.data.affiliateUrl,
       rate: pick.rate,
       price: pick.price,
+      sold: pick.sold,
+      rating: pick.rating,
     });
     return NextResponse.json({ ok: true, ...result });
   } catch (err) {
