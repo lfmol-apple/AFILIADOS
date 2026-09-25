@@ -153,6 +153,12 @@ export function PanelBatch(props: {
   /** Saves the given rows one by one, then resets the screen for the next batch. */
   async function saveRows(todo: Row[]) {
     setBusy("saving");
+    // a retry starts clean: forget earlier errors of these rows
+    setSaved((s) => {
+      const next = { ...s };
+      for (const r of todo) if (next[r.link] !== "ok") delete next[r.link];
+      return next;
+    });
     const okLinks: string[] = [];
     for (const [i, row] of todo.entries()) {
       setProgress(`Salvando ${i + 1} de ${todo.length}…`);
@@ -180,12 +186,16 @@ export function PanelBatch(props: {
 
   async function saveMatches() {
     if (!rows || busy) return;
-    await saveRows(rows.filter((r) => r.status === "match" && !saved[r.link]));
+    await saveRows(
+      rows.filter((r) => r.status === "match" && saved[r.link] !== "ok"),
+    );
   }
 
   async function saveAllLikely() {
     if (!rows || busy) return;
-    const todo = rows.filter((r) => r.status === "likely" && !saved[r.link]);
+    const todo = rows.filter(
+      (r) => r.status === "likely" && saved[r.link] !== "ok",
+    );
     if (todo.length === 0) return;
     if (
       !window.confirm(
@@ -202,10 +212,10 @@ export function PanelBatch(props: {
   }
 
   const likelyCount = rows
-    ? rows.filter((r) => r.status === "likely" && !saved[r.link]).length
+    ? rows.filter((r) => r.status === "likely" && saved[r.link] !== "ok").length
     : 0;
   const readyCount = rows
-    ? rows.filter((r) => r.status === "match" && !saved[r.link]).length
+    ? rows.filter((r) => r.status === "match" && saved[r.link] !== "ok").length
     : 0;
 
   return (
