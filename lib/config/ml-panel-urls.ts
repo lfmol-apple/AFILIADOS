@@ -2042,4 +2042,688 @@ export const ML_PANEL_URLS: Readonly<Record<string, string>> = {
     "https://www.mercadolivre.com.br/carga-gillete-mach3-4-embalagens-com-2-unidades-1-aparelho/p/MLB38732012?pdp_filters=deal%3AMLB1578289-1",
   "Molde F1 Das Gringas Zero Milimetros 0mm Stileto Unha Gel Branco":
     "https://www.mercadolivre.com.br/molde-f1-das-gringas-zero-milimetros-0mm-stileto-unha-gel/up/MLBU5008701958?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira Furadeira De Impacto The Black Tools Profissional TB-21PX 2 Baterias Com Maleta 60Hz Amarelo":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-de-impacto-the-black-tools-profissional-tb-21px-2-baterias-com-maleta-60hz-amarelo/p/MLB30144703?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira Furadeira The Black Tools TB12A 3/8 a Bateria Cor Amarelo Frequência 60Hz":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-the-black-tools-tb12a-38-a-bateria-cor-amarelo-frequencia-60hz/p/MLB24076624?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora de Alta Pressão Kärcher Compacta 1.500 PSI/Libras 1400W 300L/h com Aplicador de Detergente e Lança Regulável 220v":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-krcher-compacta-1500-psilibras-1400w-300lh-com-aplicador-de-detergente-e-lanca-regulavel-220v/p/MLB25371983?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora De Alta Pressão Vonder Leve Lav 1300 90bar - Cor Amarelo-Preto Frequência 60 Hz":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-vonder-leve-lav-1300-90bar-cor-amarelo-preto-frequencia-60-hz/p/MLB28531553?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora Lava Jato Portátil Pressão 2 Baterias + Maleta Preto 127/220v 50 Hz X 60 Hz":
+    "https://www.mercadolivre.com.br/lavadora-lava-jato-portatil-pressao-2-baterias--maleta/up/MLBU605239077?pdp_filters=item_id%3AMLB3621404839",
+  "Parafusadeira E Furadeira Impacto The Black Tools Tb-21pw 3/8 Cor Amarelo Frequência 50/60 Hz":
+    "https://www.mercadolivre.com.br/parafusadeira-e-furadeira-impacto-the-black-tools-tb-21pw-38-cor-amarelo-frequencia-5060-hz/p/MLB38053317?pdp_filters=deal%3AMLB1578289-1",
+  "Furadeira Parafusadeira Sem Fio A Bateria Tb-12e 12v":
+    "https://www.mercadolivre.com.br/furadeira-parafusadeira-sem-fio-a-bateria-tb-12e-12v/p/MLB24060776?pdp_filters=deal%3AMLB1578289-1",
+  "Tramontina 43800005 caixa para ferramentas sanfonada com 5 gavetas":
+    "https://www.mercadolivre.com.br/tramontina-43800005-caixa-para-ferramentas-sanfonada-com-5-gavetas/p/MLB22367713?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora De Alta Pressão Vonder 1400w Lav 1600 Amarelo 127 V":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-vonder-1400w-lav-1600-amarelo-127-v/p/MLB29187736?pdp_filters=item_id%3AMLB4053958729",
+  "Lavadora de alta pressão LAV 1600, 1.600 lbf/pol² VONDER":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-lav-1600-1600-lbfpol-vonder/p/MLB32978518?pdp_filters=item_id%3AMLB6167455654",
+  'Chave De Impacto A Bateria 21V 1/2" Pol 2400 Rpm Bivolt Com Acessórios E Maleta The Black Tools':
+    "https://www.mercadolivre.com.br/chave-de-impacto-a-bateria-21v-12-pol-2400-rpm-bivolt-com-acessorios-e-maleta-the-black-tools/p/MLB28530314?pdp_filters=deal%3AMLB1578289-1",
+  "Serra Makita 4100nh3zx Mármore com 2 Discos Diámetro 110mm 1300W":
+    "https://www.mercadolivre.com.br/serra-makita-4100nh3zx-marmore-com-2-discos-diametro-110mm-1300w/p/MLB19802405?pdp_filters=deal%3AMLB1578289-1",
+  "Jogo Kit de Ferramentas Manuais Chave Catraca 1/2 8 a 32mm BCS022 The Black Tools Cor Amarelo":
+    "https://www.mercadolivre.com.br/jogo-kit-de-ferramentas-manuais-chave-catraca-12-8-a-32mm-bcs022-the-black-tools-cor-amarelo/p/MLB28517268?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira Furadeira De Impacto A Bateria 21V 3/8” Bivolt 1400 Rpm Com Acessórios E Maleta TB-21PZW The Black Tools":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-de-impacto-a-bateria-21v-38-bivolt-1400-rpm-com-acessorios-e-maleta-tb-21pzw-the-black-tools/p/MLB60012839?pdp_filters=deal%3AMLB1578289-1",
+  "Furadeira Parafusadeira De Impacto a Bateria Sem Fio Com 2 Baterias Recarregável e Maleta de Acessórios Multifuncional Com Luz De Led Mackie Ferramentas":
+    "https://www.mercadolivre.com.br/furadeira-parafusadeira-de-impacto-a-bateria-sem-fio-com-2-baterias-recarregavel-e-maleta-de-acessorios-multifuncional-com-luz-de-led-mackie-ferramentas/p/MLB74159344?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira Furadeira Sem Fio 48 2 Baterias 340w C/brocas Preto 127/220v":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-sem-fio-48-2-baterias-340w-cbrocas/up/MLBU2956886989?pdp_filters=item_id%3AMLB3951866299",
+  "Jogo Chave de Fenda e Philips Profissional Imantado 12 Peças":
+    "https://www.mercadolivre.com.br/jogo-chave-de-fenda-e-philips-profissional-imantado-12-pecas/p/MLB27398239?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora de Alta Pressão Electrolux 1850PSI 1500W Potência com Canhão de Espuma PowerWash EWS1850P Preta Lava Jato Lava Car":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-electrolux-1850psi-1500w-potencia-com-canhao-de-espuma-powerwash-ews1850p-preta-lava-jato-lava-car/p/MLB41883375?pdp_filters=item_id%3AMLB7480428008",
+  "Máquina de pintura Vonder MPA 1010 sistema Airless 1.010W Tensão 220 V":
+    "https://www.mercadolivre.com.br/maquina-de-pintura-vonder-mpa-1010-sistema-airless-1010w-tensao-220-v/p/MLB20937692?pdp_filters=deal%3AMLB1578289-1",
+  "Perfuradores de combustão Carbon Fak Perfurador de solo Gasolina Perfurador Perfuratriz cor laranja":
+    "https://www.mercadolivre.com.br/perfuradores-de-combustao-carbon-fak-perfurador-de-solo-gasolina-perfurador-perfuratriz-cor-laranja/p/MLB46211890?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora de Alta Pressão Kärcher K5 motor a indução 2.100 PSI/Libras 360 L/h 1.900 W com lança turbo e lança leque":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-krcher-k5-motor-a-inducao-2100-psilibras-360-lh-1900-w-com-lanca-turbo-e-lanca-leque/p/MLB18611174?pdp_filters=deal%3AMLB1578289-1",
+  "Motosserra Toyama Tcs58h-18snb A Gasolina Cor Branco":
+    "https://www.mercadolivre.com.br/motosserra-toyama-tcs58h-18snb-a-gasolina-cor-branco/p/MLB46067344?pdp_filters=item_id%3AMLB4971372489",
+  "Jogo de ferramentas com 110 peças, embalagem fechada, VONDER":
+    "https://www.mercadolivre.com.br/jogo-de-ferramentas-com-110-pecas-embalagem-fechada-vonder/p/MLB28575093?pdp_filters=item_id%3AMLB4190531585",
+  "Maquina Inversora Solda Mig 160a 3 Em 1 Tig Lift Acessórios Amarelo 220v":
+    "https://www.mercadolivre.com.br/maquina-inversora-solda-mig-160a-3-em-1-tig-lift-acessorios/up/MLBU3147529744?pdp_filters=deal%3AMLB1578289-1",
+  "Pistola de pulverização elétrica para pintura hvlp Tssaper TP550 do 800mL cor azul-turquesa 550W":
+    "https://www.mercadolivre.com.br/pistola-de-pulverizacao-eletrica-para-pintura-hvlp-tssaper-tp550-do-800ml-cor-azul-turquesa-550w/p/MLB36520675?pdp_filters=item_id%3AMLB4140416705",
+  "Guincho Talha Elétrica 300/600kg Elevação Até 12m Menegotti Cor Amarela":
+    "https://www.mercadolivre.com.br/guincho-talha-eletrica-300600kg-elevacao-ate-12m-menegotti-cor-amarela/p/MLB22616880?pdp_filters=deal%3AMLB1578289-1",
+  "Desobstruidora de Alta Pressão Wap Ousada Plus 2200 Ultra 1500W com 1750psi":
+    "https://www.mercadolivre.com.br/desobstruidora-de-alta-pressao-wap-ousada-plus-2200-ultra-1500w-com-1750psi/p/MLB18197268?pdp_filters=deal%3AMLB1578289-1",
+  "Soprador De Ar Turbo 21v Portátil Bateria Recarregável Potente Para Folhas Pó Limpeza Carro Tso-21a The Black Tools":
+    "https://www.mercadolivre.com.br/soprador-de-ar-turbo-21v-portatil-bateria-recarregavel-potente-para-folhas-po-limpeza-carro-tso-21a-the-black-tools/p/MLB55024225?pdp_filters=item_id%3AMLB5114093157",
+  "Lavadora De Alta Pressão Lav 1600, 1.600 Lbf/pol² Vonder":
+    "https://produto.mercadolivre.com.br/MLB-5117726760-lavadora-de-alta-presso-lav-1600-1600-lbfpol-vonder-_JM?pdp_filters=item_id%3AMLB5117726760",
+  "Kit Nível A Laser Verde 12 Linhas Esquadro + Suporte + Tripé":
+    "https://www.mercadolivre.com.br/kit-nivel-a-laser-verde-12-linhas-esquadro--suporte--tripe/up/MLBU2914326565?pdp_filters=item_id%3AMLB5235590404",
+  "Roçadeira Knakasaki 75cc 3,5hp Gasolina 2 Tempos Profissional Multifuncional":
+    "https://www.mercadolivre.com.br/rocadeira-knakasaki-75cc-35hp-gasolina-2-tempos-profissional-multifuncional/p/MLB54715280?pdp_filters=deal%3AMLB1578289-1",
+  "Furadeira Industrial Impacto Rev 450w Gsb 450 Re Bosch + Kit":
+    "https://www.mercadolivre.com.br/furadeira-industrial-impacto-rev-450w-gsb-450-re-bosch-kit/p/MLB46104754?pdp_filters=item_id%3AMLB6989102014",
+  "Chave De Impacto A Bateria 88V Profissional 1/2 Motor Brushless 450 Nm 3250 Rpm 02 Baterias Bivolt Alta Potência Motor Sem Escovas Dewen":
+    "https://www.mercadolivre.com.br/chave-de-impacto-a-bateria-88v-profissional-12-motor-brushless-450-nm-3250-rpm-02-baterias-bivolt-alta-potencia-motor-sem-escovas-dewen/p/MLB59278331?pdp_filters=item_id%3AMLB7426887230",
+  "Serra Tico Tico Dewalt Modelo DWE300 Ferramenta Elétrica Potência de 650W":
+    "https://www.mercadolivre.com.br/serra-tico-tico-dewalt-modelo-dwe300-ferramenta-eletrica-potencia-de-650w/p/MLB19694411?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira Furadeira Impacto Sem Fio 2 Baterias Recarregável 48v Bivolt Velocidade Ajustavel Com Travas Mandril Resistente":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-impacto-sem-fio-2-baterias-recarregavel-48v-bivolt-velocidade-ajustavel-com-travas-mandril-resistente/p/MLB64896669?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora de Alta Pressão Electrolux 1650PSI 1400W de Potência com Engate Rápido EasyWash Lava Jato QWS1650":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-electrolux-1650psi-1400w-de-potencia-com-engate-rapido-easywash-lava-jato-qws1650/p/MLB38885618?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora de Alta Pressão Electrolux 1650PSI 1400W de Potência com Engate Rápido EasyWash Lava Jato Lava Car QWS1650":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-electrolux-1650psi-1400w-de-potencia-com-engate-rapido-easywash-lava-jato-lava-car-qws1650/p/MLB38833473?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora De Alta Pressão Kärcher Prática Black 1500 Psi/libras 1400w 300l/h Com Aplicador De Detergente E Lança Regulável 127v":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-krcher-pratica-black-1500-psilibras-1400w-300lh-com-aplicador-de-detergente-e-lanca-regulavel-127v/p/MLB47945119?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora De Alta Pressão Kärcher Prática Black 1500 Psi/libras 1400w 300l/h Com Aplicador De Detergente E Lança Regulável 220v":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-krcher-pratica-black-1500-psilibras-1400w-300lh-com-aplicador-de-detergente-e-lanca-regulavel-220v/p/MLB47944518?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora De Alta Pressão Philco 1750psi 12 Mpa 1500w Plp2300":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-philco-1750psi-12-mpa-1500w-plp2300/p/MLB36098154?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora De Alta Pressão Master 42545 Jato Regulável 1500psi Com 1200w Amarelo E Preto Tramontina":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-master-42545-jato-regulavel-1500psi-com-1200w-amarelo-e-preto-tramontina/p/MLB17480207?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira Furadeira 48v Profissional 2 Baterias Sem Fio Amarelo 127/220v 60 Hz":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-48v-profissional-2-baterias-sem-fio/up/MLBU3584842699?pdp_filters=item_id%3AMLB4317803385",
+  "Parafusadeira e Furadeira com Impacto WAP BPFI 12K4 com Led de Iluminação Maleta":
+    "https://www.mercadolivre.com.br/parafusadeira-e-furadeira-com-impacto-wap-bpfi-12k4-com-led-de-iluminacao-maleta/p/MLB21194393?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira Furadeira De Impacto 2 Baterias 20v Fonte Carregamento Bivolt Pfv238i Vonder":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-de-impacto-2-baterias-20v-fonte-carregamento-bivolt-pfv238i-vonder/p/MLB67819107?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora de Alta Pressão 1400w WAP Atacama Smart 2200":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-1400w-wap-atacama-smart-2200/p/MLB15289322?pdp_filters=deal%3AMLB1578289-1",
+  "Máquina De Solda Inversora Portatil War Shark Bivolt 110v/220v Mma Tig Amarelo":
+    "https://www.mercadolivre.com.br/maquina-de-solda-inversora-portatil-war-shark-bivolt-110v220v-mma-tig-amarelo/p/MLB63879053?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora de Alta pressão Kärcher Compacta 1500 PSI/Libras 1400W 300L/h com Aplicador de Detergente e Lança Regulável 127v":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-krcher-compacta-1500-psilibras-1400w-300lh-com-aplicador-de-detergente-e-lanca-regulavel-127v/p/MLB25264428?pdp_filters=deal%3AMLB1578289-1",
+  "Roçadeira Aparador Grama A Bateria Recarregável 21v 750w Profissional Com Acessórios Tcg21c The Black Tools":
+    "https://www.mercadolivre.com.br/rocadeira-aparador-grama-a-bateria-recarregavel-21v-750w-profissional-com-acessorios-tcg21c-the-black-tools/p/MLB41312260?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira Furadeira De Impacto Profissional Sem Fio 2 Baterias 21v Com Maleta Tb-21yx The Black Tools":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-de-impacto-profissional-sem-fio-2-baterias-21v-com-maleta-tb-21yx-the-black-tools/p/MLB58927765?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Furadeira Parafusadeira De Impacto A Bateria Vonder Pfv238i + Maleta E Acessórios":
+    "https://www.mercadolivre.com.br/kit-furadeira-parafusadeira-de-impacto-a-bateria-vonder-pfv238i-maleta-e-acessorios/p/MLB42156976?pdp_filters=deal%3AMLB1578289-1",
+  "Furadeira De Impacto 13mm 750w Profissional Com Kit Brocas Buchas E Bits 300 Peças The Black Tools":
+    "https://www.mercadolivre.com.br/furadeira-de-impacto-13mm-750w-profissional-com-kit-brocas-buchas-e-bits-300-pecas-the-black-tools/p/MLB41312782?pdp_filters=deal%3AMLB1578289-1",
+  "Furadeira Parafusadeira De Impacto 2 Baterias 21v + 46 Peças Amarelo 110v/220v 60hz":
+    "https://www.mercadolivre.com.br/furadeira-parafusadeira-de-impacto-2-baterias-21v--46-pecas/up/MLBU3472399363?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora Portátil Lava Jato De Alta Pressão 2 Baterias Preto 127/220v":
+    "https://www.mercadolivre.com.br/lavadora-portatil-lava-jato-de-alta-pressao-2-baterias/up/MLBU3860709927?pdp_filters=item_id%3AMLB6520152032",
+  "Furadeira Impacto 3/8 Pol. + Maleta Tm500k Black+decker Cor Laranja Frequência 60 Hz":
+    "https://www.mercadolivre.com.br/furadeira-impacto-38-pol-maleta-tm500k-blackdecker-cor-laranja-frequencia-60-hz/p/MLB15489011?pdp_filters=item_id%3AMLB4709743865",
+  "Furadeira Com Impacto Mondial 650W FI-RH-01M":
+    "https://www.mercadolivre.com.br/furadeira-com-impacto-mondial-650w-fi-rh-01m/p/MLB42199457?pdp_filters=deal%3AMLB1578289-1",
+  "Furadeira E Parafusadeira De Impacto 2 Baterias 2000mah 21v 3/8 Tb-21pkx The Black Tools Com Maleta E Acessorios":
+    "https://www.mercadolivre.com.br/furadeira-e-parafusadeira-de-impacto-2-baterias-2000mah-21v-38-tb-21pkx-the-black-tools-com-maleta-e-acessorios/p/MLB44675814?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira Furadeira De Impacto 2 Baterias + Kit 46 Peças Amarelo 127/220v 50hz/60hz":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-de-impacto-2-baterias--kit-46-pecas/up/MLBU3979118983?pdp_filters=item_id%3AMLB6815750752",
+  "Lavadora de Alta Pressão Portátil Recarregável Maleta 2 Baterias Preto":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-portatil-recarregavel-maleta-2-baterias-preto/p/MLB67684299?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira Furadeira Impacto Sem Fio 21v 2 Bateria 2.000mAh Bivolt Kit Chave Completo Com Maleta brocas chaves":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-impacto-sem-fio-21v-2-bateria-2000mah-bivolt-kit-chave-completo-com-maleta-brocas-chaves/p/MLB59330343?pdp_filters=deal%3AMLB1578289-1",
+  "Estante Gaveteira Metálica Organizadora 25 Gavetas Vonder Cor Preto":
+    "https://www.mercadolivre.com.br/estante-gaveteira-metalica-organizadora-25-gavetas-vonder-cor-preto/p/MLB23887938?pdp_filters=deal%3AMLB1578289-1",
+  "Roçadeira Aparador Grama A Bateria Recarregável 460w Profissional Com Acessórios Tcg12b The Black Tools":
+    "https://www.mercadolivre.com.br/rocadeira-aparador-grama-a-bateria-recarregavel-460w-profissional-com-acessorios-tcg12b-the-black-tools/p/MLB41312679?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora Lava Jato Portátil De Alta Pressão Com 2 Baterias Preto 127/220v 50hz/60hz Sensacional":
+    "https://www.mercadolivre.com.br/lavadora-lava-jato-portatil-de-alta-pressao-com-2-baterias-preto-127220v-50hz60hz-sensacional/p/MLB74798127?pdp_filters=item_id%3AMLB7367232964",
+  "Nível a Laser Verde 2 Linhas Com Tripé Para Profissional Autonivelante":
+    "https://www.mercadolivre.com.br/nivel-a-laser-verde-2-linhas-com-tripe-para-profissional-autonivelante/p/MLB50645114?pdp_filters=item_id%3AMLB5678405870",
+  "Parafusadeira Furadeira Sem Fio Bateria 12v P/ Madeira Metal Tb-12e The Black Tools Com Jogo De Soquetes 40 Peças":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-sem-fio-bateria-12v-p-madeira-metal-tb-12e-the-black-tools-com-jogo-de-soquetes-40-pecas/p/MLB38721048?pdp_filters=deal%3AMLB1578289-1",
+  "Esmerilhadeira Lixadeira Angular 4.1/2 11000rpm 780w The Black Tools Cor Amarelo Com 2 Discos De Corte":
+    "https://www.mercadolivre.com.br/esmerilhadeira-lixadeira-angular-412-11000rpm-780w-the-black-tools-cor-amarelo-com-2-discos-de-corte/p/MLB48928217?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora Alta Pressão Portátil Recarregável Sem Fio Bivolt Preto 127/220v":
+    "https://www.mercadolivre.com.br/lavadora-alta-pressao-portatil-recarregavel-sem-fio-bivolt/up/MLBU3860853413?pdp_filters=deal%3AMLB1578289-1",
+  "Bomba Manual Graxa Hydronlubz Reservatório 7 Kg 8484":
+    "https://www.mercadolivre.com.br/bomba-manual-graxa-hydronlubz-reservatorio-7-kg-8484/p/MLB38877374?pdp_filters=deal%3AMLB1578289-1",
+  "Ecosen Parafusadeira Furadeira Sem Fio 8Ah Bateria Duas Baterias Amarela 60hz":
+    "https://www.mercadolivre.com.br/ecosen-parafusadeira-furadeira-sem-fio-8ah-bateria-duas-baterias-amarela-60hz/p/MLB41376485?pdp_filters=deal%3AMLB1578289-1",
+  "Bolsa Maleta De Ferramentas Grande 18 Polegadas Reforçada 16 Bolsos Para Eletricista E Profissionais - Fundo Firme Em Borracha Travunker":
+    "https://www.mercadolivre.com.br/bolsa-maleta-de-ferramentas-grande-18-polegadas-reforcada-16-bolsos-para-eletricista-e-profissionais-fundo-firme-em-borracha-travunker/p/MLB53999249?pdp_filters=item_id%3AMLB5825114736",
+  "Jogo Chaves Combinadas Kit Ferramentas Soquete Catraca Chave De Boca Combinada 58 Peças Crv Cietec":
+    "https://www.mercadolivre.com.br/jogo-chaves-combinadas-kit-ferramentas-soquete-catraca-chave-de-boca-combinada-58-pecas-crv-cietec/p/MLB58671576?pdp_filters=item_id%3AMLB4232855123",
+  "Bolsa Ferramentas Reforçada Grande Lona B-TEK BT-398 Mala 16 Bolsos 15kg Eletricista Encanador Mecânico Mochila Fundo Emborrachado Manutenção Predial Porta Ferramenta Profissional Preto E Amarelo":
+    "https://www.mercadolivre.com.br/bolsa-ferramentas-reforcada-grande-lona-b-tek-bt-398-mala-16-bolsos-15kg-eletricista-encanador-mecanico-mochila-fundo-emborrachado-manutencao-predial-porta-ferramenta-profissional-preto-e-amarelo/p/MLB61666755?pdp_filters=item_id%3AMLB7693340806",
+  "Kit 5 Discos Diamantados Porcelanato Turbo Extra Fino 105mm Branco":
+    "https://www.mercadolivre.com.br/kit-5-discos-diamantados-porcelanato-turbo-extra-fino-105mm-branco/p/MLB65930865?pdp_filters=item_id%3AMLB4510373267",
+  "Parafusadeira Furadeira Sem Fio 2 Baterias 340w 1550 Rpm Cor Amarelo":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-sem-fio-2-baterias-340w-1550-rpm-cor-amarelo/p/MLB50283368?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira Furadeira 21v 1300mah Com 2 Baterias Recarregável Sem Fio Maleta Completa Several Importados":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-21v-1300mah-com-2-baterias-recarregavel-sem-fio-maleta-completa-several-importados/p/MLB69124483?pdp_filters=deal%3AMLB1578289-1",
+  "Esmerilhadeira Lixadeira Angular 780w 115mm 4.1/2 11000rpm Bta800 The Black Tools":
+    "https://www.mercadolivre.com.br/esmerilhadeira-lixadeira-angular-780w-115mm-412-11000rpm-bta800-the-black-tools/p/MLB46497894?pdp_filters=deal%3AMLB1578289-1",
+  "Esmerilhadeira Lixadeira Angular 850w 115mm Cor Azul-petrol Azul-aço 50hz/60hz":
+    "https://www.mercadolivre.com.br/esmerilhadeira-lixadeira-angular-850w-115mm-cor-azul-petrol-azul-aco-50hz60hz/p/MLB66861898?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Jogo De Ferramentas Completo C/ Soquetes Chaves Aço Crv Cinza":
+    "https://www.mercadolivre.com.br/kit-jogo-de-ferramentas-completo-c-soquetes-chaves-aco-crv-cinza/p/MLB62784473?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira Furadeira Impacto 3 Funções Sem Fio 2 Baterias Amarelo 50hz/60hz":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-impacto-3-funcoes-sem-fio-2-baterias-amarelo-50hz60hz/p/MLB63367305?pdp_filters=deal%3AMLB1578289-1",
+  "Manifold Ar Condicionado E Refrigeração R12/r22/r404a/r134a":
+    "https://www.mercadolivre.com.br/manifold-ar-condicionado-e-refrigeracao-r12r22r404ar134a/p/MLB2068514570?pdp_filters=item_id%3AMLB6858245446",
+  "Kit Soquetes Catraca 40 Peças E 22 Chaves Com Maleta Vermelho/preto/cromado":
+    "https://www.mercadolivre.com.br/kit-soquetes-catraca-40-pecas-e-22-chaves-com-maleta/up/MLBU3458698602?pdp_filters=deal%3AMLB1578289-1",
+  "Grampeador Pneumático Profissional 10 A 22mm 574209 Mtx":
+    "https://www.mercadolivre.com.br/grampeador-pneumatico-profissional-10-a-22mm-574209-mtx/p/MLB21994725?pdp_filters=deal%3AMLB1578289-1",
+  "Jogo De Soquete 1/2 Pol Catraca Reversível 22 Peças Com Maleta Grz-22p Gorillaz":
+    "https://www.mercadolivre.com.br/jogo-de-soquete-12-pol-catraca-reversivel-22-pecas-com-maleta-grz-22p-gorillaz/p/MLB41671507?pdp_filters=deal%3AMLB1578289-1",
+  "Jogo de 3 Alicates Robust Universal Bico Reto Corte Diagonal":
+    "https://www.mercadolivre.com.br/jogo-de-3-alicates-robust-universal-bico-reto-corte-diagonal/p/MLB46475004?pdp_filters=item_id%3AMLB5232691729",
+  "Serra Tico Tico 500w 3000rpm Uso Profissional Cor Azul Tssaper TSSTT Mdf Metal Aço Aluminio Voltagem":
+    "https://www.mercadolivre.com.br/serra-tico-tico-500w-3000rpm-uso-profissional-cor-azul-tssaper-tsstt-mdf-metal-aco-aluminio-voltagem/p/MLB19747119?pdp_filters=deal%3AMLB1578289-1",
+  "WAP Soprador Térmico Profissional EST2000, com 2 Níveis de Calor e Fluxo de Ar, Base de Apoio, 1500W":
+    "https://www.mercadolivre.com.br/wap-soprador-termico-profissional-est2000-com-2-niveis-de-calor-e-fluxo-de-ar-base-de-apoio-1500w/p/MLB22665755?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Alicate Crimpar Descascador 1200 Terminais Ilhós Tubular W&g":
+    "https://www.mercadolivre.com.br/kit-alicate-crimpar-descascador-1200-terminais-ilhos-tubular-wg/p/MLB66911368?pdp_filters=item_id%3AMLB6499711190",
+  "Jogo Chaves Combinadas Gedore Robust S09105012 06-22mm 12 Peças Cromado":
+    "https://www.mercadolivre.com.br/jogo-chaves-combinadas-gedore-robust-s09105012-06-22mm-12-pecas-cromado/p/MLB35503300?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 6 Maletas Ferramentas Caixas Reforçadas Pequena Grande":
+    "https://www.mercadolivre.com.br/kit-6-maletas-ferramentas-caixas-reforcadas-pequena-grande/up/MLBU2912159649?pdp_filters=item_id%3AMLB3939973107",
+  "Mini Ventilador Soprador Ar Turbo 130000rpm Assoprador Sem Fio Recarregável USB-C 3 Níveis Jato Forte Portátil Multiuso Limpeza Teclado Carro Acende Churrasqueira Davely":
+    "https://www.mercadolivre.com.br/mini-ventilador-soprador-ar-turbo-130000rpm-assoprador-sem-fio-recarregavel-usb-c-3-niveis-jato-forte-portatil-multiuso-limpeza-teclado-carro-acende-churrasqueira-davely/p/MLB69649128?pdp_filters=item_id%3AMLB6781687878",
+  "Kit Maçarico Portátil Automático Liderança Ferro E Aço para 1300°C com 4 Refis de Gás Butano":
+    "https://www.mercadolivre.com.br/kit-macarico-portatil-automatico-lideranca-ferro-e-aco-para-1300c-com-4-refis-de-gas-butano/p/MLB62519400?pdp_filters=item_id%3AMLB5480440574",
+  "Lavadora De Alta Pressão Lava Jato Vap Portátil Sem Fio Bateria Compressor Pneu Função Power Bank Elétrica Recarregável P/ Lavar Carro Moto Quintal C/ 2 Baterias Bico Mangueira Dispenser De Sabão":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-lava-jato-vap-portatil-sem-fio-bateria-compressor-pneu-funcao-power-bank-eletrica-recarregavel-p-lavar-carro-moto-quintal-c-2-baterias-bico-mangueira-dispenser-de-sabao/p/MLB68723058?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira Furadeira Sem Fio VLX 48V, Kit Completo Com 2 Baterias e Maleta":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-sem-fio-vlx-48v-kit-completo-com-2-baterias-e-maleta/p/MLB66809836?pdp_filters=deal%3AMLB1578289-1",
+  "Holtter Ferramentas Politriz de polidora elétrica de mão azul":
+    "https://www.mercadolivre.com.br/holtter-ferramentas-politriz-de-polidora-eletrica-de-mao-azul/p/MLB29620402?pdp_filters=deal%3AMLB1578289-1",
+  "Jogo Soquete Longo Sextavado Impacto 1/2 8 A 32 Mm 15pcs Preto vlx jogo Soquete Longo Sextavado Impacto 1/2 8 A 32 Mm 15pcs":
+    "https://www.mercadolivre.com.br/jogo-soquete-longo-sextavado-impacto-12-8-a-32-mm-15pcs-preto-vlx-jogo-soquete-longo-sextavado-impacto-12-8-a-32-mm-15pcs/p/MLB63956659?pdp_filters=deal%3AMLB1578289-1",
+  "Jogo De Chaves Soquete Sextavado 1/2 Com Catraca 12 Peças Cinza":
+    "https://www.mercadolivre.com.br/jogo-de-chaves-soquete-sextavado-12-com-catraca-12-pecas-cinza/p/MLB66680378?pdp_filters=item_id%3AMLB6809592664",
+  "Snow Foam Pulverizador Manual Borrifador Alta Pressão 2 Litros Com 2 Bicos Espuma Automotivo Lavagem Carro Moto Limpeza Jardim":
+    "https://www.mercadolivre.com.br/snow-foam-pulverizador-manual-borrifador-alta-pressao-2-litros-com-2-bicos-espuma-automotivo-lavagem-carro-moto-limpeza-jardim/p/MLB69969004?pdp_filters=item_id%3AMLB6894169910",
+  "Pistola Fixação Finca Pino Ação Direta Pregos Epi Maleta Pinador Pregador Grampeador Rebitador De Prego Pressão Manual Ferramenta Para Drywal Gesso Concreto Aço Parede Forro PVC Grampo Smarter Tools":
+    "https://www.mercadolivre.com.br/pistola-fixacao-finca-pino-acao-direta-pregos-epi-maleta-pinador-pregador-grampeador-rebitador-de-prego-pressao-manual-ferramenta-para-drywal-gesso-concreto-aco-parede-forro-pvc-grampo-smarter-tools/p/MLB55824605?pdp_filters=deal%3AMLB1578289-1",
+  "Jogo De Chave Boca E Estrela Combinada 12 Pçs Aço 6-22 Mm Cromada Profissional Tkch12 The Black Tools":
+    "https://www.mercadolivre.com.br/jogo-de-chave-boca-e-estrela-combinada-12-pcs-aco-6-22-mm-cromada-profissional-tkch12-the-black-tools/p/MLB65763694?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Jogo Chave Fenda E Phillips 6 Peças + 3 Alicates":
+    "https://www.mercadolivre.com.br/kit-jogo-chave-fenda-e-phillips-6-pecas--3-alicates/up/MLBU1961753083?pdp_filters=item_id%3AMLB5102000450",
+  "Soprador De Ar Turbo Automotivo Limpeza Profunda Portatil Sem Fio Multifuncional Churrasqueira Janelas Poeiras Landara":
+    "https://www.mercadolivre.com.br/soprador-de-ar-turbo-automotivo-limpeza-profunda-portatil-sem-fio-multifuncional-churrasqueira-janelas-poeiras-landara/p/MLB73418954?pdp_filters=item_id%3AMLB4789824053",
+  "Lavadora A Jato De Alta Pressão Portátil Recarregáveel Preto 50/60 Quicko":
+    "https://www.mercadolivre.com.br/lavadora-a-jato-de-alta-pressao-portatil-recarregaveel-preto-5060-quicko/p/MLB50676394?pdp_filters=deal%3AMLB1578289-1",
+  "Pistola Da Água Lavadora Alta Pressão Recarregável Portátil Cor Preto":
+    "https://www.mercadolivre.com.br/pistola-da-agua-lavadora-alta-pressao-recarregavel-portatil-cor-preto/p/MLB24037234?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Multi Ferramentas 4 Em 1 48v Sem Fio Com 2 Baterias Furadeira Parafusadeira Martelete Esmerilhadeira Chave De Impacto Com Maleta Alta Potência Uso Profissional E Doméstico Simake":
+    "https://www.mercadolivre.com.br/kit-multi-ferramentas-4-em-1-48v-sem-fio-com-2-baterias-furadeira-parafusadeira-martelete-esmerilhadeira-chave-de-impacto-com-maleta-alta-potencia-uso-profissional-e-domestico-simake/p/MLB67462015?pdp_filters=item_id%3AMLB4576853487",
+  "Máquina Solda Sem Gás Bivolt Mma+mig+tig 3 Em 1 C/lcd Dobevi":
+    "https://www.mercadolivre.com.br/maquina-solda-sem-gas-bivolt-mmamigtig-3-em-1-clcd-dobevi/up/MLBU2718576084?pdp_filters=deal%3AMLB1578289-1",
+  "Talha Elétrica Capacidade 500 / 1000 Kg Elevação De Até 12 Metros Menegotti":
+    "https://www.mercadolivre.com.br/talha-eletrica-capacidade-500-1000-kg-elevacao-de-ate-12-metros-menegotti/p/MLB22666902?pdp_filters=deal%3AMLB1578289-1",
+  "Motosserra A Gasolina Stihl Motosserra 30.1cc Laranja Ms 162 1.769hp Laranja":
+    "https://www.mercadolivre.com.br/motosserra-a-gasolina-stihl-motosserra-301cc-laranja-ms-162-1769hp-laranja/p/MLB36707570?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira e Furadeira de Impacto 13mm 20V DEWALT DCD7781D2 Com 2 Baterias, Carregador e Maleta":
+    "https://www.mercadolivre.com.br/parafusadeira-e-furadeira-de-impacto-13mm-20v-dewalt-dcd7781d2-com-2-baterias-carregador-e-maleta/p/MLB47146181?pdp_filters=deal%3AMLB1578289-1",
+  "Furadeira Parafusadeira Impacto Gsb 183-li 2 Baterias Bosch Cor Azul Frequência 50/60hz":
+    "https://www.mercadolivre.com.br/furadeira-parafusadeira-impacto-gsb-183-li-2-baterias-bosch-cor-azul-frequencia-5060hz/p/MLB44906619?pdp_filters=deal%3AMLB1578289-1",
+  "Maquina Inversora De Solda Mig Sem Gás 130a 3 Em 1 Tig Lift Com Acessórios Amarelo The Black Tools":
+    "https://www.mercadolivre.com.br/maquina-inversora-de-solda-mig-sem-gas-130a-3-em-1-tig-lift-com-acessorios-amarelo-the-black-tools/p/MLB63419803?pdp_filters=deal%3AMLB1578289-1",
+  "Cortador Riscador De Piso Porcelanato Cortag 100cm Hd1000 G2":
+    "https://www.mercadolivre.com.br/cortador-riscador-de-piso-porcelanato-cortag-100cm-hd1000-g2/p/MLB60058712?pdp_filters=item_id%3AMLB5965263170",
+  "Martelete Rompedor Furadeira de Impacto Allmind 1200W 5Kg SDS Plus Perfurador Demolidor 3 em 1 Profissional Potente para Concreto Parede Obra com Maleta e Acessórios":
+    "https://www.mercadolivre.com.br/martelete-rompedor-furadeira-de-impacto-allmind-1200w-5kg-sds-plus-perfurador-demolidor-3-em-1-profissional-potente-para-concreto-parede-obra-com-maleta-e-acessorios/p/MLB61977492?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora de Alta Pressão WAP WL 1820 1400W com Stop Total, Jato Leque e Concentrado":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-wap-wl-1820-1400w-com-stop-total-jato-leque-e-concentrado/p/MLB29213516?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora De Alta Pressao Tekna Hlx16002v 60hz , 1000 Amarelo 60hz":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-tekna-hlx16002v-60hz-1000-amarelo-60hz/p/MLB28322443?pdp_filters=item_id%3AMLB3994835153",
+  "Lava Jato Portátil Alta Pressao Lavadora 2 Baterias + Maleta Preto Recarregavel Elétrica Lavar Carro Profissional Potência Turbo Limpeza Compacta Potente Regulável Lavagem Automotivo Evolufix":
+    "https://www.mercadolivre.com.br/lava-jato-portatil-alta-pressao-lavadora-2-baterias-maleta-preto-recarregavel-eletrica-lavar-carro-profissional-potencia-turbo-limpeza-compacta-potente-regulavel-lavagem-automotivo-evolufix/p/MLB69323628?pdp_filters=item_id%3AMLB6737721348",
+  "Martelete Perfurador 1300w Profissional Sds Com Maleta 26mm Azul-petróleo 60":
+    "https://www.mercadolivre.com.br/martelete-perfurador-1300w-profissional-sds-com-maleta-26mm-azul-petroleo-60/p/MLB58297284?pdp_filters=item_id%3AMLB4576433195",
+  "Lavadora de Alta Pressão Kärcher K2 Plus Turbo 1740 PSI 1400W 127 v":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-krcher-k2-plus-turbo-1740-psi-1400w-127-v/p/MLB25413983?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora De Alta Pressão Desobstruidora Wap Ousada Wl 2600 Ultra 1500w De Potência 1750 Psi":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-desobstruidora-wap-ousada-wl-2600-ultra-1500w-de-potencia-1750-psi/p/MLB56331914?pdp_filters=deal%3AMLB1578289-1",
+  "Pistola De Pintura 400w Profissional Elétrica Pulverizadora 800ml Regulações De Spray Prevenção De Refluxo Para Projetos De Renovação Doméstica Colpaq":
+    "https://www.mercadolivre.com.br/pistola-de-pintura-400w-profissional-eletrica-pulverizadora-800ml-regulacoes-de-spray-prevencao-de-refluxo-para-projetos-de-renovacao-domestica-colpaq/p/MLB62883857?pdp_filters=item_id%3AMLB6034876188",
+  "Parafusadeira Furadeira de Impacto Hanabi CY-3003 Brushless 2 Baterias 21v Cor Azul-petróleo Frequência 60hz 45N·m com 25 níveis de ajuste":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-de-impacto-hanabi-cy-3003-brushless-2-baterias-21v-cor-azul-petroleo-frequencia-60hz-45nm-com-25-niveis-de-ajuste/p/MLB54839577?pdp_filters=item_id%3AMLB4217350463",
+  "Chave De Impacto a Bateria450Nm Profissional Recarregável 4ah Brushless Parafusadeira Furadeira Alta Potência Sem Escova 2 Baterias MESTRI":
+    "https://www.mercadolivre.com.br/chave-de-impacto-a-bateria450nm-profissional-recarregavel-4ah-brushless-parafusadeira-furadeira-alta-potencia-sem-escova-2-baterias-mestri/p/MLB53206627?pdp_filters=deal%3AMLB1578289-1",
+  "Serra Mármore 4.3/8 Pol 1.300w + 2 Discos 4100nh3zx2 Makita":
+    "https://www.mercadolivre.com.br/serra-marmore-438-pol-1300w-2-discos-4100nh3zx2-makita/p/MLB22316957?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira Furadeira De Impacto The Black Tools Profissional 2 Baterias Com Maleta + Kit Acessórios 134 Peças Tbkit20":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-de-impacto-the-black-tools-profissional-2-baterias-com-maleta-kit-acessorios-134-pecas-tbkit20/p/MLB68037714?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira Furadeira Impacto The Black Tools C/2 Baterias Amarelo E Preto 60hz":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-impacto-the-black-tools-c2-baterias-amarelo-e-preto-60hz/p/MLB60516061?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira Furadeira 48v Profissional 2 Baterias Sem Fio Amarelo - Dewen":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-48v-profissional-2-baterias-sem-fio-amarelo-dewen/p/MLB70661081?pdp_filters=item_id%3AMLB4731291239",
+  "Kit De Ferramentas 169 Peças + Parafusadeira Furadeira 21v":
+    "https://www.mercadolivre.com.br/kit-de-ferramentas-169-pecas--parafusadeira-furadeira-21v/up/MLBU3106873294?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira Furadeira Impacto Fulink Profissional Fk-80pt 2 Baterias Com Maleta 60Hz Amarelo":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-impacto-fulink-profissional-fk-80pt-2-baterias-com-maleta-60hz-amarelo/p/MLB54005757?pdp_filters=deal%3AMLB1578289-1",
+  "Jogo De Brocas Bits 103 Peças Bosch Com Maleta Profissional":
+    "https://www.mercadolivre.com.br/jogo-de-brocas-bits-103-pecas-bosch-com-maleta-profissional/p/MLB57319099?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira DESOON 20V Com Motor de Cobre, Maleta e 13 Acessórios":
+    "https://www.mercadolivre.com.br/parafusadeira-desoon-20v-com-motor-de-cobre-maleta-e-13-acessorios/p/MLB60841551?pdp_filters=item_id%3AMLB6897276496",
+  "Alicate Hidraulico Crimpar Prensar Terminal 10mm A 300mm MFL":
+    "https://www.mercadolivre.com.br/alicate-hidraulico-crimpar-prensar-terminal-10mm-a-300mm-mfl/p/MLB27153495?pdp_filters=deal%3AMLB1578289-1",
+  "Nível A Laser Verde 2 Linhas Esquadro + Suporte + Tripé Profissional Prumo 20m Autonivelante Pilhas W&g":
+    "https://www.mercadolivre.com.br/nivel-a-laser-verde-2-linhas-esquadro-suporte-tripe-profissional-prumo-20m-autonivelante-pilhas-wg/p/MLB67420932?pdp_filters=item_id%3AMLB4579781821",
+  "Serra Elétrica Tico Tico Einhell Tc-js 60 E 220v":
+    "https://www.mercadolivre.com.br/serra-eletrica-tico-tico-einhell-tc-js-60-e-220v/p/MLB25804364?pdp_filters=deal%3AMLB1578289-1",
+  "Soprador e Aspirador Philco 275Km/h 16000RPM 830W PSA1000":
+    "https://www.mercadolivre.com.br/soprador-e-aspirador-philco-275kmh-16000rpm-830w-psa1000/p/MLB24974794?pdp_filters=deal%3AMLB1578289-1",
+  "Alicate 5 Pontas Multifuncional Universal Linha Profissional Vermelho E Preto":
+    "https://www.mercadolivre.com.br/alicate-5-pontas-multifuncional-universal-linha-profissional/up/MLBU1877213658?pdp_filters=item_id%3AMLB5097737158",
+  "Lavadora Lava Jato Portátil Alta Pressão 2 Baterias Recarregáveis 48v Sem Fio Maleta Preto 50 Hz X 60 Hz":
+    "https://www.mercadolivre.com.br/lavadora-lava-jato-portatil-alta-pressao-2-baterias-recarregaveis-48v-sem-fio-maleta-preto-50-hz-x-60-hz/p/MLB61372120?pdp_filters=item_id%3AMLB5966150302",
+  "Lavadora De Alta Pressão Vap Portátil Sem Fio Bateria Lava Jato Elétrica Recarregável P/ Lavar Carro Moto Quintal C/ 2 Baterias Quicko Bico Mangueira Dispenser De Sabão Lavadora Alta Pressao Portátil":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-vap-portatil-sem-fio-bateria-lava-jato-eletrica-recarregavel-p-lavar-carro-moto-quintal-c-2-baterias-quicko-bico-mangueira-dispenser-de-sabao-lavadora-alta-pressao-portatil/p/MLB77843005?pdp_filters=deal%3AMLB1578289-1",
+  "Jogo De Alicates Para Anéis R28002104 4 Peças Gedore":
+    "https://www.mercadolivre.com.br/jogo-de-alicates-para-aneis-r28002104-4-pecas-gedore/p/MLB32429245?pdp_filters=deal%3AMLB1578289-1",
+  "Mini Retífica Quicko CTM10157 58 Acessórios 17000 rpm":
+    "https://www.mercadolivre.com.br/mini-retifica-quicko-ctm10157-58-acessorios-17000-rpm/p/MLB50350664?pdp_filters=deal%3AMLB1578289-1",
+  "Compressor de Ar Digital Mini Portátil sem Fio para Carro, Moto e Bicicleta":
+    "https://www.mercadolivre.com.br/compressor-de-ar-digital-mini-portatil-sem-fio-para-carro-moto-e-bicicleta/p/MLB67406789?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira Furadeira 48v Profissional 2 Baterias Sem Fio":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-48v-profissional-2-baterias-sem-fio/up/MLBU3443710042?pdp_filters=item_id%3AMLB4219138499",
+  "Parafusadeira Furadeira De Impacto Profissional Sem Fio 48v Azul 127/220v 50/60hz":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-de-impacto-profissional-sem-fio-48v/up/MLBU3899578757?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Jogo De Ferramentas 58 Peças Completo Profissional Soquete 46 Peças + Chave Combinada 12 Peças Conserto Carro Moto Casa Oficina Kit Soquetes Com Catraca 46 Peças + Jogo 12 Chaves + Maleta Hexon":
+    "https://www.mercadolivre.com.br/kit-jogo-de-ferramentas-58-pecas-completo-profissional-soquete-46-pecas-chave-combinada-12-pecas-conserto-carro-moto-casa-oficina-kit-soquetes-com-catraca-46-pecas-jogo-12-chaves-maleta-hexon/p/MLB67561388?pdp_filters=deal%3AMLB1578289-1",
+  "Jogo De Chave Catraca Canhão Cachimbo Com 40 Peças Soquetes Kit Chaves Jogo Catraca Reversível Soquetes 40 Peças Maleta":
+    "https://www.mercadolivre.com.br/jogo-de-chave-catraca-canhao-cachimbo-com-40-pecas-soquetes/up/MLBU673759365?pdp_filters=item_id%3AMLB2873499552",
+  "Vulkan Lokring / Hulter VLCT-636G manifold refrigeração ar condicionado gás":
+    "https://www.mercadolivre.com.br/vulkan-lokring-hulter-vlct-636g-manifold-refrigeracao-ar-condicionado-gas/p/MLB36866616?pdp_filters=deal%3AMLB1578289-1",
+  "Pulverizador Kers Speed Clean Double Gerador De Espuma 2l":
+    "https://www.mercadolivre.com.br/pulverizador-kers-speed-clean-double-gerador-de-espuma-2l/p/MLB40458829?pdp_filters=deal%3AMLB1578289-1",
+  "Pistola De Pintura C/ Caneca Plástica Ar Direto Ppv90 Vonder":
+    "https://www.mercadolivre.com.br/pistola-de-pintura-c-caneca-plastica-ar-direto-ppv90-vonder/p/MLB29204469?pdp_filters=item_id%3AMLB5750543250",
+  "Alicate Corta Cabo De Aço Lotus 6110":
+    "https://www.mercadolivre.com.br/alicate-corta-cabo-de-aco-lotus-6110/p/MLB38712495?pdp_filters=item_id%3AMLB7169936282",
+  "Pulverizador Manual Compressão Prévia 5 Litros Gpm5l01 Wap":
+    "https://www.mercadolivre.com.br/pulverizador-manual-compressao-previa-5-litros-gpm5l01-wap/p/MLB21743778?pdp_filters=deal%3AMLB1578289-1",
+  "Jogo De Chaves Fenda Phillips Isolada Vde 7pç St09303 Sata":
+    "https://www.mercadolivre.com.br/jogo-de-chaves-fenda-phillips-isolada-vde-7pc-st09303-sata/p/MLB40925546?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Jogo De Ferramentas 142 Peças Fasterr Com Maleta":
+    "https://www.mercadolivre.com.br/kit-jogo-de-ferramentas-142-pecas-fasterr-com-maleta/p/MLB32444201?pdp_filters=deal%3AMLB1578289-1",
+  "Adaptador Lâmina Oscilante Corte Esmerilhadeira Rebarbadora":
+    "https://www.mercadolivre.com.br/adaptador-lamina-oscilante-corte-esmerilhadeira-rebarbadora/up/MLBU3149778759?pdp_filters=item_id%3AMLB4047844199",
+  "Trena Nivel A Laser Alta Precisão Com Regua Profissional":
+    "https://www.mercadolivre.com.br/trena-nivel-a-laser-alta-precisao-com-regua-profissional/up/MLBU4024271832?pdp_filters=item_id%3AMLB6851434528",
+  "Lavadora de Alta Pressão Kärcher HD 585 Profi Portable 2.176 PSI/Libras 500 L/h uso fixo (sem rodas) com motor a indução 220v":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-krcher-hd-585-profi-portable-2176-psilibras-500-lh-uso-fixo-sem-rodas-com-motor-a-inducao-220v/p/MLB42862836?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora Profissional 400lb Mono Fixa Chiaperini Lj3100 Cor Preto/Vermelho":
+    "https://www.mercadolivre.com.br/lavadora-profissional-400lb-mono-fixa-chiaperini-lj3100-cor-pretovermelho/p/MLB18333507?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora Alta Pressão Mb 0147 Hydronlubz Cor Amarelo":
+    "https://www.mercadolivre.com.br/lavadora-alta-pressao-mb-0147-hydronlubz-cor-amarelo/p/MLB9489396?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira/ Furadeira de Impacto a Bateria Bosch GSB 183 LI com 2 Baterias Carregador e Maleta":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-de-impacto-a-bateria-bosch-gsb-183-li-com-2-baterias-carregador-e-maleta/p/MLB36603711?pdp_filters=item_id%3AMLB4628657829",
+  "Máquina Inversora De Solda Sinérgica Start FLUX MIG 200A Amarelo":
+    "https://www.mercadolivre.com.br/maquina-inversora-de-solda-sinergica-start-flux-mig-200a-amarelo/p/MLB45843679?pdp_filters=deal%3AMLB1578289-1",
+  "Motopodador De Galhos 2t 33cc 1,3 Hp C/extensor Carbon Fak":
+    "https://www.mercadolivre.com.br/motopodador-de-galhos-2t-33cc-13-hp-cextensor-carbon-fak/up/MLBU1971636229?pdp_filters=item_id%3AMLB3349883791",
+  "Kit 2 Chaves De Impacto Parafusadeira Furadeira 2 Bateria":
+    "https://www.mercadolivre.com.br/kit-2-chaves-de-impacto-parafusadeira-furadeira-2-bateria/up/MLBU3248258424?pdp_filters=item_id%3AMLB5443570628",
+  "Furadeira À Gasolina Para Mourão 25,4cc Vf500 Vulcan":
+    "https://www.mercadolivre.com.br/furadeira-gasolina-para-mourao-254cc-vf500-vulcan/p/MLB24993224?pdp_filters=deal%3AMLB1578289-1",
+  "Jogo Ferramentas 150pc C/maleta Crv Sata - Sto9510l Cromo Vanádio":
+    "https://www.mercadolivre.com.br/jogo-ferramentas-150pc-cmaleta-crv-sata--sto9510l/up/MLBU2699901011?pdp_filters=deal%3AMLB1578289-1",
+  "Esmerilhadeira Angular 9 Polegadas 2.200w Makita M0921b Cor Verde":
+    "https://www.mercadolivre.com.br/esmerilhadeira-angular-9-polegadas-2200w-makita-m0921b-cor-verde/p/MLB21939719?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Furadeira E Parafusadeira Chave De Impacto Brushless":
+    "https://www.mercadolivre.com.br/kit-furadeira-e-parafusadeira-chave-de-impacto-brushless/up/MLBU3257951005?pdp_filters=item_id%3AMLB5460240014",
+  "Lavadora De Alta Pressão Wap Ousada Wl 2610 1500w E 1750psi Cor Cinza E Amarelo Frequência 60 Hz":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-wap-ousada-wl-2610-1500w-e-1750psi-cor-cinza-e-amarelo-frequencia-60-hz/p/MLB58863849?pdp_filters=deal%3AMLB1578289-1",
+  "Compressor De Ar 2,5hp 8 Pés 22l Lubrificado Com Kit Tekna Amarelo 60 Hz Monofásica":
+    "https://www.mercadolivre.com.br/compressor-de-ar-25hp-8-pes-22l-lubrificado-com-kit-tekna-amarelo-60-hz-monofasica/p/MLB66170605?pdp_filters=deal%3AMLB1578289-1",
+  "Podador De Galhos 750w Haste Telescópica Pa750t2 Tekna":
+    "https://www.mercadolivre.com.br/podador-de-galhos-750w-haste-telescopica-pa750t2-tekna/p/MLB36123542?pdp_filters=item_id%3AMLB5387898354",
+  "Podador De Galhos Arvores Elétrico 2,6m Vonder 710w":
+    "https://www.mercadolivre.com.br/podador-de-galhos-arvores-eletrico-26m-vonder-710w/p/MLB27339683?pdp_filters=item_id%3AMLB4047239723",
+  "Lavadora de Alta Pressão Kärcher K3 Force Car 1815PS 360L/h 1500W Bico articulado e Kit Auto 127v":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-krcher-k3-force-car-1815ps-360lh-1500w-bico-articulado-e-kit-auto-127v/p/MLB22261379?pdp_filters=deal%3AMLB1578289-1",
+  "Mini Compressor Digital Portátil Bomba De Encher Pneus Bola Inflável Para Carro Moto Bicicleta Com Calibrador De Ar Preto":
+    "https://www.mercadolivre.com.br/mini-compressor-digital-portatil-bomba-de-encher-pneus-bola-inflavel-para-carro-moto-bicicleta-com-calibrador-de-ar-preto/p/MLB57490795?pdp_filters=item_id%3AMLB6797100872",
+  "Máquina De Solda Inversora Portátil MMA 250A Sem Gás":
+    "https://www.mercadolivre.com.br/maquina-de-solda-inversora-portatil-mma-250a-sem-gas/p/MLB69793145?pdp_filters=item_id%3AMLB4825685545",
+  "Parafusadeira E Furadeira A Bateria Pf21b2 21v Com Duas Baterias F02 4979 - Falasca":
+    "https://www.mercadolivre.com.br/parafusadeira-e-furadeira-a-bateria-pf21b2-21v-com-duas-baterias-f02-4979-falasca/p/MLB55560792?pdp_filters=item_id%3AMLB5691483790",
+  "Esmerilhadeira Angular Sem Fio Com 2 Baterias De Lítio Amarelo 21v 50hz/60hz":
+    "https://www.mercadolivre.com.br/esmerilhadeira-angular-sem-fio-com-2-baterias-de-litio/up/MLBU3194871858?pdp_filters=item_id%3AMLB5401584332",
+  "Máquina De Solda Inversora Eletrodo Tig/lift Bivolt Arcbolt Laranja King Note":
+    "https://www.mercadolivre.com.br/maquina-de-solda-inversora-eletrodo-tiglift-bivolt-arcbolt-laranja-king-note/p/MLB62418723?pdp_filters=item_id%3AMLB6718025658",
+  "Lavadora De Alta Pressão Potente 1305lbs Kit Shampoo Worker":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-potente-1305lbs-kit-shampoo-worker/p/MLB41589247?pdp_filters=item_id%3AMLB4232660361",
+  "Parafusadeira Furadeira De Impacto The Black Tools Com Maleta + Kit Acessórios 147 Peças 2 Baterias Profissional Tbkit17":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-de-impacto-the-black-tools-com-maleta-kit-acessorios-147-pecas-2-baterias-profissional-tbkit17/p/MLB68028763?pdp_filters=deal%3AMLB1578289-1",
+  "Caixa de Ferramentas Dupla Renna Pix 25 kg Preta com Rodas":
+    "https://www.mercadolivre.com.br/caixa-de-ferramentas-dupla-renna-pix-25-kg-preta-com-rodas/p/MLB21621629?pdp_filters=item_id%3AMLB3644391875",
+  "Chave De Impacto Parafusadeira 680nm Brushless 98v 2baterias Preto 127/220v":
+    "https://www.mercadolivre.com.br/chave-de-impacto-parafusadeira-680nm-brushless-98v-2baterias/up/MLBU3907566735?pdp_filters=item_id%3AMLB6648971934",
+  "Chave Impacto Kinetx 880nm Brushless 21v+2 Bat Kit Completo Azul 127/220v":
+    "https://www.mercadolivre.com.br/chave-impacto-kinetx-880nm-brushless-21v2-bat-kit-completo/up/MLBU3859470117?pdp_filters=item_id%3AMLB6515334700",
+  "Kit Parafusadeira Mini Motosserra 2 Baterias Maleta Nakasaki":
+    "https://www.mercadolivre.com.br/kit-parafusadeira-mini-motosserra-2-baterias-maleta-nakasaki/up/MLBU5147267812?pdp_filters=item_id%3AMLB5205043413",
+  "Lavadora De Alta Pressão Jato Compacta Philco Plp2200 1300w 1300 Psi/libras 312l/h Lança Regulável 127v":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-jato-compacta-philco-plp2200-1300w-1300-psilibras-312lh-lanca-regulavel-127v/p/MLB68489793?pdp_filters=deal%3AMLB1578289-1",
+  "Jogo De Ferramentas 169 Peças E Furadeira Parafusadeira 21v":
+    "https://www.mercadolivre.com.br/jogo-de-ferramentas-169-pecas-e-furadeira-parafusadeira-21v/up/MLBU3512424196?pdp_filters=deal%3AMLB1578289-1",
+  "Pistola De Pintura E Pulverizadora Elétrica Portátil Hvlp Amarelo 127v":
+    "https://www.mercadolivre.com.br/pistola-de-pintura-e-pulverizadora-eletrica-portatil-hvlp/up/MLBU3663684122?pdp_filters=item_id%3AMLB4348835537",
+  "Kit Extrator De Rolamento Interno Com Marreta Dinâmica 9peca":
+    "https://www.mercadolivre.com.br/kit-extrator-de-rolamento-interno-com-marreta-dinamica-9peca/p/MLB2081231799?pdp_filters=item_id%3AMLB3138226959",
+  "Lavadora Alta Pressão Potente 1200w Lava Carro Moto Calçada Amarelo 220v 60 Hz":
+    "https://www.mercadolivre.com.br/lavadora-alta-pressao-potente-1200w-lava-carro-moto-calcada/up/MLBU3921046443?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira Furadeira De Impacto The Black Tools Profissional 2 Baterias Com Maleta + Kit Acessórios 145 Peças Tbkit19":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-de-impacto-the-black-tools-profissional-2-baterias-com-maleta-kit-acessorios-145-pecas-tbkit19/p/MLB69742713?pdp_filters=deal%3AMLB1578289-1",
+  "Máquina De Solda Inversora MMA 250A Sem Gás":
+    "https://www.mercadolivre.com.br/maquina-de-solda-inversora-mma-250a-sem-gas/p/MLB65084417?pdp_filters=deal%3AMLB1578289-1",
+  "Mondial LAP-04 GY Lavadora de Alta Pressão 1400W + Jato Ajustável":
+    "https://www.mercadolivre.com.br/mondial-lap-04-gy-lavadora-de-alta-pressao-1400w-jato-ajustavel/p/MLB69330481?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora De Alta Pressão Aqua Power Mondial Preto 1400w Lap-04-gy":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-aqua-power-mondial-preto-1400w-lap-04-gy/p/MLB69328684?pdp_filters=deal%3AMLB1578289-1",
+  "Esmerilhadeira Angular Corte E Desbaste 115mm 850w Makita":
+    "https://produto.mercadolivre.com.br/MLB-4746424594-esmerilhadeira-angular-corte-e-desbaste-115mm-850w-makita-_JM",
+  "Esmerilhadeira Angular Elétrica GEELE MG-16 1150W Diâmetro 125mm":
+    "https://www.mercadolivre.com.br/esmerilhadeira-angular-eletrica-geele-mg-16-1150w-diametro-125mm/p/MLB57520670?pdp_filters=item_id%3AMLB7616034118",
+  "Parafusadeira Furadeira 3/8 21v 2 Baterias Com Maleta E Acessórios Completo Brushless 85nm Arstheco":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-38-21v-2-baterias-com-maleta-e-acessorios-completo-brushless-85nm-arstheco/p/MLB72714233?pdp_filters=item_id%3AMLB7026372972",
+  "Lavadora De Alta Pressão Electrolux 1600psi 1400w De Potência Com Engate Rápido Easywash Lava Jato Lava Car Qws1600 Cinza":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-electrolux-1600psi-1400w-de-potencia-com-engate-rapido-easywash-lava-jato-lava-car-qws1600-cinza/p/MLB42082466?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira Furadeira De Impacto Invas 21V Com 2 Baterias e Maleta":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-de-impacto-invas-21v-com-2-baterias-e-maleta/p/MLB64213467?pdp_filters=item_id%3AMLB4435809015",
+  "Lavadora De Alta Pressão Kärcher Portátil 1500 psi/libras 1400w 300 L/h com aplicador de detergente 220v":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-krcher-portatil-1500-psilibras-1400w-300-lh-com-aplicador-de-detergente-220v/p/MLB43403294?pdp_filters=deal%3AMLB1578289-1",
+  "Máquina De Solda Inversora 120a Real Profissional Mma Portátil Soldadora Igbt Com Eletrodo E Máscara De Solda Desoon":
+    "https://www.mercadolivre.com.br/maquina-de-solda-inversora-120a-real-profissional-mma-portatil-soldadora-igbt-com-eletrodo-e-mascara-de-solda-desoon/p/MLB67135554?pdp_filters=item_id%3AMLB7647825468",
+  "Chave De Impacto 800n.m 48v Brushless Com 2 Baterias Sem Fio Amarelo 127/220v 50/60hz":
+    "https://www.mercadolivre.com.br/chave-de-impacto-800nm-48v-brushless-com-2-baterias-sem-fio/up/MLBU3911849187?pdp_filters=deal%3AMLB1578289-1",
+  "Furadeira Parafusadeira Impacto 21v 2 Baterias Brushless Verde 127/220v":
+    "https://www.mercadolivre.com.br/furadeira-parafusadeira-impacto-21v-2-baterias-brushless/up/MLBU3841390159?pdp_filters=deal%3AMLB1578289-1",
+  "Misturador De Argamassa E Tinta 1200w Evma-1200 Evald":
+    "https://www.mercadolivre.com.br/misturador-de-argamassa-e-tinta-1200w-evma-1200-evald/p/MLB47470577?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora Alta Pressão Portátil Sem Fio 2 Baterias Maleta Preto 127/220v 50 Hz/60 Hz":
+    "https://www.mercadolivre.com.br/lavadora-alta-pressao-portatil-sem-fio-2-baterias-maleta/up/MLBU4404530135?pdp_filters=item_id%3AMLB4938981899",
+  "Parafusadeira Furadeira De Impacto 700w Maleta Wf 700k13 Wap":
+    "https://produto.mercadolivre.com.br/MLB-5811881724-parafusadeira-furadeira-de-impacto-700w-maleta-wf-700k13-wap-_JM",
+  "Parafusadeira Furadeira 48v Profissional 2 Baterias Sem Fio Amarelo 127/220v 50 Hz X 60 Hz":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-48v-profissional-2-baterias-sem-fio/up/MLBU3647479637?pdp_filters=item_id%3AMLB6001031852",
+  "Parafusadeira Furadeira Profissional 2 Baterias Sem Fio":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-profissional-2-baterias-sem-fio/p/MLB64532542?pdp_filters=item_id%3AMLB6181665102",
+  "Chave De Impacto Bateria 21v 450nm SH450 XUMTOM 1/2 Pol Parafusadeira Recarregável Sem Escova Com 2 Baterias e Maleta":
+    "https://www.mercadolivre.com.br/chave-de-impacto-bateria-21v-450nm-sh450-xumtom-12-pol-parafusadeira-recarregavel-sem-escova-com-2-baterias-e-maleta/p/MLB63650123?pdp_filters=deal%3AMLB1578289-1",
+  "Chave De Impacto Brushless 500nm Com 2 Baterias 48v Cinza-escuro 127/220v":
+    "https://www.mercadolivre.com.br/chave-de-impacto-brushless-500nm-com-2-baterias-48v/up/MLBU3803111237?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira Furadeira De Impacto 02 Baterias The Black Tools Profissional Tb-21px.2 Kit Completo Com Maleta Acessórios":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-de-impacto-02-baterias-the-black-tools-profissional-tb-21px2-kit-completo-com-maleta-acessorios/p/MLB69122565?pdp_filters=deal%3AMLB1578289-1",
+  "Esmerilhadeira Lixadeira Angular 880w Hanabi 115mm Cor Azul-petróleo Frequência 60hz":
+    "https://www.mercadolivre.com.br/esmerilhadeira-lixadeira-angular-880w-hanabi-115mm-cor-azul-petroleo-frequencia-60hz/p/MLB54468896?pdp_filters=item_id%3AMLB6112268168",
+  "Politriz Lixadeira Multifunções Automotiva Profissional 50hz-60hz 5000rpm Com Mandril 5 Polegadas Furadeira Parafusadeira Mestri M-201":
+    "https://www.mercadolivre.com.br/politriz-lixadeira-multifuncoes-automotiva-profissional-50hz-60hz-5000rpm-com-mandril-5-polegadas-furadeira-parafusadeira-mestri-m-201/p/MLB64101398?pdp_filters=deal%3AMLB1578289-1",
+  "Chave De Impacto A Bateria 48v Profissional Azul 48v":
+    "https://www.mercadolivre.com.br/chave-de-impacto-a-bateria-48v-profissional/up/MLBU4096820922?pdp_filters=deal%3AMLB1578289-1",
+  "Esmerilhadeira Lixadeira Profissional 127v + Kit Soquetes Amarelo 127v":
+    "https://www.mercadolivre.com.br/esmerilhadeira-lixadeira-profissional-127v--kit-soquetes/up/MLBU4265875195?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira Furadeira De Impacto Sem Escova 16.8v 2.0ah Azul-petróleo 110220 V":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-de-impacto-sem-escova-168v-20ah/up/MLBU3166888789?pdp_filters=item_id%3AMLB4058111067",
+  "Jogo De Bits Parafusadeira Aço 50 Peças Magnético Ponteira":
+    "https://www.mercadolivre.com.br/jogo-de-bits-parafusadeira-aco-50-pecas-magnetico-ponteira/up/MLBU3780620234?pdp_filters=item_id%3AMLB6227411004",
+  "Parafusadeira 48 volts Furadeira de Precisão C/ 2 Baterias multifuncional Maleta Kit Completo Led Eixo Flexível Vários Níveis Torque para parafusos telhados manutenção pc - Rezzet":
+    "https://www.mercadolivre.com.br/parafusadeira-48-volts-furadeira-de-precisao-c-2-baterias-multifuncional-maleta-kit-completo-led-eixo-flexivel-varios-niveis-torque-para-parafusos-telhados-manutencao-pc-rezzet/p/MLB75630201?pdp_filters=deal%3AMLB1578289-1",
+  "Soprador Turbo Sem Fio Bivolt 48v Portátil Mini De Mão 2 Baterias Lítio Forte Para Limpeza Automotiva E Casa":
+    "https://www.mercadolivre.com.br/soprador-turbo-sem-fio-bivolt-48v-portatil-mini-de-mao-2-baterias-litio-forte-para-limpeza-automotiva-e-casa/p/MLB74545593?pdp_filters=deal%3AMLB1578289-1",
+  "Maleta Estojo Kit Jogo 169 Ferramentas Caixa Completa Devilprex Preto":
+    "https://www.mercadolivre.com.br/maleta-estojo-kit-jogo-169-ferramentas-caixa-completa-devilprex-preto/p/MLB75533803?pdp_filters=item_id%3AMLB4925434553",
+  "Pistola Projetora De Textura 6 Litros Fasterr Fst036 Cor Amarelo":
+    "https://www.mercadolivre.com.br/pistola-projetora-de-textura-6-litros-fasterr-fst036-cor-amarelo/p/MLB43993471?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 3 Desempenadeiras Dentadas Ajustáveis Aço Galvanizado 27, 35, 43cm":
+    "https://www.mercadolivre.com.br/kit-3-desempenadeiras-dentadas-ajustaveis-aco-galvanizado-27-35-43cm/p/MLB26482209?pdp_filters=item_id%3AMLB3538945981",
+  "Maçarico Profissional MAP Portátil para Solda Refrigeração EOS-757":
+    "https://www.mercadolivre.com.br/macarico-profissional-map-portatil-para-solda-refrigeracao-eos-757/p/MLB36456974?pdp_filters=deal%3AMLB1578289-1",
+  "Jogo De Fresas Para Tupia Corte E Acabamento Em Mdf":
+    "https://www.mercadolivre.com.br/kit-fresas-12-pecas-06mm-estojo-de-madeira-p-tupia-eletrica/p/MLB2043553690?pdp_filters=deal%3AMLB1578289-1",
+  "Kit de Formão Chato EVOFIX Profissional para Madeira com Cabo Emborrachado – 5 Peças":
+    "https://www.mercadolivre.com.br/kit-de-formao-chato-evofix-profissional-para-madeira-com-cabo-emborrachado-5-pecas/p/MLB74868109?pdp_filters=item_id%3AMLB7294026636",
+  "Parafusadeira Furadeira Elétrica 21v Com 2 Baterias + Maleta Amarelo 127/220v 50hz":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-eletrica-21v-com-2-baterias--maleta/up/MLBU4409770587?pdp_filters=deal%3AMLB1578289-1",
+  "Maçarico Bico Portátil + Refil Mapp Pluss Pronta Entrega":
+    "https://www.mercadolivre.com.br/macarico-bico-portatil-refil-mapp-pluss-pronta-entrega/p/MLB2086533360?pdp_filters=deal%3AMLB1578289-1",
+  "Extrator Polia Virabrequim Motores Fiat 1.6/1.8 16v E-torq":
+    "https://www.mercadolivre.com.br/extrator-polia-virabrequim-motores-fiat-1618-16v-e-torq/p/MLB2089324032?pdp_filters=deal%3AMLB1578289-1",
+  "Jogo Chaves Fenda Phillips Isolada Ponta Magnetizada 1000v Lotus":
+    "https://www.mercadolivre.com.br/jogo-chaves-fenda-phillips-isolada-ponta-magnetizada-1000v-lotus/p/MLB31395123?pdp_filters=item_id%3AMLB7029019674",
+  "Dobradeira Portatil Chapa Aço Calha Rufo Calheiro Promoção":
+    "https://www.mercadolivre.com.br/dobradeira-portatil-chapa-aco-calha-rufo-calheiro-promocao/up/MLBU606722558?pdp_filters=item_id%3AMLB3512580321",
+  "Removedor De Erva Daninha Arrancador De Inço Extrator De Matos Pragas Mato Tiririca Remove Elimina Inços Em Pé 73cm Metal Reforçado Protetor De Jardim Ferramenta De Jardinagem Killrex":
+    "https://www.mercadolivre.com.br/removedor-de-erva-daninha-arrancador-de-inco-extrator-de-matos-pragas-mato-tiririca-remove-elimina-incos-em-pe-73cm-metal-reforcado-protetor-de-jardim-ferramenta-de-jardinagem-killrex/p/MLB50852478?pdp_filters=item_id%3AMLB5428928794",
+  "Lavadora de Alta Pressão Portátil Rmira com 2 Baterias e 40 Bar para Carro e Casa":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-portatil-rmira-com-2-baterias-e-40-bar-para-carro-e-casa/p/MLB65262928?pdp_filters=deal%3AMLB1578289-1",
+  'Mangueira Airless 1/4" Alta Pressão 15m Azul 3300psi para Pintura':
+    "https://www.mercadolivre.com.br/mangueira-airless-14-alta-pressao-15m-azul-3300psi-para-pintura/p/MLB29104929?pdp_filters=deal%3AMLB1578289-1",
+  "Bomba Engraxadeira Manual 8000psi Com Acessórios E Acoplador":
+    "https://www.mercadolivre.com.br/bomba-engraxadeira-manual-10000psi/p/MLB2060113476?pdp_filters=item_id%3AMLB4508133603",
+  "Jogo Kit Caixa Ferramentas 129 Pçs Estojo Plastico Maleta Preto":
+    "https://www.mercadolivre.com.br/jogo-kit-caixa-ferramentas-129-pcs-estojo-plastico-maleta/up/MLBU782542764?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira Furadeira Sem Fio Gradiente Gpb12v-ac 3/8 12v Bivolt Para Madeira Metal Com Maleta E Acessórios":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-sem-fio-gradiente-gpb12v-ac-38-12v-bivolt-para-madeira-metal-com-maleta-e-acessorios/p/MLB68849992?pdp_filters=deal%3AMLB1578289-1",
+  "Bateria De Motos Yamaha Fazer 250 Xtz Lander Mt-03 Yzf R3":
+    "https://www.mercadolivre.com.br/bateria-de-motos-yamaha-fazer-250-xtz-lander-mt03-yzf-r3/up/MLBU1164975116?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Para Solda Refrigeração Maçarico Portátil Profissional":
+    "https://www.mercadolivre.com.br/kit-para-solda-refrigeracao-macarico-portatil-profissional/p/MLB66066210?pdp_filters=deal%3AMLB1578289-1",
+  "Alicate Decapador De Fios Para Eletricista Tramontina":
+    "https://www.mercadolivre.com.br/alicate-decapador-de-fios-para-eletricista-tramontina/up/MLBU3331518803?pdp_filters=item_id%3AMLB5532249906",
+  "Pistola De Pintura Elétrica Yolo-t008 550w 1l, Com 4 Bicos Amarelo 220v":
+    "https://www.mercadolivre.com.br/pistola-de-pintura-eletrica-yolot008-550w-1l-com-4-bicos/up/MLBU4401057098?pdp_filters=deal%3AMLB1578289-1",
+  "Silven Serrote Curvo Podador De Galhos Altos Tesoura 2 Em 1 Serra E Poda Slv-serrote12":
+    "https://www.mercadolivre.com.br/silven-serrote-curvo-podador-de-galhos-altos-tesoura-2-em-1-serra-e-poda-slv-serrote12/p/MLB56291541?pdp_filters=item_id%3AMLB5738417982",
+  "Kit Martelinho Ferramentas Reparo Remoção Amassados Carro 12":
+    "https://www.mercadolivre.com.br/kit-martelinho-ferramentas-reparo-remocao-amassados-carro-12/p/MLB69639244?pdp_filters=item_id%3AMLB6771742910",
+  "Mini Esmerilhadeira Lixadeira Sem Fio 12v Maleta 2 Baterias Azul-petróleo 12v":
+    "https://www.mercadolivre.com.br/mini-esmerilhadeira-lixadeira-sem-fio-12v-maleta-2-baterias/up/MLBU3981155436?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 100 Pinos Para Pistola Fixação Fianca Pino Com Arruela":
+    "https://www.mercadolivre.com.br/kit-100-pinos-para-pistola-fixacao-fianca-pino-com-arruela/p/MLB65990762?pdp_filters=item_id%3AMLB7040161220",
+  "Kit Aneis Oring Milímetro Polegada Excelente Vedação 810 Pcs Azul E Vermelho Bradex":
+    "https://www.mercadolivre.com.br/kit-aneis-oring-milimetro-polegada-excelente-vedacao-810-pcs-azul-e-vermelho-bradex/p/MLB63646545?pdp_filters=item_id%3AMLB6107899396",
+  "Lavadora A Jato De Alta Pressão Portátil Recarregáveel Preto Preto 127/220v 50hz/60hz":
+    "https://www.mercadolivre.com.br/lavadora-a-jato-de-alta-pressao-portatil-recarregaveel-preto/up/MLBU3966721059?pdp_filters=deal%3AMLB1578289-1",
+  "Mangueira Espiral PU Hidraflux Azul 15M 1/4 P/ Ar Comprimido Ferramentas Pneumáticas":
+    "https://www.mercadolivre.com.br/mangueira-espiral-pu-hidraflux-azul-15m-14-p-ar-comprimido-ferramentas-pneumaticas/p/MLB26881257?pdp_filters=item_id%3AMLB4208447019",
+  "Jogo Sextavado Soquete 1/2 Com Catraca 12 Pcs E Extensão Azul-aço":
+    "https://www.mercadolivre.com.br/jogo-sextavado-soquete-12-com-catraca-12-pcs-e-extensao/up/MLBU3448390643?pdp_filters=item_id%3AMLB4227767641",
+  "Refratometro Medidor De Brix Faixa De 0-40% E Alcool 0-25% MFL":
+    "https://www.mercadolivre.com.br/refratometro-medidor-de-brix-faixa-de-0-40-e-alcool-0-25-mfl/p/MLB27153486?pdp_filters=item_id%3AMLB3966252945",
+  "Chave De Fenda/phillips/torx Jogo De 18 Peças - Fortgpro":
+    "https://www.mercadolivre.com.br/chave-de-fendaphillipstorx-jogo-de-18-pecas-fortgpro/p/MLB69008327?pdp_filters=deal%3AMLB1578289-1",
+  "Pino F25 Para Pinador Pneumático Com 5.000 Pinos Puma":
+    "https://www.mercadolivre.com.br/pino-f25-para-pinador-pneumatico-com-5000-pinos-puma/p/MLB27791926?pdp_filters=item_id%3AMLB5223250118",
+  "Extrator De Rolamento Interno, Extrator De Rolamento Piloto":
+    "https://www.mercadolivre.com.br/extrator-de-rolamento-interno-extrator-de-rolamento-piloto/p/MLB28524568?pdp_filters=item_id%3AMLB4481239247",
+  "Broca 80x10 Perfurador Solo 800x100 C/ Pino Trava Carbon Fak":
+    "https://www.mercadolivre.com.br/broca-80x10-perfurador-solo-800x100-c-pino-trava-carbon-fak/p/MLB54177345?pdp_filters=deal%3AMLB1578289-1",
+  "Serrote Tipo Japonês 300mm Aço Carbono Vonder":
+    "https://www.mercadolivre.com.br/serrote-tipo-japones-300mm-aco-carbono-vonder/p/MLB51300411?pdp_filters=item_id%3AMLB6428329246",
+  "Bomba Graxa Engraxadeira Manual Extensão Rígida E Flexível":
+    "https://www.mercadolivre.com.br/bomba-graxa-engraxadeira-manual-extensao-rigida-e-flexivel/p/MLB68981141?pdp_filters=item_id%3AMLB4595171706",
+  "Kit Ferramenta Estojo Soquetes Chave Catraca Manual 46 Peças Preto":
+    "https://www.mercadolivre.com.br/kit-ferramenta-estojo-soquetes-chave-catraca-manual-46-pecas/up/MLBU3819661558?pdp_filters=item_id%3AMLB6307507990",
+  "Pinos Para Pistola Finca Pino Fixação Com Arruela Pinador Reforçado Alta Precição 100 Unidades":
+    "https://www.mercadolivre.com.br/pinos-para-pistola-finca-pino-fixacao-com-arruela-pinador-reforcado-alta-precicao-100-unidades/p/MLB66396744?pdp_filters=item_id%3AMLB6434094406",
+  "Lavadora de Alta Pressão Portátil a Bateria 48V, Kit Completo Preto":
+    "https://www.mercadolivre.com.br/lavadora-de-alta-pressao-portatil-a-bateria-48v-kit-completo-preto/p/MLB41837925?pdp_filters=deal%3AMLB1578289-1",
+  "Jogo De Chave Boca E Estrela Combinada 12 Pçs Aço 6 22 Mm Prateado":
+    "https://www.mercadolivre.com.br/jogo-de-chave-boca-e-estrela-combinada-12-pcs-aco-6-22-mm/up/MLBU3806170232?pdp_filters=deal%3AMLB1578289-1",
+  "16 Pçs Jogo Chave Boca E Estrela Combinada 6-24 Mm Cromada Prata":
+    "https://www.mercadolivre.com.br/16-pcs-jogo-chave-boca-e-estrela-combinada-624-mm-cromada/up/MLBU3681515281?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Formão Broca 10 Peças Completo Marceneiro Madeira Corte":
+    "https://www.mercadolivre.com.br/kit-formao-broca-10-pecas-completo-marceneiro-madeira-corte/p/MLB2091035420?pdp_filters=deal%3AMLB1578289-1",
+  "Pulverizador Manual Snow Foam 2l Espuma Automotiva Bomba Pressão Ajuste De Jato Lavagem Carro Moto Detailing Noltron":
+    "https://www.mercadolivre.com.br/pulverizador-manual-snow-foam-2l-espuma-automotiva-bomba-pressao-ajuste-de-jato-lavagem-carro-moto-detailing-noltron/p/MLB68409699?pdp_filters=item_id%3AMLB4678021157",
+  "Trena Nível Laser Profissional 2,5m 3 Linhas Horizontal Vertical Cruzado Nível De Bolha Prático E Preciso Para Quadros Prateleiras Painéis Instalações Residenciais E Pequenos Reparos Eletric Teck":
+    "https://www.mercadolivre.com.br/trena-nivel-laser-profissional-25m-3-linhas-horizontal-vertical-cruzado-nivel-de-bolha-pratico-e-preciso-para-quadros-prateleiras-paineis-instalacoes-residenciais-e-pequenos-reparos-eletric-teck/p/MLB67840670?pdp_filters=item_id%3AMLB6607799772",
+  "Desempeno Flexível Inox 12x30 - Ref 238 - Castor":
+    "https://www.mercadolivre.com.br/desempeno-flexivel-inox-12x30-ref-238-castor/p/MLB26700495?pdp_filters=item_id%3AMLB3974552890",
+  "Bomba Manual P/ Graxa 400 Gramas":
+    "https://www.mercadolivre.com.br/bomba-manual-p-graxa-400-gramas/p/MLB46200434?pdp_filters=item_id%3AMLB5292880114",
+  "Kit Acabamento Impressão 3d Limas Alicate Escovas 10 Peças Cabo Amarelo":
+    "https://www.mercadolivre.com.br/kit-acabamento-impressao-3d-limas-alicate-escovas-10-pecas/up/MLBU3946024347?pdp_filters=deal%3AMLB1578289-1",
+  "Nivelador A Laser Digital Nível Profissional Com Tripé Ajustável 360° Alinhamento Profissional Multifuncional Linhas Horizontal Vertical Obras Reformas Quadros TV's Davely":
+    "https://www.mercadolivre.com.br/nivelador-a-laser-digital-nivel-profissional-com-tripe-ajustavel-360-alinhamento-profissional-multifuncional-linhas-horizontal-vertical-obras-reformas-quadros-tvs-davely/p/MLB74347854?pdp_filters=item_id%3AMLB7020278584",
+  "Engraxadeira Manual Bomba de Graxa 500g com Bico Acoplador para Lubrificação de Veículos Máquinas Equipamentos Automotivos Agrícolas Industriais Oficina Manutenção":
+    "https://www.mercadolivre.com.br/engraxadeira-manual-bomba-de-graxa-500g-com-bico-acoplador-para-lubrificacao-de-veiculos-maquinas-equipamentos-automotivos-agricolas-industriais-oficina-manutencao/p/MLB77515568?pdp_filters=deal%3AMLB1578289-1",
+  "Cortador de Grama Toyama 7.5HP Tração Elétrica TLM560TRMSE-75XP cor preto":
+    "https://www.mercadolivre.com.br/cortador-de-grama-toyama-75hp-tracao-eletrica-tlm560trmse-75xp-cor-preto/p/MLB61074463?pdp_filters=deal%3AMLB1578289-1",
+  "Roçadeira Gasolina Knakasaki 75cc 3,6hp 8 Em 1 Motopoda":
+    "https://www.mercadolivre.com.br/rocadeira-gasolina-knakasaki-75cc-36hp-8-em-1-motopoda/up/MLBU2351996081?pdp_filters=item_id%3AMLB3822666395",
+  "Kit 3 Bolsas Para Ferramentas Reforçada Com Carrinho Alça Telescópica Eletricista Encanador Carpinteiro Cor Amarelo E Preto Gbc-300 Gorillaz":
+    "https://www.mercadolivre.com.br/kit-3-bolsas-para-ferramentas-reforcada-com-carrinho-alca-telescopica-eletricista-encanador-carpinteiro-cor-amarelo-e-preto-gbc-300-gorillaz/p/MLB49205533?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Esmerilhadeira Lixadeira + Chave De Impacto Maleta Ryoku":
+    "https://www.mercadolivre.com.br/kit-chave-de-impacto-esmerilhadeira-lixadeira-brushless-21v/p/MLB2053477355?pdp_filters=deal%3AMLB1578289-1",
+  "Jogo Soquete Chave Combinada Catraca Kit 61 Pcs Com Maleta Cinza-escuro":
+    "https://www.mercadolivre.com.br/jogo-soquete-chave-combinada-catraca-kit-61-pcs-com-maleta/up/MLBU3128967959?pdp_filters=item_id%3AMLB4035939923",
+  "Kit Furadeira Impacto + Esmerilhadeira Lixadeira 900w 2 Em 1":
+    "https://www.mercadolivre.com.br/kit-furadeira-impacto--esmerilhadeira-lixadeira-900w-2-em-1/up/MLBU3886466033?pdp_filters=item_id%3AMLB6594729154",
+  "Chave De Impacto Parafusadeira Furadeira Recarregável 48v 20000mah Com 2 Baterias Sem Fio Maleta Completa Azul Several":
+    "https://www.mercadolivre.com.br/chave-de-impacto-parafusadeira-furadeira-recarregavel-48v-20000mah-com-2-baterias-sem-fio-maleta-completa-azul-several/p/MLB62116349?pdp_filters=deal%3AMLB1578289-1",
+  "Máquina de Solda Inversora Portátil Adeske 250A com Display Digital e Acessórios":
+    "https://www.mercadolivre.com.br/maquina-de-solda-inversora-portatil-adeske-250a-com-display-digital-e-acessorios/p/MLB78145915?pdp_filters=deal%3AMLB1578289-1",
+  "Furadeira Parafusadeira Sem Fio 3/8 Maleta + Kit Ferramentas":
+    "https://www.mercadolivre.com.br/furadeira-parafusadeira-sem-fio-38-maleta--kit-ferramentas/up/MLBU3546087262?pdp_filters=deal%3AMLB1578289-1",
+  "Máquina Solda Inversora Mig 260a 3 Em1 Tig Mma 220v Portátil":
+    "https://www.mercadolivre.com.br/maquina-solda-inversora-mig-260a-3-em1-tig-mma-220v-portatil/up/MLBU3857390886?pdp_filters=deal%3AMLB1578289-1",
+  "Jogo Soquete Chave Combinada Catraca Kit 61 Pcs Com Maleta Cor Cinza-escuro":
+    "https://www.mercadolivre.com.br/jogo-soquete-chave-combinada-catraca-kit-61-pcs-com-maleta-cor-cinza-escuro/p/MLB73825458?pdp_filters=deal%3AMLB1578289-1",
+  "Chave/furadeira De Impacto 2 Em 1, 48v, 350nm 2700rpm, Com 2 Baterias + Acessórios Para Caixa De Ferramentas, Amarela":
+    "https://www.mercadolivre.com.br/chavefuradeira-de-impacto-2-em-1-48v-350nm-2700rpm-com-2-baterias-acessorios-para-caixa-de-ferramentas-amarela/p/MLB73903627?pdp_filters=item_id%3AMLB5120436525",
+  "Chave de impacto e Parafusadeira 21V INVAS 2800 Rpm A bateria 3000mah":
+    "https://www.mercadolivre.com.br/chave-de-impacto-e-parafusadeira-21v-invas-2800-rpm-a-bateria-3000mah/p/MLB56389269?pdp_filters=item_id%3AMLB6061120856",
+  "Pistola Fixação Finca Pino Ação Direta Pregos Epi Maleta Pinador Pregador Grampeador Rebitador De Prego Pressão Ferramenta Para Drywal Gesso Concreto Aço Parede":
+    "https://www.mercadolivre.com.br/pistola-fixacao-finca-pino-acao-direta-pregos-epi-maleta-pinador-pregador-grampeador-rebitador-de-prego-pressao-ferramenta-para-drywal-gesso-concreto-aco-parede/p/MLB77311415?pdp_filters=item_id%3AMLB5075784673",
+  "Aparador De Grama Elétrico Philco Pag1800a 1800w Azul Philco Azul 220v":
+    "https://www.mercadolivre.com.br/aparador-de-grama-eletrico-philco-pag1800a-1800w-azul-philco/up/MLBU3725084871?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora Jato Portátil 48V 2 Baterias Mangueira Carregador":
+    "https://www.mercadolivre.com.br/lavadora-jato-portatil-48v-2-baterias-mangueira-carregador/p/MLB53718508?pdp_filters=item_id%3AMLB5969968912",
+  "Lavadora Alta Pressão Profissional 2 Baterias Portátil Preto Preto 127/220v":
+    "https://www.mercadolivre.com.br/lavadora-alta-pressao-profissional-2-baterias-portatil-preto/up/MLBU3447449009?pdp_filters=item_id%3AMLB5747126656",
+  "Esmerilhadeira Lixadeira Angular 36v Brushless Sem Fio Azul-celeste 127/220v 50hz/60hz":
+    "https://www.mercadolivre.com.br/esmerilhadeira-lixadeira-angular-36v-brushless-sem-fio/up/MLBU3665442537?pdp_filters=deal%3AMLB1578289-1",
+  "Pistola Finca Pino Impacto Profissional Fixação Ação Direta Para Concreto Aço Alvenaria Gesso Drywall Parede Kit Completo Ferramenta Com 20 Pregos Rebites Maleta Óculos Luvas Kit Manutenção":
+    "https://www.mercadolivre.com.br/pistola-finca-pino-impacto-profissional-fixacao-acao-direta-para-concreto-aco-alvenaria-gesso-drywall-parede-kit-completo-ferramenta-com-20-pregos-rebites-maleta-oculos-luvas-kit-manutencao/p/MLB75466008?pdp_filters=deal%3AMLB1578289-1",
+  "Bomba Graxa Manual Hydronlubz 4kg 5000psi Com Mangueira e Acessórios":
+    "https://www.mercadolivre.com.br/bomba-graxa-manual-hydronlubz-4kg-5000psi-com-mangueira-e-acessorios/p/MLB34132171?pdp_filters=deal%3AMLB1578289-1",
+  "Combo Sabre + 2 Correntes P/ Motosserra St170 12":
+    "https://www.mercadolivre.com.br/kit-saibro-sabre-facao-motosserra-st162-170-172-180-182-212/p/MLB2101308642?pdp_filters=item_id%3AMLB3285976945",
+  "Kit 58 Ferramentas Aço Cr-v Jogo Catraca Reversível Soquete 46pcs + 12 Chaves Combinadas Boca Estrela Cromo Vanádio Xcolds":
+    "https://www.mercadolivre.com.br/kit-58-ferramentas-aco-cr-v-jogo-catraca-reversivel-soquete-46pcs-12-chaves-combinadas-boca-estrela-cromo-vanadio-xcolds/p/MLB73441723?pdp_filters=item_id%3AMLB6981285498",
+  "Bomba De Graxa Manual 4kg 5.000 Psi - Conelub":
+    "https://www.mercadolivre.com.br/bomba-de-graxa-manual-4kg-5000-psi-conelub/p/MLB46234358?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Curvador De Tubos De Cobre 3 Em 1 6/8/10mm 180° + 5molas":
+    "https://www.mercadolivre.com.br/kit-curvador-de-tubos-de-cobre-3-em-1-6810mm-180-5molas/p/MLB69617027?pdp_filters=deal%3AMLB1578289-1",
+  "Tramontina 78380004 Podador De Galhos Com Serrote Sem Cabo":
+    "https://www.mercadolivre.com.br/tramontina-78380004-podador-de-galhos-com-serrote-sem-cabo/p/MLB51306421?pdp_filters=deal%3AMLB1578289-1",
+  "Broca Serra Copo Hss Fura Metal,inox E Alumínio 100mm":
+    "https://www.mercadolivre.com.br/broca-serra-copo-hss-fura-metalinox-e-aluminio-100mm/p/MLB37269903?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Sabre 16 E Corrente 28 Dentes 3/8 X 1,5mm Para":
+    "https://www.mercadolivre.com.br/kit-sabre-16-e-corrente-28-dentes-38-x-15mm-para/p/MLB28645747?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Refrigeração Ar Condicionado Bomba Vácuo Completo Pro Cor Preto":
+    "https://www.mercadolivre.com.br/kit-refrigeracao-ar-condicionado-bomba-vacuo-completo-pro-cor-preto/p/MLB54440471?pdp_filters=deal%3AMLB1578289-1",
+  "Bomba Propulsora Engraxadeira Graxa Pneumática 20kg Vilubri":
+    "https://www.mercadolivre.com.br/propulsora-engraxadeira-pneumatica-graxa-tambor-20kg-vilubri/p/MLB2069886093?pdp_filters=deal%3AMLB1578289-1",
+  "Jogo Caixa De Ferramentas Chave Soquete Sextavados 61a216pcs 94-pcs":
+    "https://www.mercadolivre.com.br/jogo-caixa-de-ferramentas-chave-soquete-sextavados-61a216pcs/up/MLBU3976072640?pdp_filters=item_id%3AMLB6780769160",
+  "Inversora De Solda Inversora 150a Tig Lift MMA Eletrodo Pró Euro Gp150 Profissional":
+    "https://www.mercadolivre.com.br/inversora-de-solda-inversora-150a-tig-lift-mma-eletrodo-pro-euro-gp150-profissional/p/MLB66942592?pdp_filters=item_id%3AMLB6491791880",
+  "Gabarito Para Furação De Fechaduras De Portas Com 3 Fresas":
+    "https://www.mercadolivre.com.br/gabarito-para-furacao-de-fechaduras-de-portas-com-3-fresas/p/MLB2040020115?pdp_filters=deal%3AMLB1578289-1",
+  "Chave De Impacto Kinetx 680nm Brushless Com 2 Baterias Preto 127/220v":
+    "https://www.mercadolivre.com.br/chave-de-impacto-kinetx-680nm-brushless-com-2-baterias/up/MLBU3919131788?pdp_filters=item_id%3AMLB4622547269",
+  "Misturador Elétrico 1200w Argamassa Tinta Gesso Textura 220v 220v":
+    "https://www.mercadolivre.com.br/misturador-eletrico-1200w-argamassa-tinta-gesso-textura-220v/up/MLBU4550899191?pdp_filters=item_id%3AMLB7321499256",
+  "Oscilante Pá Multifuncional Triangular Lixadeira 400w Hanabi":
+    "https://produto.mercadolivre.com.br/MLB-4110060129-oscilante-pa-multifuncional-triangular-lixadeira-400w-hanabi-_JM?pdp_filters=item_id%3AMLB4110060129",
+  "Serra Tico Tico Elétrica Marceneiro Profissional Com 3 Serra 110v":
+    "https://www.mercadolivre.com.br/serra-tico-tico-eletrica-marceneiro-profissional-com-3-serra/up/MLBU4933484363?pdp_filters=item_id%3AMLB7517871424",
+  "Kit Chave De Impacto E Esmerilhadeira 48v 3600 Profissional":
+    "https://www.mercadolivre.com.br/kit-chave-de-impacto-e-esmerilhadeira-48v-3600-profissional/p/MLB2099043808?pdp_filters=deal%3AMLB1578289-1",
+  'Parafusadeira De Impacto A Bateria 21V + Esmerilhadeira Angular 780W 4.1/2" E Jogo De Soquetes 40 Peças The Black Tools':
+    "https://www.mercadolivre.com.br/parafusadeira-de-impacto-a-bateria-21v-esmerilhadeira-angular-780w-412-e-jogo-de-soquetes-40-pecas-the-black-tools/p/MLB62339765?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Serra Tico Tico 500w Com Lixadeira Orbital 1/3 De Lixa Para Madeira 150w The Black Tools":
+    "https://www.mercadolivre.com.br/kit-serra-tico-tico-500w-com-lixadeira-orbital-13-de-lixa-para-madeira-150w-the-black-tools/p/MLB41312680?pdp_filters=deal%3AMLB1578289-1",
+  "Máquina Inversora De Solda Portatil Eletrodo 120amp 50-60hz Amarelo 127/220v":
+    "https://www.mercadolivre.com.br/maquina-inversora-de-solda-portatil-eletrodo-120amp-5060hz/up/MLBU3923219592?pdp_filters=deal%3AMLB1578289-1",
+  "Martelete Modelo Perfurador Rompedor 1300w Sds Plus Maleta Azul 127v":
+    "https://www.mercadolivre.com.br/martelete-modelo-perfurador-rompedor-1300w-sds-plus-maleta/up/MLBU4219078110?pdp_filters=deal%3AMLB1578289-1",
+  "Esmerilhadeira Angular 4.1/2 Pol 850w 127v 3 Discos - Makita":
+    "https://www.mercadolivre.com.br/esmerilhadeira-angular-412-pol-850w-127v-3-discos--makita/up/MLBU5132838877?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 5 Flangeador Excêntrico 1/4 À 3/4 Cortador Maleta Azul":
+    "https://www.mercadolivre.com.br/kit-5-flangeador-excentrico-14-a-34-cortador-maleta/up/MLBU4211317700?pdp_filters=item_id%3AMLB7082661590",
+  "Parafusadeira Furadeira 2 Baterias Kit Maleta Led 3 Torque Amarelo":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-2-baterias-kit-maleta-led-3-torque/up/MLBU4921753876?pdp_filters=deal%3AMLB1578289-1",
+  "Serra Tico-Tico Elétrica Vonder 400W com Velocidade Fixa":
+    "https://www.mercadolivre.com.br/serra-tico-tico-eletrica-vonder-400w-com-velocidade-fixa/p/MLB24821591?pdp_filters=deal%3AMLB1578289-1",
+  "Pistola Pintura Pulverizadora Eletrica Portátil 48v 2bateria Amarelo 127/220v":
+    "https://www.mercadolivre.com.br/pistola-pintura-pulverizadora-eletrica-portatil-48v-2bateria/up/MLBU4894880433?pdp_filters=item_id%3AMLB7495801806",
+  "Broca Para Perfurador De Solo 200mmx800mm The Black Tools":
+    "https://www.mercadolivre.com.br/broca-para-perfurador-de-solo-200mmx800mm-the-black-tools/p/MLB51986881?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira Furadeira 25v Sem Fio Kit Completo Preto 127/220v 50/60hz":
+    "https://www.mercadolivre.com.br/parafusadeira-furadeira-25v-sem-fio-kit-completo/up/MLBU5074316077?pdp_filters=item_id%3AMLB7586102260",
+  "Flangeador Excêntrico 1/4 A 3/4 Flangeador Cortador Noveve Variante 1":
+    "https://www.mercadolivre.com.br/flangeador-excentrico-14-a-34-flangeador-cortador-noveve/up/MLBU4328693485?pdp_filters=deal%3AMLB1578289-1",
+  "Bomba Engraxadeira Manual Com Acessórios E Bico Acoplador":
+    "https://www.mercadolivre.com.br/bomba-engraxadeira-manual-com-acessorios-e-bico-acoplador/up/MLBU4486875007?pdp_filters=deal%3AMLB1578289-1",
+  "Sabre Motossera St Ms170 Ms180 12 Polegadas com 2 correntes":
+    "https://www.mercadolivre.com.br/sabre-motossera-st-ms170-ms180-12-polegadascom2correntes/up/MLBU3286465430?pdp_filters=item_id%3AMLB4120191799",
+  "Mochila Para Carregar Ferramentas Reforçada Em Lona Vonder Cor Preto":
+    "https://www.mercadolivre.com.br/mochila-para-carregar-ferramentas-reforcada-em-lona-vonder-cor-preto/p/MLB50526108?pdp_filters=deal%3AMLB1578289-1",
+  "Parafusadeira E Furadeira Profissional 2 Baterias Bivolt Preto 127/220v 50/60hz":
+    "https://www.mercadolivre.com.br/parafusadeira-e-furadeira-profissional-2-baterias-bivolt/up/MLBU4240781131?pdp_filters=deal%3AMLB1578289-1",
+  "Ventosa C Manômetro Profissional 20cm Vácuo Segura Até 200kg":
+    "https://www.mercadolivre.com.br/ventosa-c-manometro-profissional-20cm-vacuo-segura-ate-200kg/p/MLB2075535924?pdp_filters=deal%3AMLB1578289-1",
+  "Ventosa De Sucção A Vácuo 20cm Com Manômetro Até 200kg - K2":
+    "https://www.mercadolivre.com.br/ventosa-de-succao-a-vacuo-20cm-com-manometro-ate-200kg-k2/p/MLB76169789?pdp_filters=item_id%3AMLB7304557588",
+  "Resistencia Coleira Mica 100x100-1000w220 Extrusora/injetora":
+    "https://www.mercadolivre.com.br/resistencia-coleira-mica-100x1001000w220-extrusorainjetora/up/MLBU758909711?pdp_filters=item_id%3AMLB3338167629",
+  "Cavadeira Articulada Cabo Madeira 1,50m Luva Latex Brinde Preto":
+    "https://www.mercadolivre.com.br/cavadeira-articulada-cabo-madeira-150m-luva-latex-brinde/up/MLBU3945964848?pdp_filters=item_id%3AMLB4652929525",
+  "Broca Para Perfurador De Solo 80x15cm Vant":
+    "https://www.mercadolivre.com.br/broca-para-perfurador-de-solo-80x15cm-vant/p/MLB67111562?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Pistola De Pino Fixação Com 4 Níveis Ajustável Maleta 3628":
+    "https://www.mercadolivre.com.br/kit-pistola-de-pino-fixacao-com-4-niveis-ajustavel-maleta/up/MLBU2944940330?pdp_filters=item_id%3AMLB5250543218",
+  "Kit 24 Pçs Acessórios Multi Ferramenta Oscilante Universal":
+    "https://www.mercadolivre.com.br/kit-24-pcs-acessorios-multi-ferramenta-oscilante-universal/up/MLBU3387858651?pdp_filters=deal%3AMLB1578289-1",
+  "Colhedor De Frutas Tramontina Gancho 15cm Com Vara Apanhar Manga Goiaba Cabo Extensor Prolongador 2 Metros - Cor Laranja":
+    "https://www.mercadolivre.com.br/colhedor-de-frutas-tramontina-gancho-15cm-com-vara-apanhar-manga-goiaba-cabo-extensor-prolongador-2-metros-cor-laranja/p/MLB73047127?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Repuxadeira Martelinho Carro Reparação C/18 Ventosas":
+    "https://www.mercadolivre.com.br/kit-repuxadeira-martelinho-carro-reparacao-c18-ventosas/p/MLB2108584318?pdp_filters=item_id%3AMLB6884817798",
+  "Bolsa De Ferramentas Lmpermeável 20 Pol Forte Lona Engrossa Verde":
+    "https://www.mercadolivre.com.br/bolsa-de-ferramentas-lmpermeavel-20-pol-forte-lona-engrossa/up/MLBU4005512573?pdp_filters=item_id%3AMLB6845817060",
+  "Colhedor De Frutas Gancho Tramontina 20cm Vara Apanhar Manga Abacate Laranja Goiaba Mamão Metálico - Cor Laranja":
+    "https://www.mercadolivre.com.br/colhedor-de-frutas-gancho-tramontina-20cm-vara-apanhar-manga-abacate-laranja-goiaba-mamao-metalico-cor-laranja/p/MLB74576639?pdp_filters=deal%3AMLB1578289-1",
+  "Extensor Trado 100cm 3/4 E Braço Manopla 50cm Em T - Bartex":
+    "https://www.mercadolivre.com.br/extensor-trado-100cm-34-e-braco-manopla-50cm-em-t-bartex/p/MLB54549590?pdp_filters=item_id%3AMLB4226957265",
+  "Gatilho Pistola Lava Jato Electrolux Modelo Ews1850 Preto Com Detalhes Em Branco":
+    "https://www.mercadolivre.com.br/gatilho-pistola-lava-jato-electrolux-modelo-ews1850-preto-com-detalhes-em-branco/p/MLB74724365?pdp_filters=item_id%3AMLB7070189392",
+  "Pistola Hvlp Profissional Com Caneca De 600ml Bico 1.4mm":
+    "https://www.mercadolivre.com.br/pistola-hvlp-profissional-com-caneca-de-600ml-bico-14mm/up/MLBU3039325789?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Pistola Fixadora De Pregos Potente Portátil + 30 Pregos Nenhum":
+    "https://www.mercadolivre.com.br/kit-pistola-fixadora-de-pregos-potente-portatil--30-pregos/up/MLBU3826247280?pdp_filters=item_id%3AMLB4503216371",
+  "Desempenadeira De Aço Castor Dentada Pratica 10 X 35cm Dente 12":
+    "https://www.mercadolivre.com.br/desempenadeira-de-aco-castor-dentada-pratica-10-x-35cm-dente-12/p/MLB62484149?pdp_filters=item_id%3AMLB4623005131",
+  "Broca Serra Copo Porcelanato Dremel 20/35/50mm":
+    "https://www.mercadolivre.com.br/broca-serra-copo-porcelanato-dremel-203550mm/p/MLB2050794458?pdp_filters=deal%3AMLB1578289-1",
+  "Alicate Multifuncional Universal 5 Em 1 Profissional Amarelo":
+    "https://www.mercadolivre.com.br/alicate-multifuncional-universal-5-em-1-profissional-amarelo/p/MLB78846421?pdp_filters=deal%3AMLB1578289-1",
+  "Máquina De Assentar Piso Porcelanato 21v Ventosa 2 Baterias":
+    "https://www.mercadolivre.com.br/maquina-de-assentar-piso-porcelanato-21v-ventosa-2-baterias/up/MLBU3940113737?pdp_filters=item_id%3AMLB6728488018",
+  "Esmerilhadeira The Black Tools Manual 21v Amarela Sem Fio Amarelo 110v/220v 60hz":
+    "https://www.mercadolivre.com.br/esmerilhadeira-the-black-tools-manual-21v-amarela-sem-fio/up/MLBU1862699895?pdp_filters=deal%3AMLB1578289-1",
+  "Jogo Soquete Chave Combinada Catraca Kit 61 Pcs Com Maleta Laranja":
+    "https://www.mercadolivre.com.br/jogo-soquete-chave-combinada-catraca-kit-61-pcs-com-maleta-laranja/p/MLB74562675?pdp_filters=deal%3AMLB1578289-1",
+  "Multiferramenta Oscilante Elétrica 300w Com Kit De 10 Acessórios Evald":
+    "https://www.mercadolivre.com.br/multiferramenta-oscilante-eletrica-300w-com-kit-de-10-acessorios-evald/p/MLB73150739?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Flangeador Excêntrico Duplo 3/16 A 5/8 Curvador Cobre Vermelho":
+    "https://www.mercadolivre.com.br/kit-flangeador-excentrico-duplo-316-a-58-curvador-cobre/up/MLBU3862049191?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Mini Parafusadeiras Elétrica Sem Fio Multiuso 47 Peças Preto 4.2v":
+    "https://www.mercadolivre.com.br/kit-mini-parafusadeiras-eletrica-sem-fio-multiuso-47-pecas/up/MLBU3820073436?pdp_filters=item_id%3AMLB4497094265",
+  "Kit Brushless Chave Impacto 1/4pol 21v C/parafusadeira 21v":
+    "https://www.mercadolivre.com.br/kit-brushless-chave-impacto-14pol-21v-cparafusadeira-21v/up/MLBU4211718690?pdp_filters=deal%3AMLB1578289-1",
+  "Esmerilhadeira Lixadeira A Bateria 21v + Discos E Acessórios Amarelo 110v/220v 60hz":
+    "https://www.mercadolivre.com.br/esmerilhadeira-lixadeira-a-bateria-21v--discos-e-acessorios/up/MLBU4997110992?pdp_filters=deal%3AMLB1578289-1",
+  "Chave De Fenda E Phillips 6 Peças 3 Alicates Chave Inglesa":
+    "https://www.mercadolivre.com.br/chave-de-fenda-e-phillips-6-pecas-3-alicates-chave-inglesa/up/MLBU4743282703?pdp_filters=item_id%3AMLB7432451832",
+  "Kit Alicate Crimpador e Decapador de Fios com 1200 Terminais Ilhós para Eletricista":
+    "https://www.mercadolivre.com.br/kit-alicate-crimpador-e-decapador-de-fios-com-1200-terminais-ilhos-para-eletricista/p/MLB44412566?pdp_filters=deal%3AMLB1578289-1",
 };
