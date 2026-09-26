@@ -14,6 +14,8 @@ export const metadata: Metadata = {
 };
 export const dynamic = "force-dynamic";
 
+const MAX_LISTED = 100;
+
 const pct = (n: number) => `${Math.round(n * 100)}%`;
 const brl = (n: number) =>
   n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -27,6 +29,9 @@ export default async function LinkQueuePage() {
 
   const { pending, withoutAddressCount, registeredCount, onSiteCount } =
     await loadPanelQueue();
+  // 675+ rows at once made this page heavy; the batch screen is where the
+  // bulk of the work happens, so list only the first ones here.
+  const shown = pending.slice(0, MAX_LISTED);
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
@@ -58,8 +63,15 @@ export default async function LinkQueuePage() {
           Gerar e colar em lote →
         </a>
       </p>
+      {pending.length > shown.length && (
+        <p className="text-foreground/60 mt-3 text-xs">
+          Mostrando só os {shown.length} primeiros de {pending.length}. Para o
+          resto, use <strong>Gerar e colar em lote</strong> (acima), que pega os
+          próximos da fila sozinho.
+        </p>
+      )}
       <ul className="mt-6 space-y-3">
-        {pending.map(({ pick, earningPerSale, recommended, notes }, i) => (
+        {shown.map(({ pick, earningPerSale, recommended, notes }, i) => (
           <PanelPickRow
             key={pick.id}
             position={i + 1}

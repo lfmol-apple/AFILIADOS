@@ -692,4 +692,1354 @@ export const ML_PANEL_URLS: Readonly<Record<string, string>> = {
     "https://www.mercadolivre.com.br/sapateira-caixa-de-sapato-empilhavel-vertical-6-andares/up/MLBU3242363751?pdp_filters=item_id%3AMLB5443349604",
   "Cobre Leito Size King Borboleta Piquet Hotel Ss Têxtil Bege Borboleta":
     "https://www.mercadolivre.com.br/cobre-leito-size-king-borboleta-piquet-hotel-ss-textil/up/MLBU3934476432?pdp_filters=item_id%3AMLB4640716425",
+  "Loção Hidratante Corporal Sem Perfume, com Ceramidas Essenciais e Ácido Hialurônico, Textura Fluida CeraVe 473ml":
+    "https://www.mercadolivre.com.br/locao-hidratante-corporal-sem-perfume-com-ceramidas-essenciais-e-acido-hialuronico-textura-fluida-cerave-473ml/p/MLB21361292?pdp_filters=deal%3AMLB1578289-1",
+  "Gold Spell Cosméticos Tônico Poderoso Laranja Reconstrucción":
+    "https://www.mercadolivre.com.br/gold-spell-cosmeticos-tonico-poderoso-laranja-reconstruccion/p/MLB19675471?pdp_filters=item_id%3AMLB3610148894",
+  "Perfume Billion Casino Royal Paris Elysees Masculino Intense 100ml Original":
+    "https://www.mercadolivre.com.br/perfume-billion-casino-royal-paris-elysees-masculino-intense-100ml-original/p/MLB6138946?pdp_filters=item_id%3AMLB1920171064",
+  "Creme Hidratante Corporal e facial para Pele Seca a Extra Seca Sem Perfume 454g CeraVe":
+    "https://www.mercadolivre.com.br/creme-hidratante-corporal-e-facial-para-pele-seca-a-extra-seca-sem-perfume-454g-cerave/p/MLB19309318?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Secadora 4 em 1 Britânia BEC07R Cerâmica 1300W Bivolt Rosa - Seca, alisa, modela e dá volume aos cabelos.":
+    "https://www.mercadolivre.com.br/escova-secadora-4-em-1-britania-bec07r-ceramica-1300w-bivolt-rosa-seca-alisa-modela-e-da-volume-aos-cabelos/p/MLB19694427?pdp_filters=deal%3AMLB1578289-1",
+  "Cetaphil Creme Hidratante Corporal para Pele Seca e Sensível 453g - Hidratação por 48h":
+    "https://www.mercadolivre.com.br/cetaphil-creme-hidratante-corporal-para-pele-seca-e-sensivel-453g-hidratacao-por-48h/p/MLB18390579?pdp_filters=deal%3AMLB1578289-1",
+  "Protetor Solar Facial Antioleosidade FPS 80 Anthelios La Roche-Posay 40g":
+    "https://www.mercadolivre.com.br/protetor-solar-facial-antioleosidade-fps-80-anthelios-la-roche-posay-40g/p/MLB19755099?pdp_filters=deal%3AMLB1578289-1",
+  "Secador Max Travel Mondial 1200W SC-10":
+    "https://www.mercadolivre.com.br/secador-max-travel-mondial-1200w-sc-10/p/MLB6122512?pdp_filters=deal%3AMLB1578289-1",
+  "La Roche-posay Cicaplast Baume B5+ Tempo de aplicação Dia/Noite Tipo de pele Todos os tipos de pele":
+    "https://www.mercadolivre.com.br/la-roche-posay-cicaplast-baume-b5-tempo-de-aplicacao-dianoite-tipo-de-pele-todos-os-tipos-de-pele/p/MLB24326256?pdp_filters=deal%3AMLB1578289-1",
+  "Taiff Black Ion Secador De Cabelo Profissional 2000w Cor Preto":
+    "https://www.mercadolivre.com.br/taiff-black-ion-secador-de-cabelo-profissional-2000w-cor-preto/p/MLB18580665?pdp_filters=deal%3AMLB1578289-1",
+  "Máscara de Reconstrução Profunda para Cabelos Danificados, Força e Elasticidade Résistance Thérapiste Kérastase 200ml":
+    "https://www.mercadolivre.com.br/mascara-de-reconstrucao-profunda-para-cabelos-danificados-forca-e-elasticidade-resistance-therapiste-kerastase-200ml/p/MLB19462412?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Sedutor Árabe Sabah 100ml Original Feminino":
+    "https://www.mercadolivre.com.br/perfume-sedutor-arabe-sabah-100ml-original-feminino/up/MLBU3054985330?pdp_filters=deal%3AMLB1578289-1",
+  "Barbeador e Aparador Elétrico Philips OneBlade com Pente 5 em 1, Sem Fio e À Prova D'Água - QP1425/10":
+    "https://www.mercadolivre.com.br/barbeador-e-aparador-eletrico-philips-oneblade-com-pente-5-em-1-sem-fio-e-prova-dagua-qp142510/p/MLB51986596?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Body Splash Masculino Barbarius + Enigma + Midtown 200ml":
+    "https://www.mercadolivre.com.br/kit-body-splash-masculino-barbarius-enigma-midtown-200ml/p/MLB68104527?pdp_filters=item_id%3AMLB4645102377",
+  "Aparador De Pelos Super Groom 10 Mondial 6W Bivolt BG-03":
+    "https://www.mercadolivre.com.br/aparador-de-pelos-super-groom-10-mondial-6w-bivolt-bg-03/p/MLB44784310?pdp_filters=deal%3AMLB1578289-1",
+  "Prancha Cerâmica Profissional Classic 180° Taiff Bivolt Preto":
+    "https://www.mercadolivre.com.br/prancha-ceramica-profissional-classic-180-taiff-bivolt-preto/p/MLB6360396?pdp_filters=deal%3AMLB1578289-1",
+  "Cortador De Cabelo Mondial Super Groom 6 Bg-04 Melhor Categ Preto/verde":
+    "https://www.mercadolivre.com.br/cortador-de-cabelo-mondial-super-groom-6-bg-04-melhor-categ-pretoverde/p/MLB54944960?pdp_filters=deal%3AMLB1578289-1",
+  "Prancha Alisadora Mondial Golden Rose/Preto Bivolt P-20":
+    "https://www.mercadolivre.com.br/prancha-alisadora-mondial-golden-rosepreto-bivolt-p-20/p/MLB14180098?pdp_filters=deal%3AMLB1578289-1",
+  "Secador de Cabelos Mondial Preto 2000W SCN-01":
+    "https://www.mercadolivre.com.br/secador-de-cabelos-mondial-preto-2000w-scn-01/p/MLB18638651?pdp_filters=deal%3AMLB1578289-1",
+  "Tônico Poderoso Gold Spell 250ml Antiqueda E Preenche Falhas":
+    "https://www.mercadolivre.com.br/tonico-poderoso-gold-spell-250ml-antiqueda-e-preenche-falhas/p/MLB20554055?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Principia para Rotina de Skincare Pele Sensível com Protetor Solar FPS 60":
+    "https://www.mercadolivre.com.br/kit-principia-para-rotina-de-skincare-pele-sensivel-com-protetor-solar-fps-60/p/MLB53618239?pdp_filters=item_id%3AMLB5554213538",
+  "Prancha de cabelo Gama Italy Eleganza Plus":
+    "https://www.mercadolivre.com.br/prancha-de-cabelo-gama-italy-eleganza-plus/p/MLB7975820?pdp_filters=deal%3AMLB1578289-1",
+  "Revlon Uniq One Tratamento Capilar 10 Em 1 Leave In 150ml Frasco Completo":
+    "https://www.mercadolivre.com.br/revlon-uniq-one-tratamento-capilar-10-em-1-leave-in-150ml-frasco-completo/p/MLB65977023?pdp_filters=deal%3AMLB1578289-1",
+  "Britânia Escova Secadora Bec02pr 4 Em 1 1300w Cor Preto e Rosa":
+    "https://www.mercadolivre.com.br/britania-escova-secadora-bec02pr-4-em-1-1300w-cor-preto-e-rosa/p/MLB22616606?pdp_filters=deal%3AMLB1578289-1",
+  "Gel de Limpeza Facial Refil para Peles Oleosas e Sensíveis Limpeza Profunda Não Resseca Alta Tolerância Hipoalergênico Effaclar La Roche-Posay 300g":
+    "https://www.mercadolivre.com.br/gel-de-limpeza-facial-refil-para-peles-oleosas-e-sensiveis-limpeza-profunda-nao-resseca-alta-tolerancia-hipoalergenico-effaclar-la-roche-posay-300g/p/MLB19721577?pdp_filters=deal%3AMLB1578289-1",
+  "Gel de Limpeza Facial Pele Oleosa 3 Ceramidas e Niacinamida CeraVe 454g":
+    "https://www.mercadolivre.com.br/gel-de-limpeza-facial-pele-oleosa-3-ceramidas-e-niacinamida-cerave-454g/p/MLB26194700?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Vodka Wild Paris Elysees Masculino Intense 100ml":
+    "https://www.mercadolivre.com.br/perfume-vodka-wild-paris-elysees-masculino-intense-100ml/p/MLB19905919?pdp_filters=deal%3AMLB1578289-1",
+  "Protetor Solar Facial com Cor FPS 60, Anthelios Ultra Cover La Roche-Posay, 30g":
+    "https://www.mercadolivre.com.br/protetor-solar-facial-com-cor-fps-60-anthelios-ultra-cover-la-roche-posay-30g/p/MLB19801958?pdp_filters=deal%3AMLB1578289-1",
+  "Truss Uso Obrigatório Tratamento Reconstrutor 260ml":
+    "https://www.mercadolivre.com.br/truss-uso-obrigatorio-tratamento-reconstrutor-260ml/p/MLB39286905?pdp_filters=deal%3AMLB1578289-1",
+  "Body Splash My Sweet Delight Barbour's Beauty 200ml":
+    "https://www.mercadolivre.com.br/body-splash-my-sweet-delight-barbours-beauty-200ml/p/MLB45519277?pdp_filters=item_id%3AMLB4435478837",
+  "Máquina de Acabamento Kemei KM-2299 Sem Fio, Para Cabelo e Barba Profissional Bivolt":
+    "https://www.mercadolivre.com.br/maquina-de-acabamento-kemei-km-2299-sem-fio-para-cabelo-e-barba-profissional-bivolt/p/MLB28993021?pdp_filters=deal%3AMLB1578289-1",
+  "L'Oréal Paris Revitalift Hialurônico Creme Hidratante Facial Antirrugas Diurno, Reduz Linhas Finas, Uniformiza a Pele, Melhora a Textura e Firmeza, 49g":
+    "https://www.mercadolivre.com.br/loreal-paris-revitalift-hialuronico-creme-hidratante-facial-antirrugas-diurno-reduz-linhas-finas-uniformiza-a-pele-melhora-a-textura-e-firmeza-49g/p/MLB20716005?pdp_filters=deal%3AMLB1578289-1",
+  "L'Oréal Paris Revitalift Hialurônico Creme Facial Noturno, com Ácido Hialurônico Puro, Com textura leve, preenche linhas de expressão e hidrata a pele intensamente por 24h, 49g":
+    "https://www.mercadolivre.com.br/loreal-paris-revitalift-hialuronico-creme-facial-noturno-com-acido-hialuronico-puro-com-textura-leve-preenche-linhas-de-expressao-e-hidrata-a-pele-intensamente-por-24h-49g/p/MLB19898926?pdp_filters=deal%3AMLB1578289-1",
+  "Gel de Limpeza Facial Darrow Actine Pele Oleosa e Acneica 400g":
+    "https://www.mercadolivre.com.br/gel-de-limpeza-facial-darrow-actine-pele-oleosa-e-acneica-400g/p/MLB22443708?pdp_filters=deal%3AMLB1578289-1",
+  "Presente Natura Tododia Sabonetes Em Barra Sortidos 5un 90g":
+    "https://www.mercadolivre.com.br/presente-natura-tododia-sabonetes-em-barra-sortidos-5un-90g/p/MLB66453677?pdp_filters=item_id%3AMLB5244675119",
+  "Principia Gel De Limpeza Gl-01 350g para Peles Oleosas":
+    "https://www.mercadolivre.com.br/principia-gel-de-limpeza-gl-01-350g-para-peles-oleosas/p/MLB35279837?pdp_filters=item_id%3AMLB4929844943",
+  "Secador De Cabelos Philco psc3500 4 Em 1 dobrável motor bldc Prateado":
+    "https://www.mercadolivre.com.br/secador-de-cabelos-philcopsc3500-4-em-1dobravelmotorbldc-prateado/p/MLB49652036?pdp_filters=item_id%3AMLB6486861240",
+  "Secador De Cabelo 2000 Watts - Style Pro Taiff":
+    "https://www.mercadolivre.com.br/secador-de-cabelo-2000-watts-style-pro-taiff/p/MLB18572392?pdp_filters=deal%3AMLB1578289-1",
+  "Secador de Cabelo Profissional Lizze Extreme":
+    "https://www.mercadolivre.com.br/secador-de-cabelo-profissional-lizze-extreme/p/MLB18572364?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Wella Invigo Nutri Enrich Shampoo e Condicionador 2 L":
+    "https://www.mercadolivre.com.br/kit-wella-invigo-nutri-enrich-shampoo-e-condicionador-2-l/p/MLB48515682?pdp_filters=deal%3AMLB1578289-1",
+  "Secador de Cabelo Taiff 2000W Black Ion Preto":
+    "https://www.mercadolivre.com.br/secador-de-cabelo-taiff-2000w-black-ion-preto/p/MLB18580666?pdp_filters=deal%3AMLB1578289-1",
+  "Wella Professionals Oil Reflections - Máscara Capilar 500ml":
+    "https://www.mercadolivre.com.br/wella-professionals-oil-reflections-mascara-capilar-500ml/p/MLB19513855?pdp_filters=deal%3AMLB1578289-1",
+  "Modelador de cachos de barril Taiff Curves 2.5cm de diâmetro":
+    "https://www.mercadolivre.com.br/modelador-de-cachos-de-barril-taiff-curves-25cm-de-diametro/p/MLB27935507?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Rotativa Mondial Ceramica Tourmaline Ion 3x1 Erb-01 Rosa 127/220v":
+    "https://www.mercadolivre.com.br/escova-rotativa-mondial-ceramica-tourmaline-ion-3x1-erb-01-rosa-127220v/p/MLB22871761?pdp_filters=item_id%3AMLB5872158872",
+  "Secador Taiff Style 2000w Motor Ac Preto 127 v":
+    "https://www.mercadolivre.com.br/secador-taiff-style-2000w-motor-ac-preto-127-v/p/MLB18920578?pdp_filters=deal%3AMLB1578289-1",
+  "Prancha Cerâmica Taiff Profissional 180° Preto":
+    "https://www.mercadolivre.com.br/prancha-ceramica-taiff-profissional-180-preto/p/MLB27747316?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Secadora By Juliette Mondial 1300W - ES-JU-03":
+    "https://www.mercadolivre.com.br/escova-secadora-by-juliette-mondial-1300w-es-ju-03/p/MLB25969290?pdp_filters=deal%3AMLB1578289-1",
+  "Kemei Maquina De Acabamento Km 2299 Profissional Cor Black":
+    "https://www.mercadolivre.com.br/kemei-maquina-de-acabamento-km-2299-profissional-cor-black/p/MLB57473901?pdp_filters=item_id%3AMLB4475070733",
+  "Escova Secadora Philco Pes19sg 3 Acessórios 1300w Cor Prata":
+    "https://www.mercadolivre.com.br/escova-secadora-philco-pes19sg-3-acessorios-1300w-cor-prata/p/MLB25327723?pdp_filters=deal%3AMLB1578289-1",
+  "Secador de Cabelos Mondial 2000W - SCN-01":
+    "https://www.mercadolivre.com.br/secador-de-cabelos-mondial-2000w-scn-01/p/MLB18638650?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Modeladora Rotativa Britânia Ber20pd 3 Temperaturas Cor Preto e Dourado":
+    "https://www.mercadolivre.com.br/escova-modeladora-rotativa-britania-ber20pd-3-temperaturas-cor-preto-e-dourado/p/MLB24029192?pdp_filters=deal%3AMLB1578289-1",
+  "Deo Parfum Essencial Natura Masculino 100 ml":
+    "https://www.mercadolivre.com.br/deo-parfum-essencial-natura-masculino-100-ml/p/MLB17969237?pdp_filters=deal%3AMLB1578289-1",
+  "Natura Kaiak Colônia Eau De Toilette Classic Masculino 100ml":
+    "https://www.mercadolivre.com.br/natura-kaiak-colonia-eau-de-toilette-classic-masculino-100ml/p/MLB24005274?pdp_filters=deal%3AMLB1578289-1",
+  "Prancha Britânia Titanium Blue Bivolt":
+    "https://www.mercadolivre.com.br/prancha-britania-titanium-blue-bivolt/p/MLB12243139?pdp_filters=deal%3AMLB1578289-1",
+  "EUCERIN Protetor Solar Facial Antimanchas Cor Clara FPS 70 50ml, Pigment Control, Proteção UVA, UVB e Luz Visível, Thiamidol":
+    "https://www.mercadolivre.com.br/eucerin-protetor-solar-facial-antimanchas-cor-clara-fps-70-50ml-pigment-control-protecao-uva-uvb-e-luz-visivel-thiamidol/p/MLB19828355?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Secadora Britânia BES35 Nanocerâmica 1300W Bivolt Alisadora Modeladora Secador 4 em 1 Alta Potência":
+    "https://www.mercadolivre.com.br/escova-secadora-britania-bes35-nanoceramica-1300w-bivolt-alisadora-modeladora-secador-4-em-1-alta-potencia/p/MLB36979591?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Secadora de Cabelos Soft Beauty Cherry Philco Pec13 1300w 4 em 1 seca, alisa, modela e dá volume":
+    "https://www.mercadolivre.com.br/escova-secadora-de-cabelos-soft-beauty-cherry-philco-pec13-1300w-4-em-1-seca-alisa-modela-e-da-volume/p/MLB19750535?pdp_filters=deal%3AMLB1578289-1",
+  "Protetor Solar Facial Antioleosidade com Cor FPS80 Controle da Oleosidade por 12h Reduz Oleosidade e Toque Seco Cor 2.0 Airlicium+ Anthelios La Roche Posay 40g":
+    "https://www.mercadolivre.com.br/protetor-solar-facial-antioleosidade-com-cor-fps80-controle-da-oleosidade-por-12h-reduz-oleosidade-e-toque-seco-cor-20-airlicium-anthelios-la-roche-posay-40g/p/MLB30067110?pdp_filters=deal%3AMLB1578289-1",
+  "Creme Facial Anti-idade, com PRO-XYLANE e Ácido Hialurônico, Corrige Rugas e Flacidez, Revitalift Laser X3 L'Oréal Paris 50ml":
+    "https://www.mercadolivre.com.br/creme-facial-anti-idade-com-pro-xylane-e-acido-hialuronico-corrige-rugas-e-flacidez-revitalift-laser-x3-loreal-paris-50ml/p/MLB14768831?pdp_filters=deal%3AMLB1578289-1",
+  "Paris Elysees Vodka Limited Edt 100ML":
+    "https://www.mercadolivre.com.br/paris-elysees-vodka-limited-edt-100ml/p/MLB6140832?pdp_filters=deal%3AMLB1578289-1",
+  "EUCERIN Protetor Solar Facial Oil Control FPS 60 50ml, Antioleosidade, Rosto, Proteção UVA, UVB e Luz Visível":
+    "https://www.mercadolivre.com.br/eucerin-protetor-solar-facial-oil-control-fps-60-50ml-antioleosidade-rosto-protecao-uva-uvb-e-luz-visivel/p/MLB18407878?pdp_filters=deal%3AMLB1578289-1",
+  "ISDIN Protetor Solar Facial Fusion Water Magic Color FPS 50 - Cor Média - 50ml":
+    "https://www.mercadolivre.com.br/isdin-protetor-solar-facial-fusion-water-magic-color-fps-50-cor-media-50ml/p/MLB19566403?pdp_filters=deal%3AMLB1578289-1",
+  "ISDIN Protetor Solar Facial Fusion Water 5 Stars Sem Cor FPS 60 - 30ml":
+    "https://www.mercadolivre.com.br/isdin-protetor-solar-facial-fusion-water-5-stars-sem-cor-fps-60-30ml/p/MLB19508914?pdp_filters=item_id%3AMLB5233269559",
+  "Hidratante Facial Epidrat Calm B5 Para Pele Sensível 50ml Mantecorp":
+    "https://www.mercadolivre.com.br/hidratante-facial-epidrat-calm-b5-para-pele-sensivel-50ml-mantecorp/p/MLB20993983?pdp_filters=deal%3AMLB1578289-1",
+  "BODY SPLASH MASCULINO BARBARIUS 200ML - PRIMACIAL PERFUME AMADEIRADO":
+    "https://www.mercadolivre.com.br/body-splash-masculino-barbarius-200ml-primacial-perfume-amadeirado/p/MLB53342774?pdp_filters=item_id%3AMLB4145841299",
+  "Ciclo Hello Hello! Lata Eau de cologne feminina 100ml":
+    "https://www.mercadolivre.com.br/ciclo-hello-hello-lata-eau-de-cologne-feminina-100ml/p/MLB19713842?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Secadora Alisadora Modeladora 1000w Uso Profissional Cor Preto Marca WPE":
+    "https://www.mercadolivre.com.br/escova-secadora-alisadora-modeladora-1000w-uso-profissional-cor-preto-marca-wpe/p/MLB20256672?pdp_filters=item_id%3AMLB4487222997",
+  "Escova Modeladora Britânia 2 em 1 Branca Antiaderente 60W BEC04 Bivolt":
+    "https://www.mercadolivre.com.br/escova-modeladora-britania-2-em-1-branca-antiaderente-60w-bec04-bivolt/p/MLB19686524?pdp_filters=deal%3AMLB1578289-1",
+  "Gloss Fran By Franciny Ehlke Liphoney Mel Liphoney-mel":
+    "https://www.mercadolivre.com.br/gloss-fran-by-franciny-ehlke-liphoney-mel/up/MLBU2980829097?pdp_filters=item_id%3AMLB5270050920",
+  "Creme Hidratante com 3 Ceramidas para Pele Seca e Extrasseca CeraVe 50g":
+    "https://www.mercadolivre.com.br/creme-hidratante-com-3-ceramidas-para-pele-seca-e-extrasseca-cerave-50g/p/MLB19600322?pdp_filters=item_id%3AMLB4028422081",
+  "Papel Higiênico Supreme Folha Tripla Com 18 Rolos Neve":
+    "https://www.mercadolivre.com.br/papel-higienico-supreme-folha-tripla-com-18-rolos-neve/p/MLB16084471?pdp_filters=item_id%3AMLB4834705314",
+  "Mantecorp Protetor Solar Facial Episol Fps 70 Tom 2 Claro":
+    "https://www.mercadolivre.com.br/mantecorp-protetor-solar-facial-episol-fps-70-tom-2-claro/p/MLB19782244?pdp_filters=deal%3AMLB1578289-1",
+  "Gloss Fran By Franciny Ehlke Lip Honey Liphoney":
+    "https://www.mercadolivre.com.br/gloss-fran-by-franciny-ehlke-lip-honey/up/MLBU2928584374?pdp_filters=deal%3AMLB1578289-1",
+  "Henna Menela Castanho Escuro Padrão Profissional Para Designer De Sobrancelhas 2.5g Com Fixador E Nanotecnologia Completo":
+    "https://www.mercadolivre.com.br/henna-menela-castanho-escuro-padrao-profissional-para-designer-de-sobrancelhas-25g-com-fixador-e-nanotecnologia-completo/p/MLB60158292?pdp_filters=item_id%3AMLB7191621372",
+  "Cortador de Cabelos Hair Stylo Mondial Preto/Prata CR-02":
+    "https://www.mercadolivre.com.br/cortador-de-cabelos-hair-stylo-mondial-pretoprata-cr-02/p/MLB25424659?pdp_filters=deal%3AMLB1578289-1",
+  "Modelador de Cachos Infinity Mondial 55W EM-12":
+    "https://www.mercadolivre.com.br/modelador-de-cachos-infinity-mondial-55w-em-12/p/MLB23553778?pdp_filters=deal%3AMLB1578289-1",
+  "L'Oréal Paris Dermo Expertise BB Cream, Creme Milagroso 5 em 1, Cobertura Natural, Hidrata e Uniformiza a Pele, Oil Free, FPS 20 e Acabamento Matte, 30ml":
+    "https://www.mercadolivre.com.br/loreal-paris-dermo-expertise-bb-cream-creme-milagroso-5-em-1-cobertura-natural-hidrata-e-uniformiza-a-pele-oil-free-fps-20-e-acabamento-matte-30ml/p/MLB28517948?pdp_filters=deal%3AMLB1578289-1",
+  "Máscara de Cílios Lavável, Longa Duração, 9x Mais Volume e Definição, Não Empelota, Cor Preto, The Colossal Volum' Express Maybelline NY, 8ml":
+    "https://www.mercadolivre.com.br/mascara-de-cilios-lavavel-longa-duracao-9x-mais-volume-e-definicao-nao-empelota-cor-preto-the-colossal-volum-express-maybelline-ny-8ml/p/MLB10632463?pdp_filters=deal%3AMLB1578289-1",
+  "L'oréal Paris Elseve Collagen Lifter Leave-in Sérum Capilar Para Cabelos Finos Injeção de Massa com Peptídeos de Colágeno Aumenta o Volume em 61% e Encorpa os Fios por 72h 100ml":
+    "https://www.mercadolivre.com.br/loreal-paris-elseve-collagen-lifter-leave-in-serum-capilar-para-cabelos-finos-injecao-de-massa-com-peptideos-de-colageno-aumenta-o-volume-em-61-e-encorpa-os-fios-por-72h-100ml/p/MLB64174316?pdp_filters=deal%3AMLB1578289-1",
+  "Demaquilante Hada Labo Gokujyun Oil Cleansing Com 200ml":
+    "https://www.mercadolivre.com.br/demaquilante-hada-labo-gokujyun-oil-cleansing-com-200ml/p/MLB19761230?pdp_filters=deal%3AMLB1578289-1",
+  "Secador De Cabelos Philco PSC3500 4 Em 1 dobrável Motor BLDC Prateado":
+    "https://www.mercadolivre.com.br/secador-de-cabelos-philcopsc3500-4-em-1dobravelmotorbldc-prateado/p/MLB50269368?pdp_filters=item_id%3AMLB6500132902",
+  "Perfume Rabanne 1 Million Eau de Toilette 100 ml masculino":
+    "https://www.mercadolivre.com.br/perfume-rabanne-1-million-eau-de-toilette-100-ml-masculino/p/MLB6072138?pdp_filters=deal%3AMLB1578289-1",
+  "Secador Taiff Tourmaline Íon 2100W – Alta Performance Preto":
+    "https://www.mercadolivre.com.br/secador-taiff-tourmaline-ion-2100w-alta-performance-preto/p/MLB23888631?pdp_filters=deal%3AMLB1578289-1",
+  "Máscara Capilar Regeneradora com Abyssine para Hidratação Profunda, Brilho Intenso e Controle do Frizz Chronologiste Intense Régénérant Kérastase 200ml":
+    "https://www.mercadolivre.com.br/mascara-capilar-regeneradora-com-abyssine-para-hidratacao-profunda-brilho-intenso-e-controle-do-frizz-chronologiste-intense-regenerant-kerastase-200ml/p/MLB20817237?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Feminino Eau de Parfum, Fragrância Floral Gourmand Inebriante com Íris Nobre e Baunilha, Aroma de Felicidade e Feminilidade, La Vie Est Belle Lancôme, Frasco com 30ml":
+    "https://www.mercadolivre.com.br/perfume-feminino-eau-de-parfum-fragrancia-floral-gourmand-inebriante-com-iris-nobre-e-baunilha-aroma-de-felicidade-e-feminilidade-la-vie-est-belle-lancome-frasco-com-30ml/p/MLB5360656?pdp_filters=deal%3AMLB1578289-1",
+  "Chapa Gloss Rose 230°c Bivolt 110v/220v Taiff":
+    "https://www.mercadolivre.com.br/chapa-gloss-rose-230c-bivolt-110v220v-taiff/p/MLB52162585?pdp_filters=deal%3AMLB1578289-1",
+  "Máscara Capilar de Hidratação Intensa Anti-Frizz com Proteção Térmica até 230ºC para Cabelos Secos e Indisciplinados, Discipline Oléo-Relax, Kérastase 200ml":
+    "https://www.mercadolivre.com.br/mascara-capilar-de-hidratacao-intensa-anti-frizz-com-protecao-termica-ate-230c-para-cabelos-secos-e-indisciplinados-discipline-oleo-relax-kerastase-200ml/p/MLB20678514?pdp_filters=deal%3AMLB1578289-1",
+  "Máscara de Tratamento Antiqueda para Cabelos Grossos Genesis Kérastase 200ml":
+    "https://www.mercadolivre.com.br/mascara-de-tratamento-antiqueda-para-cabelos-grossos-genesis-kerastase-200ml/p/MLB31414367?pdp_filters=deal%3AMLB1578289-1",
+  "3 Body Splash Very Sexy Delight Roses Barbour's Beauty":
+    "https://www.mercadolivre.com.br/3-body-splash-very-sexy-delight-roses-barbours-beauty/p/MLB65442354?pdp_filters=item_id%3AMLB4467934979",
+  "Perfume Árabe Asad Bourbon Lattafa 100ml Masculino":
+    "https://www.mercadolivre.com.br/perfume-arabe-asad-bourbon-lattafa-100ml-masculino/up/MLBU3185900933?pdp_filters=item_id%3AMLB4070142941",
+  "Sérum Capilar Reparador para Cabelos Danificados e Pontas Duplas com Proteção Térmica até 230°C e Sève de Résurrection Kérastase Résistance Thérapiste 30ml":
+    "https://www.mercadolivre.com.br/serum-capilar-reparador-para-cabelos-danificados-e-pontas-duplas-com-protecao-termica-ate-230c-e-seve-de-resurrection-kerastase-resistance-therapiste-30ml/p/MLB19153854?pdp_filters=deal%3AMLB1578289-1",
+  "Pedicuro Mega Bell Profissional - Preto 110v":
+    "https://www.mercadolivre.com.br/pedicuro-mega-bell-profissional-preto-110v/p/MLB67012235?pdp_filters=deal%3AMLB1578289-1",
+  "Máscara de Nutrição Para Cabelos Secos Kérastase Nutritive Masquintense | 200ml |":
+    "https://www.mercadolivre.com.br/mascara-de-nutricao-para-cabelos-secos-kerastase-nutritive-masquintense-200ml-/p/MLB35376421?pdp_filters=deal%3AMLB1578289-1",
+  "Máscara Kérastase Nutritive Masquintense Riche 200ml":
+    "https://www.mercadolivre.com.br/mascara-kerastase-nutritive-masquintense-riche-200ml/p/MLB26377245?pdp_filters=deal%3AMLB1578289-1",
+  "Óleo Capilar Kérastase Gloss Absolu Glaze Drops, Brilho Intenso Para Cabelos, Controle de Frizz, 45ml":
+    "https://www.mercadolivre.com.br/oleo-capilar-kerastase-gloss-absolu-glaze-drops-brilho-intenso-para-cabelos-controle-de-frizz-45ml/p/MLB53173424?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Club De Nuit Intense Da Armaf Edt 105ml Masculino":
+    "https://www.mercadolivre.com.br/perfume-club-de-nuit-intense-da-armaf-edt-105ml-masculino/up/MLBU3782392794?pdp_filters=item_id%3AMLB6230997792",
+  "Barbeador Elétrico Sem Fio Kemei KM-TX1 Portátil Dourada 120min":
+    "https://www.mercadolivre.com.br/barbeador-eletrico-sem-fio-kemei-km-tx1-portatil-dourada-120min/p/MLB19536884?pdp_filters=item_id%3AMLB6822622924",
+  "Perfume Masculino Sport Edt 100ml Azzaro":
+    "https://www.mercadolivre.com.br/perfume-masculino-sport-edt-100ml-azzaro/p/MLB25646210?pdp_filters=deal%3AMLB1578289-1",
+  "Lattafa AL NOBLE Wazeer Nicho EDP para masculino Original®":
+    "https://www.mercadolivre.com.br/lattafa-al-noble-wazeer-nicho-edp-para-masculino-original/p/MLB22788717?pdp_filters=deal%3AMLB1578289-1",
+  "Principia Kit Antiacne Avançado":
+    "https://www.mercadolivre.com.br/principia-kit-antiacne-avancado/p/MLB35295376?pdp_filters=item_id%3AMLB4579531018",
+  "L'oréal Professionnel Inforcer Kit Shampoo 300ml e Máscara 250ml":
+    "https://www.mercadolivre.com.br/loreal-professionnel-inforcer-kit-shampoo-300ml-e-mascara-250ml/p/MLB29482203?pdp_filters=deal%3AMLB1578289-1",
+  "Kit L'Oréal Professionnel NutriOil Treatment (2 Produtos)":
+    "https://www.mercadolivre.com.br/kit-loreal-professionnel-nutrioil-treatment-2-produtos/p/MLB37012696?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Lattafa Original The Kingdom Tradicional Masculino Eau De Parfum 100 Ml":
+    "https://www.mercadolivre.com.br/perfume-lattafa-original-the-kingdom-tradicional-masculino-eau-de-parfum-100-ml/p/MLB41178086?pdp_filters=item_id%3AMLB4577239811",
+  "Perfume Masculino Al Wataniah Attar Al Wesal 100ml Original":
+    "https://www.mercadolivre.com.br/perfume-masculino-al-wataniah-attar-al-wesal-100ml-original/up/MLBU3007881509?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Oval Secadora Modeladora E Volumizadora Easy - Taiff Cor Pink Voltagem":
+    "https://www.mercadolivre.com.br/escova-oval-secadora-modeladora-e-volumizadora-easy-taiff-cor-pink-voltagem/p/MLB24145024?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Secadora By Juliette ES-JU-01 3 em 1 1300W Mondial Bivolt":
+    "https://www.mercadolivre.com.br/escova-secadora-by-juliette-es-ju-01-3-em-1-1300w-mondial-bivolt/p/MLB29450079?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Secadora By Juliette, Mondial, 1300W - ES-JU-02":
+    "https://www.mercadolivre.com.br/escova-secadora-by-juliette-mondial-1300w-es-ju-02/p/MLB48592391?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Asad Lataffa 100ml Eau De Parfum Original Edp":
+    "https://www.mercadolivre.com.br/perfume-asad-lataffa-100ml-eau-de-parfum-original-edp/up/MLBU3063059862?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Lattafa Khamrah eau de parfum 100 ml":
+    "https://www.mercadolivre.com.br/perfume-lattafa-khamrah-eau-de-parfum-100-ml/p/MLB22845568?pdp_filters=item_id%3AMLB5682653266",
+  "Perfume Árabe Lattafa Fakhar Gold Extrait Eau De Parfum 100m":
+    "https://www.mercadolivre.com.br/perfume-arabe-lattafa-fakhar-gold-extrait-eau-de-parfum-100m/up/MLBU3471073818?pdp_filters=deal%3AMLB1578289-1",
+  "Chapa Prancha De Cabelo Taiff Elegance Red Íon Preto":
+    "https://www.mercadolivre.com.br/chapa-prancha-de-cabelo-taiff-elegance-red-ion-preto/p/MLB36684802?pdp_filters=deal%3AMLB1578289-1",
+  "Body Splash Arabe C/4un 200ml Perfume Masculino De Luxo":
+    "https://www.mercadolivre.com.br/body-splash-arabe-c4un-200ml-perfume-masculino-de-luxo/p/MLB65352605?pdp_filters=item_id%3AMLB6250530314",
+  "Kit Body Splash Bold e Seduction Homme Barbour's Beauty 200ml":
+    "https://www.mercadolivre.com.br/kit-body-splash-bold-e-seduction-homme-barbours-beauty-200ml/p/MLB67154424?pdp_filters=item_id%3AMLB4579363099",
+  "Kit Brae Para Nutrição Linha Braé Stages Nutrition - 3 Itens":
+    "https://www.mercadolivre.com.br/kit-brae-para-nutricao-linha-brae-stages-nutrition-3-itens/p/MLB38836680?pdp_filters=deal%3AMLB1578289-1",
+  "Maquina De Cortar Cabelo Profissional Kemei Km-2606 Bivolt Bordô 127/220v":
+    "https://www.mercadolivre.com.br/maquina-de-cortar-cabelo-profissional-kemei-km2606-bivolt/up/MLBU3271702105?pdp_filters=item_id%3AMLB4115661871",
+  "Secador De Cabelo Gama Italy Babosa Ceramic Ion 2100w":
+    "https://www.mercadolivre.com.br/secador-de-cabelo-gama-italy-babosa-ceramic-ion-2100w/p/MLB26294816?pdp_filters=deal%3AMLB1578289-1",
+  "Principia Kit Essencial Gl-03 + Ch + Vc + Ps Sensível Dia/noite":
+    "https://www.mercadolivre.com.br/principia-kit-essencial-gl-03-ch-vc-ps-sensivel-dianoite/p/MLB60968045?pdp_filters=item_id%3AMLB5885455180",
+  "Kit 3 Escovas Profissional Cerdas De Javali":
+    "https://www.mercadolivre.com.br/kit-3-escovas-profissional-cerdas-de-javali/p/MLB21550024?pdp_filters=item_id%3AMLB3455902426",
+  "Kit Fran Chillicake Kit By Franciny Ehlke":
+    "https://www.mercadolivre.com.br/kit-fran-chillicake-kit-by-franciny-ehlke/p/MLB61125463?pdp_filters=item_id%3AMLB4957722793",
+  "Máscara de Hidratação Profunda para Cabelos Secos e Opacos All Soft Redken 500ml":
+    "https://www.mercadolivre.com.br/mascara-de-hidratacao-profunda-para-cabelos-secos-e-opacos-all-soft-redken-500ml/p/MLB24526996?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Masculino e Feminino Ck Be Eau de Toilette 200ml Calvin Klein":
+    "https://www.mercadolivre.com.br/perfume-masculino-e-feminino-ck-be-eau-de-toilette-200ml-calvin-klein/p/MLB6093757?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume ÁRABE Sabah Al ward Sugar Original Feminino Eau de parfum":
+    "https://www.mercadolivre.com.br/perfume-arabe-sabah-al-ward-sugar-original-feminino-eau-de-parfum/p/MLB66788727?pdp_filters=deal%3AMLB1578289-1",
+  "Kérastase, Bain Shampoo, Gloss Absolu, Hydra Glaze, Ação Anti-frizz com Ácido Hialurônico, Ácido Glicólico e Óleo De Rosa Silvestre, Potencializa o Brilho 250ml":
+    "https://www.mercadolivre.com.br/kerastase-bain-shampoo-gloss-absolu-hydra-glaze-acao-anti-frizz-com-acido-hialuronico-acido-glicolico-e-oleo-de-rosa-silvestre-potencializa-o-brilho-250ml/p/MLB50123845?pdp_filters=deal%3AMLB1578289-1",
+  "Shampoo Antiqueda Fortificante com Células Nativas de Edelweiss e Raiz de Gengibre para Cabelos Oleosos, Finos ou Normais, Genesis Bain Hydra-Fortifiant Kérastase, 250ml":
+    "https://www.mercadolivre.com.br/shampoo-antiqueda-fortificante-com-celulas-nativas-de-edelweiss-e-raiz-de-gengibre-para-cabelos-oleosos-finos-ou-normais-genesis-bain-hydra-fortifiant-kerastase-250ml/p/MLB20309677?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Arabe Yara Lattafa Eau De Parfum 100ml Original C Nf":
+    "https://www.mercadolivre.com.br/perfume-arabe-yara-lattafa-eau-de-parfum-100ml-original-c-nf/up/MLBU3619526469?pdp_filters=deal%3AMLB1578289-1",
+  "Prancha Alisadora By Juliette Mondial Golden Rose Bivolt P-JU-01":
+    "https://www.mercadolivre.com.br/prancha-alisadora-by-juliette-mondial-golden-rose-bivolt-p-ju-01/p/MLB24205737?pdp_filters=deal%3AMLB1578289-1",
+  "Prancha Alisadora By Juliette, Mondial 60W - P-JU-03":
+    "https://www.mercadolivre.com.br/prancha-alisadora-by-juliette-mondial-60w-p-ju-03/p/MLB26069306?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Árabe Al Wataniah Bareeq Al Dhahab 100ml Eau De Parf":
+    "https://www.mercadolivre.com.br/perfume-arabe-al-wataniah-bareeq-al-dhahab-100ml-eau-de-parf/up/MLBU3390711664?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Masculino Asad Bourbon 100ml marca Isabelle La Belle":
+    "https://www.mercadolivre.com.br/perfume-masculino-asad-bourbon-100ml-marca-isabelle-la-belle/p/MLB49948227?pdp_filters=item_id%3AMLB4429965231",
+  "Body Splash Arabe C/4un 200ml Perfume Feminino de Luxo Alta Concentração":
+    "https://www.mercadolivre.com.br/body-splash-arabe-c4un-200ml-perfume-feminino-de-luxo-alta-concentracao/p/MLB74984894?pdp_filters=item_id%3AMLB4540296511",
+  "Shampoo Hidratante para Cabelos Secos, Nutrição Intensa, Brilho, Maciez, Fortalecimento e Revitalização da Fibra Capilar, Nutritive Bain Satin Kérastase, 250ml":
+    "https://www.mercadolivre.com.br/shampoo-hidratante-para-cabelos-secos-nutricao-intensa-brilho-maciez-fortalecimento-e-revitalizacao-da-fibra-capilar-nutritive-bain-satin-kerastase-250ml/p/MLB35379839?pdp_filters=deal%3AMLB1578289-1",
+  "Shampoo Kérastase Nutritive Bain Satin Riche Cabelos Secos 250ml":
+    "https://www.mercadolivre.com.br/shampoo-kerastase-nutritive-bain-satin-riche-cabelos-secos-250ml/p/MLB35380014?pdp_filters=deal%3AMLB1578289-1",
+  "Kérastase Resistance Thérapiste Shampoo Reparação Intensa | 250ml |":
+    "https://www.mercadolivre.com.br/kerastase-resistance-therapiste-shampoo-reparacao-intensa-250ml-/p/MLB19704164?pdp_filters=deal%3AMLB1578289-1",
+  "Secador de Cabelo Gama Italy Eleganza Plus 2100W Ceramic Ion Preto Profissional":
+    "https://www.mercadolivre.com.br/secador-de-cabelo-gama-italy-eleganza-plus-2100w-ceramic-ion-preto-profissional/p/MLB25808151?pdp_filters=deal%3AMLB1578289-1",
+  "Essencial Atrai Feminino Deo Parfum 100ml":
+    "https://www.mercadolivre.com.br/essencial-atrai-feminino-deo-parfum-100ml/p/MLB46625016?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Máquina Acabamento Kemei Km-032 E Shaver Km-2024 Bivolt Prateado 127/220v":
+    "https://www.mercadolivre.com.br/kit-maquina-acabamento-kemei-km032-e-shaver-km2024-bivolt/up/MLBU3319066032?pdp_filters=item_id%3AMLB4133078991",
+  "Deo Parfum Natura Una Infinito 75ml":
+    "https://www.mercadolivre.com.br/deo-parfum-natura-una-infinito-75ml/p/MLB22621721?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Secadora GA.MA Eleganza Plus Bivolt":
+    "https://www.mercadolivre.com.br/escova-secadora-gama-eleganza-plus-bivolt/p/MLB36190759?pdp_filters=deal%3AMLB1578289-1",
+  "Secador De Cabelo Stylle Profissional Motor Ac 2000w Taiff Preto":
+    "https://www.mercadolivre.com.br/secador-de-cabelo-stylle-profissional-motor-ac-2000w-taiff-preto/p/MLB28766601?pdp_filters=deal%3AMLB1578289-1",
+  "Óleo Capilar de Viagem Tamanho Mini Kérastase Elixir Ultime 30ml":
+    "https://www.mercadolivre.com.br/oleo-capilar-de-viagem-tamanho-mini-kerastase-elixir-ultime-30ml/p/MLB37927129?pdp_filters=deal%3AMLB1578289-1",
+  "Máquina de Cortar Cabelo Acabamento Pezinho Barba Kemei KM-2299 Sem Fio Profissional Com Carregamento USB Cartel Barber Shop":
+    "https://www.mercadolivre.com.br/maquina-de-cortar-cabelo-acabamento-pezinho-barba-kemei-km-2299-sem-fio-profissional-com-carregamento-usb-cartel-barber-shop/p/MLB65200285?pdp_filters=item_id%3AMLB5653754984",
+  "Escova Secadora, Mondial, 1300W - ES-50":
+    "https://www.mercadolivre.com.br/escova-secadora-mondial-1300w-es-50/p/MLB23338459?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Secadora Keratin, Mondial, 1300W - ES-11-BI":
+    "https://www.mercadolivre.com.br/escova-secadora-keratin-mondial-1300w-es-11-bi/p/MLB22647527?pdp_filters=deal%3AMLB1578289-1",
+  "Body Splash My Sweet Delight E Very Sexy Barbour's 200ml":
+    "https://www.mercadolivre.com.br/body-splash-my-sweet-delight-e-very-sexy-barbours-200ml/p/MLB67316451?pdp_filters=item_id%3AMLB4586269647",
+  "Perfume Árabe Durrat Al Aroos Feminino 85ml Edp Original":
+    "https://www.mercadolivre.com.br/perfume-arabe-durrat-al-aroos-feminino-85ml-edp-original/up/MLBU3668588288?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Facial Kokeshi Completo 3 Passos Olhos de Gueixa, Pele de Porcelana e Gota de Colágeno":
+    "https://www.mercadolivre.com.br/kit-facial-kokeshi-completo-3-passos-olhos-de-gueixa-pele-de-porcelana-e-gota-de-colageno/p/MLB68956726?pdp_filters=item_id%3AMLB6699389750",
+  "Depilador Philco Aqua Deluxe Plus Pdp02r Cor Branco/Rosa":
+    "https://www.mercadolivre.com.br/depilador-philco-aqua-deluxe-plus-pdp02r-cor-brancorosa/p/MLB11281702?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Armaf Club de Nuit Woman 105ml EDP Feminino":
+    "https://www.mercadolivre.com.br/perfume-armaf-club-de-nuit-woman-105ml-edp-feminino/p/MLB18995899?pdp_filters=deal%3AMLB1578289-1",
+  "EUCERIN Creme Corporal Antimanchas Intenso 200ml, Anti-Pigment, Clareador Joelho, Coxa e Cotovelo, Thiamidol":
+    "https://www.mercadolivre.com.br/eucerin-creme-corporal-antimanchas-intenso-200ml-anti-pigment-clareador-joelho-coxa-e-cotovelo-thiamidol/p/MLB41197524?pdp_filters=deal%3AMLB1578289-1",
+  "Secador de Cabelos Mondial 2000W - SCN-11":
+    "https://www.mercadolivre.com.br/secador-de-cabelos-mondial-2000w-scn-11/p/MLB29099771?pdp_filters=deal%3AMLB1578289-1",
+  "Aparador De Pelos Super Groom 11 Bg-05 Mondial":
+    "https://www.mercadolivre.com.br/aparador-de-pelos-super-groom-11-bg-05-mondial/p/MLB16589758?pdp_filters=deal%3AMLB1578289-1",
+  "Shampoo Wella Professionals Oil Reflections 1L":
+    "https://www.mercadolivre.com.br/shampoo-wella-professionals-oil-reflections-1l/p/MLB19525428?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Arabe Feminino Al Wataniah Sabah Al Ward Edp 100ml":
+    "https://www.mercadolivre.com.br/perfume-arabe-feminino-al-wataniah-sabah-al-ward-edp-100ml/up/MLBU3402023514?pdp_filters=deal%3AMLB1578289-1",
+  "O Boticário- Perfume Malbec Tradicional 100 ml":
+    "https://www.mercadolivre.com.br/o-boticario-perfume-malbec-tradicional-100-ml/p/MLB45588941?pdp_filters=deal%3AMLB1578289-1",
+  "Creamy Skincare Ácido Mandélico 30g Reduz a Oleosidade Combate a Formação de Acne e Uniformiza Todos os Tipos de Pele":
+    "https://www.mercadolivre.com.br/creamy-skincare-acido-mandelico-30g-reduz-a-oleosidade-combate-a-formacao-de-acne-e-uniformiza-todos-os-tipos-de-pele/p/MLB19899484?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Secadora Britânia Linha Viih Tube Nanocerâmica BES36 Bivolt":
+    "https://www.mercadolivre.com.br/escova-secadora-britania-linha-viih-tube-nanoceramica-bes36-bivolt/p/MLB47102049?pdp_filters=deal%3AMLB1578289-1",
+  "Boticário Arbo Puro Colônia 100ml":
+    "https://www.mercadolivre.com.br/boticario-arbo-puro-colonia-100ml/p/MLB39234995?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Arábe Asad Bourbon 100ml - Marca Isabelle La Belle | Fixação Intensa, Notas Amadeiradas Marcantes E Elegância Masculina":
+    "https://www.mercadolivre.com.br/perfume-arabe-asad-bourbon-100ml--marca-isabelle-la-belle--fixacao-intensa-notas-amadeiradas-marcantes-e-elegancia-masculina/up/MLBU3142068675?pdp_filters=deal%3AMLB1578289-1",
+  "Ilía Flor De Laranjeira 50ml Deo Parfum Feminino Natura":
+    "https://www.mercadolivre.com.br/ilia-flor-de-laranjeira-50ml-deo-parfum-feminino-natura/p/MLB19441372?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Extensão de Cílios B&Qaugen Fairy de Mink Sintético Curvatura D para Iniciantes":
+    "https://www.mercadolivre.com.br/kit-extensao-de-cilios-bqaugen-fairy-de-mink-sintetico-curvatura-d-para-iniciantes/p/MLB43585606?pdp_filters=item_id%3AMLB5952825902",
+  "Escova Secadora Space Shine Mondial Lilás 1300w - ES-21":
+    "https://www.mercadolivre.com.br/escova-secadora-space-shine-mondial-lilas-1300w-es-21/p/MLB44964696?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Unhas De Gel Lixadeira Elétrica Cabine Sun Lixa Manicure Rosa":
+    "https://www.mercadolivre.com.br/kit-unhas-de-gel-lixadeira-eletrica-cabine-sun-lixa-manicure/up/MLBU3783726178?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Alisadora Black Rose, Mondial, 36W - EA-07":
+    "https://www.mercadolivre.com.br/escova-alisadora-black-rose-mondial-36w-ea-07/p/MLB29574189?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Masculino Eau de Toilette Azzaro - Azzaro Pour Homme 50 ml":
+    "https://www.mercadolivre.com.br/perfume-masculino-eau-de-toilette-azzaro-azzaro-pour-homme-50-ml/p/MLB6093921?pdp_filters=deal%3AMLB1578289-1",
+  "Floratta Flores Secretas Fragrância Delicada Floral Frutal O Boticário 75ml":
+    "https://www.mercadolivre.com.br/floratta-flores-secretas-fragrancia-delicada-floral-frutal-o-boticario-75ml/p/MLB62200454?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Organizadores Com 14 Multiuso Gavetas Empilhavel":
+    "https://www.mercadolivre.com.br/kit-organizadores-com-14-multiuso-gavetas-empilhavel/p/MLB50832844?pdp_filters=item_id%3AMLB4415031943",
+  "Pack X2 Unidades Unique One Revlon Professional Tudo Em Um":
+    "https://www.mercadolivre.com.br/pack-x2-unidades-unique-one-revlon-professional-tudo-em-um/p/MLB35908614?pdp_filters=item_id%3AMLB7640599050",
+  "Natura Homem Evolutio 100 ml":
+    "https://www.mercadolivre.com.br/natura-homem-evolutio-100-ml/p/MLB50275420?pdp_filters=deal%3AMLB1578289-1",
+  "Natura Una Artisan 75ml Feminino Eau de parfum Spray":
+    "https://www.mercadolivre.com.br/natura-una-artisan-75ml-feminino-eau-de-parfum-spray/p/MLB22336804?pdp_filters=deal%3AMLB1578289-1",
+  "Essencial Intenso Deo Parfum Natura Masculino 100 ml":
+    "https://www.mercadolivre.com.br/essencial-intenso-deo-parfum-natura-masculino-100-ml/p/MLB22456050?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Fran Love Kit Gloss Labial E Lápis Labial By Franciny":
+    "https://www.mercadolivre.com.br/kit-fran-love-kit-gloss-labial-e-lapis-labial-by-franciny/p/MLB2081604757?pdp_filters=item_id%3AMLB6620238180",
+  "kit Presente Cuide-Se Bem Deleite O Boticário 3 itens":
+    "https://www.mercadolivre.com.br/kit-presente-cuide-se-bem-deleite-o-boticario-3-itens/p/MLB65929649?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Natura Humor Próprio Colônia 75 mL":
+    "https://www.mercadolivre.com.br/perfume-natura-humor-proprio-colonia-75-ml/p/MLB19441267?pdp_filters=deal%3AMLB1578289-1",
+  "Barbeador Elétrico Pba08 À Prova Dágua Bivolt Philco Preto":
+    "https://www.mercadolivre.com.br/barbeador-eletrico-pba08-prova-dagua-bivolt-philco-preto/p/MLB42623138?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 5 Un Cronograma Capilar Manutenção Completa Profissional Kit 5 Unidades":
+    "https://www.mercadolivre.com.br/kit-5-un-cronograma-capilar-manutencao-completa-profissional/up/MLBU777599485?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Eau de Parfum La Rive Her Choice 100ml":
+    "https://www.mercadolivre.com.br/perfume-eau-de-parfum-la-rive-her-choice-100ml/p/MLB19781420?pdp_filters=item_id%3AMLB2921961000",
+  "Escova Cadence Secadora Alisadora Volumizadora Esc710-biv Cinza":
+    "https://www.mercadolivre.com.br/escova-cadence-secadora-alisadora-volumizadora-esc710-biv-cinza/p/MLB22616604?pdp_filters=deal%3AMLB1578289-1",
+  "L'Oréal Paris Revitalift Hialurônico Kit Skincare Anti-Idade, com Sérum Preenchedor 30ml + Creme Facial Noturno, Ácido Hialurônico para Hidratação e Redução de Rugas 49g":
+    "https://www.mercadolivre.com.br/loreal-paris-revitalift-hialuronico-kit-skincare-anti-idade-com-serum-preenchedor-30ml-creme-facial-noturno-acido-hialuronico-para-hidratacao-e-reducao-de-rugas-49g/p/MLB29900198?pdp_filters=deal%3AMLB1578289-1",
+  "Prancha De Cabelo Bpr04 Linha Viih Tube 230c Britânia Bivolt Rosa":
+    "https://www.mercadolivre.com.br/prancha-de-cabelo-bpr04-linha-viih-tube-230c-britania-bivolt-rosa/p/MLB48927245?pdp_filters=deal%3AMLB1578289-1",
+  "Pincéis Profissionais Maquiagem 7un Macrilan Ed009":
+    "https://www.mercadolivre.com.br/pinceis-profissionais-maquiagem-7un-macrilan-ed009/p/MLB19690986?pdp_filters=deal%3AMLB1578289-1",
+  "Bt Transition - Paleta De Sombras Bruna Tavares 10 Cores":
+    "https://www.mercadolivre.com.br/bt-transition-paleta-de-sombras-bruna-tavares-10-cores/p/MLB45076154?pdp_filters=item_id%3AMLB5525381288",
+  "Secador de Cabelo By Juliette Mondial 1200W - SCT-JU-03":
+    "https://www.mercadolivre.com.br/secador-de-cabelo-by-juliette-mondial-1200w-sct-ju-03/p/MLB37134050?pdp_filters=deal%3AMLB1578289-1",
+  "Absolut Repair Máscara 250ml - Série Expert | L'oréal Professionnel":
+    "https://www.mercadolivre.com.br/absolut-repair-mascara-250ml-serie-expert-loreal-professionnel/p/MLB19514187?pdp_filters=deal%3AMLB1578289-1",
+  "Eudora Diva Esplêndida Feminino 100ml":
+    "https://www.mercadolivre.com.br/eudora-diva-esplendida-feminino-100ml/p/MLB19592052?pdp_filters=item_id%3AMLB5686488820",
+  "Escova Rotativa Mondial 3 Em 1 Tourmaline Ions Bivolt":
+    "https://www.mercadolivre.com.br/escova-rotativa-mondial-3-em-1-tourmaline-ions-bivolt/p/MLB53404371?pdp_filters=deal%3AMLB1578289-1",
+  "Barbeador Kemei Shaver KM-1102 Sem Fio Cabeças Laváveis":
+    "https://www.mercadolivre.com.br/barbeador-kemei-shaver-km-1102-sem-fio-cabecas-lavaveis/p/MLB23373989?pdp_filters=item_id%3AMLB7323998390",
+  "Aparador de Pelos Elétrico Lecom Prova D'Água Bivolt Barbear e Depilar":
+    "https://www.mercadolivre.com.br/aparador-de-pelos-eletrico-lecom-prova-dagua-bivolt-barbear-e-depilar/p/MLB54253608?pdp_filters=item_id%3AMLB4184327547",
+  "Máquina De Corte Acabamento Sem Fio Aparador Cabelo Barba Profissional Preta":
+    "https://www.mercadolivre.com.br/maquina-de-corte-acabamento-sem-fio-aparador-cabelo-barba-profissional-preta/p/MLB51914900?pdp_filters=item_id%3AMLB5331786600",
+  "Kit Explosão de Óleos Africanos | bn.Cachos (4 itens)":
+    "https://www.mercadolivre.com.br/kit-explosao-de-oleos-africanos-bncachos-4-itens/p/MLB24783519?pdp_filters=item_id%3AMLB7020969170",
+  "Prancha Display Digital Chrome Rose Ppr10 Philco Bivolt Bronze":
+    "https://www.mercadolivre.com.br/prancha-display-digital-chrome-rose-ppr10-philco-bivolt-bronze/p/MLB18085706?pdp_filters=deal%3AMLB1578289-1",
+  "Splash Aura Beauty Afrodite Garden":
+    "https://www.mercadolivre.com.br/splash-aura-beauty-afrodite-garden/p/MLB42974296?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Secadora Britânia 4 em 1 Cerâmica 1300W BES26SR Bivolt":
+    "https://www.mercadolivre.com.br/escova-secadora-britania-4-em-1-ceramica-1300w-bes26sr-bivolt/p/MLB24620782?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Secadora Pes25sr 4 Em 1 Advance Philco":
+    "https://www.mercadolivre.com.br/escova-secadora-pes25sr-4-em-1-advance-philco/p/MLB25264079?pdp_filters=deal%3AMLB1578289-1",
+  "L'Oréal Professionnel Absolut Repair Oil Óleo Capilar 30ml":
+    "https://www.mercadolivre.com.br/loreal-professionnel-absolut-repair-oil-oleo-capilar-30ml/p/MLB21412983?pdp_filters=deal%3AMLB1578289-1",
+  "Principia Kit Limpeza E Hidratação Ch-01 + Ol-01 + Gl-02 Todo Tipo De Pele Dia/noite":
+    "https://www.mercadolivre.com.br/principia-kit-limpeza-e-hidratacao-ch-01-ol-01-gl-02-todo-tipo-de-pele-dianoite/p/MLB59774342?pdp_filters=item_id%3AMLB4247892213",
+  "Principia Kit 2 Gel De Limpeza Facial Gl-01":
+    "https://www.mercadolivre.com.br/principia-kit-2-gel-de-limpeza-facial-gl-01/p/MLB65867205?pdp_filters=item_id%3AMLB6798881306",
+  "L'Oréal Paris Elseve Collagen Lifter Kit Shampoo, Condicionador e Sérum Leave-in com Peptídeos e Proteção Térmica para Cabelos Finos, Volume em 3D, 400ml + 400ml + 100ml":
+    "https://www.mercadolivre.com.br/loreal-paris-elseve-collagen-lifter-kit-shampoo-condicionador-e-serum-leave-in-com-peptideos-e-protecao-termica-para-cabelos-finos-volume-em-3d-400ml-400ml-100ml/p/MLB67321924?pdp_filters=deal%3AMLB1578289-1",
+  "Óleo Capilar Braé Revival Brilho para Cabelos Fragilizados 60 mL":
+    "https://www.mercadolivre.com.br/oleo-capilar-brae-revival-brilho-para-cabelos-fragilizados-60-ml/p/MLB19567006?pdp_filters=deal%3AMLB1578289-1",
+  "Braé Essential Oil Blend Reparação E Proteção Térmica 60ml":
+    "https://www.mercadolivre.com.br/brae-essential-oil-blend-reparacao-e-protecao-termica-60ml/p/MLB23637314?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Arabe Asad Tradicional Lattafa Masculino 100 ML Original":
+    "https://www.mercadolivre.com.br/perfume-arabe-asad-tradicional-lattafa-masculino-100-ml-original/p/MLB42237314?pdp_filters=deal%3AMLB1578289-1",
+  "Secador de Cabelos Travel Mondial 1200W - SC-47-GR":
+    "https://www.mercadolivre.com.br/secador-de-cabelos-travel-mondial-1200w-sc-47-gr/p/MLB29450074?pdp_filters=deal%3AMLB1578289-1",
+  "Shampoo Antiqueda Estimulante com Aminexil, Dercos Energy+ Vichy, 200g":
+    "https://www.mercadolivre.com.br/shampoo-antiqueda-estimulante-com-aminexil-dercos-energy-vichy-200g/p/MLB25662351?pdp_filters=deal%3AMLB1578289-1",
+  "Creme Acetinado Hidratante Corporal Lily O Boticário 250g":
+    "https://www.mercadolivre.com.br/creme-acetinado-hidratante-corporal-lily-o-boticario-250g/p/MLB19136225?pdp_filters=deal%3AMLB1578289-1",
+  "O Boticário Insensatez Deo Colônia 100ml":
+    "https://www.mercadolivre.com.br/o-boticario-insensatez-deo-colonia-100ml/p/MLB19803789?pdp_filters=deal%3AMLB1578289-1",
+  "Secador de Cabelos Britânia 3 Temperaturas 2100W BSC2250 Bivolt":
+    "https://www.mercadolivre.com.br/secador-de-cabelos-britania-3-temperaturas-2100w-bsc2250-bivolt/p/MLB44555600?pdp_filters=deal%3AMLB1578289-1",
+  "Bioderma Atoderm Óleo De Banho Higiene Hidratante Diária 200ml":
+    "https://www.mercadolivre.com.br/bioderma-atoderm-oleo-de-banho-higiene-hidratante-diaria-200ml/p/MLB18390926?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Hidratação Facial + Olhos- Anti Sinais - Kokeshi Skin Care Milagre Do Arroz":
+    "https://www.mercadolivre.com.br/kit-hidratacao-facial-olhos-anti-sinais-kokeshi-skin-care-milagre-do-arroz/p/MLB33577973?pdp_filters=item_id%3AMLB5275429462",
+  "Kit Braé Stages Nutrição: Shampoo e Condicionador para Cabelos Ressecados e sem Vida":
+    "https://www.mercadolivre.com.br/kit-brae-stages-nutricao-shampoo-e-condicionador-para-cabelos-ressecados-e-sem-vida/p/MLB38662854?pdp_filters=deal%3AMLB1578289-1",
+  "Principia Kit Shampoo E Condicionador Antiqueda Aq-01":
+    "https://www.mercadolivre.com.br/principia-kit-shampoo-e-condicionador-antiqueda-aq-01/p/MLB37347975?pdp_filters=item_id%3AMLB4739768142",
+  "Cronograma Capilar Braé Repair Reparação 3x13ml":
+    "https://www.mercadolivre.com.br/cronograma-capilar-brae-repair-reparacao-3x13ml/p/MLB19540098?pdp_filters=deal%3AMLB1578289-1",
+  "Natura Ilía Laços Deo Parfum 50ml Feminino":
+    "https://www.mercadolivre.com.br/natura-ilia-lacos-deo-parfum-50ml-feminino/p/MLB35530664?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Amend Acidificante Equilíbrio e Leave-in Antifrizz":
+    "https://www.mercadolivre.com.br/kit-amend-acidificante-equilibrio-e-leave-in-antifrizz/p/MLB55688817?pdp_filters=deal%3AMLB1578289-1",
+  "Depilador Elétrico Recarregável Kemei KM-1900 para Zonas Íntimas Bivolt Rosa":
+    "https://www.mercadolivre.com.br/depilador-eletrico-recarregavel-kemei-km-1900-para-zonas-intimas-bivolt-rosa/p/MLB19898425?pdp_filters=item_id%3AMLB4147224669",
+  "Deo Colônia Masculino Natura Homem 100ml":
+    "https://www.mercadolivre.com.br/deo-colonia-masculino-natura-homem-100ml/p/MLB14975861?pdp_filters=deal%3AMLB1578289-1",
+  "La Roche-Posay Protetor Solar Facial UvAir FPS60 45ml":
+    "https://www.mercadolivre.com.br/la-roche-posay-protetor-solar-facial-uvair-fps60-45ml/p/MLB53658333?pdp_filters=deal%3AMLB1578289-1",
+  "Gel de Limpeza Facial Purificante Avène Cleanance Pele Oleosa e Sensível 400g":
+    "https://www.mercadolivre.com.br/gel-de-limpeza-facial-purificante-avene-cleanance-pele-oleosa-e-sensivel-400g/p/MLB26241166?pdp_filters=deal%3AMLB1578289-1",
+  "Principia Kit C/ 2 Gel De Limpeza Facial Gl-02":
+    "https://www.mercadolivre.com.br/principia-kit-c-2-gel-de-limpeza-facial-gl-02/p/MLB55677401?pdp_filters=item_id%3AMLB5687621228",
+  "Principia Kit Protetor Solar Facial Ps-01 Fps60":
+    "https://www.mercadolivre.com.br/principia-kit-protetor-solar-facial-ps-01-fps60/p/MLB54456751?pdp_filters=item_id%3AMLB4186648429",
+  "Escova Secadora Britânia Nanocerâmica 1300W Infrared BES24P Bivolt":
+    "https://www.mercadolivre.com.br/escova-secadora-britania-nanoceramica-1300w-infrared-bes24p-bivolt/p/MLB19758350?pdp_filters=deal%3AMLB1578289-1",
+  "Máscara Wella Invigo Nutri-enrich 150ml":
+    "https://www.mercadolivre.com.br/mascara-wella-invigo-nutri-enrich-150ml/p/MLB19514357?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 3 Sabonetes Coala - Bambu + Chá Branco + Orquídea Negra":
+    "https://www.mercadolivre.com.br/kit-3-sabonetes-coala-bambu-cha-branco-orquidea-negra/p/MLB53217800?pdp_filters=item_id%3AMLB6721720280",
+  "3 Body Splash Good Graces + Delight + Very Sexy Barbour's":
+    "https://www.mercadolivre.com.br/3-body-splash-good-graces-delight-very-sexy-barbours/p/MLB65238387?pdp_filters=deal%3AMLB1578289-1",
+  "Principia Kit Gel de Limpeza GL-01 + Protetor Solar Facial PS-01 FPS 60":
+    "https://www.mercadolivre.com.br/principia-kit-gel-de-limpeza-gl-01-protetor-solar-facial-ps-01-fps-60/p/MLB43186410?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 2 Pacotes Cabelo Jumbo Jumbão Zhang Hair Para Tranças Preto 126 cm":
+    "https://www.mercadolivre.com.br/kit-2-pacotes-cabelo-jumbo-jumbao-zhang-hair-para-trancas-preto-126-cm/p/MLB44442411?pdp_filters=item_id%3AMLB4111582171",
+  "Protetor Solar Facial Sem Cor Antioleosidade Toque Seco FPS 60 Reduz Acne e Poros Acabamento Invisível Com Niacinamida Ácido Salicílico Capital Soleil UV-Clear Vichy 40g":
+    "https://www.mercadolivre.com.br/protetor-solar-facial-sem-cor-antioleosidade-toque-seco-fps-60-reduz-acne-e-poros-acabamento-invisivel-com-niacinamida-acido-salicilico-capital-soleil-uv-clear-vichy-40g/p/MLB38686865?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Organizador de Acrílico para Maquiagem e Gavetas com 21 Peças":
+    "https://www.mercadolivre.com.br/kit-organizador-de-acrilico-para-maquiagem-e-gavetas-com-21-pecas/p/MLB48620722?pdp_filters=deal%3AMLB1578289-1",
+  "Máscara de CíliosEscova Flexível, Alongamento Sem Limites com Extrato de Bambu e Fibras, Impacto de Todos os Ângulos, Preto, Lash Sensational Sky High Maybelline NY, 7,2ml":
+    "https://www.mercadolivre.com.br/mascara-de-ciliosescova-flexivel-alongamento-sem-limites-com-extrato-de-bambu-e-fibras-impacto-de-todos-os-ngulos-preto-lash-sensational-sky-high-maybelline-ny-72ml/p/MLB50186822?pdp_filters=deal%3AMLB1578289-1",
+  "Natura Mamãe e bebê Água de colônia 100ml":
+    "https://www.mercadolivre.com.br/natura-mamae-e-bebe-agua-de-colonia-100ml/p/MLB22404555?pdp_filters=item_id%3AMLB6718025696",
+  "Kit 15 Esmaltes Sortidos Impala Coleção Cores Da Sua Moda Cor Multicolorido":
+    "https://www.mercadolivre.com.br/kit-15-esmaltes-sortidos-impala-colecao-cores-da-sua-moda-cor-multicolorido/p/MLB26380473?pdp_filters=item_id%3AMLB5162302300",
+  "Protetor Solar 95 Fps Com Base Cor #30":
+    "https://www.mercadolivre.com.br/protetor-solar-95-fps-com-base-cor-30/p/MLB64908493?pdp_filters=deal%3AMLB1578289-1",
+  "Protetor Solar Anthelios [XL]-PROTECT Cor 2.0 Clara FPS 60 40g La Roche-posay":
+    "https://www.mercadolivre.com.br/protetor-solar-anthelios-xl-protect-cor-20-clara-fps-60-40g-la-roche-posay/p/MLB19508884?pdp_filters=deal%3AMLB1578289-1",
+  "Hidratante Facial Epidrat Acqua 50ml Mantecorp Skincare Todo Tipo De Pele Dia/noite":
+    "https://www.mercadolivre.com.br/hidratante-facial-epidrat-acqua-50ml-mantecorp-skincare-todo-tipo-de-pele-dianoite/p/MLB19870720?pdp_filters=deal%3AMLB1578289-1",
+  "Principia Sc-01 Serum Capilar 50ml":
+    "https://www.mercadolivre.com.br/principia-sc-01-serum-capilar-50ml/p/MLB34219585?pdp_filters=item_id%3AMLB4488634737",
+  "BODY SPLASH MASCULINO MIDTOWN 200ML - PRIMACIAL PERFUME FRESCO AMADEIRADO":
+    "https://www.mercadolivre.com.br/body-splash-masculino-midtown-200ml-primacial-perfume-fresco-amadeirado/p/MLB53616217?pdp_filters=item_id%3AMLB4153804623",
+  "Body Splash Masculino Vibration 200ml - Primacial Perfume Bergamota Fresco":
+    "https://www.mercadolivre.com.br/body-splash-masculino-vibration-200ml-primacial-perfume-bergamota-fresco/p/MLB70449712?pdp_filters=item_id%3AMLB4748589927",
+  "Perfume Árabe Special Oud Al Wataniah Unisex 100 Ml":
+    "https://www.mercadolivre.com.br/perfume-arabe-special-oud-al-wataniah-unisex-100-ml/p/MLB19838314?pdp_filters=deal%3AMLB1578289-1",
+  "Máquina Acabamento Kemei KM-032 Barba Cabelo Bivolt":
+    "https://www.mercadolivre.com.br/maquina-acabamento-kemei-km-032-barba-cabelo-bivolt/p/MLB61670563?pdp_filters=item_id%3AMLB4481451671",
+  "Máquina de Cortar Cabelo 3 em 1 Aparador de Pelos Nariz e Orelhas Kemei KM-6558":
+    "https://www.mercadolivre.com.br/maquina-de-cortar-cabelo-3-em-1-aparador-de-pelos-nariz-e-orelhas-kemei-km-6558/p/MLB24739874?pdp_filters=item_id%3AMLB6797495744",
+  "Barbeador Aparador Cortador Kemei 3 em 1 KM-6558 Recarregável Preto":
+    "https://www.mercadolivre.com.br/barbeador-aparador-cortador-kemei-3-em-1-km-6558-recarregavel-preto/p/MLB28735593?pdp_filters=item_id%3AMLB6690170030",
+  "Secador De Cabelos Britânia 1200w Bsc1200 Cor Preto":
+    "https://www.mercadolivre.com.br/secador-de-cabelos-britania-1200w-bsc1200-cor-preto/p/MLB36685618?pdp_filters=deal%3AMLB1578289-1",
+  "Maquina Cortar Cabelo Aparar Barba Kemei Km-032 Acabamento Prateado 127/220v":
+    "https://www.mercadolivre.com.br/maquina-cortar-cabelo-aparar-barba-kemei-km032-acabamento/up/MLBU3798592491?pdp_filters=item_id%3AMLB6288293070",
+  "Bio-Oil Óleo Corporal 125ml Antiestrias Cicatrizes Hidratante Restaurador Pele Seca Manchas Estrias Cuidado Corporal Skincare Original":
+    "https://www.mercadolivre.com.br/bio-oil-oleo-corporal-125ml-antiestrias-cicatrizes-hidratante-restaurador-pele-seca-manchas-estrias-cuidado-corporal-skincare-original/p/MLB19510339?pdp_filters=deal%3AMLB1578289-1",
+  "Sérum Facial Antiacne, Reduz Espinhas e Marcas Efeito Matte Antioleosidade com Vitamina C e Ácido Salicílico, Uniform & Matte Garnier, 15ml":
+    "https://www.mercadolivre.com.br/serum-facial-antiacne-reduz-espinhas-e-marcas-efeito-matte-antioleosidade-com-vitamina-c-e-acido-salicilico-uniform-matte-garnier-15ml/p/MLB24450553?pdp_filters=item_id%3AMLB6739656898",
+  "O Boticário Glamour Midnight Feminino Colônia desodorante Spray 75ml":
+    "https://www.mercadolivre.com.br/o-boticario-glamour-midnight-feminino-colonia-desodorante-spray-75ml/p/MLB24310715?pdp_filters=deal%3AMLB1578289-1",
+  "Reconstrutor Capilar Truss Uso Obrigatório Spray 260 mL":
+    "https://www.mercadolivre.com.br/reconstrutor-capilar-truss-uso-obrigatorio-spray-260-ml/p/MLB20230645?pdp_filters=deal%3AMLB1578289-1",
+  "Creme Reparador Protetor Avène Cicalfate+ Pele Sensível 40ml":
+    "https://www.mercadolivre.com.br/creme-reparador-protetor-avene-cicalfate-pele-sensivel-40ml/p/MLB25575456?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Secadora, Mondial Bivolt ES-02-BI":
+    "https://www.mercadolivre.com.br/escova-secadora-mondial-bivolt-es-02-bi/p/MLB37141751?pdp_filters=deal%3AMLB1578289-1",
+  "MANTECORP Protetor Solar Episol FPS 70 Tom 1 Extra Claro":
+    "https://www.mercadolivre.com.br/mantecorp-protetor-solar-episol-fps-70-tom-1-extra-claro/p/MLB19789390?pdp_filters=deal%3AMLB1578289-1",
+  "Maquina Barbear,aparelho De Barbear Eletrico Multifuncio Laranja 5v":
+    "https://www.mercadolivre.com.br/maquina-barbearaparelho-de-barbear-eletrico-multifuncio/up/MLBU3872631854?pdp_filters=deal%3AMLB1578289-1",
+  "Refil Shampoo Purificante para Cabelos Oleosos Limpeza Profunda sem Ressecar os Fios Fórmula com Ácido Salicílico e Zinco PCA Oil-Correction Vichy Dercos 200g":
+    "https://www.mercadolivre.com.br/refil-shampoo-purificante-para-cabelos-oleosos-limpeza-profunda-sem-ressecar-os-fios-formula-com-acido-salicilico-e-zinco-pca-oil-correction-vichy-dercos-200g/p/MLB23463575?pdp_filters=deal%3AMLB1578289-1",
+  "LANBENA Máscara Removedora de Cravo de Carvão de Bambu 2.0 Atualizada, Tiras de Nariz de 60 Unidades":
+    "https://www.mercadolivre.com.br/lanbena-mascara-removedora-de-cravo-de-carvao-de-bambu-20-atualizada-tiras-de-nariz-de-60-unidades/p/MLB22853645?pdp_filters=item_id%3AMLB4779019857",
+  "L’Oréal Paris Creme Para Área Dos Olhos Anti-Idade Revitalift Hialurônico, Cuidado Intenso e Combate às Olheiras, 15g":
+    "https://www.mercadolivre.com.br/loreal-paris-creme-para-area-dos-olhos-anti-idade-revitalift-hialuronico-cuidado-intenso-e-combate-s-olheiras-15g/p/MLB19770720?pdp_filters=deal%3AMLB1578289-1",
+  "Lençol Descartável Papel Hospitalar Maca 70x50 05 Rolos Resistente branco clinica estética Mix Nova Consultório Pacote":
+    "https://www.mercadolivre.com.br/lencol-descartavel-papel-hospitalar-maca-70x50-05-rolos-resistente-branco-clinica-estetica-mix-nova-consultorio-pacote/p/MLB39431995?pdp_filters=item_id%3AMLB5216922236",
+  "Gel de Limpeza Facial Darrow Actine Oil Control Pele Mista Oleosa 400g":
+    "https://www.mercadolivre.com.br/gel-de-limpeza-facial-darrow-actine-oil-control-pele-mista-oleosa-400g/p/MLB29886328?pdp_filters=deal%3AMLB1578289-1",
+  "Secador De Cabelo Titanium Travel 1000w Philco Bivolt Vermelho":
+    "https://www.mercadolivre.com.br/secador-de-cabelo-titanium-travel-1000w-philco-bivolt-vermelho/p/MLB19590448?pdp_filters=deal%3AMLB1578289-1",
+  "Principia Creme Hidratante Corporal Ch-02 454g Neutra":
+    "https://www.mercadolivre.com.br/principia-creme-hidratante-corporal-ch-02-454g-neutra/p/MLB67212345?pdp_filters=deal%3AMLB1578289-1",
+  "Gel De Limpeza Creamy Sem Fragrância 200ml":
+    "https://www.mercadolivre.com.br/gel-de-limpeza-creamy-sem-fragrancia-200ml/p/MLB50914862?pdp_filters=item_id%3AMLB7511295570",
+  "Máquina de Cortar Cabelo e Barba Bahrein Dragão Profissional Sem Fio":
+    "https://www.mercadolivre.com.br/maquina-de-cortar-cabelo-e-barba-bahrein-dragao-profissional-sem-fio/p/MLB25876560?pdp_filters=item_id%3AMLB5690163236",
+  "Reparador Labial Cicaplast 7,5ml La Roche-posay":
+    "https://www.mercadolivre.com.br/reparador-labial-cicaplast-75ml-la-roche-posay/p/MLB28605882?pdp_filters=deal%3AMLB1578289-1",
+  "Espuma de Limpeza Antioleosidade Effaclar Reequilibrante La Roche-Posay 100g":
+    "https://www.mercadolivre.com.br/espuma-de-limpeza-antioleosidade-effaclar-reequilibrante-la-roche-posay-100g/p/MLB24310367?pdp_filters=deal%3AMLB1578289-1",
+  "NIVEA Preenchedor de Linhas Q10 Expert Antissinais 15ml, Melhora e Reduz Rugas, Aparência mais Jovem, Cuidado Facial":
+    "https://www.mercadolivre.com.br/nivea-preenchedor-de-linhas-q10-expert-antissinais-15ml-melhora-e-reduz-rugas-aparencia-mais-jovem-cuidado-facial/p/MLB24310487?pdp_filters=item_id%3AMLB5940103484",
+  "Kit Karssellé Shampoo 1l + Condicionador 1l + Máscara 500g + Óleo 60ml":
+    "https://www.mercadolivre.com.br/kit-karsselle-shampoo-1l-condicionador-1l-mascara-500g-oleo-60ml/p/MLB66104521?pdp_filters=item_id%3AMLB6409790094",
+  "Loção hidratante Cereja Rouge 400ml OBoticário Nativa Spa":
+    "https://www.mercadolivre.com.br/locao-hidratante-cereja-rouge-400ml-oboticario-nativa-spa/p/MLB42038768?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Asad Parfum Isabelle La Belle 100ml":
+    "https://www.mercadolivre.com.br/perfume-asad-parfum-isabelle-la-belle-100ml/p/MLB48599492?pdp_filters=deal%3AMLB1578289-1",
+  "Maquina De Cortar Cabelo Barbear Sem Fio Maquininha Dragão Elétrica Aparador De Pelos Acabamento Depilador 4 Pentes Intimo Masculino Motor Recarregável Usb Tipo C Dourado Nixzen":
+    "https://www.mercadolivre.com.br/maquina-de-cortar-cabelo-barbear-sem-fio-maquininha-dragao-eletrica-aparador-de-pelos-acabamento-depilador-4-pentes-intimo-masculino-motor-recarregavel-usb-tipo-c-dourado-nixzen/p/MLB54094027?pdp_filters=item_id%3AMLB5392196614",
+  "Gel De Limpeza Poros Dilatados Principia Gl-01 Salicilico 350ml Oleosa Todo Tipo De Pele Dia/noite Todo Tipo De Pele":
+    "https://www.mercadolivre.com.br/gel-de-limpeza-poros-dilatados-principia-gl01-salicilico-350ml-oleosa-todo-tipo-de-pele-dianoite/up/MLBU3206212648?pdp_filters=item_id%3AMLB5406722654",
+  "Chocochilli Gloss Fran By Franciny Ehlke Acabamento Brilhant Chocolate":
+    "https://www.mercadolivre.com.br/chocochilli-gloss-fran-by-franciny-ehlke-acabamento-brilhant/up/MLBU3058178552?pdp_filters=item_id%3AMLB5309906876",
+  "Aparador de Pelos Kemei KM-6511 Nariz Orelhas Sem Fio Preto":
+    "https://www.mercadolivre.com.br/aparador-de-pelos-kemei-km-6511-nariz-orelhas-sem-fio-preto/p/MLB22357681?pdp_filters=item_id%3AMLB4121289295",
+  "NIVEA Q10 Sérum Antissinais Expert Dupla Ação 30ml, Previne e Reduz Rugas, Renova a Pele, Hidratação Profunda":
+    "https://www.mercadolivre.com.br/nivea-q10-serum-antissinais-expert-dupla-acao-30ml-previne-e-reduz-rugas-renova-a-pele-hidratacao-profunda/p/MLB39344913?pdp_filters=deal%3AMLB1578289-1",
+  "Sérum Roll-on Área Dos Olhos Adeus Olheiras 10ml Kokeshi Todo Tipo De Pele Dia/noite":
+    "https://www.mercadolivre.com.br/serum-roll-on-area-dos-olhos-adeus-olheiras-10ml-kokeshi-todo-tipo-de-pele-dianoite/p/MLB68855045?pdp_filters=item_id%3AMLB4643500027",
+  "Principia Kit Hidratação E Proteção Facial Ch-o1 + Ps-01 Todo Tipo De Pele Dia/noite":
+    "https://www.mercadolivre.com.br/principia-kit-hidratacao-e-protecao-facial-ch-o1-ps-01-todo-tipo-de-pele-dianoite/p/MLB68915199?pdp_filters=item_id%3AMLB6695260200",
+  "Refil Creme Nutritivo para o Corpo Natura Tododia Algodão 400ml":
+    "https://www.mercadolivre.com.br/refil-creme-nutritivo-para-o-corpo-natura-tododia-algodao-400ml/p/MLB19479976?pdp_filters=item_id%3AMLB5158911361",
+  "Aparelho Portátil De Barbear Kemei Km-2024":
+    "https://www.mercadolivre.com.br/aparelho-portatil-de-barbear-kemei-km-2024/p/MLB37570136?pdp_filters=item_id%3AMLB6838515300",
+  "Protetor Solar Antimanchas Com Cor 2 Em Bastão 90fps Sallve":
+    "https://www.mercadolivre.com.br/protetor-solar-antimanchas-com-cor-2-em-bastao-90fps-sallve/p/MLB44866959?pdp_filters=deal%3AMLB1578289-1",
+  "Bastão Antiolheiras Antioxidante Sallve 10 g Oil Free":
+    "https://www.mercadolivre.com.br/bastao-antiolheiras-antioxidante-sallve-10-g-oil-free/p/MLB44674937?pdp_filters=deal%3AMLB1578289-1",
+  "Protetor Solar Bastão FPS 60 Sallve 15g":
+    "https://www.mercadolivre.com.br/protetor-solar-bastao-fps-60-sallve-15g/p/MLB37225407?pdp_filters=deal%3AMLB1578289-1",
+  "Body Splash Cuide-se Bem Deleite Boticário 200ml Vegano Suave":
+    "https://www.mercadolivre.com.br/body-splash-cuide-se-bem-deleite-boticario-200ml-vegano-suave/p/MLB23666119?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Feminino Meu Primeiro Humor Natura 75ml":
+    "https://www.mercadolivre.com.br/perfume-feminino-meu-primeiro-humor-natura-75ml/p/MLB16142744?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Secadora Alisadora Elgin Agile Glossy Roxo":
+    "https://www.mercadolivre.com.br/escova-secadora-alisadora-elgin-agile-glossy-roxo/p/MLB50257453?pdp_filters=deal%3AMLB1578289-1",
+  "Organizador De Maquiagem Giratório 360° Em Acrílico Transparente Com Prateleiras Ajustáveis EPS-2577 Epsilon":
+    "https://www.mercadolivre.com.br/organizador-de-maquiagem-giratorio-360-em-acrilico-transparente-com-prateleiras-ajustaveis-eps-2577-epsilon/p/MLB64607068?pdp_filters=deal%3AMLB1578289-1",
+  "Máscara Para Cílios Maravicherry Fran By Franciny Ehlke Preto":
+    "https://www.mercadolivre.com.br/mascara-para-cilios-maravicherry-fran-by-franciny-ehlke-preto/p/MLB19920374?pdp_filters=deal%3AMLB1578289-1",
+  "Bioré Protetor Solar Facial UV Perfect Milk FPS 50 - 40ml":
+    "https://www.mercadolivre.com.br/biore-protetor-solar-facial-uv-perfect-milk-fps-50-40ml/p/MLB22797411?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Woody Mambo Paris Elysees Masculino Intense 100ml":
+    "https://www.mercadolivre.com.br/perfume-woody-mambo-paris-elysees-masculino-intense-100ml/p/MLB44964568?pdp_filters=deal%3AMLB1578289-1",
+  "Blindagem maquiagem Catharine Hill Angel Magic Pri Lessa vegano 30ml":
+    "https://www.mercadolivre.com.br/blindagem-maquiagem-catharine-hill-angel-magic-pri-lessa-vegano-30ml/p/MLB59241929?pdp_filters=deal%3AMLB1578289-1",
+  "Borabella Selagem 3D Semi Definitiva Orgânica 350 mL":
+    "https://www.mercadolivre.com.br/borabella-selagem-3d-semi-definitiva-organica-350-ml/p/MLB25928793?pdp_filters=deal%3AMLB1578289-1",
+  "Pincel Maquiagem Profissionais Multifuncional Macio 15pcs Ouro/rosa":
+    "https://www.mercadolivre.com.br/pincel-maquiagem-profissionais-multifuncional-macio-15pcs/up/MLBU3115543483?pdp_filters=item_id%3AMLB5347790506",
+  "Protetor Solar Facial FPS 60 Antifotoenvelhecimento com Ácido Hialurônico, Textura Leve e Resistente à Água, Sem Cor, Solar Expertise L'Oréal Paris 40g":
+    "https://www.mercadolivre.com.br/protetor-solar-facial-fps-60-antifotoenvelhecimento-com-acido-hialuronico-textura-leve-e-resistente-agua-sem-cor-solar-expertise-loreal-paris-40g/p/MLB38665108?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Flex De Fitagem Ricca Curls Cachos Mais Definidos Cor Azul E Rosa":
+    "https://www.mercadolivre.com.br/escova-flex-de-fitagem-ricca-curls-cachos-mais-definidos-cor-azul-e-rosa/p/MLB51803674?pdp_filters=deal%3AMLB1578289-1",
+  "Loção Hidratante Para Pele Seca A Extra Seca Refil 237ml Cerave":
+    "https://www.mercadolivre.com.br/locao-hidratante-para-pele-seca-a-extra-seca-refil-237ml-cerave/p/MLB35505202?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Caneta Depiladora Sobrancelha + Batom Depilador Facial eletrico recarregavel - CROWLEY":
+    "https://www.mercadolivre.com.br/kit-caneta-depiladora-sobrancelha-batom-depilador-facial-eletrico-recarregavel-crowley/p/MLB61378782?pdp_filters=item_id%3AMLB5873384486",
+  "Kit 7 Organizador Multiuso Modular Gaveta Rebirth Maquiagem":
+    "https://www.mercadolivre.com.br/kit-7-organizador-multiuso-modular-gaveta-rebirth-maquiagem/p/MLB36313932?pdp_filters=item_id%3AMLB3676616453",
+  "Chapinha Prancha Profissional Titanium Para Cabelo Modela E Alisa - Crowley Azul":
+    "https://www.mercadolivre.com.br/chapinha-prancha-profissional-titanium-para-cabelo-modela-e-alisa-crowley-azul/p/MLB61378528?pdp_filters=item_id%3AMLB7459653614",
+  "Maquina Depilador Elétrico Feminino 4 Em 1 Pelos Íntimos Branco 127/220v":
+    "https://www.mercadolivre.com.br/maquina-depilador-eletrico-feminino-4-em-1-pelos-intimos/up/MLBU3349567952?pdp_filters=item_id%3AMLB4150997739",
+  "Principia Kit Tratamento C/ 2 Séruns Vitamina C 10 + Retinol":
+    "https://www.mercadolivre.com.br/principia-kit-tratamento-c-2-seruns-vitamina-c-10-retinol/p/MLB43191435?pdp_filters=deal%3AMLB1578289-1",
+  "Acidificante Capilar Ultra Gloss com Ácido Glicólico L'Oréal Paris Elseve 200ml":
+    "https://www.mercadolivre.com.br/acidificante-capilar-ultra-gloss-com-acido-glicolico-loreal-paris-elseve-200ml/p/MLB31985894?pdp_filters=deal%3AMLB1578289-1",
+  "L’Oréal Paris BB Cream Dermo Expertise 5 em 1 FPS 20 Cor Clara — hidrata, uniformiza, ilumina, suaviza imperfeições e controla o brilho, com proteção UV e acabamento natural":
+    "https://www.mercadolivre.com.br/loreal-paris-bb-cream-dermo-expertise-5-em-1-fps-20-cor-clara-hidrata-uniformiza-ilumina-suaviza-imperfeicoes-e-controla-o-brilho-com-protecao-uv-e-acabamento-natural/p/MLB27803247?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 3 Unid. Sabonete Lí­quido Coala - Chá Branco - 500ml":
+    "https://www.mercadolivre.com.br/kit-3-unid-sabonete-liquido-coala-cha-branco-500ml/p/MLB54214958?pdp_filters=deal%3AMLB1578289-1",
+  "Gel de Limpeza Micelar Calmante e Hidratante Bioderma Sensibio Gel Moussant 100ml":
+    "https://www.mercadolivre.com.br/gel-de-limpeza-micelar-calmante-e-hidratante-bioderma-sensibio-gel-moussant-100ml/p/MLB19159489?pdp_filters=deal%3AMLB1578289-1",
+  "Enxaguante Bucal Cool Mint Hortelã 1 L Listerine M11":
+    "https://www.mercadolivre.com.br/enxaguante-bucal-cool-mint-hortela-1-l-listerine-m11/p/MLB44983995?pdp_filters=deal%3AMLB1578289-1",
+  "Kit com 10 organizadores modulares com gaveta acrílica transparente":
+    "https://www.mercadolivre.com.br/kit-com-10-organizadores-modulares-com-gaveta-acrilica-transparente/p/MLB36297317?pdp_filters=item_id%3AMLB5348018150",
+  "NIVEA Protetor Solar Facial UV Face Controle de Oleosidade FPS 60 50ml, Muito Alta Proteção UVA/UVB, Efeito Matte, Controle do Brilho, Cuidado Diário":
+    "https://www.mercadolivre.com.br/nivea-protetor-solar-facial-uv-face-controle-de-oleosidade-fps-60-50ml-muito-alta-protecao-uvauvb-efeito-matte-controle-do-brilho-cuidado-diario/p/MLB17413380?pdp_filters=deal%3AMLB1578289-1",
+  "Shampoo Refil Absolut Repair 240ml L'oréal Professionnel":
+    "https://www.mercadolivre.com.br/shampoo-refil-absolut-repair-240ml-loreal-professionnel/p/MLB41565803?pdp_filters=deal%3AMLB1578289-1",
+  "Body Splash Tododia Ameixa e Flor de Baunilha Natura 200 ml":
+    "https://www.mercadolivre.com.br/body-splash-tododia-ameixa-e-flor-de-baunilha-natura-200-ml/p/MLB24568873?pdp_filters=deal%3AMLB1578289-1",
+  "Body Splash Virginia Fonseca 200ml":
+    "https://www.mercadolivre.com.br/body-splash-virginia-fonseca-200ml/p/MLB70000585?pdp_filters=item_id%3AMLB6806299504",
+  "Toalha Descartável Para Cabelo 50x70cm -50g - 50 unidade":
+    "https://www.mercadolivre.com.br/toalha-descartavel-para-cabelo-50x70cm-50g-50-unidade/p/MLB27184334?pdp_filters=deal%3AMLB1578289-1",
+  "Protetor Solar Facial Hidratante com Vitamina C FPS 30 Efeito Matte 12h Uniformiza e Reduz Imperfeições, Sem Cor, Ideal para Pele Oleosa, Uniform & Matte Garnier, 40g":
+    "https://www.mercadolivre.com.br/protetor-solar-facial-hidratante-com-vitamina-c-fps-30-efeito-matte-12h-uniformiza-e-reduz-imperfeicoes-sem-cor-ideal-para-pele-oleosa-uniform-matte-garnier-40g/p/MLB24528151?pdp_filters=deal%3AMLB1578289-1",
+  "Encrespando A Juba Creme De Pentear Widi Care 500ml":
+    "https://www.mercadolivre.com.br/encrespando-a-juba-creme-de-pentear-widi-care-500ml/p/MLB19512766?pdp_filters=deal%3AMLB1578289-1",
+  "Sabonete em Barra Tododia Tâmara e Canela Natura":
+    "https://www.mercadolivre.com.br/sabonete-em-barra-tododia-tamara-e-canela-natura/p/MLB19531736?pdp_filters=item_id%3AMLB6069199086",
+  "Kit 10 Esmaltes Unha Gel Polygel Manicure Pedicure Sortidos":
+    "https://www.mercadolivre.com.br/kit-10-esmaltes-unha-gel-polygel-manicure-pedicure/up/MLBU1472530842?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 10 Esmaltes Impala Nude Cruelty-Free Secado Rápido":
+    "https://www.mercadolivre.com.br/kit-10-esmaltes-impala-nude-cruelty-free-secado-rapido/p/MLB29262717?pdp_filters=item_id%3AMLB4317032770",
+  "Natura Mamãe e Bebê Água de Colônia":
+    "https://www.mercadolivre.com.br/natura-mamae-e-bebe-agua-de-colonia/p/MLB21447303?pdp_filters=deal%3AMLB1578289-1",
+  "Secador Multifuncional 5 em 1 Mondial SM-01-BLDC-SP Roxo":
+    "https://www.mercadolivre.com.br/secador-multifuncional-5-em-1-mondial-sm-01-bldc-sp-roxo/p/MLB66170612?pdp_filters=deal%3AMLB1578289-1",
+  "Armani Beauty Perfume Feminino My Way Eau de Parfum, Refilável 30ml":
+    "https://www.mercadolivre.com.br/armani-beauty-perfume-feminino-my-way-eau-de-parfum-refilavel-30ml/p/MLB17941252?pdp_filters=deal%3AMLB1578289-1",
+  "212 Vip Rose EDP 30ml Feminino - Carolina Herrera":
+    "https://www.mercadolivre.com.br/212-vip-rose-edp-30ml-feminino-carolina-herrera/p/MLB6138826?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Rabanne 1 Million Eau de Toilette 30 ml masculino":
+    "https://www.mercadolivre.com.br/perfume-rabanne-1-million-eau-de-toilette-30-ml-masculino/p/MLB16109483?pdp_filters=deal%3AMLB1578289-1",
+  "3 Body Splash Good Graces Delight Roses Barbour's Beauty":
+    "https://www.mercadolivre.com.br/3-body-splash-good-graces-delight-roses-barbours-beauty/p/MLB65240272?pdp_filters=item_id%3AMLB6222798190",
+  "Shiseido BB For Sports FPS 50 Light - Base Líquida 30ml":
+    "https://www.mercadolivre.com.br/shiseido-bb-for-sports-fps-50-light-base-liquida-30ml/p/MLB20313151?pdp_filters=deal%3AMLB1578289-1",
+  "Sérum Multicorretor De Sinais Neovadiol 30ml Vichy":
+    "https://www.mercadolivre.com.br/serum-multicorretor-de-sinais-neovadiol-30ml-vichy/p/MLB19598394?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Lattafa Fakhar Platin 100ml Eau De Parfum":
+    "https://www.mercadolivre.com.br/perfume-lattafa-fakhar-platin-100ml-eau-de-parfum/p/MLB58434804?pdp_filters=item_id%3AMLB6712303192",
+  "Gloss Absolu Anti-frizz Glaze Milk Leave-in 190ml Kérastase":
+    "https://www.mercadolivre.com.br/gloss-absolu-anti-frizz-glaze-milk-leave-in-190ml-kerastase/p/MLB66709603?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Body Splash Masculino Vibration + Blunn + Infalível Fero":
+    "https://www.mercadolivre.com.br/kit-body-splash-masculino-vibration--blunn--infalivel-fero/up/MLBU4016038399?pdp_filters=item_id%3AMLB6857535908",
+  "Wella Professionals Oil Reflections Luminous Reveal Restaure":
+    "https://www.mercadolivre.com.br/wella-professionals-oil-reflections-luminous-reveal-restaure/p/MLB48689929?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Árabe Feminino Yara Lattafa Eau De Parfum 100 Ml Original Lacrado":
+    "https://www.mercadolivre.com.br/perfume-arabe-feminino-yara-lattafa-eau-de-parfum-100-ml-original-lacrado/up/MLBU3415773450?pdp_filters=item_id%3AMLB4198837591",
+  "Lisinha Sérum Popozuda Pós Depilação Pele Macia Pelos Finos 1 Frasco":
+    "https://www.mercadolivre.com.br/lisinha-serum-popozuda-pos-depilacao-pele-macia-pelos-finos/up/MLBU3934177328?pdp_filters=item_id%3AMLB6682301404",
+  "O Boticário Floratta Rose Sucrée Eau De Parfum 75ml":
+    "https://www.mercadolivre.com.br/o-boticario-floratta-rose-sucree-eau-de-parfum-75ml/p/MLB67686667?pdp_filters=item_id%3AMLB6590066450",
+  "Cicaplast B5 Sérum 30ml La Roche posay Momento de aplicação Dia Noite Tipo de pele Todo tipo de pele":
+    "https://www.mercadolivre.com.br/cicaplast-b5-serum-30ml-la-roche-posay-momento-de-aplicacao-dia-noite-tipo-de-pele-todo-tipo-de-pele/p/MLB22337296?pdp_filters=deal%3AMLB1578289-1",
+  "Botica 214 Fiji Paradise Fougère Especiado Eau De Parfum 90ml Perfume Masculino":
+    "https://www.mercadolivre.com.br/botica-214-fiji-paradise-fougere-especiado-eau-de-parfum-90ml-perfume-masculino/p/MLB26097604?pdp_filters=item_id%3AMLB4512469438",
+  "Perfume Deo Colônia Lescent N13 Feroce Provence 100ml Masculino":
+    "https://www.mercadolivre.com.br/perfume-deo-colonia-lescent-n13-feroce-provence-100ml-masculino/p/MLB70019105?pdp_filters=item_id%3AMLB4694591453",
+  "Kit Passo 1 E 2 Lash Lifting Brow Lamination We Bella Anvisa":
+    "https://www.mercadolivre.com.br/kit-passo-1-e-2-lash-lifting-brow-lamination-we-bella-anvisa/up/MLBU2852052775?pdp_filters=item_id%3AMLB3916378393",
+  "Principia Kit Essencial Gl-02+ Ch + Vc + Ps":
+    "https://www.mercadolivre.com.br/principia-kit-essencial-gl-02-ch-vc-ps/p/MLB69377325?pdp_filters=item_id%3AMLB4667958959",
+  "Escova Secadora InfraRed Mondial Azul/Golden Rose 1300W Bivolt ES-01-IR":
+    "https://www.mercadolivre.com.br/escova-secadora-infrared-mondial-azulgolden-rose-1300w-bivolt-es-01-ir/p/MLB26579827?pdp_filters=deal%3AMLB1578289-1",
+  "Aparelho Pedicuro Mega Bell Profissional Motor De Lixar Pé":
+    "https://www.mercadolivre.com.br/aparelho-pedicuro-mega-bell-profissional-motor-de-lixar-pe/p/MLB27756482?pdp_filters=deal%3AMLB1578289-1",
+  "Braé - Kit Stages Hydration - SH+CD+Másc":
+    "https://www.mercadolivre.com.br/brae-kit-stages-hydration-shcdmasc/p/MLB38284885?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Wella Professionals Fusion Shampoo e Máscara 400 mL":
+    "https://www.mercadolivre.com.br/kit-wella-professionals-fusion-shampoo-e-mascara-400-ml/p/MLB48203487?pdp_filters=deal%3AMLB1578289-1",
+  "Prancha Alisadora InfraRed, Mondial, 55W - P-01-IR":
+    "https://www.mercadolivre.com.br/prancha-alisadora-infrared-mondial-55w-p-01-ir/p/MLB26599190?pdp_filters=deal%3AMLB1578289-1",
+  "Bb Cream Latika Fps 44 Base Maquiagem Clareador Facial Pele Bege Médio":
+    "https://www.mercadolivre.com.br/bb-cream-latika-fps-44-base-maquiagem-clareador-facial-pele/up/MLBU3850546913?pdp_filters=item_id%3AMLB6488064456",
+  "Principia Kit Anti-manchas Essencial Gl-02":
+    "https://www.mercadolivre.com.br/principia-kit-anti-manchas-essencial-gl-02/p/MLB63137487?pdp_filters=item_id%3AMLB4363134873",
+  "Malbec Tradicional O Boticário Desodorante Colônia Perfume Masculino Original 100ml":
+    "https://www.mercadolivre.com.br/malbec-tradicional-o-boticario-desodorante-colonia-perfume-masculino-original-100ml/up/MLBU1980565959?pdp_filters=deal%3AMLB1578289-1",
+  "Barbeador Elétrico Power Shave, Mondial, 5W - BE-02":
+    "https://www.mercadolivre.com.br/barbeador-eletrico-power-shave-mondial-5w-be-02/p/MLB24101021?pdp_filters=deal%3AMLB1578289-1",
+  "Body Splash Árabe Masculino Kit C/4 Perfumes De Alta Fixação Soul Cosméticos 200ml":
+    "https://www.mercadolivre.com.br/body-splash-arabe-masculino-kit-c4-perfumes-de-alta-fixacao-soul-cosmeticos-200ml/p/MLB65931494?pdp_filters=item_id%3AMLB6806902466",
+  "Principia Kit Trio Limpeza Facial Personalizada":
+    "https://www.mercadolivre.com.br/principia-kit-trio-limpeza-facial-personalizada/p/MLB74862155?pdp_filters=item_id%3AMLB4839435111",
+  "Perfume Árabe Lattafa Opulent Dubai Eau De Parfum 100 ML":
+    "https://www.mercadolivre.com.br/perfume-arabe-lattafa-opulent-dubai-eau-de-parfum-100-ml/p/MLB51342806?pdp_filters=deal%3AMLB1578289-1",
+  "Modelador Miracurl Nano Titanium Cacheadora De Cabelo Cor Preto 2 Voltagem Bivolt":
+    "https://www.mercadolivre.com.br/modelador-miracurl-nano-titanium-cacheadora-de-cabelo-cor-preto-2-voltagem-bivolt/p/MLB24069024?pdp_filters=deal%3AMLB1578289-1",
+  "Kaiak Masculino Tradicional Natura Desodorante Colônia Perfume Clássico Original 100ml":
+    "https://www.mercadolivre.com.br/kaiak-masculino-tradicional-natura-desodorante-colonia-perfume-classico-original-100ml/up/MLBU2978815028?pdp_filters=deal%3AMLB1578289-1",
+  "Taiff Escova Secadora Gloss Bivolt Rose":
+    "https://www.mercadolivre.com.br/taiff-escova-secadora-gloss-bivolt-rose/p/MLB51915456?pdp_filters=deal%3AMLB1578289-1",
+  "Maquina Maquininha Dragão 3 Em 1 Cortar Cabelo Fazer Barba E Aparar Pelo Do Nariz Recarregável Usb Tipo C Silenciosa Masculina Portátil Profissional Motor Potente Com Pentes E Design Exclusivo":
+    "https://www.mercadolivre.com.br/maquina-maquininha-dragao-3-em-1-cortar-cabelo-fazer-barba-e-aparar-pelo-do-nariz-recarregavel-usb-tipo-c-silenciosa-masculina-portatil-profissional-motor-potente-com-pentes-e-design-exclusivo/p/MLB62774445?pdp_filters=item_id%3AMLB6027309602",
+  "Barbeador Aparador De Pelos Eletrico Mini Portatil Maquina De Raspar Saco Depilador Masculino Sem Dores Nao Belisca Intimo":
+    "https://www.mercadolivre.com.br/barbeador-aparador-de-pelos-eletrico-mini-portatil-maquina-de-raspar-saco-depilador-masculino-sem-dores-nao-belisca-intimo/p/MLB66400378?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Completo Elseve Collagen Lifter 5 Produtos L`oréal Paris 200ml":
+    "https://www.mercadolivre.com.br/kit-completo-elseve-collagen-lifter-5-produtos-loreal-paris-200ml/p/MLB64918788?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Unha Gel Alongamento Cabine Lixadeira Elétrica Luminária Branco":
+    "https://www.mercadolivre.com.br/kit-unha-gel-alongamento-cabine-lixadeira-eletrica-luminaria/up/MLBU3774259787?pdp_filters=deal%3AMLB1578289-1",
+  "Máscara Color Brilliance Invigo 150ml Wella Professionals":
+    "https://www.mercadolivre.com.br/mascara-color-brilliance-invigo-150ml-wella-professionals/p/MLB19587757?pdp_filters=deal%3AMLB1578289-1",
+  "Aparador De Pelos Supergroom-10 Mondial Bivolt Bg-10":
+    "https://www.mercadolivre.com.br/aparador-de-pelos-supergroom-10-mondial-bivolt-bg-10/p/MLB66055236?pdp_filters=deal%3AMLB1578289-1",
+  "Base Liquida Colorstay 30ml - Revlon - Fps 15":
+    "https://produto.mercadolivre.com.br/MLB-4540783894-base-liquida-colorstay-30ml-revlon-fps-15-_JM",
+  "Perfume Árabe EDP Feminino Yara Candy 100ml - Lattafa":
+    "https://www.mercadolivre.com.br/perfume-arabe-edp-feminino-yara-candy-100ml-lattafa/p/MLB39865991?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Árabe Sabah Al Ward Sugar Eau De Parfum 100 Ml":
+    "https://www.mercadolivre.com.br/perfume-arabe-sabah-al-ward-sugar-eau-de-parfum-100-ml/up/MLBU3397247709?pdp_filters=deal%3AMLB1578289-1",
+  "Nicho Organizador Expositor 460 Esmaltes 7 Prateleiras Mdf Cor Branco":
+    "https://www.mercadolivre.com.br/nicho-organizador-expositor-460-esmaltes-7-prateleiras-mdf-cor-branco/p/MLB43788838?pdp_filters=deal%3AMLB1578289-1",
+  "Modelador De Cachos Automático Profissional Giratório Com Rotação Espiral 32mm Bivolt Fio Elétrico Maquina De Fazer Ondas Cacho No Cabelo Modeladora Cerâmica Modeladores Calor Rotativo Rosa Azul Bege":
+    "https://www.mercadolivre.com.br/modelador-de-cachos-automatico-profissional-giratorio-com-rotacao-espiral-32mm-bivolt-fio-eletrico-maquina-de-fazer-ondas-cacho-no-cabelo-modeladora-ceramica-modeladores-calor-rotativo-rosa-azul-bege/p/MLB65307397?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Braé Stages Nutrition Shampoo,cond,másc + Essential 60ml":
+    "https://www.mercadolivre.com.br/kit-brae-stages-nutrition-shampoocondmasc-essential-60ml/p/MLB50949075?pdp_filters=deal%3AMLB1578289-1",
+  "Máquina De Acabamento Profissional Kemei Km-9163 Pézinho Usb Cinza-escuro 127/220v":
+    "https://www.mercadolivre.com.br/maquina-de-acabamento-profissional-kemei-km9163-pezinho-usb/up/MLBU3278797077?pdp_filters=item_id%3AMLB4119450389",
+  "Secador De Cabelos Philco Psa3300 Íons Tourmaline 2100w Cor Cinza":
+    "https://www.mercadolivre.com.br/secador-de-cabelos-philco-psa3300-ions-tourmaline-2100w-cor-cinza/p/MLB38433450?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Lattafa Asdaaf Ameerat Al Arab Eau De Parfum 100 Ml":
+    "https://www.mercadolivre.com.br/perfume-lattafa-asdaaf-ameerat-al-arab-eau-de-parfum-100-ml/p/MLB41986723?pdp_filters=deal%3AMLB1578289-1",
+  "Máscara Facial B-Max Skincare LED 7 Cores Fototerapia Recarregável USB":
+    "https://www.mercadolivre.com.br/mascara-facial-b-max-skincare-led-7-cores-fototerapia-recarregavel-usb/p/MLB54116249?pdp_filters=item_id%3AMLB7646567832",
+  "Kit Cetaphil Creme Hidratante 453g + Loção de Limpeza 100ml - Hidratação 48h Corporal e Facial para Pele Sensível, Normal a Seca":
+    "https://www.mercadolivre.com.br/kit-cetaphil-creme-hidratante-453g-locao-de-limpeza-100ml-hidratacao-48h-corporal-e-facial-para-pele-sensivel-normal-a-seca/p/MLB65038519?pdp_filters=deal%3AMLB1578289-1",
+  "Corega Ultra Creme Max Fixação Sem Sabor Kit Corega 2un. 70g":
+    "https://www.mercadolivre.com.br/corega-ultra-creme-max-fixacao-sem-sabor-kit-corega-2un-70g/up/MLBU3639599680?pdp_filters=deal%3AMLB1578289-1",
+  "Chapinha Nano Titanium Profissional Prancha Bivolt Azul 127/220v":
+    "https://www.mercadolivre.com.br/chapinha-nano-titanium-profissional-prancha-bivolt/up/MLBU3775174308?pdp_filters=item_id%3AMLB4458339701",
+  "Kit Siàge Liso Intenso Eudora Shampoo/Condicionador":
+    "https://www.mercadolivre.com.br/kit-sige-liso-intenso-eudora-shampoocondicionador/p/MLB23936173?pdp_filters=item_id%3AMLB6423621974",
+  "Kit C/4 Body Splash Árabe 200ml Perfume Feminino Original":
+    "https://www.mercadolivre.com.br/kit-c4-body-splash-arabe-200ml-perfume-feminino-original/p/MLB66128508?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Masculino Amadeirado Club De Nuit Intense Man 100ml Marca Isabelle La Belle":
+    "https://www.mercadolivre.com.br/perfume-masculino-amadeirado-club-de-nuit-intense-man-100ml-marca-isabelle-la-belle/p/MLB47743027?pdp_filters=deal%3AMLB1578289-1",
+  "Secador De Cabelos Britânia BSC2200 Bivolt 2100w Com Tecnologia Tourmaline Íons - 2 velocidades + 3 temperaturas + jato de ar frio":
+    "https://www.mercadolivre.com.br/secador-de-cabelos-britania-bsc2200-bivolt-2100w-com-tecnologia-tourmaline-ions-2-velocidades-3-temperaturas-jato-de-ar-frio/p/MLB42194010?pdp_filters=deal%3AMLB1578289-1",
+  "Principia Kit Niacinamida Com Hidratante Diário":
+    "https://www.mercadolivre.com.br/principia-kit-niacinamida-com-hidratante-diario/p/MLB53619826?pdp_filters=item_id%3AMLB4153904163",
+  "Kit Shampoo E Condicionador 1l + Máscara 1kg Sos Hidratação com Óleo de Rícino Linha de Tratamento Cabelos Danificados":
+    "https://www.mercadolivre.com.br/kit-shampoo-e-condicionador-1l-mascara-1kg-sos-hidratacao-com-oleo-de-ricino-linha-de-tratamento-cabelos-danificados/p/MLB37803190?pdp_filters=deal%3AMLB1578289-1",
+  "Natura Essencial Deo Parfum Masculino 25ml":
+    "https://www.mercadolivre.com.br/natura-essencial-deo-parfum-masculino-25ml/p/MLB27859943?pdp_filters=item_id%3AMLB5094349357",
+  "KIT BODY SPLASH MASCULINO INFALIVEL + ENIGMA + BANKER + ADVENTUS 200ML - PRIMACIAL PERFUME AMADEIRADO":
+    "https://www.mercadolivre.com.br/kit-body-splash-masculino-infalivel-enigma-banker-adventus-200ml-primacial-perfume-amadeirado/p/MLB62491095?pdp_filters=deal%3AMLB1578289-1",
+  "Mavala Stop Parar De Roer Unha 10ml":
+    "https://www.mercadolivre.com.br/mavala-stop-parar-de-roer-unha-10ml/p/MLB24118098?pdp_filters=deal%3AMLB1578289-1",
+  "Risqué Kit Com 15 Esmaltes Novo Hipoalergênicos Atacado 8ml Variadas":
+    "https://www.mercadolivre.com.br/risque-kit-com-15-esmaltes-novo-hipoalergenicos-atacado-8ml/up/MLBU3504613514?pdp_filters=item_id%3AMLB4260565867",
+  "Eudora Pro Cronology Kit Cronograma Capilar Acelerado":
+    "https://www.mercadolivre.com.br/eudora-pro-cronology-kit-cronograma-capilar-acelerado/p/MLB27502830?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Elseve Bond Repair 3 Etapas Ácido Cítrico 457 mL":
+    "https://www.mercadolivre.com.br/kit-elseve-bond-repair-3-etapas-acido-citrico-457-ml/p/MLB51305866?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Gloss - Franciny Ehlke - Glosslicious - Trio De Gloss Glosslicious":
+    "https://www.mercadolivre.com.br/kit-gloss--franciny-ehlke--glosslicious--trio-de-gloss/up/MLBU2992297055?pdp_filters=deal%3AMLB1578289-1",
+  "Hidrabene Protetor Solar Facial Creme Textura Ultra Leve Fps70 50 g":
+    "https://www.mercadolivre.com.br/hidrabene-protetor-solar-facial-creme-textura-ultra-leve-fps70-50-g/p/MLB41892437?pdp_filters=item_id%3AMLB7531757124",
+  "Organizador Expositor Santa Clara Acrílico Mesa 40 Esmaltes":
+    "https://www.mercadolivre.com.br/organizador-expositor-santa-clara-acrilico-mesa-40-esmaltes/p/MLB28366905?pdp_filters=item_id%3AMLB3521976669",
+  "Kit Braé Essential Duo Diário Shampoo/Condicionador para Cabelos Danificados":
+    "https://www.mercadolivre.com.br/kit-brae-essential-duo-diario-shampoocondicionador-para-cabelos-danificados/p/MLB24862366?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 12 Esponjas Manga Rosto Facial Maquiagem Base Make Box Amarelo Média":
+    "https://www.mercadolivre.com.br/kit-12-esponjas-manga-rosto-facial-maquiagem-base-make-box/up/MLBU3860464035?pdp_filters=item_id%3AMLB4561728459",
+  "Fungifeet Antimicótico Fortalecedor E Regenerador De Unhas Fracas Com Micose E Fungo 100% Natural 20ml Podólogo - Maurélio Neto":
+    "https://www.mercadolivre.com.br/fungifeet-antimicotico-fortalecedor-e-regenerador-de-unhas-fracas-com-micose-e-fungo-100-natural-20ml-podologo-maurelio-neto/p/MLB22939006?pdp_filters=item_id%3AMLB3892810682",
+  "Massageador Facial Led Anti Rugas Lift Fototerapia 7 127/220v":
+    "https://www.mercadolivre.com.br/massageador-facial-led-anti-rugas-lift-fototerapia-7/up/MLBU3893100350?pdp_filters=item_id%3AMLB4828785449",
+  "Kit Hidratação Braé Stages Shampoo + Condicionador Hydration":
+    "https://www.mercadolivre.com.br/kit-hidratacao-brae-stages-shampoo-condicionador-hydration/p/MLB38285898?pdp_filters=deal%3AMLB1578289-1",
+  "Base Alta Cobertura Angel Wings By Pri Lessa Catharine Hill":
+    "https://produto.mercadolivre.com.br/MLB-3497387473-base-alta-cobertura-angel-wings-by-pri-lessa-catharine-hill-_JM",
+  "Corretivo de alta cobertura Natura Una Extrema":
+    "https://www.mercadolivre.com.br/corretivo-de-alta-cobertura-natura-una-extrema/p/MLB23535579?pdp_filters=item_id%3AMLB4434501609",
+  "Eudora Kiss Me Cabernet Deo Colônia 50ml Feminino":
+    "https://www.mercadolivre.com.br/eudora-kiss-me-cabernet-deo-colonia-50ml-feminino/p/MLB22292093?pdp_filters=deal%3AMLB1578289-1",
+  "Anita - Ferias De Inverno Kit 7 Esmaltes Nova Coleção Tons Terrosos":
+    "https://www.mercadolivre.com.br/anita--ferias-de-inverno-kit-7-esmaltes-nova-colecao/up/MLBU3241513167?pdp_filters=item_id%3AMLB5442814372",
+  "Principia Kit Cremes Hidratantes Rosto E Corpo Ch-01 + Ch-02 Seca Dia/noite":
+    "https://www.mercadolivre.com.br/principia-kit-cremes-hidratantes-rosto-e-corpo-ch-01-ch-02-seca-dianoite/p/MLB67209218?pdp_filters=item_id%3AMLB6530934370",
+  "Panela Cera Quente Aquecedor Elétrica Depilação Termocera BMED":
+    "https://www.mercadolivre.com.br/panela-cera-quente-aquecedor-eletrica-depilacao-termocera-bmed/p/MLB64317096?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 3 Caixas Sortidas Natura Tododia Barra":
+    "https://www.mercadolivre.com.br/kit-3-caixas-sortidas-natura-tododia-barra/p/MLB58309925?pdp_filters=deal%3AMLB1578289-1",
+  "Fixador De Maquiagem Power Finish Fran By Franciny Ehlke":
+    "https://www.mercadolivre.com.br/fixador-de-maquiagem-power-finish-fran-by-franciny-ehlke/p/MLB23765218?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Lisoterapia Hidralise Emulsão Condicionante 1 Litro":
+    "https://www.mercadolivre.com.br/escova-lisoterapia-hidralise-emulsao-condicionante-1-litro/p/MLB27113730?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Crina De Cavalo Maycrene Crescimento Rápido + Sérum":
+    "https://www.mercadolivre.com.br/kit-crina-de-cavalo-maycrene-crescimento-rapido--serum/up/MLBU3839192965?pdp_filters=item_id%3AMLB6460698788",
+  "GLOSS FRANCINY EHLKE FRANBOESA LIP GLOSS LABIAL":
+    "https://www.mercadolivre.com.br/gloss-franciny-ehlke-franboesa-lip-gloss-labial/p/MLB74847576?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Massageadora Capilar 4 Em 1 Led Terapêutica Cabelo Preto":
+    "https://www.mercadolivre.com.br/escova-massageadora-capilar-4-em-1-led-terapeutica-cabelo/up/MLBU3825050942?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 3 Alicates Cutícula 522 Classic Profissional - Mundial":
+    "https://www.mercadolivre.com.br/kit-3-alicates-cuticula-522-classic-profissional--mundial/up/MLBU599383687?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Skincare Gel de Limpeza e Hidratante com Vitamina C, Ação Antioleosidade e Uniformizadora, Pele Iluminada e Hidratada, Uniform & Matte Garnier 150g":
+    "https://www.mercadolivre.com.br/kit-skincare-gel-de-limpeza-e-hidratante-com-vitamina-c-acao-antioleosidade-e-uniformizadora-pele-iluminada-e-hidratada-uniform-matte-garnier-150g/p/MLB50026187?pdp_filters=deal%3AMLB1578289-1",
+  "Gloss Franboesa Fran By Franciny Ehlke Brilho Vermelho":
+    "https://www.mercadolivre.com.br/gloss-franboesa-fran-by-franciny-ehlke-brilho-vermelho/p/MLB66127997?pdp_filters=item_id%3AMLB7296627824",
+  "Protetor Solar Facial com Cor FPS 70 Alta Cobertura - L'Oréal Paris Solar Expertise Efeito Make Up 30g":
+    "https://www.mercadolivre.com.br/protetor-solar-facial-com-cor-fps-70-alta-cobertura-loreal-paris-solar-expertise-efeito-make-up-30g/p/MLB54473693?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Jean Paul Gaultier Scandal Eau de Toilette For Him 150 ml Masculino":
+    "https://www.mercadolivre.com.br/perfume-jean-paul-gaultier-scandal-eau-de-toilette-for-him-150-ml-masculino/p/MLB18603416?pdp_filters=item_id%3AMLB3515870863",
+  "SUN uv led cabine sun mate60 uv 90 led 380w acrigel c/apoio mão 110/220v cor branco":
+    "https://www.mercadolivre.com.br/sun-uv-led-cabine-sun-mate60-uv-90-led-380w-acrigel-capoio-mao-110220v-cor-branco/p/MLB55764434?pdp_filters=item_id%3AMLB4643398541",
+  "Perfume Giorgio Armani SÍ Feminino EAU De Parfum 100ml":
+    "https://www.mercadolivre.com.br/perfume-giorgio-armani-si-feminino-eau-de-parfum-100ml/p/MLB19749835?pdp_filters=deal%3AMLB1578289-1",
+  "Rabanne Olympéa Flora Eau De Parfum Intense 80 Ml Feminino":
+    "https://www.mercadolivre.com.br/rabanne-olympea-flora-eau-de-parfum-intense-80-ml-feminino/p/MLB27075653?pdp_filters=deal%3AMLB1578289-1",
+  "Refil Perfume Feminino Eau De Parfum, Fragrância Floral Gourmand Inebriante Com Íris Nobre E Baunilha, Aroma De Felicidade E Feminilidade, La Vie Est Belle Lancôme, Frasco Com 100ml":
+    "https://www.mercadolivre.com.br/refil-perfume-feminino-eau-de-parfum-fragrancia-floral-gourmand-inebriante-com-iris-nobre-e-baunilha-aroma-de-felicidade-e-feminilidade-la-vie-est-belle-lancome-frasco-com-100ml/p/MLB34729362?pdp_filters=deal%3AMLB1578289-1",
+  "Secador De Cabelo De Alta Velocidade Profissional 127v/220v":
+    "https://produto.mercadolivre.com.br/MLB-6633853064-secador-de-cabelo-de-alta-velocidade-profissional-127v220v-_JM?pdp_filters=item_id%3AMLB6633853064",
+  "Mondial Secador Multifuncional Sm-01-bldc-cp 5 Em 1":
+    "https://www.mercadolivre.com.br/mondial-secador-multifuncional-sm-01-bldc-cp-5-em-1/p/MLB66834852?pdp_filters=deal%3AMLB1578289-1",
+  "Secador de Cabelos Philco Motor BLDC 6 acessórios Fast Dry 1450W PSD16A 127v":
+    "https://www.mercadolivre.com.br/secador-de-cabelos-philco-motor-bldc-6-acessorios-fast-dry-1450w-psd16a-127v/p/MLB65038397?pdp_filters=deal%3AMLB1578289-1",
+  "Lixadeira Elétrica Mega Bell Lixadora Podologo Para Pés":
+    "https://www.mercadolivre.com.br/lixadeira-eletrica-mega-bell-lixadora-podologo-para-pes/p/MLB27718038?pdp_filters=item_id%3AMLB4190480279",
+  "Mesa Para Manicure Profissional De Nail Designer Com Nichos Branco":
+    "https://www.mercadolivre.com.br/mesa-para-manicure-profissional-de-nail-designer-com-nichos/up/MLBU4017075962?pdp_filters=item_id%3AMLB6844542734",
+  "Perfume Arabe Vulcan Feu Citrico Frutado Edp 100ml":
+    "https://www.mercadolivre.com.br/perfume-arabe-vulcan-feu-citrico-frutado-edp-100ml/p/MLB69137834?pdp_filters=deal%3AMLB1578289-1",
+  "Escova modeladora/cacheadora Gokoco GD037 rosa":
+    "https://www.mercadolivre.com.br/escova-modeladoracacheadora-gokoco-gd037-rosa/p/MLB77612240?pdp_filters=item_id%3AMLB5279459433",
+  "Armani Beauty, Perfume Feminino, Acqua di Gioia, Eau de Parfum, 30ml":
+    "https://www.mercadolivre.com.br/armani-beauty-perfume-feminino-acqua-di-gioia-eau-de-parfum-30ml/p/MLB6093115?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Eudora Siàge Ultra Bond Reset Cabelo Virgem No 1° Uso":
+    "https://www.mercadolivre.com.br/ultra-bond-reset-combo-sige-eudora-4-itens-original/p/MLB2096911191?pdp_filters=item_id%3AMLB7625849996",
+  "Kit Wella Cronograma Capilar Fios Perfeitos 3 Produtos":
+    "https://www.mercadolivre.com.br/kit-wella-cronograma-capilar-fios-perfeitos-3-produtos/p/MLB27980191?pdp_filters=deal%3AMLB1578289-1",
+  "Principia Kit Antiacne Demaquilante Essencial":
+    "https://www.mercadolivre.com.br/principia-kit-antiacne-demaquilante-essencial/p/MLB46525763?pdp_filters=item_id%3AMLB5302677116",
+  "Perfume Árabe Wazeer Al Noble Masculino 100ML":
+    "https://www.mercadolivre.com.br/perfume-arabe-wazeer-al-noble-masculino-100ml/p/MLB74597842?pdp_filters=deal%3AMLB1578289-1",
+  "Braé Essential Kit Shampoo250ml+cond250ml+máscara200g":
+    "https://www.mercadolivre.com.br/brae-essential-kit-shampoo250mlcond250mlmascara200g/p/MLB42422884?pdp_filters=deal%3AMLB1578289-1",
+  "Maleta Maquiagem Profissional Com Espelho Led Divisórias Preto":
+    "https://www.mercadolivre.com.br/maleta-maquiagem-profissional-com-espelho-led-divisorias/up/MLBU3878715980?pdp_filters=item_id%3AMLB6539711768",
+  "Perfume Árabe Masculino Fakhar Black Lattafa Edp 100ml":
+    "https://www.mercadolivre.com.br/perfume-arabe-masculino-fakhar-black-lattafa-edp-100ml/up/MLBU3767635392?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Árabe Asad Masculino Original Lattafa Lacrado":
+    "https://www.mercadolivre.com.br/perfume-arabe-asad-masculino-original-lattafa-lacrado/up/MLBU3301932694?pdp_filters=item_id%3AMLB5501798492",
+  "Perfume Hawas Kobra Rasasi Masculino Edp 100ml":
+    "https://www.mercadolivre.com.br/perfume-hawas-kobra-rasasi-masculino-edp-100ml/up/MLBU3906904820?pdp_filters=deal%3AMLB1578289-1",
+  "Principia Kit Anti-acne Essencial Gh":
+    "https://www.mercadolivre.com.br/principia-kit-anti-acne-essencial-gh/p/MLB69296873?pdp_filters=item_id%3AMLB6734636418",
+  "Principia Kit Rotina Completa Antimanchas Gh-01":
+    "https://www.mercadolivre.com.br/principia-kit-rotina-completa-antimanchas-gh-01/p/MLB69024342?pdp_filters=item_id%3AMLB6706221784",
+  "Perfume Árabe Ameerati Feminino Eau De Parfum 100 Ml Com Nf lipx":
+    "https://www.mercadolivre.com.br/perfume-arabe-ameerati-feminino-eau-de-parfum-100-ml-com-nf-lipx/p/MLB66782595?pdp_filters=deal%3AMLB1578289-1",
+  "Casal Body Splash Bold Homme E My Sweet Delight Barbour":
+    "https://www.mercadolivre.com.br/casal-body-splash-bold-homme-e-my-sweet-delight-barbour/p/MLB67582873?pdp_filters=item_id%3AMLB6575271510",
+  "Perfume Árabe Mawwal Fada 100ml Eau De Parfum Masculino":
+    "https://www.mercadolivre.com.br/perfume-arabe-mawwal-fada-100ml-eau-de-parfum-masculino/p/MLB45565019?pdp_filters=deal%3AMLB1578289-1",
+  "Prancha Alisadora Lizz Pro Iconic Bivolt 230°C/450°F":
+    "https://www.mercadolivre.com.br/prancha-alisadora-lizz-pro-iconic-bivolt-230c450f/p/MLB18214186?pdp_filters=deal%3AMLB1578289-1",
+  "Maleta Prata Com Kit De Maquiagem - Fenzza Prateado":
+    "https://www.mercadolivre.com.br/maleta-prata-com-kit-de-maquiagem-fenzza-prateado/p/MLB66569020?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Feminino Floral Oriental Sabah Al Ward 100ml Isabelle La Belle":
+    "https://www.mercadolivre.com.br/perfume-feminino-floral-oriental-sabah-al-ward-100ml-isabelle-la-belle/p/MLB59815899?pdp_filters=item_id%3AMLB4722290035",
+  "Perfume Árabe Feminino Lattafa Yara Eau De Parfum 100ml Original":
+    "https://www.mercadolivre.com.br/perfume-arabe-feminino-lattafa-yara-eau-de-parfum-100ml-original/p/MLB47813312?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Maquiagem 20 Itens Base Blush Gloss Rimel Paleta Pinceis":
+    "https://produto.mercadolivre.com.br/MLB-4105047889-kit-maquiagem-20-itens-base-blush-gloss-rimel-paleta-pinceis-_JM?pdp_filters=item_id%3AMLB4105047889",
+  "Perfumes Body Splash Linha Árabe 100ml By Primacial":
+    "https://www.mercadolivre.com.br/perfumes-body-splash-linha-arabe-100ml-by-primacial/p/MLB53244953?pdp_filters=item_id%3AMLB5535014238",
+  "Chapinha Taiff Clássica Cerâmica Preta 110v/220v Bivolt Preto 127/220v":
+    "https://www.mercadolivre.com.br/chapinha-taiff-classica-ceramica-preta-110v220v-bivolt/up/MLBU1146360593?pdp_filters=item_id%3AMLB3652481227",
+  "Stages Nutrition Shampoo + Condicionador + Óleo 60ml - Braé":
+    "https://www.mercadolivre.com.br/stages-nutrition-shampoo-condicionador-oleo-60ml-brae/p/MLB69251534?pdp_filters=item_id%3AMLB7658512836",
+  "Kit De Gel Clareador Para Removedor De Tártaro Dentário Para":
+    "https://www.mercadolivre.com.br/kit-de-gel-clareador-para-removedor-de-tartaro-dentario-para/p/MLB2076412811?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Nativa Spa Ameixa Hidratante 400ml + Refil 350ml":
+    "https://www.mercadolivre.com.br/kit-nativa-spa-ameixa-hidratante-400ml-refil-350ml/p/MLB2041560176?pdp_filters=item_id%3AMLB4923498477",
+  "Condicionador Invigo Color Brilliance Wella Professionals 1 Litro":
+    "https://www.mercadolivre.com.br/condicionador-invigo-color-brilliance-wella-professionals-1-litro/p/MLB19704364?pdp_filters=deal%3AMLB1578289-1",
+  "Principia Kit Antiqueda Trio Shampoo + Condicionar + Sc-01":
+    "https://www.mercadolivre.com.br/principia-kit-antiqueda-trio-shampoo-condicionar-sc-01/p/MLB66922319?pdp_filters=item_id%3AMLB6527492072",
+  "Organizador Maquiagem Pincéis Cosmético Perfumes Giratório 360° Bancada Acrílico Incolor Lobi":
+    "https://www.mercadolivre.com.br/organizador-maquiagem-pinceis-cosmetico-perfumes-giratorio-360-bancada-acrilico-incolor-lobi/p/MLB66153336?pdp_filters=item_id%3AMLB4795053189",
+  "Eudora Kit Siàge Liso Intenso (4 Itens)":
+    "https://www.mercadolivre.com.br/eudora-kit-sige-liso-intenso-4-itens/p/MLB28575419?pdp_filters=deal%3AMLB1578289-1",
+  "Fita Adesiva Elástica Brava - Caixa Com 20 Unidades - Colopl":
+    "https://www.mercadolivre.com.br/fita-adesiva-elastica-brava--caixa-com-20-unidades--colopl/up/MLBU732559562?pdp_filters=deal%3AMLB1578289-1",
+  "Base Sérum Nude Me Natura Una 30ml":
+    "https://produto.mercadolivre.com.br/MLB-3866807865-base-serum-nude-me-natura-una-30ml-_JM?pdp_filters=item_id%3AMLB3866807865",
+  "Kit Elseve Collagen Lifter Sh 200ml+cond+másc+sérum Leave-in":
+    "https://www.mercadolivre.com.br/kit-elseve-collagen-lifter-sh-200mlcondmascserum-leavein/up/MLBU3975035381?pdp_filters=item_id%3AMLB6804213218",
+  "Máquina De Cortar Cabelo Profissional Kemei Km-1995 Bivolt Azul 127/220v":
+    "https://www.mercadolivre.com.br/maquina-de-cortar-cabelo-profissional-kemei-km1995-bivolt/up/MLBU3865901176?pdp_filters=item_id%3AMLB4554851761",
+  "Kit Maleta De Maquiagem Completa Profissional Luxo Presente Love Rain Maleta 01":
+    "https://www.mercadolivre.com.br/kit-maleta-de-maquiagem-completa-profissional-luxo-presente/up/MLBU4356277739?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Kokeshi Pele De Porcelana + Olhos De Gueixa + Pele Plena":
+    "https://www.mercadolivre.com.br/kit-kokeshi-pele-de-porcelana-olhos-de-gueixa-pele-plena/p/MLB69661786?pdp_filters=item_id%3AMLB4681979059",
+  "Kit Eudora Diva Fabulosa (3 Produtos)":
+    "https://www.mercadolivre.com.br/kit-eudora-diva-fabulosa-3-produtos/p/MLB67312848?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Maleta de Maquiagem Fenzza Muse 28 Itens Completa Profissional Original Prateada":
+    "https://www.mercadolivre.com.br/kit-maleta-de-maquiagem-fenzza-muse-28-itens-completa-profissional-original-prateada/p/MLB49876537?pdp_filters=deal%3AMLB1578289-1",
+  "Modelador de Cachos Automático Giratório 32mm Maimeite, para Cabelo Profissional Bivolt Cerâmica, Rosa":
+    "https://www.mercadolivre.com.br/modelador-de-cachos-automatico-giratorio-32mm-maimeite-para-cabelo-profissional-bivolt-ceramica-rosa/p/MLB69441997?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Hidratação E Tratamento Verdena Baby":
+    "https://www.mercadolivre.com.br/kit-hidratacao-e-tratamento-verdena-baby/p/MLB46562734?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Shampoo e Condicionador Truss Uso Obrigatório para Cabelos de 300ml":
+    "https://www.mercadolivre.com.br/kit-shampoo-e-condicionador-truss-uso-obrigatorio-para-cabelos-de-300ml/p/MLB31394696?pdp_filters=deal%3AMLB1578289-1",
+  "Máquina de Acabamento ITAN Kemei Max5090 Cortador de Cabelo Bivolt":
+    "https://www.mercadolivre.com.br/maquina-de-acabamento-itan-kemei-max5090-cortador-de-cabelo-bivolt/p/MLB62560818?pdp_filters=item_id%3AMLB4721965691",
+  "Natura Deo Parfum Homem Identidad Masculino - 100ml":
+    "https://www.mercadolivre.com.br/natura-deo-parfum-homem-identidad-masculino-100ml/p/MLB70173320?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Rotativa 1200w Er-10 Mondial Black Rose 110v Cerâmica + Tourmaline Íon":
+    "https://www.mercadolivre.com.br/escova-rotativa-1200w-er-10-mondial-black-rose-110v-ceramica-tourmaline-ion/p/MLB61699412?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Para Unhas Gel Alongamentos Cabine Lixadeira Completo":
+    "https://produto.mercadolivre.com.br/MLB-3005564508-kit-para-unhas-gel-alongamentos-cabine-lixadeira-completo-_JM",
+  "Kit Gota De Colágeno Pele De Porcelana Kokeshi Hidratação":
+    "https://www.mercadolivre.com.br/kit-gota-de-colageno-pele-de-porcelana-kokeshi-hidratacao/p/MLB68296257?pdp_filters=item_id%3AMLB4617385179",
+  "Pele De Porcelana Sérum De Arroz E Olhos De Gueixa Kokeshi":
+    "https://www.mercadolivre.com.br/pele-de-porcelana-serum-de-arroz-e-olhos-de-gueixa-kokeshi/p/MLB68289986?pdp_filters=item_id%3AMLB6639202940",
+  "Escova Secadora Pes30 Multicerdas 4 Em 1 1300w Philco Bivolt Prateado":
+    "https://www.mercadolivre.com.br/escova-secadora-pes30-multicerdas-4-em-1-1300w-philco-bivolt-prateado/p/MLB49630343?pdp_filters=deal%3AMLB1578289-1",
+  "Wella Professionals Óleo Capilar Oil Reflections 100ml":
+    "https://www.mercadolivre.com.br/wella-professionals-oleo-capilar-oil-reflections-100ml/p/MLB23186810?pdp_filters=deal%3AMLB1578289-1",
+  "Primer Iluminador Aurora Shine Aura Beauty Jade Picon 30ml":
+    "https://www.mercadolivre.com.br/primer-iluminador-aurora-shine-aura-beauty-jade-picon-30ml/up/MLBU3940033184?pdp_filters=item_id%3AMLB6696844526",
+  "Principia Kit Anti-acne Trio Ps Gl-02":
+    "https://www.mercadolivre.com.br/principia-kit-anti-acne-trio-ps-gl-02/p/MLB74926321?pdp_filters=item_id%3AMLB4841884553",
+  "Combo Nativa Spa Orquidea Lumière: Creme Perfumado Desodoran":
+    "https://www.mercadolivre.com.br/combo-nativa-spa-orquidea-lumiere-creme-perfumado-desodoran/up/MLBU3492153763?pdp_filters=deal%3AMLB1578289-1",
+  "Sérum Facial Antiidade Kokeshi 30ml Com Ácido Hialurônico e Retinol":
+    "https://www.mercadolivre.com.br/serum-facial-antiidade-kokeshi-30ml-com-acido-hialuronico-e-retinol/p/MLB53299315?pdp_filters=item_id%3AMLB4145556465",
+  "Massageador Elétrico Pescoço Ombros Mãozinha 3d Aquecimento Verde 127/220v":
+    "https://www.mercadolivre.com.br/massageador-eletrico-pescoco-ombros-maozinha-3d-aquecimento/up/MLBU4241896047?pdp_filters=deal%3AMLB1578289-1",
+  "Principia Sérum Retinol 0,3% + Vitamina E - Rn-0,3 Original Todo Tipo De Pele Noite":
+    "https://www.mercadolivre.com.br/principia-serum-retinol-03--vitamina-e--rn03-original/up/MLBU4364053344?pdp_filters=item_id%3AMLB7197698882",
+  "Motor Lixa Elétrica Porquinho + Cabine Sun 5 48w Led/uv Cor Branco - Nail Drill 110V/220V (Bivolt)":
+    "https://www.mercadolivre.com.br/motor-lixa-eletrica-porquinho-cabine-sun-5-48w-leduv-cor-branco-nail-drill-110v220v-bivolt/p/MLB24112686?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Creme Facial Diurno E Noturno Fps 20 49g L'oréal Paris":
+    "https://www.mercadolivre.com.br/kit-creme-facial-diurno-e-noturno-fps-20-49g-loreal-paris/up/MLBU1311711082?pdp_filters=deal%3AMLB1578289-1",
+  "Braé Stages Kit Nutrition 2 Produtos (shampoo E Máscara)":
+    "https://www.mercadolivre.com.br/brae-stages-kit-nutrition-2-produtos-shampoo-e-mascara/p/MLB45584457?pdp_filters=deal%3AMLB1578289-1",
+  "Ez Vip Sexy Woman - Eau De Parfum 100ml":
+    "https://www.mercadolivre.com.br/ez-vip-sexy-woman-eau-de-parfum-100ml/p/MLB67515530?pdp_filters=item_id%3AMLB4594927129",
+  "Presente Nativa Spa Ameixa O Boticário":
+    "https://www.mercadolivre.com.br/presente-nativa-spa-ameixa-o-boticario/p/MLB65976531?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Renovadores Gota De Colágeno E Rosa Mosqueta Kokeshi":
+    "https://www.mercadolivre.com.br/kit-renovadores-gota-de-colageno-e-rosa-mosqueta-kokeshi/p/MLB74725743?pdp_filters=deal%3AMLB1578289-1",
+  "Máquina Acabamento Corta Cabelo Profissional Km-2299 Bivolt Preto 127/220v":
+    "https://www.mercadolivre.com.br/maquina-acabamento-corta-cabelo-profissional-km2299-bivolt/up/MLBU4127037636?pdp_filters=deal%3AMLB1578289-1",
+  "Medicube Zero Pore Pad 2.0":
+    "https://www.mercadolivre.com.br/medicube-zero-pore-pad-20/p/MLB42592335?pdp_filters=item_id%3AMLB4999138053",
+  "Depilador Feminino Recarregável 4 Em 1 Aparador Intimo Branco 127/220v":
+    "https://www.mercadolivre.com.br/depilador-feminino-recarregavel-4-em-1-aparador-intimo/up/MLBU4052021846?pdp_filters=item_id%3AMLB7046052340",
+  "Natura Luna Tradicional Água de colônia 75ml para feminino":
+    "https://www.mercadolivre.com.br/natura-luna-tradicional-agua-de-colonia-75ml-para-feminino/p/MLB27346247?pdp_filters=item_id%3AMLB5217245655",
+  "Kit Shampoo Condicionador Máscara De Hidratação Profissional":
+    "https://www.mercadolivre.com.br/kit-shampoo-condicionador-mascara-de-hidratacao-profissional/p/MLB50237197?pdp_filters=deal%3AMLB1578289-1",
+  "Bt Coca Cola Blush Stick Bruna Tavares Multifuncional Tom Crush Time":
+    "https://www.mercadolivre.com.br/bt-coca-cola-blush-stick-bruna-tavares-multifuncional-tom-crush-time/p/MLB63437561?pdp_filters=item_id%3AMLB4573351891",
+  "Kit Jubinha Infantil Shampoo Condicionador E Creme - Widi Care":
+    "https://www.mercadolivre.com.br/kit-jubinha-infantil-shampoo-condicionador-e-creme-widi-care/p/MLB63976657?pdp_filters=item_id%3AMLB6819859646",
+  "Aparelho Massageador Facial Pescoço Efeito Lifting Aleatório Bivolt":
+    "https://www.mercadolivre.com.br/aparelho-massageador-facial-pescoco-efeito-lifting/up/MLBU4030882665?pdp_filters=item_id%3AMLB6883773184",
+  "Aparador Corporal Pelos Corpo Cabelo Barba Lâmina Cerâmica A Prova D'água Pelo Partes Intimas Unissex":
+    "https://www.mercadolivre.com.br/aparador-corporal-pelos-corpo-cabelo-barba-lamina-ceramica-a-prova-dagua-pelo-partes-intimas-unissex/p/MLB64851368?pdp_filters=item_id%3AMLB4437596305",
+  "Kit Presente Especial Cuide-se Bem Deleite (2 Itens)":
+    "https://www.mercadolivre.com.br/kit-presente-especial-cuide-se-bem-deleite-2-itens/p/MLB2037451758?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Glow Kokeshi Colágeno Anti Olheiras Hidratação Completa":
+    "https://www.mercadolivre.com.br/kit-glow-kokeshi-colageno-anti-olheiras-hidratacao-completa/p/MLB70038345?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Máscara Led 7 Cores Fototerapia + Massageador Facial 127/220v":
+    "https://www.mercadolivre.com.br/kit-mascara-led-7-cores-fototerapia--massageador-facial/up/MLBU3910409404?pdp_filters=deal%3AMLB1578289-1",
+  "Gloss Labial Lip Bunny Triple - Fran By Franciny Ehlke Marrom":
+    "https://www.mercadolivre.com.br/gloss-labial-lip-bunny-triple--fran-by-franciny-ehlke/up/MLBU3878619788?pdp_filters=deal%3AMLB1578289-1",
+  "Kit de pincéis de maquiagem de 30 peças para maquiagem profissional Pinceis Maange Kit Maquiagem Pincel Maquiagem":
+    "https://www.mercadolivre.com.br/kit-de-pinceis-de-maquiagem-de-30-pecas-para-maquiagem-profissional-pinceis-maange-kit-maquiagem-pincel-maquiagem/p/MLB52053626?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 3 Oléo Vegetal Ojon Alecrim Ricino 100% Puro Concentrado":
+    "https://www.mercadolivre.com.br/kit-3-oleo-vegetal-ojon-alecrim-ricino-100-puro-concentrado/p/MLB2092946166?pdp_filters=item_id%3AMLB4078753785",
+  "Kit Presente Cuide-se Bem Deleite O boticário 3 itens dia das Mães":
+    "https://www.mercadolivre.com.br/kit-presente-cuide-se-bem-deleite-o-boticario-3-itens-dia-das-maes/p/MLB47161482?pdp_filters=item_id%3AMLB5323100440",
+  "3 Escovas Profissionaisde Cabelo Térmica Cerdas Javali/nylon Rosa":
+    "https://www.mercadolivre.com.br/3-escovas-profissionaisde-cabelo-termica-cerdas-javalinylon/up/MLBU3490502880?pdp_filters=item_id%3AMLB5790695018",
+  "Mascara Absolut Repair Light Loreal - 500g":
+    "https://www.mercadolivre.com.br/mascara-absolut-repair-light-loreal-500g/p/MLB57332329?pdp_filters=deal%3AMLB1578289-1",
+  "Prancha Chapinha Alisadora Taiff Cerâmica 180ºc Preta Bivolt Preto 127/220v":
+    "https://www.mercadolivre.com.br/prancha-chapinha-alisadora-taiff-ceramica-180c-preta-bivolt/up/MLBU1094375967?pdp_filters=deal%3AMLB1578289-1",
+  "Principia Kit C/2 Protetor Solar Facial Fps70 Cor 2.0":
+    "https://www.mercadolivre.com.br/principia-kit-c2-protetor-solar-facial-fps70-cor-20/up/MLBU4575737530?pdp_filters=item_id%3AMLB4987527685",
+  "Blush Iluminador - Bt Cushion Glow 15g - Bruna Tavares Coral":
+    "https://www.mercadolivre.com.br/blush-iluminador--bt-cushion-glow-15g--bruna-tavares/up/MLBU3496721061?pdp_filters=deal%3AMLB1578289-1",
+  "Blush Stick Red Mocha Cremoso Bastão Vizzela + Las Red Mocha":
+    "https://www.mercadolivre.com.br/blush-stick-red-mocha-cremoso-bastao-vizzela--las/up/MLBU3480486203?pdp_filters=item_id%3AMLB4246807311",
+  "Esmalte Dailus Kit 8 Cores Coleção Ultima Chamada Lançamento Vinho Vermelho Nude Azul Verde":
+    "https://www.mercadolivre.com.br/esmalte-dailus-kit-8-cores-colecao-ultima-chamada-lancamento/up/MLBU3936319563?pdp_filters=item_id%3AMLB4654841405",
+  "Kit 4 Tesoura Profissional Fio Laser Navalha Desfiadeira Preto Fio Laser Navalha Desfiadeira Barba 4 Peças":
+    "https://www.mercadolivre.com.br/kit-4-tesoura-profissional-fio-laser-navalha-desfiadeira/up/MLBU3716316470?pdp_filters=item_id%3AMLB4405791043",
+  "Principia Kit Creme Hidratante Ch-01 + Água Micelar Am-01 Todo Tipo De Pele Dia/noite":
+    "https://www.mercadolivre.com.br/principia-kit-creme-hidratante-ch-01-agua-micelar-am-01-todo-tipo-de-pele-dianoite/p/MLB60020191?pdp_filters=item_id%3AMLB4248869375",
+  "Caneta Motor Lixa Elétrica Nail Drill Profissional Bivolt":
+    "https://produto.mercadolivre.com.br/MLB-6784792690-caneta-motor-lixa-eletrica-nail-drill-profissional-bivolt-_JM?pdp_filters=item_id%3AMLB6784792690",
+  "Escova Secadora 4 Em 1 Profissional 1200w Seca Alisa Modela Cabelo":
+    "https://www.mercadolivre.com.br/escova-secadora-4-em-1-profissional-1200w-seca-alisa-modela-cabelo/p/MLB47060748?pdp_filters=item_id%3AMLB6132427782",
+  "Kit Halloween Completo Pancake Branco + Batom Preto Artístic":
+    "https://www.mercadolivre.com.br/kit-halloween-completo-pancake-branco-batom-preto-artistic/p/MLB2086410677?pdp_filters=item_id%3AMLB4162778295",
+  "Depilador Feminino 4 Em 1 Recarregável Usb Rosto Axila Nariz Branco E Rosé 127/220v1":
+    "https://www.mercadolivre.com.br/depilador-feminino-4-em-1-recarregavel-usb-rosto-axila-nariz/up/MLBU3974393149?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Body Splash Arabe C/3un 200ml Perfume Masculino De Luxo":
+    "https://www.mercadolivre.com.br/kit-body-splash-arabe-c3un-200ml-perfume-masculino-de-luxo/p/MLB70066901?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Facial Modeladora Drenagem Linfática Alivia A Fadiga":
+    "https://www.mercadolivre.com.br/escova-facial-modeladora-drenagem-linfatica-alivia-a-fadiga/up/MLBU3818767490?pdp_filters=item_id%3AMLB4492837331",
+  "Depilador Aparador De Pelos Feminino 5 Em 1 Eletrico Usb Led Branco 127/220v":
+    "https://www.mercadolivre.com.br/depilador-aparador-de-pelos-feminino-5-em-1-eletrico-usb-led/up/MLBU3896740425?pdp_filters=deal%3AMLB1578289-1",
+  "Máscara De Ouro Facial Lakma Golden Glitter Tipo de pele Rugas e Flacidez":
+    "https://www.mercadolivre.com.br/mascara-de-ouro-facial-lakma-golden-glitter-tipo-de-pele-rugas-e-flacidez/p/MLB19752936?pdp_filters=item_id%3AMLB4100979895",
+  "Escova Secadora Modeladora Gama Glamour 3d Therapy":
+    "https://www.mercadolivre.com.br/escova-secadora-modeladora-gama-glamour-3d-therapy/p/MLB20577531?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Massageadora Capilar Cabelo 4 Em 1 Led Terapêutica Preto":
+    "https://www.mercadolivre.com.br/escova-massageadora-capilar-cabelo-4-em-1-led-terapeutica/up/MLBU4015708636?pdp_filters=item_id%3AMLB4919814121",
+  "Kit 4 Body Splash Feminino Àrabe 200 Ml , Perfume , Colonia":
+    "https://www.mercadolivre.com.br/kit-4-body-splash-feminino-arabe-200-ml--perfume--colonia/up/MLBU3810810067?pdp_filters=item_id%3AMLB4497677459",
+  "Kit Men Valente Shampo, Condicionador, Balm, Óleo P/ Barba":
+    "https://www.mercadolivre.com.br/kit-men-valente-shampo-condicionador-balm-oleo-p-barba/p/MLB2089610606?pdp_filters=item_id%3AMLB4998461484",
+  "Escova Elétrica Secadora Alisadora Profissional":
+    "https://www.mercadolivre.com.br/escova-eletrica-secadora-alisadora-profissional/p/MLB65966161?pdp_filters=item_id%3AMLB4811154117",
+  "Pó Compacto Translúcido Boca Rosa CUSCUZ":
+    "https://www.mercadolivre.com.br/po-compacto-translucido-boca-rosa-cuscuz/p/MLB45974069?pdp_filters=deal%3AMLB1578289-1",
+  "Extensão de Cílios Volume Brasileiro Reutilizável com Curvatura D Preto":
+    "https://www.mercadolivre.com.br/extensao-de-cilios-volume-brasileiro-reutilizavel-com-curvatura-d-preto/p/MLB47102742?pdp_filters=deal%3AMLB1578289-1",
+  "Cilios Volume Brasileiro Extensão De Cílios Postiços 60d-100d Kit Para Iniciantes Fácil Aplicação E Reutilizável Presente Perfeito Para Amantes Da Beleza Ideal Para Eventos E Maquiagem Diária":
+    "https://www.mercadolivre.com.br/cilios-volume-brasileiro-extensao-de-cilios-posticos-60d-100d-kit-para-iniciantes-facil-aplicacao-e-reutilizavel-presente-perfeito-para-amantes-da-beleza-ideal-para-eventos-e-maquiagem-diaria/p/MLB64828750?pdp_filters=deal%3AMLB1578289-1",
+  "Carga para lâmina de barbear Gillette Mach 3 8 u":
+    "https://www.mercadolivre.com.br/carga-para-lamina-de-barbear-gillette-mach-3-8-u/p/MLB16088438?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Alecrim Crescimento Capilar Antiqueda Shampoo Condicionador Máscara + Touca":
+    "https://www.mercadolivre.com.br/kit-alecrim-crescimento-capilar-antiqueda-shampoo-condicionador-mascara-touca/p/MLB67413461?pdp_filters=item_id%3AMLB6538868268",
+  "Kit Shampoo Condicionador 1l Máscara Agan Oil Óleo Reparador":
+    "https://www.mercadolivre.com.br/kit-shampoo-condicionador-1l-mascara-agan-oil-oleo-reparador/up/MLBU3888522598?pdp_filters=deal%3AMLB1578289-1",
+  "Plancton Bbtx Orghanic Premium 300g":
+    "https://www.mercadolivre.com.br/plancton-bbtx-orghanic-premium-300g/p/MLB19531299?pdp_filters=item_id%3AMLB4598508505",
+  'Tesoura de Corte Umi Profissional Fio Laser 6.0" Aço Inoxidável Cabeleireiro':
+    "https://www.mercadolivre.com.br/tesoura-de-corte-umi-profissional-fio-laser-60-aco-inoxidavel-cabeleireiro/p/MLB47833836?pdp_filters=deal%3AMLB1578289-1",
+  "Principia Kit C/ 2 Protetor Solar Facial Ps-01 Fps 40":
+    "https://www.mercadolivre.com.br/principia-kit-c-2-protetor-solar-facial-ps-01-fps-40/p/MLB60434833?pdp_filters=item_id%3AMLB5885381676",
+  "Kit Terapia Capilar Óleo De Alecrim + Tônico Poderoso Rícino":
+    "https://www.mercadolivre.com.br/kit-terapia-capilar-oleo-de-alecrim-tonico-poderoso-ricino/p/MLB74598088?pdp_filters=item_id%3AMLB7217502554",
+  "Kit Máscara Karseen+ Shampoo Condicionador + Óleo Marroquino":
+    "https://www.mercadolivre.com.br/kit-mascara-karseen-shampoo-condicionador-oleo-marroquino/p/MLB62829475?pdp_filters=deal%3AMLB1578289-1",
+  "Principia Gel De Limpeza Facial Gl-02 500g Sensível Dia/noite":
+    "https://www.mercadolivre.com.br/principia-gel-de-limpeza-facial-gl02-500g/up/MLBU3485666316?pdp_filters=item_id%3AMLB5784368698",
+  "Malikat Al Arab Manasik Edp Feminino 100ml Volume da unidade 100 mL":
+    "https://www.mercadolivre.com.br/malikat-al-arab-manasik-edp-feminino-100ml-volume-da-unidade-100-ml/p/MLB36466862?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Sos Hidratação Óleo De Rícino Salon Line 3un":
+    "https://www.mercadolivre.com.br/kit-sos-hidratacao-oleo-de-ricino-salon-line-3un/p/MLB39649028?pdp_filters=deal%3AMLB1578289-1",
+  "Skincare Anti-idade Dermachem+sérum Clareador+mousse Micelar":
+    "https://www.mercadolivre.com.br/skincare-antiidade-dermachemserum-clareadormousse-micelar/up/MLBU3798248183?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Secadora Profissional 1200w 3 Em 1 Alisa Modela Seca Preto 127v":
+    "https://www.mercadolivre.com.br/escova-secadora-profissional-1200w-3-em-1-alisa-modela-seca/up/MLBU4502458000?pdp_filters=deal%3AMLB1578289-1",
+  "Natura Tododia Creme Nutritivo Prebiótico Maçã Caramelada e Baunilha 400ml":
+    "https://www.mercadolivre.com.br/natura-tododia-creme-nutritivo-prebiotico-maca-caramelada-e-baunilha-400ml/p/MLB49825560?pdp_filters=deal%3AMLB1578289-1",
+  "Peruca Loira Orgânica Lace Cabelo Longo Liso":
+    "https://www.mercadolivre.com.br/peruca-loira-organica-lace-cabelo-longo-liso/up/MLBU1965879687?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Pincéis Maquiagem 13 Peças + 2 Esponjas Com Estojo Marrom":
+    "https://www.mercadolivre.com.br/kit-pinceis-maquiagem-13-pecas--2-esponjas-com-estojo/up/MLBU3894989608?pdp_filters=item_id%3AMLB6590036632",
+  "Kit 15 Pinceis Maquiagem Multifuncional Profissional Macio Ouro/rosa":
+    "https://www.mercadolivre.com.br/kit-15-pinceis-maquiagem-multifuncional-profissional-macio/up/MLBU3681449709?pdp_filters=item_id%3AMLB6072402076",
+  "Kit Skincare Rosa Mosqueta+mousse De Limpeza+sérum Clareador":
+    "https://www.mercadolivre.com.br/kit-skincare-rosa-mosquetamousse-de-limpezaserum-clareador/p/MLB2083525407?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 12 Papel Higiênico Interfolhado Cai Cai Elite 3000fls":
+    "https://www.mercadolivre.com.br/kit-12-papel-higienico-interfolhado-cai-cai-elite-3000fls/p/MLB54597022?pdp_filters=item_id%3AMLB7160232060",
+  "Remédio Para Micose De Unha - Micose Severa Micotin 10ml Água":
+    "https://www.mercadolivre.com.br/remedio-para-micose-de-unha--micose-severa-micotin-10ml/up/MLBU2979643514?pdp_filters=item_id%3AMLB3958738529",
+  "Máscara Capilar Siàge Ultra Bond Reset Eudora 250g":
+    "https://www.mercadolivre.com.br/mascara-capilar-siage-ultra-bond-reset-eudora-250g/up/MLBU4893832515?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 5 Produtos Body Splash Arabe Masculino 200ml Soul":
+    "https://www.mercadolivre.com.br/kit-5-produtos-body-splash-arabe-masculino-200ml-soul/up/MLBU3841755440?pdp_filters=deal%3AMLB1578289-1",
+  "Stick Boca Rosa Gyn Cor Multifuncional 6g":
+    "https://www.mercadolivre.com.br/stick-boca-rosa-gyn-cor-multifuncional-6g/p/MLB51645647?pdp_filters=deal%3AMLB1578289-1",
+  "Sabonete Líquido Íntimo Masculino anti-odor pH equilibrado Racco 180ml":
+    "https://www.mercadolivre.com.br/sabonete-liquido-intimo-masculino-anti-odor-ph-equilibrado-racco-180ml/p/MLB32107179?pdp_filters=item_id%3AMLB3939958741",
+  "Capilar Crina De Cavalo Raça Antiqueda Crescimento Acelerado":
+    "https://www.mercadolivre.com.br/capilar-crina-de-cavalo-raca-antiqueda-crescimento-acelerado/up/MLBU3772274713?pdp_filters=item_id%3AMLB4463812905",
+  "Lixa Elétrica Removedora de Cutículas Quicko Portátil com 5 Ponteiras Manicure Profissional Removedora De Cutículas Portátil Polidor Acabamento Profissional Escova De Limpeza De Unhas":
+    "https://www.mercadolivre.com.br/lixa-eletrica-removedora-de-cuticulas-quicko-portatil-com-5-ponteiras-manicure-profissional-removedora-de-cuticulas-portatil-polidor-acabamento-profissional-escova-de-limpeza-de-unhas/p/MLB69612488?pdp_filters=item_id%3AMLB4677271637",
+  "Kit Creme Facial Pele De Porcelana + Olhos De Gueixa Kokeshi":
+    "https://www.mercadolivre.com.br/kit-creme-facial-pele-de-porcelana-olhos-de-gueixa-kokeshi/p/MLB47561972?pdp_filters=item_id%3AMLB4355060023",
+  "Paleta de Sombras Girl's Syndrome Blow Ruby Rose® 18 Cores HBE2206":
+    "https://www.mercadolivre.com.br/paleta-de-sombras-girls-syndrome-blow-ruby-rose-18-cores-hbe2206/p/MLB64116824?pdp_filters=item_id%3AMLB4539995775",
+  "Kit Capilar Liso Obrigatório Belkit 3 Itens Linha Profissional":
+    "https://www.mercadolivre.com.br/kit-capilar-liso-obrigatorio-belkit-3-itens-linha-profissional/p/MLB28111757?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Facial Drenagem Linfática Anti Inchaço Pele":
+    "https://www.mercadolivre.com.br/escova-facial-drenagem-linfatica-anti-inchaco-pele/up/MLBU3856225502?pdp_filters=item_id%3AMLB4540265137",
+  "Kit Depilador Elétrico Removedor De Pelos Recarregável 4 Em1 Branco 127/220v":
+    "https://www.mercadolivre.com.br/kit-depilador-eletrico-removedor-de-pelos-recarregavel-4-em1/up/MLBU3936738764?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 5 Esmaltes Impala Lançamento Cacau Show Cremoso/perolado Linha Impala Cacau Show":
+    "https://www.mercadolivre.com.br/kit-5-esmaltes-impala-lancamento-cacau-show-cremosoperolado/up/MLBU4148062841?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 5 Esmalte Anita Nova Coleção De Segunda A Sexta Marrom Azul Nude Cinza":
+    "https://www.mercadolivre.com.br/kit-5-esmalte-anita-nova-colecao-de-segunda-a-sexta/up/MLBU4152518818?pdp_filters=item_id%3AMLB7022449440",
+  "Serum Clareador Facial Elimina Manchas Melasma Reduz Rugas Todo Tipo De Pele Dia/noite":
+    "https://www.mercadolivre.com.br/serum-clareador-facial-elimina-manchas-melasma-reduz-rugas/up/MLBU3676681468?pdp_filters=item_id%3AMLB6040768100",
+  "Pincel Multifuncional Niina Secrets Cor Rosa":
+    "https://www.mercadolivre.com.br/pincel-multifuncional-niina-secrets-cor-rosa/p/MLB40816073?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Escova Fitagem Cabelo Ondulado + Frasco Spray Borrifador Aleatória/sortidas":
+    "https://www.mercadolivre.com.br/kit-escova-fitagem-cabelo-ondulado--frasco-spray-borrifador/up/MLBU3876791300?pdp_filters=item_id%3AMLB4569027067",
+  "Modelador De Cachos 25mm Cerâmico Profissional Bivolt Ondas Dourado 127/220v":
+    "https://www.mercadolivre.com.br/modelador-de-cachos-25mm-ceramico-profissional-bivolt-ondas/up/MLBU4449563341?pdp_filters=item_id%3AMLB7267260526",
+  "Neurodyn Ibramed Aparelho De Tens Fisioterapia Portátil":
+    "https://www.mercadolivre.com.br/neurodyn-ibramed-aparelho-de-tens-fisioterapia-portatil/p/MLB48881151?pdp_filters=item_id%3AMLB4052509791",
+  "Lavatório Champ Dompel Cuba Reclinável Com Assento Estofado":
+    "https://www.mercadolivre.com.br/lavatorio-champ-dompel-cuba-reclinavel-com-assento-estofado/p/MLB49079179?pdp_filters=deal%3AMLB1578289-1",
+  "Próteses Capilar Bio Frente Lace (telinha)":
+    "https://produto.mercadolivre.com.br/MLB-2680893264-proteses-capilar-bio-frente-lace-telinha-_JM",
+  "Perfume Carolina Herrera Very Good Girl Glam Parfum 50ml feminino":
+    "https://www.mercadolivre.com.br/perfume-carolina-herrera-very-good-girl-glam-parfum-50ml-feminino/p/MLB28355516?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Kérastase Densifique Densité Deux (2 Produtos)":
+    "https://www.mercadolivre.com.br/kit-kerastase-densifique-densite-deux-2-produtos/p/MLB2068557352?pdp_filters=deal%3AMLB1578289-1",
+  "Armani Beauty Perfume Masculino Armani Code Eau de Toilette, Refilável 50ml":
+    "https://www.mercadolivre.com.br/armani-beauty-perfume-masculino-armani-code-eau-de-toilette-refilavel-50ml/p/MLB37756805?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Kuf Rose Diamond Edition Feminino 100ml Importado":
+    "https://www.mercadolivre.com.br/perfume-kuf-rose-diamond-edition-feminino-100ml-importado/p/MLB54256212?pdp_filters=item_id%3AMLB6287872626",
+  "Perfume Jean Paul Gaultier La Belle Paradise Garden Eau de Parfum 30 ml Feminino":
+    "https://www.mercadolivre.com.br/perfume-jean-paul-gaultier-la-belle-paradise-garden-eau-de-parfum-30-ml-feminino/p/MLB34379341?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Feminino My Euphoria Edp 30ml Calvin Klein":
+    "https://www.mercadolivre.com.br/perfume-feminino-my-euphoria-edp-30ml-calvin-klein/p/MLB34710002?pdp_filters=deal%3AMLB1578289-1",
+  "Combo Shampoo + Condicionador + Tônico":
+    "https://www.mercadolivre.com.br/combo-shampoo-condicionador-tonico/p/MLB75007576?pdp_filters=item_id%3AMLB4892496535",
+  "Btx Capilar Organico Liso Perfeito 1kg C Manteiga De Karite":
+    "https://www.mercadolivre.com.br/btx-capilar-organico-liso-perfeito-1kg-c-manteiga-de-karite/p/MLB60240209?pdp_filters=item_id%3AMLB5826845020",
+  "Dia Facial Bastão Antirrugas Com Colágeno Creme Hidratante Todo Tipo De Pele Dia/noite":
+    "https://www.mercadolivre.com.br/dia-facial-bastao-antirrugas-com-colageno-creme-hidratante/up/MLBU3857066061?pdp_filters=item_id%3AMLB4557003807",
+  "Escova Secadora Cabo Giratorio Cabelo Fem Rotativa Antifrizz Preto 110w":
+    "https://www.mercadolivre.com.br/escova-secadora-cabo-giratorio-cabelo-fem-rotativa-antifrizz/up/MLBU4111969333?pdp_filters=deal%3AMLB1578289-1",
+  "Combo Siàge Ultra Bond Reset (4 Itens)":
+    "https://www.mercadolivre.com.br/combo-siage-ultra-bond-reset-4-itens/up/MLBU4810439496?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Maleta Maquiagem Infantil Completa Menina Rosa Lavavel Rosa":
+    "https://www.mercadolivre.com.br/kit-maleta-maquiagem-infantil-completa-menina-rosa-lavavel/up/MLBU5079940102?pdp_filters=item_id%3AMLB5170380283",
+  "Kit Body Splash Barbarius + Hidratante Desodorante Masculino":
+    "https://www.mercadolivre.com.br/kit-body-splash-barbarius--hidratante-desodorante-masculino/up/MLBU4131564266?pdp_filters=item_id%3AMLB4793787611",
+  "Oleo Mosqueta E Sérum Candy Clareador D Pele - Rosa Selvagem":
+    "https://www.mercadolivre.com.br/oleo-mosqueta-e-serum-candy-clareador-d-pele-rosa-selvagem/p/MLB2093967132?pdp_filters=item_id%3AMLB4972145097",
+  "Shampoo E Condicionador Poderoso":
+    "https://www.mercadolivre.com.br/shampoo-e-condicionador-poderoso/up/MLBU3315401938?pdp_filters=item_id%3AMLB5511649432",
+  "Creamy - Kit Com 2 Produtos (ácido Mandélico + Glicólico) Momento De Aplicação Dia/noite Tipo De Pele Todo Tipo De Pele":
+    "https://www.mercadolivre.com.br/creamy-kit-com-2-produtos-acido-mandelico-glicolico-momento-de-aplicacao-dianoite-tipo-de-pele-todo-tipo-de-pele/p/MLB47351535?pdp_filters=deal%3AMLB1578289-1",
+  "Laneige Lábios Máscara Lips Sleeping Mask Berry 20g":
+    "https://www.mercadolivre.com.br/laneige-labios-mascara-lips-sleeping-mask-berry-20g/p/MLB41215401?pdp_filters=item_id%3AMLB5246509955",
+  "Kit Completo Karssellé Mascara + Shampoo + Condicionador + Óleo":
+    "https://www.mercadolivre.com.br/kit-completo-karsselle-mascara-shampoo-condicionador-oleo/p/MLB66427543?pdp_filters=item_id%3AMLB4522193573",
+  "Eudora Golden Kit Presente Natal: Eau De Parfum 35ml + Creme Hidratante Desodorante Corporal 100g":
+    "https://www.mercadolivre.com.br/eudora-golden-kit-presente-natal-eau-de-parfum-35ml--creme-hidratante-desodorante-corporal-100g/up/MLBU2879639736?pdp_filters=deal%3AMLB1578289-1",
+  "Gillette Mach3 Carga Para Aparelho 16 Uds":
+    "https://www.mercadolivre.com.br/gillette-mach3-carga-para-aparelho-16-uds/p/MLB71206142?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Gloss Hidratante Labial Franboesa + Gloss Labial Lip Bunny Triple Chocolate - Fran By Franciny Ehlke - Cuidados de maria":
+    "https://www.mercadolivre.com.br/kit-gloss-hidratante-labial-franboesa-gloss-labial-lip-bunny-triple-chocolate-fran-by-franciny-ehlke-cuidados-de-maria/p/MLB77363281?pdp_filters=item_id%3AMLB5065378337",
+  "Isdin Protetor Solar Facial Fps 60 Fusion Water 50ml Sem Cor":
+    "https://www.mercadolivre.com.br/isdin-protetor-solar-facial-fps-60-fusion-water-50ml-sem-cor/up/MLBU3502593143?pdp_filters=item_id%3AMLB5830756674",
+  "Lâmina Para Máquina De Corte Vgr-v001 De Reposição Preto":
+    "https://www.mercadolivre.com.br/lamina-para-maquina-de-corte-vgr-v001-de-reposicao-preto/p/MLB42145402?pdp_filters=item_id%3AMLB4407153421",
+  "Blush Líquido Bt Cushion Glow Cor Coral Bruna Tavares":
+    "https://www.mercadolivre.com.br/blush-liquido-bt-cushion-glow-cor-coral-bruna-tavares/p/MLB60503221?pdp_filters=item_id%3AMLB4790027263",
+  "Massageador Pescoço Ombro Recarregável Maozinha Deep 3d Verde-escuro 127/220v":
+    "https://www.mercadolivre.com.br/massageador-pescoco-ombro-recarregavel-maozinha-deep-3d/up/MLBU4412013575?pdp_filters=deal%3AMLB1578289-1",
+  "Modelador Miracurl Nano Titanium Cacheadora De Cabelo Cor Rosa Voltagem Bivolt":
+    "https://www.mercadolivre.com.br/modelador-miracurl-nano-titanium-cacheadora-de-cabelo-cor-rosa-voltagem-bivolt/p/MLB24253423?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 4 Loção Hidratante Nivea Milk 400ml C/ Ácido Hialurônico":
+    "https://www.mercadolivre.com.br/kit-4-locao-hidratante-nivea-milk-400ml-c-acido-hialuronico/up/MLBU3775973847?pdp_filters=item_id%3AMLB4466663109",
+  "Kit Para Cachinhos Nutridos Com Sos Cachos Kids Super Óleos":
+    "https://www.mercadolivre.com.br/kit-para-cachinhos-nutridos-com-sos-cachos-kids-super-oleos/p/MLB65788252?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Salon Line Meu Liso Demais C/4":
+    "https://www.mercadolivre.com.br/kit-salon-line-meu-liso-demais-c4/p/MLB27639455?pdp_filters=deal%3AMLB1578289-1",
+  "Braé Stages Nutrition Spray Multi Leave-in Condicionante 260ml":
+    "https://www.mercadolivre.com.br/brae-stages-nutrition-spray-multi-leave-in-condicionante-260ml/p/MLB68662044?pdp_filters=deal%3AMLB1578289-1",
+  "Braé Divine Kit Com 3 Ampolas 13ml":
+    "https://www.mercadolivre.com.br/brae-divine-kit-com-3-ampolas-13ml/p/MLB49647827?pdp_filters=deal%3AMLB1578289-1",
+  "Braé Revival Kit 3 Ampolas 13ml":
+    "https://www.mercadolivre.com.br/brae-revival-kit-3-ampolas-13ml/p/MLB55554737?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Secadora Profissional 4 em 1 1000W Íons Negativos Anti Frizz Seca Alisa Modela Desembaraça 3 Temperaturas 2 Velocidades":
+    "https://www.mercadolivre.com.br/escova-secadora-profissional-4-em-1-1000w-ions-negativos-anti-frizz-seca-alisa-modela-desembaraca-3-temperaturas-2-velocidades/p/MLB69699029?pdp_filters=item_id%3AMLB4696570503",
+  "Organizador Expositor Acrílico Lilás para 40 Esmaltes Santa Clara":
+    "https://www.mercadolivre.com.br/organizador-expositor-acrilico-lilas-para-40-esmaltes-santa-clara/p/MLB28635365?pdp_filters=item_id%3AMLB3715708401",
+  "Kit Shampoo Cond. Máscara Tutano De Boi Maycrene + Reparador":
+    "https://www.mercadolivre.com.br/kit-shampoo-cond-mascara-tutano-de-boi-maycrene--reparador/up/MLBU4314328578?pdp_filters=item_id%3AMLB4888420393",
+  "Óleo Nutritivo Siàge Nutri Diamond Eudora Original 60ml":
+    "https://www.mercadolivre.com.br/oleo-nutritivo-siage-nutri-diamond-eudora-original-60ml/up/MLBU4192120424?pdp_filters=deal%3AMLB1578289-1",
+  "4 Espátulas Empurrador Duplex 14c Cutícula Profis Mundial Sa":
+    "https://www.mercadolivre.com.br/4-espatulas-empurrador-duplex-14c-cuticula-profis-mundial-sa/p/MLB2045114903?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Shampoo, Cond, Máscara E Sérum Linha Cavalo Premium":
+    "https://www.mercadolivre.com.br/kit-shampoo-cond-mascara-e-serum-linha-cavalo-premium/up/MLBU3905277346?pdp_filters=item_id%3AMLB6612693784",
+  "Eudora Niina Secrets Pincel Para Contorno":
+    "https://www.mercadolivre.com.br/eudora-niina-secrets-pincel-para-contorno/p/MLB39257842?pdp_filters=deal%3AMLB1578289-1",
+  "Blush em Bastão Océane 4You Vinho com Acabamento Matte e Alta Pigmentação":
+    "https://www.mercadolivre.com.br/blush-em-bastao-oceane-4you-vinho-com-acabamento-matte-e-alta-pigmentacao/p/MLB54464152?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 60 Adesivos Detox Natural Para Pés Kinoki 6 Caixas":
+    "https://www.mercadolivre.com.br/kit-60-adesivos-detox-natural-para-pes-kinoki-6-caixas/up/MLBU4572458180?pdp_filters=deal%3AMLB1578289-1",
+  "Sabonete liquido All Clean galão 5L Pôr do sol Audax":
+    "https://www.mercadolivre.com.br/sabonete-liquido-all-clean-galao-5l-por-do-sol-audax/p/MLB21820342?pdp_filters=item_id%3AMLB4606881063",
+  "Kit 2 Escovas Faciais Utilli Care com Cerdas Macias e Cabo Ergonômico":
+    "https://www.mercadolivre.com.br/kit-2-escovas-faciais-utilli-care-com-cerdas-macias-e-cabo-ergonomico/p/MLB75915007?pdp_filters=deal%3AMLB1578289-1",
+  "Depilador Aparador Eletrico Feminino 4 Em 1 Corpo Intimo Branco 127/220v":
+    "https://www.mercadolivre.com.br/depilador-aparador-eletrico-feminino-4-em-1-corpo-intimo/up/MLBU4293017597?pdp_filters=deal%3AMLB1578289-1",
+  "Xerjoff Erba Gold Edp 100ml":
+    "https://www.mercadolivre.com.br/xerjoff-erba-gold-edp-100ml/p/MLB37463860?pdp_filters=deal%3AMLB1578289-1",
+  "Prótese Capilar Masculina Micropele Fios Fixados Em Nó Duplo":
+    "https://produto.mercadolivre.com.br/MLB-3865259188-protese-capilar-masculina-micropele-fios-fixados-em-no-duplo-_JM",
+  "Dolce & Gabbana Light Blue Pour Homme EDT Perfume Masculino 100ml":
+    "https://www.mercadolivre.com.br/dolce-gabbana-light-blue-pour-homme-edt-perfume-masculino-100ml/p/MLB51077099?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 4 Un Lenço Umedecido Toque Da Seda Leve 4 Pague 3 Neve":
+    "https://www.mercadolivre.com.br/kit-4-un-lenco-umedecido-toque-da-seda-leve-4-pague-3-neve/p/MLB38429575?pdp_filters=item_id%3AMLB4078484637",
+  "Escova Alisadora Portátil Sem Fio Usb Com Íons Negativos":
+    "https://produto.mercadolivre.com.br/MLB-7582980544-escova-alisadora-portatil-sem-fio-usb-com-ions-negativos-_JM",
+  "Modelador Miracurl Nano Titanium Cacheadora De Cabelo Cor Preto Voltagem Bivolt":
+    "https://www.mercadolivre.com.br/modelador-miracurl-nano-titanium-cacheadora-de-cabelo-cor-preto-voltagem-bivolt/p/MLB24068994?pdp_filters=item_id%3AMLB3861979902",
+  "Perfume Árabe Attar Al Wesal Gold 100Ml":
+    "https://www.mercadolivre.com.br/perfume-arabe-attar-al-wesal-gold-100ml/p/MLB75493878?pdp_filters=deal%3AMLB1578289-1",
+  "Base Fortalecedora Unhas Fracas com Formol Top Beauty Incolor 50 Frascos":
+    "https://www.mercadolivre.com.br/base-fortalecedora-unhas-fracas-com-formol-top-beauty-incolor-50-frascos/p/MLB28114827?pdp_filters=deal%3AMLB1578289-1",
+  "Blush Em Pó Mac Sheertone - Peaches Peaches":
+    "https://www.mercadolivre.com.br/blush-em-po-mac-sheertone--peaches/up/MLBU2743406302?pdp_filters=item_id%3AMLB5173273402",
+  "Braé By Ana Paula 3 Body Splash Peach + Perfect + Shine":
+    "https://www.mercadolivre.com.br/brae-by-ana-paula-3-body-splash-peach-perfect-shine/p/MLB69256300?pdp_filters=deal%3AMLB1578289-1",
+  "Mascara Led Estética 7 Cores Facial Pescoço Rejuvenescimento Bmed":
+    "https://www.mercadolivre.com.br/mascara-led-estetica-7-cores-facial-pescoco-rejuvenescimento-bmed/p/MLB65607660?pdp_filters=deal%3AMLB1578289-1",
+  "Medicube Deep Vitamin C Capsule Cream Madura Dia/noite":
+    "https://www.mercadolivre.com.br/medicube-deep-vitamin-c-capsule-cream/up/MLBU4592603760?pdp_filters=deal%3AMLB1578289-1",
+  "Cabine Led Facial Estetica 7 Cores Camara De Led Beleza":
+    "https://www.mercadolivre.com.br/cabine-led-facial-estetica-7-cores-camara-de-led-beleza/p/MLB72892141?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume feminino Floratta Red Blossom Colônia 75ml - O Boticário":
+    "https://www.mercadolivre.com.br/perfume-feminino-floratta-red-blossom-colonia-75ml-o-boticario/p/MLB45729099?pdp_filters=item_id%3AMLB6557001994",
+  "O Boticário Floratta Red Passion Eau De Parfum 75ml":
+    "https://www.mercadolivre.com.br/o-boticario-floratta-red-passion-eau-de-parfum-75ml/up/MLBU3014608007?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Wella Invigo Nutri-enrich Treatment Duo (2 Produtos)":
+    "https://www.mercadolivre.com.br/kit-wella-invigo-nutri-enrich-treatment-duo-2-produtos/p/MLB2059794430?pdp_filters=deal%3AMLB1578289-1",
+  "Fix Pro Sealer Fixador E Selador De Maquiagem 150ml Vizzela":
+    "https://www.mercadolivre.com.br/fix-pro-sealer-fixador-e-selador-de-maquiagem-150ml-vizzela/up/MLBU4941672093?pdp_filters=item_id%3AMLB7523861232",
+  "Kit Creme Dental Vegano Boni Natural Menta Melaleuca Anticárie":
+    "https://www.mercadolivre.com.br/kit-creme-dental-vegano-boni-natural-menta-melaleuca-anticarie/p/MLB50492084?pdp_filters=deal%3AMLB1578289-1",
+  "Lixadeira De Unhas Com Luz UV Integrada E Velocidade De 45000 RPM, Motor De Unha Ablevaz Com Velocidade Ajustável E Reversível, Iixadeira Manicure Com 12 Brocas e 6 Lixas Para Salão E Uso Doméstico":
+    "https://www.mercadolivre.com.br/lixadeira-de-unhas-com-luz-uv-integrada-e-velocidade-de-45000-rpm-motor-de-unha-ablevaz-com-velocidade-ajustavel-e-reversivel-iixadeira-manicure-com-12-brocas-e-6-lixas-para-salao-e-uso-domestico/p/MLB78723418?pdp_filters=deal%3AMLB1578289-1",
+  "Mascara led facial Skincare led 7 cores EPS-7361 USB Recarregável Branco":
+    "https://www.mercadolivre.com.br/mascara-led-facial-skincare-led-7-cores-eps-7361-usb-recarregavel-branco/p/MLB78766619?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Pantene Colageno 1 Sh 510ml + 1 Cond 510ml + Masc 550ml Pantene Pro-v Miracles Pantene Colágeno 510ml Shampoo":
+    "https://www.mercadolivre.com.br/kit-pantene-colageno-1-sh-510ml-1-cond-510ml-masc-550ml-pantene-pro-v-miracles-pantene-colageno-510ml-shampoo/p/MLB2093220833?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 5 Perfumes Oui Eau De Parfum 5 Ml Travel Size":
+    "https://www.mercadolivre.com.br/kit-5-perfumes-oui-eau-de-parfum-5-ml-travel-size/up/MLBU4503359028?pdp_filters=item_id%3AMLB5205939995",
+  "Combo Cuide-se Bem Amoruda: Body Splash 200ml + Loção Corporal 400ml":
+    "https://www.mercadolivre.com.br/combo-cuidese-bem-amoruda-body-splash-200ml--locao-corporal-400ml/up/MLBU3240241236?pdp_filters=deal%3AMLB1578289-1",
+  "Principia Kit Protetor Cor 5.0 + Limpeza Suave + Hidrata":
+    "https://www.mercadolivre.com.br/principia-kit-protetor-cor-50--limpeza-suave--hidrata/up/MLBU4099505590?pdp_filters=item_id%3AMLB6957186010",
+  "Kit 4 Caixas Com 4 Unidades Sabonetes Prosperidade 90g + 4 Sacolas Presente P":
+    "https://www.mercadolivre.com.br/kit-4-caixas-com-4-unidades-sabonetes-prosperidade-90g--4-sacolas-presente-p/up/MLBU4164824785?pdp_filters=deal%3AMLB1578289-1",
+  "Lixadeira De Unha Motor Elétrica Nail Drill Profissional Gel Branco 127/220v":
+    "https://www.mercadolivre.com.br/lixadeira-de-unha-motor-eletrica-nail-drill-profissional-gel/up/MLBU4314873692?pdp_filters=item_id%3AMLB4888566349",
+  "Combo Nativa Spa: Loção Nutritiva Corporal Uva Merlot 400ml":
+    "https://www.mercadolivre.com.br/combo-nativa-spa-locao-nutritiva-corporal-uva-merlot-400ml/up/MLBU4098992566?pdp_filters=deal%3AMLB1578289-1",
+  "Deleite Cuide-se Bem O Boticário Presente Feminino":
+    "https://www.mercadolivre.com.br/deleite-cuidese-bem-o-boticario-presente-feminino/up/MLBU3856729673?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Tonificador Muscular + 2 Massageadores Coluna Pés Pernas Bivolt":
+    "https://www.mercadolivre.com.br/kit-tonificador-muscular--2-massageadores-coluna-pes-pernas/up/MLBU3374118432?pdp_filters=item_id%3AMLB4167766935",
+  "Escova Modeladora Elétrica Profissional Secadora E Alisadora Com Ions Negativos Anti Frizz Em Cerâmica Que Seca Alisa Modela Cabelo Ondulado E Liso Cabo Rotativo Bivolt Display Temperatura Ajustável":
+    "https://www.mercadolivre.com.br/escova-modeladora-eletrica-profissional-secadora-e-alisadora-com-ions-negativos-anti-frizz-em-ceramica-que-seca-alisa-modela-cabelo-ondulado-e-liso-cabo-rotativo-bivolt-display-temperatura-ajustavel/p/MLB78462791?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Ox Nutre Shampoo E Condicionador 400ml":
+    "https://www.mercadolivre.com.br/kit-ox-nutre-shampoo-e-condicionador-400ml/p/MLB2059225909?pdp_filters=item_id%3AMLB3537349006",
+  "Modelador Miracurl Nano Titanium Cacheadora De Cabelo Cor Azul":
+    "https://www.mercadolivre.com.br/modelador-miracurl-nano-titanium-cacheadora-de-cabelo-cor-azul/p/MLB28025050?pdp_filters=deal%3AMLB1578289-1",
+  "Combo: Floratta Red Body Spray + Egeo Choc High Suflê":
+    "https://www.mercadolivre.com.br/combo-floratta-red-body-spray--egeo-choc-high-sufle/up/MLBU3980250433?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Modeladora Alisadora 2 Em 1 BIVOLT PREMIUM":
+    "https://www.mercadolivre.com.br/escova-modeladora-alisadora-2-em-1-bivolt-premium/p/MLB79137505?pdp_filters=deal%3AMLB1578289-1",
+  "Creme Hidratante Corporal Principia Ch-02 454g Pele Seca Sem Fragrância":
+    "https://www.mercadolivre.com.br/creme-hidratante-corporal-principia-ch02-454g-pele-seca/up/MLBU4163243955?pdp_filters=item_id%3AMLB7053053042",
+  "Kit Crescimento Sos Bomba 300ml Com Ativador Salon Line":
+    "https://www.mercadolivre.com.br/kit-crescimento-sos-bomba-300ml-com-ativador-salon-line/up/MLBU3225458517?pdp_filters=deal%3AMLB1578289-1",
+  "Prancha de Cabelo Taiff Cerâmica Bivolt de 180°C":
+    "https://www.mercadolivre.com.br/prancha-de-cabelo-taiff-ceramica-bivolt-de-180c/p/MLB28476809?pdp_filters=deal%3AMLB1578289-1",
+  "Extensão de Cílios com Curvatura D para Iniciantes – Kit Naisieka de Aplicação Fácil e Reutilizável":
+    "https://www.mercadolivre.com.br/extensao-de-cilios-com-curvatura-d-para-iniciantes-kit-naisieka-de-aplicacao-facil-e-reutilizavel/p/MLB75462826?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Esmalte Impala Disney Channel Cat Eye Coleção Completa Colorido":
+    "https://www.mercadolivre.com.br/kit-esmalte-impala-disney-channel-cat-eye-colecao-completa/up/MLBU4183141498?pdp_filters=item_id%3AMLB4823893637",
+  "Kit Tesouras Desfiadeira Navalha Pentes Fio A Laser Desbaste Barbeiro Cabaleleiro Profissional - Crowley":
+    "https://www.mercadolivre.com.br/kit-tesouras-desfiadeira-navalha-pentes-fio-a-laser-desbaste-barbeiro-cabaleleiro-profissional-crowley/p/MLB78791900?pdp_filters=item_id%3AMLB7576865710",
+  "Kit 2 Óleo Natural Rosa Mosqueta Rubiginosa Anti Mancha Puro":
+    "https://www.mercadolivre.com.br/kit-2-oleo-natural-rosa-mosqueta-rubiginosa-anti-mancha-puro/up/MLBU4205394518?pdp_filters=item_id%3AMLB7078621526",
+  "Bt Velvet 2x1 - Bruna Tavares - Sombra E Primer Cor Grey":
+    "https://www.mercadolivre.com.br/bt-velvet-2x1-bruna-tavares-sombra-e-primer-cor-grey/p/MLB52392047?pdp_filters=item_id%3AMLB5652085258",
+  "Organizador Acrílico Verde-lima Santa Clara 40 Esmaltes 2 Bandejas":
+    "https://www.mercadolivre.com.br/organizador-acrilico-verde-lima-santa-clara-40-esmaltes-2-bandejas/p/MLB28387010?pdp_filters=item_id%3AMLB4238303464",
+  "Kit Shampoo E Condicionador, Sos Hidratação, Salon Line, 1 L":
+    "https://www.mercadolivre.com.br/kit-shampoo-e-condicionador-sos-hidratacao-salon-line-1-l/up/MLBU3924810882?pdp_filters=deal%3AMLB1578289-1",
+  "Lixador Elétrico Para Pés Recarregável com Removedor de Calos e Rachaduras – 8 Discos":
+    "https://www.mercadolivre.com.br/lixador-eletrico-para-pes-recarregavel-com-removedor-de-calos-e-rachaduras-8-discos/p/MLB65962475?pdp_filters=deal%3AMLB1578289-1",
+  "Organizador Giratório Black para Maquiagem e Cosméticos Diamond":
+    "https://www.mercadolivre.com.br/organizador-giratorio-black-para-maquiagem-e-cosmeticos-diamond/p/MLB43946368?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Maycrene Tutano De Boi Antiqueda E Antiquebra Capilar":
+    "https://www.mercadolivre.com.br/kit-maycrene-tutano-de-boi-antiqueda-e-antiquebra-capilar/up/MLBU4292814279?pdp_filters=item_id%3AMLB4888422699",
+  "Melhor Creme Para Tirar Acne E Espinhas Mancha No Rosto Acneica Dia/noite":
+    "https://www.mercadolivre.com.br/melhor-creme-para-tirar-acne-e-espinhas-mancha-no-rosto/up/MLBU3714077970?pdp_filters=item_id%3AMLB6132844378",
+  "Kit Presente Eudora Kiss Me Now Colônia Gloss e Lápis":
+    "https://www.mercadolivre.com.br/kit-presente-eudora-kiss-me-now-colonia-gloss-e-lapis/p/MLB68925379?pdp_filters=deal%3AMLB1578289-1",
+  "Repelente D-Fense Para Tecidos 250ml Com 12h de Proteção":
+    "https://www.mercadolivre.com.br/repelente-d-fense-para-tecidos-250ml-com-12h-de-protecao/p/MLB36196744?pdp_filters=item_id%3AMLB4811623667",
+  "Kit 2 Und Ácido Clareador Ativado Rosa Selvagem 100ml":
+    "https://www.mercadolivre.com.br/kit-2-und-acido-clareador-ativado-rosa-selvagem-100ml/p/MLB74737636?pdp_filters=item_id%3AMLB7071521956",
+  "Barbeador Elétrico Kemei KM-1910 Aparador Depilador De Pelos Íntimos Corpo Masculino Feminino Recarregável Sem Fio USB Com 4 Pentes Resistente À Água":
+    "https://www.mercadolivre.com.br/barbeador-eletrico-kemei-km-1910-aparador-depilador-de-pelos-intimos-corpo-masculino-feminino-recarregavel-sem-fio-usb-com-4-pentes-resistente-agua/p/MLB77896475?pdp_filters=deal%3AMLB1578289-1",
+  "Mascara Led Tratamento Facial Rosto 7 Cores Fototerapia":
+    "https://www.mercadolivre.com.br/mascara-led-tratamento-facial-rosto-7-cores-fototerapia/p/MLB24644619?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Queratina Hidrolisada + Ácido Hialurônico Capilar 4x1":
+    "https://www.mercadolivre.com.br/kit-queratina-hidrolisada--acido-hialuronico-capilar-4x1/up/MLBU3554310431?pdp_filters=item_id%3AMLB5930368476",
+  "Kit Clareamento Dental 1x Clareador 1x Luz Led 2x Moldeira":
+    "https://www.mercadolivre.com.br/kit-1x-clareador-dental-1x-luz-led-acelerador-par-moldeira/p/MLB2090763416?pdp_filters=item_id%3AMLB4240103783",
+  "Body Spray Eudora Diva Esplêndida Deo Colônia Feminino 100ml":
+    "https://www.mercadolivre.com.br/body-spray-eudora-diva-esplendida-deo-colonia-feminino-100ml/up/MLBU4409861077?pdp_filters=item_id%3AMLB4940954081",
+  "Kit Shampoo + Condicionador + Defizantre Meu Liso Demais":
+    "https://www.mercadolivre.com.br/kit-shampoo-condicionador-defizantre-meu-liso-demais/p/MLB65857667?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Molde F1 Reconstrucao Pés Polygel Nude Gel Uv Led B7 Nude":
+    "https://www.mercadolivre.com.br/kit-molde-f1-reconstrucao-pes-polygel-nude-gel-uv-led-b7/up/MLBU4213548248?pdp_filters=deal%3AMLB1578289-1",
+  "Perfumes Árabes Asad Lattafa Masculinos Originais 5ml":
+    "https://produto.mercadolivre.com.br/MLB-6797160060-perfumes-arabes-asad-lattafa-masculinos-originais-5ml-_JM",
+  "Kit Tesouras Barbeiro E Cabeleireiro Profissional Para Corte":
+    "https://www.mercadolivre.com.br/kit-tesouras-barbeiro-e-cabeleireiro-profissional-para-corte/up/MLBU4574259603?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Mandioca Premium Hidratação Profunda Maycrene 3x500":
+    "https://www.mercadolivre.com.br/kit-mandioca-premium-hidratacao-profunda-maycrene-3x500/up/MLBU2947349571?pdp_filters=item_id%3AMLB3949656755",
+  "Kit 6 Espátulas Unhas Aço Inox Isis Cutelaria Palito Duplo Rosa":
+    "https://www.mercadolivre.com.br/kit-6-espatulas-unhas-aco-inox-isis-cutelaria-palito-duplo-rosa/p/MLB37436266?pdp_filters=item_id%3AMLB3739683149",
+  "Toalha Lenço Umedecido Toque De Seda Neve Multiuso 16x48un":
+    "https://www.mercadolivre.com.br/toalha-lenco-umedecido-toque-de-seda-neve-multiuso-16x48un/p/MLB40846728?pdp_filters=item_id%3AMLB4265735471",
+  "Combo Liz Dessence: Desodorante Colônia 100ml + Creme Hidra":
+    "https://www.mercadolivre.com.br/combo-liz-dessence-desodorante-colonia-100ml--creme-hidra/up/MLBU4098550404?pdp_filters=deal%3AMLB1578289-1",
+  "Combo Cuide-se Bem Cereja De Fases: Body Splash 200ml + Loção Corporal 400ml":
+    "https://www.mercadolivre.com.br/combo-cuidese-bem-cereja-de-fases-body-splash-200ml--locao-corporal-400ml/up/MLBU3783471631?pdp_filters=deal%3AMLB1578289-1",
+  "Organizador De Maquiagem 3 Andares Suporte Cosmético Premium Transparente":
+    "https://www.mercadolivre.com.br/organizador-de-maquiagem-3-andares-suporte-cosmetico-premium/up/MLBU1466098481?pdp_filters=deal%3AMLB1578289-1",
+  "Panos Umedecidos Bacfree Álcool 70 Inpm Kit 3":
+    "https://www.mercadolivre.com.br/panos-umedecidos-bacfree-alcool-70-inpm-kit-3/p/MLB28290893?pdp_filters=deal%3AMLB1578289-1",
+  "Carga para lâmina de barbear Gillette Mach 3 4 u":
+    "https://www.mercadolivre.com.br/carga-para-lamina-de-barbear-gillette-mach-3-4-u/p/MLB29899057?pdp_filters=deal%3AMLB1578289-1",
+  "Organizador Acrílico Vermelho Santa Clara para 40 Esmaltes de Unhas":
+    "https://www.mercadolivre.com.br/organizador-acrilico-vermelho-santa-clara-para-40-esmaltes-de-unhas/p/MLB28910776?pdp_filters=item_id%3AMLB4296283366",
+  "Carga Gillette Mach3 Regular Leve 8 Refis":
+    "https://www.mercadolivre.com.br/carga-gillette-mach3-regular-leve-8-refis/p/MLB79268287?pdp_filters=deal%3AMLB1578289-1",
+  "Hidratante Corporal Yahra":
+    "https://produto.mercadolivre.com.br/MLB-4993732107-hidratante-corporal-yahra-_JM?pdp_filters=item_id%3AMLB4993732107",
+  "Toalha Lenço Umedecido Neve Toque De Seda 18x48 Total 864und":
+    "https://www.mercadolivre.com.br/toalha-lenco-umedecido-neve-toque-de-seda-18x48-total-864und/p/MLB47771099?pdp_filters=item_id%3AMLB4078421585",
+  "Carga Para Lâmina De Barbear Gillette Mach3 Mach3 8 U":
+    "https://www.mercadolivre.com.br/carga-para-lamina-de-barbear-gillette-mach3-mach3-8-u/p/MLB72091592?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Wepink Vf Golden Perfume + Body Splash":
+    "https://www.mercadolivre.com.br/kit-wepink-vf-golden-perfume--body-splash/up/MLBU4619211209?pdp_filters=deal%3AMLB1578289-1",
+  "5un Peça Reposição Motor Porquinho Lixadeira Elétrica Unha":
+    "https://www.mercadolivre.com.br/5un-peca-reposicao-motor-porquinho-lixadeira-eletrica-unha/p/MLB29274483?pdp_filters=deal%3AMLB1578289-1",
+  "Perfume Arabe Masculino Asad Lattafa 10ml":
+    "https://produto.mercadolivre.com.br/MLB-6797476192-perfume-arabe-masculino-asad-lattafa-10ml-_JM",
+  "Carga Gillete Mach3 4 Embalagens Com 2 Unidades + 1 Aparelho":
+    "https://www.mercadolivre.com.br/carga-gillete-mach3-4-embalagens-com-2-unidades-1-aparelho/p/MLB38732012?pdp_filters=deal%3AMLB1578289-1",
+  "Molde F1 Das Gringas Zero Milimetros 0mm Stileto Unha Gel Branco":
+    "https://www.mercadolivre.com.br/molde-f1-das-gringas-zero-milimetros-0mm-stileto-unha-gel/up/MLBU5008701958?pdp_filters=deal%3AMLB1578289-1",
 };
