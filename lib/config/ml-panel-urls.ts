@@ -2726,4 +2726,948 @@ export const ML_PANEL_URLS: Readonly<Record<string, string>> = {
     "https://www.mercadolivre.com.br/chave-de-fenda-e-phillips-6-pecas-3-alicates-chave-inglesa/up/MLBU4743282703?pdp_filters=item_id%3AMLB7432451832",
   "Kit Alicate Crimpador e Decapador de Fios com 1200 Terminais Ilhós para Eletricista":
     "https://www.mercadolivre.com.br/kit-alicate-crimpador-e-decapador-de-fios-com-1200-terminais-ilhos-para-eletricista/p/MLB44412566?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 10 Calcinhas Tanga Sem Costura Premium Conforto":
+    "https://produto.mercadolivre.com.br/MLB-1840521760-kit-10-calcinhas-tanga-sem-costura-premium-conforto-_JM?pdp_filters=item_id%3AMLB1840521760",
+  "Top Puma Original Feminino Alta Sustentação Academia Fitness":
+    "https://produto.mercadolivre.com.br/MLB-3102506128-top-puma-original-feminino-alta-sustentaco-academia-fitness-_JM",
+  "Tênis Kappa Pulse Rx Unissex Corrida Conforto":
+    "https://produto.mercadolivre.com.br/MLB-5532075156-tnis-kappa-pulse-rx-unissex-corrida-conforto-_JM?pdp_filters=item_id%3AMLB5532075156",
+  "Kit Com 10 Cuecas Boxer Masculina Microfibra Original":
+    "https://produto.mercadolivre.com.br/MLB-1837525408-kit-com-10-cuecas-boxer-masculina-microfibra-original-_JM?pdp_filters=item_id%3AMLB1837525408",
+  "Tênis Feminino Delta 122 Olympikus Preto/chumbo Liso 40 Br":
+    "https://www.mercadolivre.com.br/tenis-feminino-delta-122-olympikus/up/MLBU3790205056?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 4 Short Praia Masculino Bermuda Tactel Verão Academia 1 De Cada Cor G":
+    "https://www.mercadolivre.com.br/kit-4-short-praia-masculino-bermuda-tactel-verao-academia/up/MLBU1993483730?pdp_filters=item_id%3AMLB6037755720",
+  "Kit 10 Pares Meias Mash Invisível Esportiva Algodão Original":
+    "https://produto.mercadolivre.com.br/MLB-3718380393-kit-10-pares-meias-mash-invisivel-esportiva-algodo-original-_JM?pdp_filters=item_id%3AMLB3718380393",
+  "Camisa Social Masculina Slim Fit Premium Passa Facil Branco Liso G":
+    "https://www.mercadolivre.com.br/camisa-social-masculina-slim-fit-premium-passa-facil/up/MLBU773031744?pdp_filters=item_id%3AMLB5815749182",
+  "Calça Jeans Plus Size Cintura Alta Elastano Lycra Modeladora":
+    "https://produto.mercadolivre.com.br/MLB-4048023292-calca-jeans-plus-size-cintura-alta-elastano-lycra-modeladora-_JM?pdp_filters=item_id%3AMLB4048023292",
+  "Kit 2 Calças Jogger Tactel Com Elastano Impulse":
+    "https://produto.mercadolivre.com.br/MLB-5044170500-kit-2-calcas-jogger-tactel-com-elastano-impulse-_JM?pdp_filters=item_id%3AMLB5044170500",
+  "Calça Cargo Feminina Wide Leg Cintura Alta Jeans Stillger":
+    "https://produto.mercadolivre.com.br/MLB-5396883034-calca-cargo-feminina-wide-leg-cintura-alta-jeans-stillger-_JM?pdp_filters=item_id%3AMLB5396883034",
+  "Calça Jeans Wide Leg Feminina Cintura Alta Sem Lycra Stillge":
+    "https://produto.mercadolivre.com.br/MLB-3392296475-calca-jeans-wide-leg-feminina-cintura-alta-sem-lycra-stillge-_JM?pdp_filters=item_id%3AMLB3392296475",
+  "Tênis Masculino Leve Esportivo Sapato Confortável Promoção":
+    "https://produto.mercadolivre.com.br/MLB-2678327656-tnis-masculino-leve-esportivo-sapato-confortavel-promoco-_JM?pdp_filters=item_id%3AMLB2678327656",
+  "Calça Mom Jeans Feminina Cintura Alta Marmorizada":
+    "https://produto.mercadolivre.com.br/MLB-3396120483-calca-mom-jeans-feminina-cintura-alta-marmorizada-_JM?pdp_filters=item_id%3AMLB3396120483",
+  "Mochila Grande Alça Reforçada Resistente Faculdade Trabalho":
+    "https://produto.mercadolivre.com.br/MLB-4212353409-mochila-grande-alca-reforcada-resistente-faculdade-trabalho-_JM?pdp_filters=item_id%3AMLB4212353409",
+  "Kit 4 Camiseta Dry-fit Sandrini Masculina Academia Caminhada":
+    "https://produto.mercadolivre.com.br/MLB-4592320910-kit-4-camiseta-dry-fit-sandrini-masculina-academia-caminhada-_JM",
+  "Moleton Capuz Blusa De Frio Lisa Cordão Neon Canguru Macio":
+    "https://produto.mercadolivre.com.br/MLB-1536601373-moleton-capuz-blusa-de-frio-lisa-cordo-neon-canguru-macio-_JM?pdp_filters=item_id%3AMLB1536601373",
+  "Calça Alfaiataria Feminina Wide Leg Social Cintura Alta":
+    "https://produto.mercadolivre.com.br/MLB-3792649671-calca-alfaiataria-feminina-wide-leg-social-cintura-alta-_JM?pdp_filters=item_id%3AMLB3792649671",
+  "Tênis Masculino Olymp Olimp Space Caminhada Barato Promoção Marinho/verde 42":
+    "https://www.mercadolivre.com.br/tenis-masculino-olymp-olimp-space-caminhada-barato-promocao/up/MLBU1654803101?pdp_filters=item_id%3AMLB6484489702",
+  "Kit 3 Calça Jeans Masculina Slim Fit Lycra Direto Da Fabrica":
+    "https://produto.mercadolivre.com.br/MLB-1972946124-kit-3-calca-jeans-masculina-slim-fit-lycra-direto-da-fabrica-_JM?pdp_filters=item_id%3AMLB1972946124",
+  "Terno Slim Italiano Microfibra Premium - Diversas Cores Azul-escuro Paletó 48 - Calça 42":
+    "https://www.mercadolivre.com.br/terno-slim-italiano-microfibra-premium--diversas-cores/up/MLBU799805173?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 4 Shorts 2 Em 1 Duplo Dryfit Masculino Compressão Térmic":
+    "https://produto.mercadolivre.com.br/MLB-6203660830-kit-4-shorts-2-em-1-duplo-dryfit-masculino-compresso-termic-_JM?pdp_filters=item_id%3AMLB6203660830",
+  "Kit 10 Peças De Roupa Conjunto Infantil Menino Dia A Dia Menino / 2 Anos":
+    "https://www.mercadolivre.com.br/kit-10-pecas-de-roupa-conjunto-infantil-menino-dia-a-dia/up/MLBU3268751717?pdp_filters=item_id%3AMLB7159766506",
+  "Kit 3 Calças Jogger Masculina Jeans Com Punho Elastico":
+    "https://produto.mercadolivre.com.br/MLB-1833792951-kit-3-calcas-jogger-masculina-jeans-com-punho-elastico-_JM",
+  "Kit 3 Camisetas Masculinas Polo Wear Sortido 1 G Liso":
+    "https://www.mercadolivre.com.br/kit-3-camisetas-masculinas-polo-wear/up/MLBU3726944937?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 3 Bermudas Jeans Masculina Lycra Elastano Jeans Sortidos Liso 42":
+    "https://www.mercadolivre.com.br/kit-3-bermudas-jeans-masculina-lycra-elastano/up/MLBU1401854816?pdp_filters=deal%3AMLB1578289-1",
+  "Bota Bico Fino Coturno Feminino Cano Curto Salto Confortável":
+    "https://produto.mercadolivre.com.br/MLB-1460945578-bota-bico-fino-coturno-feminino-cano-curto-salto-confortavel-_JM?pdp_filters=item_id%3AMLB1460945578",
+  "Camisa Social Masculina Slim Fit Sem Bolso Luxo Não Amassa":
+    "https://produto.mercadolivre.com.br/MLB-1689190656-camisa-social-masculina-slim-fit-sem-bolso-luxo-no-amassa-_JM?pdp_filters=item_id%3AMLB1689190656",
+  "Jaqueta Feminina Iz Corta Vento Ultra Leve Com Capuz 2026 Preto Gg Liso":
+    "https://www.mercadolivre.com.br/jaqueta-feminina-iz-corta-vento-ultra-leve-com-capuz-2026/up/MLBU2944779740?pdp_filters=item_id%3AMLB4482836837",
+  "Tênis Masculino Flak 365 Ii Lite Oakley Preto Liso 40 Br":
+    "https://www.mercadolivre.com.br/tenis-masculino-flak-365-ii-lite-oakley/up/MLBU3508857870?pdp_filters=deal%3AMLB1578289-1",
+  "Mala de bordo 10kg ABS Rodas 360° Removíveis Londres Swiss Move Preto":
+    "https://www.mercadolivre.com.br/mala-de-bordo-10kg-abs-rodas-360-removiveis-londres-swiss-move-preto/p/MLB27801242?pdp_filters=item_id%3AMLB6653101120",
+  "Kit 6 Camisetas Mais Procuradas Alpha":
+    "https://produto.mercadolivre.com.br/MLB-4081012173-kit-6-camisetas-mais-procuradas-alpha-_JM?pdp_filters=item_id%3AMLB4081012173",
+  "Tênis Feminino Olimp Vili Ace Academia Caminhada Treino Eva Preto Golden 36 Br":
+    "https://www.mercadolivre.com.br/tenis-feminino-olimp-vili-ace-academia-caminhada-treino-eva/up/MLBU3529618844?pdp_filters=item_id%3AMLB4280538327",
+  "Tênis Fila Rise Up Masculino Confortável Mesh Leve Esportivo":
+    "https://produto.mercadolivre.com.br/MLB-3768353737-tnis-fila-rise-up-masculino-confortavel-mesh-leve-esportivo-_JM?pdp_filters=item_id%3AMLB3768353737",
+  "Tênis Fila Maxxi Lite Masculino Leve Confortável Original":
+    "https://produto.mercadolivre.com.br/MLB-4069819017-tnis-fila-maxxi-lite-masculino-leve-confortavel-original-_JM?pdp_filters=item_id%3AMLB4069819017",
+  "Kit 10 Cuecas Box Lupo Algodão Boxer Masculina Cotton":
+    "https://produto.mercadolivre.com.br/MLB-990656402-kit-10-cuecas-box-lupo-algodo-boxer-masculina-cotton-_JM?pdp_filters=item_id%3AMLB990656402",
+  "Kit 10 Cuecas Boxer Lupo Poliamida Sem Costura Box Original":
+    "https://produto.mercadolivre.com.br/MLB-3140941476-kit-10-cuecas-boxer-lupo-poliamida-sem-costura-box-original-_JM",
+  "Kit 10 Cuecas Mash Boxer Original Masculino Algodão Atacado":
+    "https://produto.mercadolivre.com.br/MLB-4002993741-kit-10-cuecas-mash-boxer-original-masculino-algodo-atacado-_JM",
+  "Mala De 10kg Blogueirinha Bordo Com Frasqueira Promoção Bege Listras":
+    "https://www.mercadolivre.com.br/mala-de-10kg-blogueirinha-bordo-com-frasqueira-promocao/up/MLBU3361238479?pdp_filters=item_id%3AMLB5582397838",
+  "Mala De Viagem 10kg Promoção Rodas 360° Miami Com Frasqueira Rosa Clara Listras":
+    "https://www.mercadolivre.com.br/mala-de-viagem-10kg-promocao-rodas-360-miami-com-frasqueira/up/MLBU3371818670?pdp_filters=item_id%3AMLB5598192530",
+  "Kit 6 Camisetas Masculina Academia Dry Fit Malha Fria Treino":
+    "https://produto.mercadolivre.com.br/MLB-5298815010-kit-6-camisetas-masculina-academia-dry-fit-malha-fria-treino-_JM?pdp_filters=item_id%3AMLB5298815010",
+  "Tênis Nike Revolution 8 Masculino":
+    "https://produto.mercadolivre.com.br/MLB-5420759822-tnis-nike-revolution-8-masculino-_JM",
+  "Bota Coturno Militar Masculino Areia Adventure Confortável":
+    "https://produto.mercadolivre.com.br/MLB-3958838417-bota-coturno-militar-masculino-areia-adventure-confortavel-_JM?pdp_filters=item_id%3AMLB3958838417",
+  "Kit 10 Cueca Boxer Sem Costura Microfibra Selene Masculina":
+    "https://produto.mercadolivre.com.br/MLB-3582464273-kit-10-cueca-boxer-sem-costura-microfibra-selene-masculina-_JM?pdp_filters=item_id%3AMLB3582464273",
+  "Kit 6 Camiseta Masculina Algodão Confort By Zaroc":
+    "https://produto.mercadolivre.com.br/MLB-2047098350-kit-6-camiseta-masculina-algodo-confort-by-zaroc-_JM?pdp_filters=item_id%3AMLB2047098350",
+  "Jaqueta Masculina Puffer Corta Vento Bobojaco Blusa De Frio Preto Xgg":
+    "https://www.mercadolivre.com.br/jaqueta-masculina-puffer-corta-vento-bobojaco-blusa-de-frio/up/MLBU3949921793?pdp_filters=item_id%3AMLB4667696125",
+  "Mala De Viagem Bordo Mão Pequena 10kg Abs Cadeado 360":
+    "https://produto.mercadolivre.com.br/MLB-3932364441-mala-de-viagem-bordo-mo-pequena-10kg-abs-cadeado-360-_JM",
+  "Bota Chelsea Masculina Botina Couro Legitimo Palmilha Em Gel":
+    "https://produto.mercadolivre.com.br/MLB-3870922093-bota-chelsea-masculina-botina-couro-legitimo-palmilha-em-gel-_JM?pdp_filters=item_id%3AMLB3870922093",
+  "Jaqueta Bobojaco Casaco Forrado Impermeável Frio Neve Moto Preto M Liso":
+    "https://www.mercadolivre.com.br/jaqueta-bobojaco-casaco-forrado-impermeavel-frio-neve-moto/up/MLBU3785954283?pdp_filters=item_id%3AMLB6251800798",
+  "Mochila Tática Masculina Militar 50L Impermeável Reforçada Grande Molle Viagem Camping Trilha Airsoft Pesca Caça Forpak":
+    "https://www.mercadolivre.com.br/mochila-tatica-masculina-militar-50l-impermeavel-reforcada-grande-molle-viagem-camping-trilha-airsoft-pesca-caca-forpak/p/MLB51958382?pdp_filters=item_id%3AMLB6055637448",
+  "Calça Sarja Masculina Calca Masculino Com Lycra Elastano":
+    "https://produto.mercadolivre.com.br/MLB-3918944891-calca-sarja-masculina-calca-masculino-com-lycra-elastano-_JM?pdp_filters=item_id%3AMLB3918944891",
+  "Conjunto Linho Feminino Camisa E Short Linha Premium":
+    "https://produto.mercadolivre.com.br/MLB-4664318136-conjunto-linho-feminino-camisa-e-short-linha-premium-_JM?pdp_filters=item_id%3AMLB4664318136",
+  "Mochila Tática Impermeável Militar Reforçada Grande 50 Litros Masculina Feminina Anne Preto":
+    "https://www.mercadolivre.com.br/mochila-tatica-impermeavel-militar-reforcada-grande-50-litros-masculina-feminina-anne-preto/p/MLB75780043?pdp_filters=item_id%3AMLB4329203523",
+  "Kit 10 Cuecas Mash Masculino Slip Algodão Cotton Original":
+    "https://produto.mercadolivre.com.br/MLB-5341784160-kit-10-cuecas-mash-masculino-slip-algodo-cotton-original-_JM",
+  "Calça Jeans Masculina Grossa Para Trabalho Boca Larga Balão":
+    "https://produto.mercadolivre.com.br/MLB-3684074391-calca-jeans-masculina-grossa-para-trabalho-boca-larga-balo-_JM?pdp_filters=item_id%3AMLB3684074391",
+  "4 Conjuntos Calça Legging Fitness Roupas Feminina Academia":
+    "https://produto.mercadolivre.com.br/MLB-921038313-4-conjuntos-calca-legging-fitness-roupas-feminina-academia-_JM",
+  "Camisa Polo Reserva Essence Básica Marinho Liso M":
+    "https://www.mercadolivre.com.br/camisa-polo-reserva-essence-basica/up/MLBU3460375501?pdp_filters=deal%3AMLB1578289-1",
+  "Tênis Kappa Galaxy Masculino Feminino":
+    "https://produto.mercadolivre.com.br/MLB-4213041943-tnis-kappa-galaxy-masculino-feminino-_JM?pdp_filters=item_id%3AMLB4213041943",
+  "Mochila Dos Homens Com Faixa Impermeável Para Expansão Preto Liso":
+    "https://www.mercadolivre.com.br/mochila-dos-homens-com-faixa-impermeavel-para-expansao-preto-liso/p/MLB73050326?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 5 Peças All Black Dry 3 Camisetas E 2 Bermudas Alpha":
+    "https://produto.mercadolivre.com.br/MLB-3994231661-kit-5-pecas-all-black-dry-3-camisetas-e-2-bermudas-alpha-_JM",
+  "Chinelo Kenner Nk6 Pro Sandália 100% Original C/ Nota Fiscal":
+    "https://produto.mercadolivre.com.br/MLB-3025171094-chinelo-kenner-nk6-pro-sandalia-100-original-c-nota-fiscal-_JM",
+  "Tênis Olimp Masculino Esportivo Academia Caminhada Promoção Preto/dourado 39 Br":
+    "https://www.mercadolivre.com.br/tenis-olimp-masculino-esportivo-academia-caminhada-promocao/up/MLBU3807178397?pdp_filters=deal%3AMLB1578289-1",
+  "Tênis Feminino Branco Olimp Academia Corrida Caminhada Sport":
+    "https://produto.mercadolivre.com.br/MLB-1870703755-tnis-feminino-branco-olimp-academia-corrida-caminhada-sport-_JM",
+  "Mochila jiesipote-9242 À Prova D'água Reforçada Expansível Cor Preto":
+    "https://www.mercadolivre.com.br/mochila-jiesipote-9242-prova-dagua-reforcada-expansivel-cor-preto/p/MLB74678961?pdp_filters=deal%3AMLB1578289-1",
+  "Tênis Vizzano Feminino Casual Plataforma Original":
+    "https://produto.mercadolivre.com.br/MLB-2827505649-tnis-vizzano-feminino-casual-plataforma-original-_JM?pdp_filters=item_id%3AMLB2827505649",
+  "Tenis Feminino Casual Vizzano Branco Confortável Original":
+    "https://produto.mercadolivre.com.br/MLB-5287552540-tenis-feminino-casual-vizzano-branco-confortavel-original-_JM?pdp_filters=item_id%3AMLB5287552540",
+  "Conjunto Alfaiataria Boss Colete E Calça Pantalona Social":
+    "https://produto.mercadolivre.com.br/MLB-3651512243-conjunto-alfaiataria-boss-colete-e-calca-pantalona-social-_JM?pdp_filters=item_id%3AMLB3651512243",
+  "Cinta Pós Cirúrgica Emana Lipo Abdominoplastia Reforço Duplo":
+    "https://produto.mercadolivre.com.br/MLB-3460669895-cinta-pos-cirurgica-emana-lipo-abdominoplastia-reforco-duplo-_JM",
+  "Kit 3 Calças Jeans Skinny Masculina Com Lycra Estica Bem Nf Azul Claro Cinza Preta 44":
+    "https://www.mercadolivre.com.br/kit-3-calcas-jeans-skinny-masculina-com-lycra-estica-bem-nf/up/MLBU3739043424?pdp_filters=deal%3AMLB1578289-1",
+  "Calça Jeans Wide Leg Feminina Plus Size Destroyed":
+    "https://produto.mercadolivre.com.br/MLB-3348300975-calca-jeans-wide-leg-feminina-plus-size-destroyed-_JM?pdp_filters=item_id%3AMLB3348300975",
+  "Jaqueta Masculina Puffer Corta Vento Bobojaco Blusa De Frio Preto Xgg Gominho":
+    "https://www.mercadolivre.com.br/jaqueta-masculina-puffer-corta-vento-bobojaco-blusa-de-frio/up/MLBU3653696560?pdp_filters=item_id%3AMLB5998748068",
+  "Tênis Feminino Easy 2 Olympikus Preto/dusty Liso 38":
+    "https://www.mercadolivre.com.br/tenis-feminino-easy-2-olympikus/up/MLBU1148425144?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 2 Camisetas Oversized Masculina Texturizado Premium Kit 2 Over - Preto Marrom Gg":
+    "https://www.mercadolivre.com.br/kit-2-camisetas-oversized-masculina-texturizado-premium/up/MLBU3494142488?pdp_filters=item_id%3AMLB6861485600",
+  "Bolsa Tote Daily Clear Gocase - Leve, Moderna E Minimalista Cor Preto":
+    "https://www.mercadolivre.com.br/bolsa-tote-daily-clear-gocase-leve-moderna-e-minimalista-cor-preto/p/MLB46671284?pdp_filters=deal%3AMLB1578289-1",
+  "4 Camisetas Masculina Dry Fit Premium Camisa Academia Kit":
+    "https://produto.mercadolivre.com.br/MLB-4582996670-4-camisetas-masculina-dry-fit-premium-camisa-academia-kit-_JM?pdp_filters=item_id%3AMLB4582996670",
+  "Algema De Pulso Invictus Aço Carbono Corrente Niquelada Fosco":
+    "https://www.mercadolivre.com.br/algema-de-pulso-invictus-aco-carbono-corrente-niquelada-fosco/p/MLB26661434?pdp_filters=item_id%3AMLB3464344401",
+  "Calça Cargo Jeans Feminina Wide Leg Cintura Alta Stillger":
+    "https://produto.mercadolivre.com.br/MLB-5806603044-calca-cargo-jeans-feminina-wide-leg-cintura-alta-stillger-_JM?pdp_filters=item_id%3AMLB5806603044",
+  "Kit 2 Casaco Teddy Curto Blusa Feminino Cropped Pelucia Frio":
+    "https://produto.mercadolivre.com.br/MLB-4007284511-kit-2-casaco-teddy-curto-blusa-feminino-cropped-pelucia-frio-_JM",
+  "Tenis Masculino Esportivo Olimpic Academia Caminhada Promoçã Preto/branco 40 Br":
+    "https://www.mercadolivre.com.br/tenis-masculino-esportivo-olimpic-academia-caminhada-promoca/up/MLBU3914952759?pdp_filters=deal%3AMLB1578289-1",
+  "Conjunto Moletom Calça Unissex Paris Canguru Casaco Frio G Preto":
+    "https://www.mercadolivre.com.br/conjunto-moletom-calca-unissex-paris-canguru-casaco-frio/up/MLBU3862120597?pdp_filters=deal%3AMLB1578289-1",
+  "Conjunto Feminino De Frio 2 Peças Moderno Confortável":
+    "https://produto.mercadolivre.com.br/MLB-2672784724-conjunto-feminino-de-frio-2-pecas-moderno-confortavel-_JM?pdp_filters=item_id%3AMLB2672784724",
+  "Kit 3 Calça Moletom Slim Jogger Com Bolso Masculino Adulto Cinza G":
+    "https://www.mercadolivre.com.br/kit-3-calca-moletom-slim-jogger-com-bolso-masculino-adulto/up/MLBU1451498886?pdp_filters=item_id%3AMLB7387595284",
+  "Kit 3 Bermuda Masculina Tactel Com Elastano Academia Treino Preto-marinho-cinza G":
+    "https://www.mercadolivre.com.br/kit-3-bermuda-masculina-tactel-com-elastano-academia-treino/up/MLBU3427878714?pdp_filters=item_id%3AMLB6894500556",
+  "Kit 3 Calças Jeans Masculina Com Elastano Super Confortável":
+    "https://produto.mercadolivre.com.br/MLB-4190196371-kit-3-calcas-jeans-masculina-com-elastano-super-confortavel-_JM",
+  "Vestido Feminino Curto Alfaiataria Elegante Com Cinto Muscle":
+    "https://produto.mercadolivre.com.br/MLB-4466232950-vestido-feminino-curto-alfaiataria-elegante-com-cinto-muscle-_JM",
+  "Roupão Microfibra Benévola Manga Longa Fleece Flanel Inverno Vinho Bloodstone Liso G":
+    "https://www.mercadolivre.com.br/roupao-microfibra-benevola-manga-longa-fleece-flanel-inverno/up/MLBU3859965912?pdp_filters=item_id%3AMLB4545578119",
+  "Jaqueta Corta Vento Feminino Capuz E Bolso Izing Leve 2026 Branco P Liso":
+    "https://www.mercadolivre.com.br/jaqueta-corta-vento-feminino-capuz-e-bolso-izing-leve-2026/up/MLBU792700835?pdp_filters=item_id%3AMLB6292977808",
+  "Kit 2 Bermudas Masculinas Jeans C\\ Lycra Slim Fit":
+    "https://produto.mercadolivre.com.br/MLB-1490455504-kit-2-bermudas-masculinas-jeans-c-lycra-slim-fit-_JM?pdp_filters=item_id%3AMLB1490455504",
+  "Kit Com 5 Camisetas Básicas Slim Masculina Hering Preto, Branco E Cinza Liso M":
+    "https://www.mercadolivre.com.br/kit-com-5-camisetas-basicas-slim-masculina-hering/up/MLBU1113299541?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 3 Camisas Polo Social Feminina .mm Algodão Manguinha":
+    "https://produto.mercadolivre.com.br/MLB-3597504703-kit-3-camisas-polo-social-feminina-mm-algodo-manguinha-_JM?pdp_filters=item_id%3AMLB3597504703",
+  "Calça Pantalona Feminina Lanzinha Cintura Alta Com Bolso":
+    "https://produto.mercadolivre.com.br/MLB-5408980930-calca-pantalona-feminina-lanzinha-cintura-alta-com-bolso-_JM?pdp_filters=item_id%3AMLB5408980930",
+  "Sapato Oxford Social Masculino Qualidade Moderno Confortável Marrom Sapato Oxford Liso 41 Br":
+    "https://www.mercadolivre.com.br/sapato-oxford-social-masculino-qualidade-moderno-confortavel/up/MLBU3393657592?pdp_filters=item_id%3AMLB6231592130",
+  "Kit 3 Bermudas Dry Fit De Alto Padrão Para Academia":
+    "https://produto.mercadolivre.com.br/MLB-3872589723-kit-3-bermudas-dry-fit-de-alto-padro-para-academia-_JM?pdp_filters=item_id%3AMLB3872589723",
+  "Roupa De Academia Conjunto Moda Fitness Feminino Calça E Top":
+    "https://produto.mercadolivre.com.br/MLB-4045030911-roupa-de-academia-conjunto-moda-fitness-feminino-calca-e-top-_JM?pdp_filters=item_id%3AMLB4045030911",
+  "Short Saia Jeans Feminino Cintura Alta Com Lycra Stillger":
+    "https://produto.mercadolivre.com.br/MLB-4000556395-short-saia-jeans-feminino-cintura-alta-com-lycra-stillger-_JM?pdp_filters=item_id%3AMLB4000556395",
+  "Kit Lote 12 Peças Menina Conjunto Infantil Top Feminino":
+    "https://produto.mercadolivre.com.br/MLB-2118758553-kit-lote-12-pecas-menina-conjunto-infantil-top-feminino-_JM?pdp_filters=item_id%3AMLB2118758553",
+  "Kit 9 Pares Meias Puma Soquete Cano Curto Sapatilha Original":
+    "https://produto.mercadolivre.com.br/MLB-5147251938-kit-9-pares-meias-puma-soquete-cano-curto-sapatilha-original-_JM?pdp_filters=item_id%3AMLB5147251938",
+  "Bota Feminina Bico Fino Cano Curto Salto Grosso Calce Fácil":
+    "https://produto.mercadolivre.com.br/MLB-2187804841-bota-feminina-bico-fino-cano-curto-salto-grosso-calce-facil-_JM?pdp_filters=item_id%3AMLB2187804841",
+  "Kit 4 Blusinhas Regata Canelada Feminina Moda E Conforto":
+    "https://produto.mercadolivre.com.br/MLB-4281293069-kit-4-blusinhas-regata-canelada-feminina-moda-e-conforto-_JM?pdp_filters=item_id%3AMLB4281293069",
+  "Calça Masculina Sarja Esporte Fino Bolso Faca Lycra Stillger Bege Liso 40":
+    "https://www.mercadolivre.com.br/calca-masculina-sarja-esporte-fino-bolso-faca-lycra-stillger/up/MLBU3959209767?pdp_filters=item_id%3AMLB4677112055",
+  "Sapato Feminino Gigil Scarpin Salto Fino Baixo Confortável":
+    "https://produto.mercadolivre.com.br/MLB-4006151595-sapato-feminino-gigil-scarpin-salto-fino-baixo-confortavel-_JM?pdp_filters=item_id%3AMLB4006151595",
+  "Sapato Feminino Salto Grosso Baixo Quadrado Confortável":
+    "https://produto.mercadolivre.com.br/MLB-3364791797-sapato-feminino-salto-grosso-baixo-quadrado-confortavel-_JM?pdp_filters=item_id%3AMLB3364791797",
+  "Kit 2 Camiseta Masculina Speedo Dry Fit Manga Curta Academia":
+    "https://produto.mercadolivre.com.br/MLB-6002008916-kit-2-camiseta-masculina-speedo-dry-fit-manga-curta-academia-_JM",
+  "Kit 3 Oversized Masculina Stretwear Básica Lisa Premium":
+    "https://produto.mercadolivre.com.br/MLB-4027416937-kit-3-oversized-masculina-stretwear-basica-lisa-premium-_JM",
+  "Kit 10 Peças Roupa Infantil Menina Verão Conjunto Criança":
+    "https://produto.mercadolivre.com.br/MLB-4187641695-kit-10-pecas-roupa-infantil-menina-vero-conjunto-crianca-_JM?pdp_filters=item_id%3AMLB4187641695",
+  "Kit 4 Pijamas Conjunto Baby Doll Feminino Microfibras Mulher":
+    "https://produto.mercadolivre.com.br/MLB-6297031844-kit-4-pijamas-conjunto-baby-doll-feminino-microfibras-mulher-_JM?pdp_filters=item_id%3AMLB6297031844",
+  "Camisa Polo Masculina Tecido Tech Confortavel Casual":
+    "https://produto.mercadolivre.com.br/MLB-5663299774-camisa-polo-masculina-tecido-tech-confortavel-casual-_JM",
+  "10 Calcinha Infantil Antialergica Algodao Premium Kit Basica Sortido 4":
+    "https://www.mercadolivre.com.br/10-calcinha-infantil-antialergica-algodao-premium-kit-basica/up/MLBU1988020989?pdp_filters=item_id%3AMLB6782986724",
+  "Kit 5 Camisetas Básicas Masculina Dry Fit Lisa Tradicional Cor-1 G":
+    "https://www.mercadolivre.com.br/kit-5-camisetas-basicas-masculina-dry-fit-lisa-tradicional/up/MLBU3813989320?pdp_filters=item_id%3AMLB4484499505",
+  "Jaleco Feminino Ziper Manga Longa Acinturado Várias Cores":
+    "https://produto.mercadolivre.com.br/MLB-2658382325-jaleco-feminino-ziper-manga-longa-acinturado-varias-cores-_JM?pdp_filters=item_id%3AMLB2658382325",
+  "Kit 4 Bermudas Masculinas Moletom Academia Casual Lote Full Cores Sortidas Liso G ( 42-44 )":
+    "https://www.mercadolivre.com.br/kit-4-bermudas-masculinas-moletom-academia-casual-lote-full/up/MLBU3567180619?pdp_filters=item_id%3AMLB5947802378",
+  "Kit Com 3 Peças Bolsas Feminina Transversal Média Tira Colo Carteira Cor Preta Cinf":
+    "https://www.mercadolivre.com.br/kit-com-3-pecas-bolsas-feminina-transversal-media-tira-colo-carteira-cor-preta-cinf/p/MLB61680082?pdp_filters=deal%3AMLB1578289-1",
+  "Chapéu Country Cowboy Rodeio Barretos Unissex Elegante Cor Preto Desenho Do Tecido Lisa Tamanho 56cm - 59cm (m Único)":
+    "https://www.mercadolivre.com.br/chapeu-country-cowboy-rodeio-barretos-unissex-elegante-cor-preto-desenho-do-tecido-lisa-tamanho-56cm-59cm-m-unico/p/MLB72683289?pdp_filters=item_id%3AMLB6910906398",
+  "Kit 6 Cuecas Boxer Box Classic Poliamida Original Reebok Sortidas Liso Gg":
+    "https://www.mercadolivre.com.br/kit-6-cuecas-boxer-box-classic-poliamida-original-reebok/up/MLBU3722052236?pdp_filters=deal%3AMLB1578289-1",
+  "Tenis Feminino Alpha Academia E Dia A Dia Conforto E Estilo":
+    "https://produto.mercadolivre.com.br/MLB-5970708346-tenis-feminino-alpha-academia-e-dia-a-dia-conforto-e-estilo-_JM?pdp_filters=item_id%3AMLB5970708346",
+  "Calça Legging Kit 3 Grossa Suplex Cós Alto Leg Reforçada":
+    "https://produto.mercadolivre.com.br/MLB-3602861563-calca-legging-kit-3-grossa-suplex-cos-alto-leg-reforcada-_JM?pdp_filters=item_id%3AMLB3602861563",
+  "Kit 6 Peças Infantil Verão Menino 3 Camisetas + 3 Bermudas":
+    "https://produto.mercadolivre.com.br/MLB-5604376292-kit-6-pecas-infantil-vero-menino-3-camisetas-3-bermudas-_JM?pdp_filters=item_id%3AMLB5604376292",
+  "Kit 3 Calças Legging Legg Grossa Zero Transparência Promoção":
+    "https://produto.mercadolivre.com.br/MLB-3920866647-kit-3-calcas-legging-legg-grossa-zero-transparncia-promoco-_JM?pdp_filters=item_id%3AMLB3920866647",
+  "Jaqueta Bobojaco Feminina Puffer Impermeavel Capuz Removível Preto M":
+    "https://www.mercadolivre.com.br/jaqueta-bobojaco-feminina-puffer-impermeavel-capuz-removivel/up/MLBU3353990188?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 5 Blusa Feminina Malha 100% Algodão Premium Atacado Lote":
+    "https://produto.mercadolivre.com.br/MLB-3280227084-kit-5-blusa-feminina-malha-100-algodo-premium-atacado-lote-_JM?pdp_filters=item_id%3AMLB3280227084",
+  "Jaqueta Corta Vento Monster Impermeável Unissex Sportivo Top Preto M":
+    "https://www.mercadolivre.com.br/jaqueta-corta-vento-monster-impermeavel-unissex-sportivo-top/up/MLBU4157502895?pdp_filters=item_id%3AMLB4819497863",
+  "Calça Alfaiataria Cintura Alta Com Bolso Tendência Moda Zra":
+    "https://produto.mercadolivre.com.br/MLB-5450197204-calca-alfaiataria-cintura-alta-com-bolso-tendncia-moda-zra-_JM?pdp_filters=item_id%3AMLB5450197204",
+  "Kit 2 Moletons Careca Paris Flanelado Premium Diversas Cores G Preto + Cinza":
+    "https://www.mercadolivre.com.br/kit-2-moletons-careca-paris-flanelado-premium-diversas-cores/up/MLBU3956367172?pdp_filters=deal%3AMLB1578289-1",
+  "Jaqueta Puffer Bobojaco Corta Vento Nylon Frio Reforçada Preto G":
+    "https://www.mercadolivre.com.br/jaqueta-puffer-bobojaco-corta-vento-nylon-frio-reforcada/up/MLBU2246010464?pdp_filters=deal%3AMLB1578289-1",
+  "Jaqueta Puffer Bobojaco De Frio Blusa Impermeável Inverno":
+    "https://produto.mercadolivre.com.br/MLB-4720360792-jaqueta-puffer-bobojaco-de-frio-blusa-impermeavel-inverno-_JM",
+  "Camiseta Oversized Estampada Dmuniz Camisa Premium":
+    "https://produto.mercadolivre.com.br/MLB-4120039822-camiseta-oversized-estampada-dmuniz-camisa-premium-_JM",
+  "Calça Cargo Wide Leg Jeans Feminina Cintura Alta Bolsos Jeans Claro Liso 40":
+    "https://www.mercadolivre.com.br/calca-cargo-wide-leg-jeans-feminina-cintura-alta-bolsos/up/MLBU1925093459?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 2 Calça Pantalona Feminina Alfaiataria Elegante C/ Cinto":
+    "https://produto.mercadolivre.com.br/MLB-5580606974-kit-2-calca-pantalona-feminina-alfaiataria-elegante-c-cinto-_JM",
+  "Kit Mala De Viagem Completo 10 + 23+ Frasqueira Bege Listras":
+    "https://www.mercadolivre.com.br/kit-mala-de-viagem-completo--10--23-frasqueira/up/MLBU3367173084?pdp_filters=item_id%3AMLB5581448838",
+  "Kit 3 T-shirts Oversized Colorful Algodão Cléa Store Rosa Claro/verde Oliva/caramelo M":
+    "https://www.mercadolivre.com.br/kit-3-tshirts-oversized-colorful-algodao-clea-store/up/MLBU3920015031?pdp_filters=item_id%3AMLB6676323374",
+  "Tênis Asics Gel Revelation Academia Original Caminhada Leve Preto Rosa Revelation 37 Br":
+    "https://www.mercadolivre.com.br/tenis-asics-gel-revelation-academia-original-caminhada-leve/up/MLBU4680611164?pdp_filters=deal%3AMLB1578289-1",
+  "Vestido Longo Tule Brilho Com Manga E Fenda Casamento":
+    "https://produto.mercadolivre.com.br/MLB-5579548716-vestido-longo-tule-brilho-com-manga-e-fenda-casamento-_JM?pdp_filters=item_id%3AMLB5579548716",
+  "Blusa Poncho Tricot Assimétrico Alongado Manga Longa Suéter Nude Único":
+    "https://www.mercadolivre.com.br/blusa-poncho-tricot-assimetrico-alongado-manga-longa-sueter/up/MLBU3858105674?pdp_filters=item_id%3AMLB6478417422",
+  "Mala De Bordo Rodinhas 360 Graus 10kg Com Senha Medidas Anac Preto Mala De Bordo 10 Kg":
+    "https://www.mercadolivre.com.br/mala-de-bordo-rodinhas-360-graus-10kg-com-senha-medidas-anac/up/MLBU3103784776?pdp_filters=item_id%3AMLB4020088633",
+  "Kit 7 Camisetas Basica Lisa Algodão Premium Masculina":
+    "https://produto.mercadolivre.com.br/MLB-4197016433-kit-7-camisetas-basica-lisa-algodo-premium-masculina-_JM?pdp_filters=item_id%3AMLB4197016433",
+  "Tênis Masculino Grand Court 3.0 adidas Ftwwht/cblack/ftwwht Liso 41 Br":
+    "https://www.mercadolivre.com.br/tenis-masculino-grand-court-30-adidas/up/MLBU3652950250?pdp_filters=deal%3AMLB1578289-1",
+  "Bolsa Pasta Notebook Grande Couro Masculino Maleta Executiva Preto":
+    "https://www.mercadolivre.com.br/bolsa-pasta-notebook-grande-couro-masculino-maleta-executiva/up/MLBU1482835700?pdp_filters=item_id%3AMLB965248428",
+  "Mochila À Prova D'água Reforçada Expansível Para Viagens Diá Preto":
+    "https://www.mercadolivre.com.br/mochila-a-prova-dagua-reforcada-expansivel-para-viagens-dia/up/MLBU3951542930?pdp_filters=item_id%3AMLB6726357704",
+  "Tênis Flyer Runner Mesh Bdp Puma":
+    "https://www.mercadolivre.com.br/tenis-flyer-runner-mesh-bdp-puma/p/MLB65659891?pdp_filters=deal%3AMLB1578289-1",
+  "Tênis Feminino Veloz 3 Olympikus Arenito Liso 37 Br":
+    "https://www.mercadolivre.com.br/tenis-feminino-veloz-3-olympikus/up/MLBU3640477879?pdp_filters=deal%3AMLB1578289-1",
+  "Mala Sweet Studio de Bordo Rígida Com Rodas 360° e Zíper Expansível Preto 2088":
+    "https://www.mercadolivre.com.br/mala-sweet-studio-de-bordo-rigida-com-rodas-360-e-ziper-expansivel-preto-2088/p/MLB44867872?pdp_filters=deal%3AMLB1578289-1",
+  "Tênis Fila Academia Treino Caminhada Macio Moda Novo":
+    "https://produto.mercadolivre.com.br/MLB-7608628092-tnis-fila-academia-treino-caminhada-macio-moda-novo-_JM",
+  "Tênis Infantil Rickie Classic V Puma Puma Black-puma White Liso 32":
+    "https://www.mercadolivre.com.br/tenis-infantil-rickie-classic-v-puma/up/MLBU774943956?pdp_filters=deal%3AMLB1578289-1",
+  "Sandália Vizzano Festa Salto Alto Meia Pata Confortável 200 Dourado Glamour 35":
+    "https://www.mercadolivre.com.br/sandalia-vizzano-festa-salto-alto-meia-pata-confortavel-200/up/MLBU757516965?pdp_filters=item_id%3AMLB6151773472",
+  "Bota Capa Feminina Cano Longo Salto Alto Bloco Bico Fino Preto 38 Br":
+    "https://www.mercadolivre.com.br/bota-capa-feminina-cano-longo-salto-alto-bloco-bico-fino/up/MLBU3798135647?pdp_filters=item_id%3AMLB4480449569",
+  "Calça Legging Lupo Max Feminino Academia Cintura Alta Treino Preto M":
+    "https://www.mercadolivre.com.br/calca-legging-lupo-max-feminino-academia-cintura-alta-treino/up/MLBU3544676477?pdp_filters=item_id%3AMLB5917264830",
+  "Kit 4 Camisa Gola Polo Piquet Masculina Slim Casual Algodão Multicolorido M Liso":
+    "https://www.mercadolivre.com.br/kit-4-camisa-gola-polo-piquet-masculina-slim-casual-algodao/up/MLBU3788611894?pdp_filters=item_id%3AMLB4469245477",
+  "Tênis Olympikus Acqua Feminino":
+    "https://www.mercadolivre.com.br/tenis-olympikus-acqua-feminino/p/MLB63129692?pdp_filters=item_id%3AMLB4379466501",
+  "Kit 4 Bermudas 2 Em 1 Masculina Academia Corrida Treino Ctx":
+    "https://produto.mercadolivre.com.br/MLB-4342442505-kit-4-bermudas-2-em-1-masculina-academia-corrida-treino-ctx-_JM?pdp_filters=item_id%3AMLB4342442505",
+  "Conjunto Feminino Vestido Soltinho Frente Unica Short Verão Vinho Único":
+    "https://www.mercadolivre.com.br/conjunto-feminino-vestido-soltinho-frente-unica-short-verao/up/MLBU3025829822?pdp_filters=item_id%3AMLB6564443590",
+  "Mala De Viagem Sweet Studio De Bordo 360o Pequena De Mão 10kg C/ Segredo Cor Preto Listras 2080":
+    "https://www.mercadolivre.com.br/mala-de-viagem-sweet-studio-de-bordo-360o-pequena-de-mao-10kg-c-segredo-cor-preto-listras-2080/p/MLB57747665?pdp_filters=item_id%3AMLB5772728048",
+  "Bota Feminina Gigil Cano Curto Salto Médio Detalhe Fivela":
+    "https://produto.mercadolivre.com.br/MLB-5328803228-bota-feminina-gigil-cano-curto-salto-medio-detalhe-fivela-_JM?pdp_filters=item_id%3AMLB5328803228",
+  "Óculos De Sol Saint Germain Dourado Harbor Aviador Uv400 Lente Preto Desenho Espelho":
+    "https://www.mercadolivre.com.br/oculos-de-sol-saint-germain-dourado-harbor-aviador-uv400-lente-preto-desenho-espelho/p/MLB54956861?pdp_filters=item_id%3AMLB4211130725",
+  "Tenis Feminino Leve Confortável Academia Corrida Caminhada":
+    "https://produto.mercadolivre.com.br/MLB-4463477029-tenis-feminino-leve-confortavel-academia-corrida-caminhada-_JM?pdp_filters=item_id%3AMLB4463477029",
+  "Kit Camisa Masculina Segunda Pele Proteção Solar Uv Dry Fit":
+    "https://produto.mercadolivre.com.br/MLB-7017641274-kit-camisa-masculina-segunda-pele-proteco-solar-uv-dry-fit-_JM?pdp_filters=item_id%3AMLB7017641274",
+  "Mochila Militar Tática Impermeável Reforçada Bolsa Grande Viagem Assault Resistente Utilizzei":
+    "https://www.mercadolivre.com.br/mochila-militar-tatica-impermeavel-reforcada-bolsa-grande-viagem-assault-resistente-utilizzei/p/MLB53177774?pdp_filters=item_id%3AMLB5543645152",
+  "Kit Com 5 Camisetas Básicas Feminina Hering Preto, Branco E Cinza Liso Xg":
+    "https://www.mercadolivre.com.br/kit-com-5-camisetas-basicas-feminina-hering/up/MLBU755585454?pdp_filters=deal%3AMLB1578289-1",
+  "Mochila Masculina Tatica 50l Impermeavel Militar Reforçada Preto":
+    "https://www.mercadolivre.com.br/mochila-masculina-tatica-50l-impermeavel-militar-reforcada/up/MLBU4147200056?pdp_filters=deal%3AMLB1578289-1",
+  "Tênis Feminino Nobuck Casual Conforto Moleca Original":
+    "https://produto.mercadolivre.com.br/MLB-4158377321-tnis-feminino-nobuck-casual-conforto-moleca-original-_JM?pdp_filters=item_id%3AMLB4158377321",
+  "Vestido Longo Plus Size Malha Laise De Alça Confortavel":
+    "https://produto.mercadolivre.com.br/MLB-4201943019-vestido-longo-plus-size-malha-laise-de-alca-confortavel-_JM?pdp_filters=item_id%3AMLB4201943019",
+  "Jaqueta Masculina Preta Lã Tricot Inverno Com Bolso E Zíper":
+    "https://produto.mercadolivre.com.br/MLB-3796112203-jaqueta-masculina-preta-l-tricot-inverno-com-bolso-e-ziper-_JM?pdp_filters=item_id%3AMLB3796112203",
+  "Óculos De Sol Masculino Polarizado Proteção Uv400 Original Premium Preto Preto Com Detalhes Vermelhos":
+    "https://www.mercadolivre.com.br/oculos-de-sol-masculino-polarizado-protecao-uv400-original/up/MLBU3482733163?pdp_filters=item_id%3AMLB4248780985",
+  "Mochila Tatica 50l Grande Militar Impermeavel Reforçada Resistente Viagem Cor Preto":
+    "https://www.mercadolivre.com.br/mochila-tatica-50l-grande-militar-impermeavel-reforcada-resistente-viagem-cor-preto/p/MLB52027699?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 4 Blusa Feminina Ribana Canelado Estilosa Básica Baby Te Multicolorido M":
+    "https://www.mercadolivre.com.br/kit-4-blusa-feminina-ribana-canelado-estilosa-basica-baby-te/up/MLBU4338239104?pdp_filters=item_id%3AMLB7178215662",
+  "Sandália Ortopédica Anatomica Fascite Plantar Esporão":
+    "https://produto.mercadolivre.com.br/MLB-3174597735-sandalia-ortopedica-anatomica-fascite-plantar-esporo-_JM?pdp_filters=item_id%3AMLB3174597735",
+  "Bolsa Feminina Antifurto Impermeável Mochila Casual De Costa Preto Liso Prateado":
+    "https://www.mercadolivre.com.br/bolsa-feminina-antifurto-impermeavel-mochila-casual-de-costa/up/MLBU3906236294?pdp_filters=item_id%3AMLB6614846478",
+  "Kit 2 Tênis Calce Fácil Menino Infantil Escolar Confortável":
+    "https://produto.mercadolivre.com.br/MLB-6194854264-kit-2-tnis-calce-facil-menino-infantil-escolar-confortavel-_JM?pdp_filters=item_id%3AMLB6194854264",
+  "Vestido Formatura Natal Ano Novo Festa Infantil Luxo E Tiara":
+    "https://produto.mercadolivre.com.br/MLB-1091690572-vestido-formatura-natal-ano-novo-festa-infantil-luxo-e-tiara-_JM?pdp_filters=item_id%3AMLB1091690572",
+  "Calça Alfaiataria Feminina Wide Leg Social Cós Alto Preto Gg":
+    "https://www.mercadolivre.com.br/calca-alfaiataria-feminina-wide-leg-social-cos-alto/up/MLBU3775240122?pdp_filters=item_id%3AMLB4458458065",
+  "Vestido De Festa C/bojo Várias Cores Formatura Madrinha":
+    "https://produto.mercadolivre.com.br/MLB-1361465097-vestido-de-festa-cbojo-varias-cores-formatura-madrinha-_JM?pdp_filters=item_id%3AMLB1361465097",
+  "Saia Evasê Longa Midi Evangélica Cintura Alta Jeans E Linho":
+    "https://produto.mercadolivre.com.br/MLB-5196053612-saia-evas-longa-midi-evangelica-cintura-alta-jeans-e-linho-_JM?pdp_filters=item_id%3AMLB5196053612",
+  "Saia Midi Longa Feminina Cintura Alta Com Fenda Sarja Grossa":
+    "https://produto.mercadolivre.com.br/MLB-4941326506-saia-midi-longa-feminina-cintura-alta-com-fenda-sarja-grossa-_JM?pdp_filters=item_id%3AMLB4941326506",
+  "Kit Sortido 10 Peças Roupas Infantil Menino Verão 5 Conjunto":
+    "https://produto.mercadolivre.com.br/MLB-4189372607-kit-sortido-10-pecas-roupas-infantil-menino-vero-5-conjunto-_JM?pdp_filters=item_id%3AMLB4189372607",
+  "Pantufa Feminina Chinelo De Quarto Macio E Aconchegante":
+    "https://produto.mercadolivre.com.br/MLB-4451386353-pantufa-feminina-chinelo-de-quarto-macio-e-aconchegante-_JM?pdp_filters=item_id%3AMLB4451386353",
+  "Kit 3 Shorts Fitness Secagem Rápida Basquete/corrida":
+    "https://produto.mercadolivre.com.br/MLB-5063626432-kit-3-shorts-fitness-secagem-rapida-basquetecorrida-_JM?pdp_filters=item_id%3AMLB5063626432",
+  "Mochila Tatica Militar Reforçada Viagem 30l Airsoft Pubg Preto":
+    "https://www.mercadolivre.com.br/mochila-tatica-militar-reforcada-viagem-30l-airsoft-pubg/up/MLBU3615575084?pdp_filters=item_id%3AMLB7000333534",
+  "Kit 2 Shorts Feminino Alfaiataria Social Cintura Alta Preto/bege G 40/42":
+    "https://www.mercadolivre.com.br/kit-2-shorts-feminino-alfaiataria-social-cintura-alta/up/MLBU3470091086?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 3 Camisa Social Masculina Manga Longa Sortidas Promoção Cores Sortidas Gg":
+    "https://www.mercadolivre.com.br/kit-3-camisa-social-masculina-manga-longa-sortidas-promocao/up/MLBU1962070233?pdp_filters=deal%3AMLB1578289-1",
+  "Tênis Feminino Casual Lançamento Novo Plataforma Confortável":
+    "https://produto.mercadolivre.com.br/MLB-5350374760-tnis-feminino-casual-lancamento-novo-plataforma-confortavel-_JM?pdp_filters=item_id%3AMLB5350374760",
+  "Vestido Elegante Feminino Festa Chique Com Fenda Fashion":
+    "https://produto.mercadolivre.com.br/MLB-4494363562-vestido-elegante-feminino-festa-chique-com-fenda-fashion-_JM?pdp_filters=item_id%3AMLB4494363562",
+  "Kit 2 Short Saia Plus Size Alfaiataria Com Cinto Casual":
+    "https://produto.mercadolivre.com.br/MLB-3899319287-kit-2-short-saia-plus-size-alfaiataria-com-cinto-casual-_JM?pdp_filters=item_id%3AMLB3899319287",
+  "Calça Masculina Sarja Premium Social Esport Fino Bolso Lycra Bege Liso 42":
+    "https://www.mercadolivre.com.br/calca-masculina-sarja-premium-social-esport-fino-bolso-lycra/up/MLBU4711324513?pdp_filters=item_id%3AMLB5062736893",
+  "Bolsa Feminina De Ombro E Mão Lorena Média Transversal Cor Preto":
+    "https://www.mercadolivre.com.br/bolsa-feminina-de-ombro-e-mao-lorena-media-transversal-cor-preto/p/MLB37806533?pdp_filters=item_id%3AMLB7585138896",
+  "Sapato Social Scarpin Feminino Bico Fino Salto Grosso":
+    "https://produto.mercadolivre.com.br/MLB-3887492940-sapato-social-scarpin-feminino-bico-fino-salto-grosso-_JM?pdp_filters=item_id%3AMLB3887492940",
+  "Mochila masculina Nike Heritage Backpack cor preta":
+    "https://www.mercadolivre.com.br/mochila-masculina-nike-heritage-backpack-cor-preta/p/MLB26017719?pdp_filters=deal%3AMLB1578289-1",
+  "Calça Preta Jeans Masculina Lycra Premium":
+    "https://produto.mercadolivre.com.br/MLB-4820514566-calca-preta-jeans-masculina-lycra-premium-_JM?pdp_filters=item_id%3AMLB4820514566",
+  "Pantufa Capivara Adulto E Infantil Unissex Aberta E Fechada":
+    "https://produto.mercadolivre.com.br/MLB-4120981885-pantufa-capivara-adulto-e-infantil-unissex-aberta-e-fechada-_JM?pdp_filters=item_id%3AMLB4120981885",
+  "Kit 3 Blusas Feminina Cacharrel Gola Alta Manga Longa Casual Preto, Marrom E Nude M/g (36/42)":
+    "https://www.mercadolivre.com.br/kit-3-blusas-feminina-cacharrel-gola-alta-manga-longa-casual/up/MLBU3861886000?pdp_filters=deal%3AMLB1578289-1",
+  "Conjunto Academia Top Calça Legging Fitness Roupa Kit Bolso Marrom/areia Liso Gg 42/44":
+    "https://www.mercadolivre.com.br/conjunto-academia-top-calca-legging-fitness-roupa-kit-bolso/up/MLBU3883819043?pdp_filters=deal%3AMLB1578289-1",
+  "Vestido Feminino Forever Mix Festa Longo Decote V":
+    "https://produto.mercadolivre.com.br/MLB-3826168829-vestido-feminino-forever-mix-festa-longo-decote-v-_JM",
+  "Bolsa Feminina Casual Transversal Minimalista Leve Para Dia Preto Liso Níquel":
+    "https://www.mercadolivre.com.br/bolsa-feminina-casual-transversal-minimalista-leve-para-dia/up/MLBU3886037034?pdp_filters=item_id%3AMLB6559474824",
+  "Conjunto Feminino Social Calça Pantalona E Blusa Soltinha":
+    "https://produto.mercadolivre.com.br/MLB-5380735328-conjunto-feminino-social-calca-pantalona-e-blusa-soltinha-_JM?pdp_filters=item_id%3AMLB5380735328",
+  "Kit 2 Pares Chinelo Nuvem Slide Flexível Anatômico Unissex":
+    "https://produto.mercadolivre.com.br/MLB-4478600669-kit-2-pares-chinelo-nuvem-slide-flexivel-anatmico-unissex-_JM?pdp_filters=item_id%3AMLB4478600669",
+  "Bolsa Feminina Transversal e Alça De Mão E Selten Cor Preto":
+    "https://www.mercadolivre.com.br/bolsa-feminina-transversal-e-alca-de-mao-e-selten-cor-preto/p/MLB36494485?pdp_filters=item_id%3AMLB3678374981",
+  "Tênis Masculino New Balance Fuelcell Rebel V5 Exclusivo":
+    "https://produto.mercadolivre.com.br/MLB-4175960673-tnis-masculino-new-balance-fuelcell-rebel-v5-exclusivo-_JM",
+  "Mala Wilson Viagem Rodinhas 19' Rodas Removíveis 10kg Anac":
+    "https://produto.mercadolivre.com.br/MLB-5265379346-mala-wilson-viagem-rodinhas-19-rodas-removiveis-10kg-anac-_JM?pdp_filters=item_id%3AMLB5265379346",
+  "Tênis Feminino Adizero Drive Rc adidas Yeltin/flaaqu/syello Liso 35 Br":
+    "https://www.mercadolivre.com.br/tenis-feminino-adizero-drive-rc-adidas/up/MLBU3652939278?pdp_filters=deal%3AMLB1578289-1",
+  "Tênis Masculino Adizero Drive Rc adidas Ftwwht/cblack/solred Liso 40 Br":
+    "https://www.mercadolivre.com.br/tenis-masculino-adizero-drive-rc-adidas/up/MLBU3645186929?pdp_filters=deal%3AMLB1578289-1",
+  "Mala De Viagem Kit 10+23+frasqueira Kit Com 3 Peças Bege Listras":
+    "https://www.mercadolivre.com.br/mala-de-viagem-kit-1023frasqueira--kit-com-3-pecas/up/MLBU3371902800?pdp_filters=item_id%3AMLB5597413612",
+  "Kit De 3 T-shirts Oversized Intense Cléa Store Chumbo/bege/vinho P":
+    "https://www.mercadolivre.com.br/kit-de-3-tshirts-oversized-intense-clea-store/up/MLBU4286899816?pdp_filters=item_id%3AMLB4876611885",
+  "Vestido Casamento Elegante Transpassado Plus Size Envio 24h":
+    "https://produto.mercadolivre.com.br/MLB-2126832929-vestido-casamento-elegante-transpassado-plus-size-envio-24h-_JM?pdp_filters=item_id%3AMLB2126832929",
+  "Mala De 10kg Bordo De Mão Bloguerinha Com Frasqueira Preto Com Bege Listras":
+    "https://www.mercadolivre.com.br/mala-de-10kg-bordo-de-mao-bloguerinha-com-frasqueira/up/MLBU3367167774?pdp_filters=item_id%3AMLB5581448824",
+  "Mala Viagem 10 + Frasqueira Rodas 360° Carrinho Ajustavel":
+    "https://produto.mercadolivre.com.br/MLB-5263652944-mala-viagem-10-frasqueira-rodas-360-carrinho-ajustavel-_JM?pdp_filters=item_id%3AMLB5263652944",
+  "Conjunto Feminino Malha De Tricot Blusa E Pantalona Cs Store":
+    "https://produto.mercadolivre.com.br/MLB-4498345462-conjunto-feminino-malha-de-tricot-blusa-e-pantalona-cs-store-_JM?pdp_filters=item_id%3AMLB4498345462",
+  "Kit 5 Calças Masculina Jeans Com Elastano Trabalho/passeio":
+    "https://produto.mercadolivre.com.br/MLB-4004411403-kit-5-calcas-masculina-jeans-com-elastano-trabalhopasseio-_JM?pdp_filters=item_id%3AMLB4004411403",
+  "Tênis Kappa Pulse Evo Masculino Feminino Preto-amarelo Limão 41":
+    "https://www.mercadolivre.com.br/tenis-kappa-pulse-evo-masculino-feminino/up/MLBU3971889522?pdp_filters=item_id%3AMLB4677639227",
+  "Tênis Asics Gel Original Revelation Couro Corrida Caminhada Marinho Laranja Revelation 39 Br":
+    "https://www.mercadolivre.com.br/tenis-asics-gel-original-revelation-couro-corrida-caminhada/up/MLBU4935129880?pdp_filters=deal%3AMLB1578289-1",
+  "Tênis Fila Feminino Progress Lite Corrida Esporte Original":
+    "https://produto.mercadolivre.com.br/MLB-4009531531-tnis-fila-feminino-progress-lite-corrida-esporte-original-_JM",
+  "Terno Masculino Slim Fit Italiano Blazer E Calça Social":
+    "https://produto.mercadolivre.com.br/MLB-4022400925-terno-masculino-slim-fit-italiano-blazer-e-calca-social-_JM?pdp_filters=item_id%3AMLB4022400925",
+  "Tênis Asics Gel Shogun St Feminino Corrida":
+    "https://produto.mercadolivre.com.br/MLB-4001940643-tnis-asics-gel-shogun-st-feminino-corrida-_JM",
+  "Tênis Kappa Pulse Rx Unissex Corrida Conforto Laranja-royal 43":
+    "https://www.mercadolivre.com.br/tenis-kappa-pulse-rx-unissex-corrida-conforto/up/MLBU3998598891?pdp_filters=item_id%3AMLB6838987422",
+  "Tênis De Corrida Masculino Runfalcon 6 Cloudfoam adidas Preto Liso 41 Br":
+    "https://www.mercadolivre.com.br/tenis-de-corrida-masculino-runfalcon-6-cloudfoam-adidas/up/MLBU3938300819?pdp_filters=deal%3AMLB1578289-1",
+  "Tênis Masculino E Feminino Smash V2 Bdp Puma Grafite, Preto E Branco Liso 42":
+    "https://www.mercadolivre.com.br/tenis-masculino-e-feminino-smash-v2-bdp-puma/up/MLBU782646218?pdp_filters=deal%3AMLB1578289-1",
+  "Vestido Longo Madrinha Tule Brilho Para Festa Com Fenda":
+    "https://produto.mercadolivre.com.br/MLB-4234580503-vestido-longo-madrinha-tule-brilho-para-festa-com-fenda-_JM?pdp_filters=item_id%3AMLB4234580503",
+  "Vestido Feminino Longo Alça Fina Estampado Detalhe Bolsos Azul-flor Único":
+    "https://www.mercadolivre.com.br/vestido-feminino-longo-alca-fina-estampado-detalhe-bolsos/up/MLBU3828670042?pdp_filters=item_id%3AMLB6572893924",
+  "Tênis Kappa Sparta Unissex Original Confortável Caminhada":
+    "https://produto.mercadolivre.com.br/MLB-4054011533-tnis-kappa-sparta-unissex-original-confortavel-caminhada-_JM?pdp_filters=item_id%3AMLB4054011533",
+  "Bota Chelsea Feminina Plataforma Tratorada Blogueira Passway":
+    "https://produto.mercadolivre.com.br/MLB-4015915071-bota-chelsea-feminina-plataforma-tratorada-blogueira-passway-_JM?pdp_filters=item_id%3AMLB4015915071",
+  "Tênis Feminino Streettalk Slip On adidas Marrom Liso 36 Br":
+    "https://www.mercadolivre.com.br/tenis-feminino-streettalk-slip-on-adidas/up/MLBU3938320641?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Mochila Unicórnio 3d Rodinha 3 Peças Rosa Rosa Unicórnio":
+    "https://www.mercadolivre.com.br/kit-mochila-unicornio-3d-rodinha-3-pecas-rosa/up/MLBU2768798577?pdp_filters=item_id%3AMLB4917860278",
+  "Tênis Fila Renno Classic Sl Masculino Leve Confortável Branco/marinho/vermelho Liso 40 Br":
+    "https://www.mercadolivre.com.br/tenis-fila-renno-classic-sl-masculino-leve-confortavel/up/MLBU4369815751?pdp_filters=deal%3AMLB1578289-1",
+  "Mochila Feminina Escolar Trabalho Reforçada Notebook Bolsa Lilás Liso Multicolor":
+    "https://www.mercadolivre.com.br/mochila-feminina-escolar-trabalho-reforcada-notebook-bolsa/up/MLBU3863429306?pdp_filters=item_id%3AMLB6495688378",
+  "Tênis Flyer Runner Mesh Feminino Puma":
+    "https://www.mercadolivre.com.br/tenis-flyer-runner-mesh-feminino-puma/p/MLB65637634?pdp_filters=deal%3AMLB1578289-1",
+  "Mala de Bordo Rígida Sweet Studio Malas ABS 360° para Viagem Bege 2075":
+    "https://www.mercadolivre.com.br/mala-de-bordo-rigida-sweet-studio-malas-abs-360-para-viagem-bege-2075/p/MLB60939441?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 4 Shorts Academia Feminino Com Bolso Roupa Ginástica":
+    "https://produto.mercadolivre.com.br/MLB-5656807474-kit-4-shorts-academia-feminino-com-bolso-roupa-ginastica-_JM?pdp_filters=item_id%3AMLB5656807474",
+  "Tênis Fila Academia Treino Caminhada Macio Moda Full Novo":
+    "https://produto.mercadolivre.com.br/MLB-5081117247-tnis-fila-academia-treino-caminhada-macio-moda-full-novo-_JM",
+  "Kit 3 Short Jeans Com Lycra Cintura Alta Levanta Bumbum":
+    "https://produto.mercadolivre.com.br/MLB-3740960111-kit-3-short-jeans-com-lycra-cintura-alta-levanta-bumbum-_JM?pdp_filters=item_id%3AMLB3740960111",
+  "Kit 3 Calças Masculina Tactel Leve Bolso Zíper Premium Verde | Preto | Chumbo Lisa Gg":
+    "https://www.mercadolivre.com.br/kit-3-calcas-masculina-tactel-leve-bolso-ziper-premium/up/MLBU4636313637?pdp_filters=item_id%3AMLB5024874361",
+  "Kit 7 Camisetas Basica Masculina Algodão Fio 30.1 Premium Sortidas G":
+    "https://www.mercadolivre.com.br/kit-7-camisetas-basica-masculina-algodao-fio-301-premium/up/MLBU4016163339?pdp_filters=item_id%3AMLB6857654842",
+  "Bota Texana Feminina Cano Alto Com Bordado Exclusivo":
+    "https://produto.mercadolivre.com.br/MLB-4405277751-bota-texana-feminina-cano-alto-com-bordado-exclusivo-_JM?pdp_filters=item_id%3AMLB4405277751",
+  "Tênis Mizuno Nirvana 9 Feminino Masculino Promoção Grafite Pink 37 Br":
+    "https://www.mercadolivre.com.br/tenis-mizuno-nirvana-9-feminino-masculino-promocao/up/MLBU4016060308?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 3 Peça Fitness Roupa Academia Legging + Cropped + Regata Verde Militar G":
+    "https://www.mercadolivre.com.br/kit-3-peca-fitness-roupa-academia-legging--cropped--regata/up/MLBU4047566779?pdp_filters=item_id%3AMLB6910203864",
+  "Mala de Viagem Bordo Rígida Sweet Studio Prateada, de ABS e 4 Rodas":
+    "https://www.mercadolivre.com.br/mala-de-viagem-bordo-rigida-sweet-studio-prateada-de-abs-e-4-rodas/p/MLB50202992?pdp_filters=deal%3AMLB1578289-1",
+  "Mala de Bordo Rígida Sweet Studio Dourada com Rodas 360, para Viagem":
+    "https://www.mercadolivre.com.br/mala-de-bordo-rigida-sweet-studio-dourada-com-rodas-360-para-viagem/p/MLB50205028?pdp_filters=deal%3AMLB1578289-1",
+  "Blazer Masc Premium Slim Fit Bengaline Corte Italiano Social":
+    "https://produto.mercadolivre.com.br/MLB-4016066645-blazer-masc-premium-slim-fit-bengaline-corte-italiano-social-_JM?pdp_filters=item_id%3AMLB4016066645",
+  "Kit 3 Papete Infantil Menino Dinossauro Sola Antiderrapante Azul 25/26":
+    "https://www.mercadolivre.com.br/kit-3-papete-infantil-menino-dinossauro-sola-antiderrapante/up/MLBU3811549948?pdp_filters=item_id%3AMLB6290605974",
+  "Sandália Feminina Tamanco Mule Salto Geométrico Vazado Gigil":
+    "https://produto.mercadolivre.com.br/MLB-5727222234-sandalia-feminina-tamanco-mule-salto-geometrico-vazado-gigil-_JM?pdp_filters=item_id%3AMLB5727222234",
+  "Roupão Feminino Flannel Lady Appel Plush Inverno Superluxo":
+    "https://produto.mercadolivre.com.br/MLB-3978654277-roupo-feminino-flannel-lady-appel-plush-inverno-superluxo-_JM?pdp_filters=item_id%3AMLB3978654277",
+  "Mochila feminina, impermeável, reforçada, com capacidade para laptop de 15,6 polegadas, 24L, mochila para viagens diárias e para a escola":
+    "https://www.mercadolivre.com.br/mochila-feminina-impermeavel-reforcada-com-capacidade-para-laptop-de-156-polegadas-24l-mochila-para-viagens-diarias-e-para-a-escola/p/MLB75526348?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 9 Pares Meias Kappa Sapatilha Soquete Invisível Original Preto 38-43":
+    "https://www.mercadolivre.com.br/kit-9-pares-meias-kappa-sapatilha-soquete-invisivel-original/up/MLBU4518093634?pdp_filters=item_id%3AMLB4969918141",
+  "Kit 4 Conjuntos Calça Leg E Top Roupas Femininas De Academia":
+    "https://produto.mercadolivre.com.br/MLB-979930996-kit-4-conjuntos-calca-leg-e-top-roupas-femininas-de-academia-_JM",
+  "Kit 3 Moletom Blusa De Frio Com Capuz Agasalho Canguru":
+    "https://produto.mercadolivre.com.br/MLB-5368378426-kit-3-moletom-blusa-de-frio-com-capuz-agasalho-canguru-_JM",
+  "Tênis Infantil Menina Moderno Estiloso Conforto Original":
+    "https://produto.mercadolivre.com.br/MLB-4128452027-tnis-infantil-menina-moderno-estiloso-conforto-original-_JM?pdp_filters=item_id%3AMLB4128452027",
+  "Conjunto De Maiô Sexy De Biquíni Estampado Tropical 3 Peças":
+    "https://produto.mercadolivre.com.br/MLB-5513268892-conjunto-de-mai-sexy-de-biquini-estampado-tropical-3-pecas-_JM?pdp_filters=item_id%3AMLB5513268892",
+  "Bolsa Tote Mini Gocase - Bolsa Para Trabalho E Faculdade Cor Off-White":
+    "https://www.mercadolivre.com.br/bolsa-tote-mini-gocase-bolsa-para-trabalho-e-faculdade-cor-off-white/p/MLB50988919?pdp_filters=deal%3AMLB1578289-1",
+  "Conjunto Alfaiataria Feminino Blusa Manga Curta E Calça":
+    "https://produto.mercadolivre.com.br/MLB-5170101936-conjunto-alfaiataria-feminino-blusa-manga-curta-e-calca-_JM?pdp_filters=item_id%3AMLB5170101936",
+  "Kit 3 Calças Moletom Masculina Inverno Quente Forrada Sortidas G":
+    "https://www.mercadolivre.com.br/kit-3-calcas-moletom-masculina-inverno-quente-forrada/up/MLBU3920423173?pdp_filters=item_id%3AMLB6676766036",
+  "Kit 3 Pares Sandália Babuche Infantil Menina Chinelo Nuvem":
+    "https://produto.mercadolivre.com.br/MLB-4120035715-kit-3-pares-sandalia-babuche-infantil-menina-chinelo-nuvem-_JM?pdp_filters=item_id%3AMLB4120035715",
+  "Bolsas Femininas Transversal E Pequena Tiracolo Com Carteira Cor Preta":
+    "https://www.mercadolivre.com.br/bolsas-femininas-transversal-e-pequena-tiracolo-com-carteira-cor-preta/p/MLB47414090?pdp_filters=item_id%3AMLB5329834230",
+  "Bolsas Femininas Transversal E Pequena Tiracolo Com Carteira Cor Marrom":
+    "https://www.mercadolivre.com.br/bolsas-femininas-transversal-e-pequena-tiracolo-com-carteira-cor-marrom/p/MLB36505912?pdp_filters=item_id%3AMLB3679440297",
+  "Bolsas Femininas Transversal E Pequena Tiracolo Com Carteira Cor Creme":
+    "https://www.mercadolivre.com.br/bolsas-femininas-transversal-e-pequena-tiracolo-com-carteira-cor-creme/p/MLB36503386?pdp_filters=item_id%3AMLB3678296663",
+  "Mochila Tática Militar Grande Masculina Reforçada Resistente Preto Liso":
+    "https://www.mercadolivre.com.br/mochila-tatica-militar-grande-masculina-reforcada-resistente-preto-liso/p/MLB75060545?pdp_filters=item_id%3AMLB7143998296",
+  "Sapatênis Sandrini Morrow Masculino Casual Confortável Leve":
+    "https://produto.mercadolivre.com.br/MLB-5798329458-sapatnis-sandrini-morrow-masculino-casual-confortavel-leve-_JM?pdp_filters=item_id%3AMLB5798329458",
+  "Blusa Feminina Brasil Copa Personalizada Com Nome Dryfit Top Amarelo Brasil-nome P Estampa Localizada":
+    "https://www.mercadolivre.com.br/blusa-feminina-brasil-copa-personalizada-com-nome-dryfit-top/up/MLBU3872357401?pdp_filters=item_id%3AMLB4577723523",
+  "Vestido Longo Evangélico Elegante Acinturado Social Manga3/4":
+    "https://produto.mercadolivre.com.br/MLB-5123293010-vestido-longo-evangelico-elegante-acinturado-social-manga34-_JM?pdp_filters=item_id%3AMLB5123293010",
+  "Kit 3 Pares Tenis Feminino Esportivo Academia Treino Corrida":
+    "https://produto.mercadolivre.com.br/MLB-4799943512-kit-3-pares-tenis-feminino-esportivo-academia-treino-corrida-_JM",
+  "Bolsa Feminina Transversal Media Com Carteira Creme/preto":
+    "https://www.mercadolivre.com.br/bolsa-feminina-transversal-media-com-carteira-cremepreto/p/MLB39163319?pdp_filters=item_id%3AMLB4980992562",
+  "Kit 4 Blusas Feminina Básica Camiseta Gola Alta Trabalho":
+    "https://produto.mercadolivre.com.br/MLB-4274536109-kit-4-blusas-feminina-basica-camiseta-gola-alta-trabalho-_JM?pdp_filters=item_id%3AMLB4274536109",
+  "Conjunto Feminino Alfaiataria Short Cinto Body Decote Reto":
+    "https://produto.mercadolivre.com.br/MLB-4283812183-conjunto-feminino-alfaiataria-short-cinto-body-decote-reto-_JM?pdp_filters=item_id%3AMLB4283812183",
+  "Kit 2 Bolsas Femininas Pequena Tendencia Transversal":
+    "https://produto.mercadolivre.com.br/MLB-4418816335-kit-2-bolsas-femininas-pequena-tendencia-transversal-_JM?pdp_filters=item_id%3AMLB4418816335",
+  "Calça Balão Jeans Masculina Baggy Larga Estonada Streetwear":
+    "https://produto.mercadolivre.com.br/MLB-4369109409-calca-balo-jeans-masculina-baggy-larga-estonada-streetwear-_JM?pdp_filters=item_id%3AMLB4369109409",
+  "Scarpin Slingback Bebecê Salto Geométrico Com Fivela":
+    "https://produto.mercadolivre.com.br/MLB-4297969387-scarpin-slingback-bebec-salto-geometrico-com-fivela-_JM",
+  "Pijama Algodão Americano Feminino Curto Verão Listrado Verde":
+    "https://produto.mercadolivre.com.br/MLB-5166828436-pijama-algodo-americano-feminino-curto-vero-listrado-verde-_JM?pdp_filters=item_id%3AMLB5166828436",
+  "Tênis Feminino Casual Confort Clássico Academia Sneakers":
+    "https://produto.mercadolivre.com.br/MLB-5830406568-tnis-feminino-casual-confort-classico-academia-sneakers-_JM?pdp_filters=item_id%3AMLB5830406568",
+  "Jardineira Feminina 100% Viscose Com Bolsos Elegante E Leve":
+    "https://produto.mercadolivre.com.br/MLB-5157727216-jardineira-feminina-100-viscose-com-bolsos-elegante-e-leve-_JM?pdp_filters=item_id%3AMLB5157727216",
+  "Saia Mídi Em Linho Social Elegante C/bolsos Evangélica":
+    "https://produto.mercadolivre.com.br/MLB-4482814571-saia-midi-em-linho-social-elegante-cbolsos-evangelica-_JM?pdp_filters=item_id%3AMLB4482814571",
+  "Kit 3 Shorts De Corrida Dry Alpha":
+    "https://produto.mercadolivre.com.br/MLB-5414371776-kit-3-shorts-de-corrida-dry-alpha-_JM",
+  "Kit 3 Pares Sandália Infantil Menino Papete Leve Personagens":
+    "https://produto.mercadolivre.com.br/MLB-4123665249-kit-3-pares-sandalia-infantil-menino-papete-leve-personagens-_JM?pdp_filters=item_id%3AMLB4123665249",
+  "Vestido Feminino Longo Jeans Rodado Manga Unica Com Elastico":
+    "https://produto.mercadolivre.com.br/MLB-3508364585-vestido-feminino-longo-jeans-rodado-manga-unica-com-elastico-_JM?pdp_filters=item_id%3AMLB3508364585",
+  "Mochila Linear Olive Strata Black adidas":
+    "https://www.mercadolivre.com.br/mochila-linear-olive-strata-black-adidas/p/MLB52115005?pdp_filters=deal%3AMLB1578289-1",
+  "Vestido Feminino De Festa Longo Sem Brilho Luxuoso Babado Sa":
+    "https://produto.mercadolivre.com.br/MLB-3781425119-vestido-feminino-de-festa-longo-sem-brilho-luxuoso-babado-sa-_JM",
+  "Kit 3 Sutiã Fernanda Mapolla Feminino Microfibra Mapolla":
+    "https://produto.mercadolivre.com.br/MLB-5725228290-kit-3-suti-fernanda-mapolla-feminino-microfibra-mapolla-_JM?pdp_filters=item_id%3AMLB5725228290",
+  "Mochila feminina, ideal para deslocamentos diários, viagens e estudos, impermeável, reforçada, com capacidade para portátil, 24L (preto)":
+    "https://www.mercadolivre.com.br/mochila-feminina-ideal-para-deslocamentos-diarios-viagens-e-estudos-impermeavel-reforcada-com-capacidade-para-portatil-24l-preto/p/MLB75536050?pdp_filters=deal%3AMLB1578289-1",
+  "Jaqueta De Couro Masculino Slim Grossa Frio Inverno Moderna Preto G Couro Liso":
+    "https://www.mercadolivre.com.br/jaqueta-de-couro-masculino-slim-grossa-frio-inverno-moderna/up/MLBU3936442212?pdp_filters=deal%3AMLB1578289-1",
+  "Conjunto Feminino Saia Longa E Cropped De Alça Estilo Casual":
+    "https://produto.mercadolivre.com.br/MLB-4176791259-conjunto-feminino-saia-longa-e-cropped-de-alca-estilo-casual-_JM?pdp_filters=item_id%3AMLB4176791259",
+  "Conjunto Feminino Academia Short Saia Com Top Sustentação":
+    "https://produto.mercadolivre.com.br/MLB-4190745535-conjunto-feminino-academia-short-saia-com-top-sustentaco-_JM?pdp_filters=item_id%3AMLB4190745535",
+  "Camisa Slim Fit Masculina Social Algodão Longa 2025":
+    "https://produto.mercadolivre.com.br/MLB-4162072209-camisa-slim-fit-masculina-social-algodo-longa-2025-_JM?pdp_filters=item_id%3AMLB4162072209",
+  "Kit 4 Blusas Regata Feminina Suplex Tshirt Básica Casual Preto + Branco + Marrom + Nude Liso G/gg (40-42)":
+    "https://www.mercadolivre.com.br/kit-4-blusas-regata-feminina-suplex-tshirt-basica-casual/up/MLBU4262160145?pdp_filters=item_id%3AMLB7141463046",
+  "Kit 2 Pares Tênis Infantil Bordado Confortável Calce Facil Azul/laranja Preto/verde Liso 27 Br":
+    "https://www.mercadolivre.com.br/kit-2-pares-tenis-infantil-bordado-confortavel-calce-facil/up/MLBU3899896009?pdp_filters=item_id%3AMLB6629832656",
+  "Kit 5 Pçs 3 Camisas Regata Dry-fit Sandrini +2 Short Tactel Sortidos Lisa Gg":
+    "https://www.mercadolivre.com.br/kit-5-pcs-3-camisas-regata-dryfit-sandrini-2-short-tactel/up/MLBU3828681596?pdp_filters=item_id%3AMLB6408385954",
+  "Vestido Curto Alcinha Veráo Soltinho Rodado Estampado Lindo":
+    "https://produto.mercadolivre.com.br/MLB-5435651410-vestido-curto-alcinha-verao-soltinho-rodado-estampado-lindo-_JM?pdp_filters=item_id%3AMLB5435651410",
+  "Vestido Feminino Midi Tule Estampado Manga Bufante Plus Size":
+    "https://produto.mercadolivre.com.br/MLB-5091260376-vestido-feminino-midi-tule-estampado-manga-bufante-plus-size-_JM?pdp_filters=item_id%3AMLB5091260376",
+  "Calça Jeans Masculina Kit Com 3 Slim Fit Premium Lycra":
+    "https://produto.mercadolivre.com.br/MLB-3892011749-calca-jeans-masculina-kit-com-3-slim-fit-premium-lycra-_JM",
+  "Kit 3 Moletom Canguru Liso Flanelado Blusa De Frio Unissex Gg Kit Bege / Preto / Cinza":
+    "https://www.mercadolivre.com.br/kit-3-moletom-canguru-liso-flanelado-blusa-de-frio-unissex/up/MLBU3936879732?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 3 Camiseta Feminina Dry Fit Proteção Uv Básica T Shirt":
+    "https://produto.mercadolivre.com.br/MLB-3855424477-kit-3-camiseta-feminina-dry-fit-proteco-uv-basica-t-shirt-_JM?pdp_filters=item_id%3AMLB3855424477",
+  "Capa Mala Viagem Protetora Estampada Mapa Mundo Avião Tecido":
+    "https://produto.mercadolivre.com.br/MLB-5385697770-capa-mala-viagem-protetora-estampada-mapa-mundo-avio-tecido-_JM?pdp_filters=item_id%3AMLB5385697770",
+  "Botina Texana Masculina Chelsea Country Roça Fazenda Rodeio":
+    "https://produto.mercadolivre.com.br/MLB-4767006009-botina-texana-masculina-chelsea-country-roca-fazenda-rodeio-_JM?pdp_filters=item_id%3AMLB4767006009",
+  "Kit 3 Camiseta Masculina Canelada Gola Redonda Camisa Preta":
+    "https://produto.mercadolivre.com.br/MLB-4277168803-kit-3-camiseta-masculina-canelada-gola-redonda-camisa-preta-_JM?pdp_filters=item_id%3AMLB4277168803",
+  "Kit 6 Peças De Roupa Infantil Menino Minimalista De Verão Liso/minimalista 3 Conjuntos 8 [veste 6/7 Anos]":
+    "https://www.mercadolivre.com.br/kit-6-pecas-de-roupa-infantil-menino-minimalista-de-verao/up/MLBU4346818812?pdp_filters=item_id%3AMLB7185007812",
+  "Kit 5 Camisetas Dry Fit Masculinas Academia Treino Básicas":
+    "https://produto.mercadolivre.com.br/MLB-4497897641-kit-5-camisetas-dry-fit-masculinas-academia-treino-basicas-_JM?pdp_filters=item_id%3AMLB4497897641",
+  "Scarpin Beira Rio Conforto Salto Baixo Feminino Macio Casual":
+    "https://produto.mercadolivre.com.br/MLB-3208734552-scarpin-beira-rio-conforto-salto-baixo-feminino-macio-casual-_JM?pdp_filters=item_id%3AMLB3208734552",
+  "Vestido Midi Alfaiataria Amarração Lateral Elegante Social":
+    "https://produto.mercadolivre.com.br/MLB-4645377125-vestido-midi-alfaiataria-amarraco-lateral-elegante-social-_JM",
+  "Tenis Vizzano 1450-202 Estiloso Original Casual Confortavel Branco 38 Br":
+    "https://www.mercadolivre.com.br/tenis-vizzano-1450202-estiloso-original-casual-confortavel/up/MLBU3922069487?pdp_filters=deal%3AMLB1578289-1",
+  "Conjunto Fitness Top Nula Manga E Calça Academia Bicolor Marsala P (38)":
+    "https://www.mercadolivre.com.br/conjunto-fitness-top-nula-manga-e-calca-academia-bicolor/up/MLBU3922827041?pdp_filters=deal%3AMLB1578289-1",
+  "Mochila Reforçada Expansível Executiva Viagem Trabalho Mala Bege":
+    "https://www.mercadolivre.com.br/mochila-reforcada-expansivel-executiva-viagem-trabalho-mala/up/MLBU3780911119?pdp_filters=deal%3AMLB1578289-1",
+  "Bota Feminina Couro Legítimo Cano Curto Inverno Confort Café Couro 37":
+    "https://www.mercadolivre.com.br/bota-feminina-couro-legitimo-cano-curto-inverno-confort/up/MLBU3808421661?pdp_filters=deal%3AMLB1578289-1",
+  "6 Peças Roupa Infantil Menino/3 Conjunto Infantil Masculino Kit 3 Conjuntos Sortidos 6 Peças De Roupa Menino 8 - Veste 6/7 Anos":
+    "https://www.mercadolivre.com.br/6-pecas-roupa-infantil-menino3-conjunto-infantil-masculino/up/MLBU4381943003?pdp_filters=item_id%3AMLB4929324017",
+  "Conjunto Feminino Verão Cropped Short Saída De Praia Look":
+    "https://produto.mercadolivre.com.br/MLB-3846693337-conjunto-feminino-vero-cropped-short-saida-de-praia-look-_JM?pdp_filters=item_id%3AMLB3846693337",
+  "Kit Conjunto Infantil Verão 10 Peças Feminino Barato Premium":
+    "https://produto.mercadolivre.com.br/MLB-5113905746-kit-conjunto-infantil-vero-10-pecas-feminino-barato-premium-_JM?pdp_filters=item_id%3AMLB5113905746",
+  "Mochila Feminina Couro Altíssima Qualidade Executiva Notebok Preto Liso":
+    "https://www.mercadolivre.com.br/mochila-feminina-couro-altissima-qualidade-executiva-notebok/up/MLBU3466660325?pdp_filters=item_id%3AMLB5770763580",
+  "Calça Skinny Masculina Slim Bengaline Social Com Elastano":
+    "https://produto.mercadolivre.com.br/MLB-4022568395-calca-skinny-masculina-slim-bengaline-social-com-elastano-_JM?pdp_filters=item_id%3AMLB4022568395",
+  "Vestido Longo Paola, Estampa De Tucano, Primavera Verao-1980":
+    "https://produto.mercadolivre.com.br/MLB-3893833841-vestido-longo-paola-estampa-de-tucano-primavera-verao-1980-_JM?pdp_filters=item_id%3AMLB3893833841",
+  "Saia Alfaiataria Longa Cintura Alta Cores Tendência Luxo":
+    "https://produto.mercadolivre.com.br/MLB-3576599547-saia-alfaiataria-longa-cintura-alta-cores-tendncia-luxo-_JM?pdp_filters=item_id%3AMLB3576599547",
+  "Kit 9 Peças Body Bebê Menino Algodão Sortido Meia Estação":
+    "https://produto.mercadolivre.com.br/MLB-5694686282-kit-9-pecas-body-beb-menino-algodo-sortido-meia-estaco-_JM",
+  "Short 100% Boyfriend Meia Coxa Bermuda Cintura Alta Feminino":
+    "https://produto.mercadolivre.com.br/MLB-3923491047-short-100-boyfriend-meia-coxa-bermuda-cintura-alta-feminino-_JM?pdp_filters=item_id%3AMLB3923491047",
+  "Kit 3 Shorts Legging Feminino Bermuda Cintura Alta Com Bolso":
+    "https://produto.mercadolivre.com.br/MLB-3873121497-kit-3-shorts-legging-feminino-bermuda-cintura-alta-com-bolso-_JM?pdp_filters=item_id%3AMLB3873121497",
+  "Óculos De Leitura Com Grau Para Perto Metal Aço Descanso":
+    "https://produto.mercadolivre.com.br/MLB-5465216348-oculos-de-leitura-com-grau-para-perto-metal-aco-descanso-_JM?pdp_filters=item_id%3AMLB5465216348",
+  "Kit 5 Camisas Camisetas Masculina Slim Voker 100% Original":
+    "https://produto.mercadolivre.com.br/MLB-1473221277-kit-5-camisas-camisetas-masculina-slim-voker-100-original-_JM",
+  "Pantufa Slide Noivas Madrinhas Maternidade Debutantes Ensaio":
+    "https://produto.mercadolivre.com.br/MLB-5271440228-pantufa-slide-noivas-madrinhas-maternidade-debutantes-ensaio-_JM?pdp_filters=item_id%3AMLB5271440228",
+  "Kit 4 Cueca Boxer Masculina Lupo Original Poliamida Trifil 4 Preto G":
+    "https://www.mercadolivre.com.br/kit-4-cueca-boxer-masculina-lupo-original-poliamida-trifil/up/MLBU4456153616?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 5 Conjunto Inverno Infantil Soft Roupa Bebe Frio Menino":
+    "https://produto.mercadolivre.com.br/MLB-2637732610-kit-5-conjunto-inverno-infantil-soft-roupa-bebe-frio-menino-_JM",
+  "Kit 4 Camiseta Dry Fit Parvori Masculina Academia Corrida Preto/chumbo/cinza/marinho G Liso":
+    "https://www.mercadolivre.com.br/kit-4-camiseta-dry-fit-parvori-masculina-academia-corrida/up/MLBU3738049040?pdp_filters=deal%3AMLB1578289-1",
+  "Macaquinho Curto Feminino Soltinho Alças Regulaveis Forrado":
+    "https://produto.mercadolivre.com.br/MLB-3220537103-macaquinho-curto-feminino-soltinho-alcas-regulaveis-forrado-_JM?pdp_filters=item_id%3AMLB3220537103",
+  "Pantufas De Algodão Quentinhas E Macias":
+    "https://produto.mercadolivre.com.br/MLB-4382815501-pantufas-de-algodo-quentinhas-e-macias-_JM",
+  "Legging Academia Corrida Com Bolso Selene Zero Transparência":
+    "https://produto.mercadolivre.com.br/MLB-5836377710-legging-academia-corrida-com-bolso-selene-zero-transparncia-_JM",
+  "Conjunto Feminino Fitness Calça Legging Cós Alto E Top Gota Bege/ Marrom Gg":
+    "https://www.mercadolivre.com.br/conjunto-feminino-fitness-calca-legging-cos-alto-e-top-gota/up/MLBU3817944510?pdp_filters=item_id%3AMLB6300169226",
+  "Sapato Modare Feminino Ortopedico Anabela Conforto Macio":
+    "https://produto.mercadolivre.com.br/MLB-2649844301-sapato-modare-feminino-ortopedico-anabela-conforto-macio-_JM?pdp_filters=item_id%3AMLB2649844301",
+  "Sapato Feminino Scarpin Salto Bico Fino Baixo Confortável Preto 37 Br":
+    "https://www.mercadolivre.com.br/sapato-feminino-scarpin-salto-bico-fino-baixo-confortavel/up/MLBU3876402659?pdp_filters=item_id%3AMLB6567031982",
+  "Vestido Feminino Midi Com Detalhe Elegante Na Cintura":
+    "https://produto.mercadolivre.com.br/MLB-5518921082-vestido-feminino-midi-com-detalhe-elegante-na-cintura-_JM?pdp_filters=item_id%3AMLB5518921082",
+  "Pantufa Capivara Pelúcia Térmica Confortável Antiderrapante":
+    "https://produto.mercadolivre.com.br/MLB-4055896401-pantufa-capivara-pelucia-termica-confortavel-antiderrapante-_JM?pdp_filters=item_id%3AMLB4055896401",
+  "Calça Jeans Juvenil Flare C/ Lycra Para Meninas Altas 10ao16":
+    "https://produto.mercadolivre.com.br/MLB-5468430566-calca-jeans-juvenil-flare-c-lycra-para-meninas-altas-10ao16-_JM",
+  "Kit 2 Calças Feminina Jogger Listrada Crepe Slm Fit Academia":
+    "https://produto.mercadolivre.com.br/MLB-1834631370-kit-2-calcas-feminina-jogger-listrada-crepe-slm-fit-academia-_JM",
+  "Mochila Militar Bolsa Tática Resistente 30 Litros Super Reforçada Impermeável Bandeira Brasil Brinde Utilizzei":
+    "https://www.mercadolivre.com.br/mochila-militar-bolsa-tatica-resistente-30-litros-super-reforcada-impermeavel-bandeira-brasil-brinde-utilizzei/p/MLB65116046?pdp_filters=item_id%3AMLB5084146121",
+  "Saia Jeans Cargo Feminina Cintura Alta Com Lycra Stillger":
+    "https://produto.mercadolivre.com.br/MLB-4253730493-saia-jeans-cargo-feminina-cintura-alta-com-lycra-stillger-_JM?pdp_filters=item_id%3AMLB4253730493",
+  "Mochila Masculina 20L Notebook 16 USB Escolar Faculdade Impermeável com Alça Reforçada":
+    "https://www.mercadolivre.com.br/mochila-masculina-20l-notebook-16-usb-escolar-faculdade-impermeavel-com-alca-reforcada/p/MLB72704233?pdp_filters=item_id%3AMLB4745468139",
+  "Kit 3 Short Mauricinho Linho Masculino Bermuda Verão Praia":
+    "https://produto.mercadolivre.com.br/MLB-4228780485-kit-3-short-mauricinho-linho-masculino-bermuda-vero-praia-_JM",
+  "Mochila Executiva Impermeável Notebook Masculina Preta Spector":
+    "https://www.mercadolivre.com.br/mochila-executiva-impermeavel-notebook-masculina-preta-spector/p/MLB25468019?pdp_filters=deal%3AMLB1578289-1",
+  "Sapato Salto Fino Médio Slingback Feminino Original":
+    "https://produto.mercadolivre.com.br/MLB-4495150564-sapato-salto-fino-medio-slingback-feminino-original-_JM",
+  "Pantufa Capivara Pelúcia Térmica Inverno Antiderrapante Fofo":
+    "https://produto.mercadolivre.com.br/MLB-5380755024-pantufa-capivara-pelucia-termica-inverno-antiderrapante-fofo-_JM?pdp_filters=item_id%3AMLB5380755024",
+  "Pantufas De Algodão Com Enchimento De Plumas":
+    "https://produto.mercadolivre.com.br/MLB-6092432486-pantufas-de-algodo-com-enchimento-de-plumas-_JM",
+  "Kit 3 Camisetas Manga Curta Blusas Femininas Baby Look Comfy Preto+marrom+nude M":
+    "https://www.mercadolivre.com.br/kit-3-camisetas-manga-curta-blusas-femininas-baby-look-comfy/up/MLBU4151210871?pdp_filters=item_id%3AMLB7039589822",
+  "Kit 3 Calça Infantil Moletom Flanelada Jogger Menino Inverno Kit 3 10":
+    "https://www.mercadolivre.com.br/kit-3-calca-infantil-moletom-flanelada-jogger-menino-inverno/up/MLBU4036677528?pdp_filters=item_id%3AMLB4722931499",
+  "Tênis Unissex Treino Under Armour Charged Quicker 2 Original":
+    "https://produto.mercadolivre.com.br/MLB-4340757628-tnis-unissex-treino-under-armour-charged-quicker-2-original-_JM?pdp_filters=item_id%3AMLB4340757628",
+  "Tênis Masculino Flak 365 II Lite Oakley":
+    "https://www.mercadolivre.com.br/tenis-masculino-flak-365-ii-lite-oakley/p/MLB64059572?pdp_filters=deal%3AMLB1578289-1",
+  "Vestido Longo Tricot Festa Elegante Praia Crochê Midi Fendas":
+    "https://produto.mercadolivre.com.br/MLB-5323913068-vestido-longo-tricot-festa-elegante-praia-croch-midi-fendas-_JM?pdp_filters=item_id%3AMLB5323913068",
+  "Tênis Masculino Under Armour Quicker 2 Esporte Oferta":
+    "https://produto.mercadolivre.com.br/MLB-4147348975-tnis-masculino-under-armour-quicker-2-esporte-oferta-_JM",
+  "Conjunto Mala De Viagem Bordo Roda Dupla Cadeado Tsa 91-2 Rose-gold 55-cm":
+    "https://www.mercadolivre.com.br/conjunto-mala-de-viagem-bordo-roda-dupla-cadeado-tsa-912/up/MLBU3819462689?pdp_filters=item_id%3AMLB6408074244",
+  "Tênis Fila Maxxi Lite Masculino Esportivo Corrida Treino Marinho Branco Cinza 40 Br":
+    "https://www.mercadolivre.com.br/tenis-fila-maxxi-lite-masculino-esportivo-corrida-treino/up/MLBU4022805575?pdp_filters=item_id%3AMLB4722763235",
+  "Tênis Masculino Mizuno Beta 2 Caminhada Macio Envio Imediato Preto/branco 41 Br":
+    "https://www.mercadolivre.com.br/tenis-masculino-mizuno-beta-2-caminhada-macio-envio-imediato/up/MLBU4892123579?pdp_filters=deal%3AMLB1578289-1",
+  "Tênis De Corrida Feminino Duramo Sl 2 adidas Verde Liso 35 Br":
+    "https://www.mercadolivre.com.br/tenis-de-corrida-feminino-duramo-sl-2-adidas/up/MLBU3938348377?pdp_filters=deal%3AMLB1578289-1",
+  "Tênis Carina Street Bdp Puma":
+    "https://www.mercadolivre.com.br/tenis-carina-street-bdp-puma/p/MLB65640595?pdp_filters=deal%3AMLB1578289-1",
+  "Tênis Feminino Esportivo Boost Run adidas Semi Flash Aqua Liso 37 Br":
+    "https://www.mercadolivre.com.br/tenis-feminino-esportivo-boost-run-adidas/up/MLBU3302724487?pdp_filters=deal%3AMLB1578289-1",
+  "Conjunto Feminino Saia Blusa Sensorial Evangelica Elegante":
+    "https://produto.mercadolivre.com.br/MLB-4204341807-conjunto-feminino-saia-blusa-sensorial-evangelica-elegante-_JM?pdp_filters=item_id%3AMLB4204341807",
+  "Tênis Reserva Go Horizon Social Casual Elegante Trabalho Preto 41 Br":
+    "https://www.mercadolivre.com.br/tenis-reserva-go-horizon-social-casual-elegante-trabalho/up/MLBU4508680364?pdp_filters=item_id%3AMLB4966920375",
+  "Tênis Feminino Vl Court 3.0 adidas Clpink/legink/gum3 Liso 38 Br":
+    "https://www.mercadolivre.com.br/tenis-feminino-vl-court-30-adidas/up/MLBU3655236062?pdp_filters=deal%3AMLB1578289-1",
+  "Bota Timberland 13017 Adventure Trilha Coturno Impermeável Café 43 Br":
+    "https://www.mercadolivre.com.br/bota-timberland-13017-adventure-trilha-coturno-impermeavel/up/MLBU3991800390?pdp_filters=deal%3AMLB1578289-1",
+  "Calça Legging Suplex Wonder Gloss Com Recortes":
+    "https://produto.mercadolivre.com.br/MLB-3919095735-calca-legging-suplex-wonder-gloss-com-recortes-_JM?pdp_filters=item_id%3AMLB3919095735",
+  "Mala De Viagem Pequena 55x35x23 Para Levar Na Cabine Avião":
+    "https://produto.mercadolivre.com.br/MLB-5743752222-mala-de-viagem-pequena-55x35x23-para-levar-na-cabine-avio-_JM?pdp_filters=item_id%3AMLB5743752222",
+  "Vestido Midi Bicolor Feminino Tubinho Polo Casual Tendencia":
+    "https://produto.mercadolivre.com.br/MLB-6036700798-vestido-midi-bicolor-feminino-tubinho-polo-casual-tendencia-_JM?pdp_filters=item_id%3AMLB6036700798",
+  "Tênis Puma Court Classic Clean Bdp Masculino Urbano Casual":
+    "https://produto.mercadolivre.com.br/MLB-5347162508-tnis-puma-court-classic-clean-bdp-masculino-urbano-casual-_JM",
+  "Vestido Longo Plus Elegante Decote V Alça Festa Babado Luxo":
+    "https://produto.mercadolivre.com.br/MLB-5181978702-vestido-longo-plus-elegante-decote-v-alca-festa-babado-luxo-_JM?pdp_filters=item_id%3AMLB5181978702",
+  "Vestido Longo Senhora Plus Size Festa Elegante Madrinha":
+    "https://produto.mercadolivre.com.br/MLB-3795283373-vestido-longo-senhora-plus-size-festa-elegante-madrinha-_JM",
+  "Mala de Bordo Rígida Sweet Studio para Viagem em ABS 47L Rosa":
+    "https://www.mercadolivre.com.br/mala-de-bordo-rigida-sweet-studio-para-viagem-em-abs-47l-rosa/p/MLB58591108?pdp_filters=deal%3AMLB1578289-1",
+  "Vestido Paty Curto Estilo Gringa Feminino Canelado Com Manga":
+    "https://produto.mercadolivre.com.br/MLB-5586732944-vestido-paty-curto-estilo-gringa-feminino-canelado-com-manga-_JM?pdp_filters=item_id%3AMLB5586732944",
+  "Tênis Casual Olympikus Acqua Feminino - Confortável Macio":
+    "https://produto.mercadolivre.com.br/MLB-3579848827-tnis-casual-olympikus-acqua-feminino-confortavel-macio-_JM",
+  "Maiô Body Transpassado Bicolor Afina A Silhueta Modelador":
+    "https://produto.mercadolivre.com.br/MLB-3124230836-mai-body-transpassado-bicolor-afina-a-silhueta-modelador-_JM?pdp_filters=item_id%3AMLB3124230836",
+  "Kit Bolsa Feminina Media E Pequena Transversal Com Carteira Acambamento dos ferragens Ouro Cor Preto Desenho do tecido Lisa":
+    "https://www.mercadolivre.com.br/kit-bolsa-feminina-media-e-pequena-transversal-com-carteira-acambamento-dos-ferragens-ouro-cor-preto-desenho-do-tecido-lisa/p/MLB49655157?pdp_filters=item_id%3AMLB4059405503",
+  "Vestido Lesie Plus Size Longo Plushop 685":
+    "https://produto.mercadolivre.com.br/MLB-5300760642-vestido-lesie-plus-size-longo-plushop-685-_JM?pdp_filters=item_id%3AMLB5300760642",
+  "Kit 3 Tênis Masculino Prospect Spark Academia Caminhada Leve Azul. Cinza E Preto 42 Br":
+    "https://www.mercadolivre.com.br/kit-3-tenis-masculino-prospect-spark-academia-caminhada-leve/up/MLBU4620838802?pdp_filters=deal%3AMLB1578289-1",
+  "Tênis Feminino Casual Samba Street Conforto Leve Premium Branco/preto 36 Br":
+    "https://www.mercadolivre.com.br/tenis-feminino-casual-samba-street-conforto-leve-premium/up/MLBU3962722401?pdp_filters=item_id%3AMLB4680812573",
+  "Kit 2 Calça Jeans Flare Feminina Com Elastano Lycra Cós Alto":
+    "https://produto.mercadolivre.com.br/MLB-5194829092-kit-2-calca-jeans-flare-feminina-com-elastano-lycra-cos-alto-_JM",
+  "Kit 3 Blusa Cacharrel Feminina Manga Longa Casaco Tricô Frio":
+    "https://produto.mercadolivre.com.br/MLB-4791456500-kit-3-blusa-cacharrel-feminina-manga-longa-casaco-tric-frio-_JM?pdp_filters=item_id%3AMLB4791456500",
+  "Kit 2 Vestidos Midi Evangelico Lastex Gola V Festa Feminino":
+    "https://produto.mercadolivre.com.br/MLB-6312268462-kit-2-vestidos-midi-evangelico-lastex-gola-v-festa-feminino-_JM?pdp_filters=item_id%3AMLB6312268462",
+  "Bota Feminina Couro Cano Curto Salto Baixo Zíper Lateral":
+    "https://produto.mercadolivre.com.br/MLB-6218276720-bota-feminina-couro-cano-curto-salto-baixo-ziper-lateral-_JM",
+  "Vestido Midi Canelado Alça Grossa Básico Tricot Modal Verão":
+    "https://produto.mercadolivre.com.br/MLB-5751252060-vestido-midi-canelado-alca-grossa-basico-tricot-modal-vero-_JM?pdp_filters=item_id%3AMLB5751252060",
+  "Salto Alto Scarpin Vizzano Original Bico Fino":
+    "https://produto.mercadolivre.com.br/MLB-5532743574-salto-alto-scarpin-vizzano-original-bico-fino-_JM?pdp_filters=item_id%3AMLB5532743574",
+  "Conjunto Plus Size Cargo Saia Casaco Jaqueta Lançamento":
+    "https://produto.mercadolivre.com.br/MLB-4063895895-conjunto-plus-size-cargo-saia-casaco-jaqueta-lancamento-_JM",
+  "Macacão De Linho Tomara Que Caia Modelagem Reta Sofisticada":
+    "https://produto.mercadolivre.com.br/MLB-5680674484-macaco-de-linho-tomara-que-caia-modelagem-reta-sofisticada-_JM?pdp_filters=item_id%3AMLB5680674484",
+  "Kit Bolsa Feminina Ombro Transversal Porta-cartões Rfid":
+    "https://produto.mercadolivre.com.br/MLB-4227610955-kit-bolsa-feminina-ombro-transversal-porta-cartoes-rfid-_JM?pdp_filters=item_id%3AMLB4227610955",
+  "Scarpin Salto Alto Bloco Feminino Modare Bico Redondo":
+    "https://produto.mercadolivre.com.br/MLB-5813095374-scarpin-salto-alto-bloco-feminino-modare-bico-redondo-_JM?pdp_filters=item_id%3AMLB5813095374",
+  "Kit 3 Camisetas Básicas 100% Algodão Unissex Premium Dia Dia":
+    "https://produto.mercadolivre.com.br/MLB-4783200333-kit-3-camisetas-basicas-100-algodo-unissex-premium-dia-dia-_JM?pdp_filters=item_id%3AMLB4783200333",
+  "Kit 3 Blusas Gola Alta Feminino Manga Curta Básica Casual Preto/marrom/off-white Lisa Único: 36 A 42":
+    "https://www.mercadolivre.com.br/kit-3-blusas-gola-alta-feminino-manga-curta-basica-casual/up/MLBU4767205757?pdp_filters=item_id%3AMLB7441843400",
+  "Bolsa Lorena Feminina Moderna Dia A Dia Original Com Alça":
+    "https://produto.mercadolivre.com.br/MLB-6410469148-bolsa-lorena-feminina-moderna-dia-a-dia-original-com-alca-_JM?pdp_filters=item_id%3AMLB6410469148",
+  "Mochila Feminina Couro Altíssima Qualidade Maravilhosa Ombro":
+    "https://produto.mercadolivre.com.br/MLB-5341780518-mochila-feminina-couro-altissima-qualidade-maravilhosa-ombro-_JM",
+  "Conjunto Feminino Alfaiataria Calça Pantalona E Blusa Social":
+    "https://produto.mercadolivre.com.br/MLB-4334854101-conjunto-feminino-alfaiataria-calca-pantalona-e-blusa-social-_JM",
+  "Chinelo Kenner New Summer Baunilha Masculino":
+    "https://produto.mercadolivre.com.br/MLB-4473066371-chinelo-kenner-new-summer-baunilha-masculino-_JM?pdp_filters=item_id%3AMLB4473066371",
+  "Vertido Longo Soltinho Alcinha Casual Moda Verão Elegante":
+    "https://produto.mercadolivre.com.br/MLB-5535801596-vertido-longo-soltinho-alcinha-casual-moda-vero-elegante-_JM?pdp_filters=item_id%3AMLB5535801596",
+  "Calça Legging Leg Flare Gkd Zero Transparência Academia Preto Gg 44-46":
+    "https://www.mercadolivre.com.br/calca-legging-leg-flare-gkd-zero-transparencia-academia/up/MLBU3980393085?pdp_filters=item_id%3AMLB6819519964",
+  "Conjunto Plus Size Feminino Blusa E Calça Modelagem Grande":
+    "https://produto.mercadolivre.com.br/MLB-4469729809-conjunto-plus-size-feminino-blusa-e-calca-modelagem-grande-_JM",
+  "Bolsa Escolar Feminina Mochila Couro Pu Elegante Moda Médio Preto Liso Ouro":
+    "https://www.mercadolivre.com.br/bolsa-escolar-feminina-mochila-couro-pu-elegante-moda-medio/up/MLBU4386060086?pdp_filters=item_id%3AMLB7209634688",
+  "Kit 5 Calcinhas Cintura Alta Sem Costura Corte Laser Tangão":
+    "https://produto.mercadolivre.com.br/MLB-2038257619-kit-5-calcinhas-cintura-alta-sem-costura-corte-laser-tango-_JM?pdp_filters=item_id%3AMLB2038257619",
+  "Chinelo Havaianas Slim Square Sandália Feminina Quadrada Branco 37-38 Br":
+    "https://www.mercadolivre.com.br/chinelo-havaianas-slim-square-sandalia-feminina-quadrada/up/MLBU5072861434?pdp_filters=item_id%3AMLB5167994219",
+  "Bolsa Feminina Grande Capacidade E Impermeável Crossbody Verde":
+    "https://www.mercadolivre.com.br/bolsa-feminina-grande-capacidade-e-impermeavel-crossbody/up/MLBU4843865041?pdp_filters=item_id%3AMLB5098315787",
+  "Moletom Madness Quentinho Capuz Inverno Grosso Confortável G Preto":
+    "https://www.mercadolivre.com.br/moletom-madness-quentinho-capuz-inverno-grosso-confortavel/up/MLBU3971017134?pdp_filters=item_id%3AMLB4676739675",
+  "Conjunto Proteção Solar Uv Meninos Juvenil Grappin":
+    "https://produto.mercadolivre.com.br/MLB-5484039032-conjunto-proteco-solar-uv-meninos-juvenil-grappin-_JM?pdp_filters=item_id%3AMLB5484039032",
+  "Tênis Masculino Adizero Drive Rc adidas Amarelo Liso 40 Br":
+    "https://www.mercadolivre.com.br/tenis-masculino-adizero-drive-rc-adidas/up/MLBU3938351091?pdp_filters=deal%3AMLB1578289-1",
+  "Tênis Masculino Adizero Drive Rc M adidas Rosa Liso 41 Br":
+    "https://www.mercadolivre.com.br/tenis-masculino-adizero-drive-rc-m-adidas/up/MLBU3950137922?pdp_filters=deal%3AMLB1578289-1",
+  "Vestido Midi Evasê Alças Médias Rústico Com Linho Hering":
+    "https://produto.mercadolivre.com.br/MLB-3878205057-vestido-midi-evas-alcas-medias-rustico-com-linho-hering-_JM?pdp_filters=item_id%3AMLB3878205057",
+  "Vestido Feminino Midi Ombro A Ombro Godê Rodado Festa Luxo":
+    "https://produto.mercadolivre.com.br/MLB-3961276561-vestido-feminino-midi-ombro-a-ombro-god-rodado-festa-luxo-_JM?pdp_filters=item_id%3AMLB3961276561",
+  "Vestido Longo Azul Royal Madrinha De Casamento Plus Size":
+    "https://produto.mercadolivre.com.br/MLB-1330764819-vestido-longo-azul-royal-madrinha-de-casamento-plus-size-_JM?pdp_filters=item_id%3AMLB1330764819",
+  "Tênis Masculino Mizuno Wave Creation Original Macio Corrida":
+    "https://produto.mercadolivre.com.br/MLB-6713107188-tnis-masculino-mizuno-wave-creation-original-macio-corrida-_JM",
+  "Vestido Longo Crepe Plus Size Elegante 2 Laços Decote V":
+    "https://produto.mercadolivre.com.br/MLB-5402101502-vestido-longo-crepe-plus-size-elegante-2-lacos-decote-v-_JM",
+  "Tênis Masculino Runfalcon 6 adidas Rosa Liso 40 Br":
+    "https://www.mercadolivre.com.br/tenis-masculino-runfalcon-6-adidas/up/MLBU3938269199?pdp_filters=deal%3AMLB1578289-1",
+  "Conjunto Fitness Top Legging E Regatão Feminino Academia Verde Militar M":
+    "https://www.mercadolivre.com.br/conjunto-fitness-top-legging-e-regatao-feminino-academia/up/MLBU4317515238?pdp_filters=item_id%3AMLB7161926336",
+  "Tênis Feminino Grand Court 3.0 adidas Branco Liso 37 Br":
+    "https://www.mercadolivre.com.br/tenis-feminino-grand-court-30-adidas/up/MLBU3950183580?pdp_filters=deal%3AMLB1578289-1",
+  "Mala Polipropileno 10kg Bordo Viagem Mão Avião Anac 55x35x25 Chumbo Lisa":
+    "https://www.mercadolivre.com.br/mala-polipropileno-10kg-bordo-viagem-mao-aviao-anac-55x35x25-chumbo-lisa/p/MLB75040219?pdp_filters=deal%3AMLB1578289-1",
+  "Conjunto Calça Wide Leg Alfaiataria E Blusa Cropped Elegante Rosa M":
+    "https://www.mercadolivre.com.br/conjunto-calca-wide-leg-alfaiataria-e-blusa-cropped-elegante/up/MLBU4018367576?pdp_filters=item_id%3AMLB4713269481",
+  "Tênis New Balance 9060 Academia Esportes Tendencia Moda Fem Taupe 36 Br":
+    "https://www.mercadolivre.com.br/tenis-new-balance-9060-academia-esportes-tendencia-moda-fem/up/MLBU4809677258?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 2 Calças De Brim Resistente Faixa Refletiva Uniforme Cinza G":
+    "https://www.mercadolivre.com.br/kit-2-calcas-de-brim-resistente-faixa-refletiva-uniforme/up/MLBU3948269042?pdp_filters=item_id%3AMLB6717146306",
+  "Maiô Vestido Feminino Com Controle De Barriga Com Saia":
+    "https://produto.mercadolivre.com.br/MLB-4445882907-mai-vestido-feminino-com-controle-de-barriga-com-saia-_JM?pdp_filters=item_id%3AMLB4445882907",
+  "Tênis Puma Caven Suede Masculino Original Macio Casual Leve Branco Animal Print 41 Br":
+    "https://www.mercadolivre.com.br/tenis-puma-caven-suede-masculino-original-macio-casual-leve/up/MLBU5056301435?pdp_filters=deal%3AMLB1578289-1",
+  "Tênis Fila Racer T2 Xtreme Feminino Corrida Original Cinza Cinza Preto Liso 37 Br":
+    "https://www.mercadolivre.com.br/tenis-fila-racer-t2-xtreme-feminino-corrida-original/up/MLBU3828369361?pdp_filters=deal%3AMLB1578289-1",
+  "Vestido Plus Size Longo Elegante Social Decote V Alcinha":
+    "https://produto.mercadolivre.com.br/MLB-5375779876-vestido-plus-size-longo-elegante-social-decote-v-alcinha-_JM?pdp_filters=item_id%3AMLB5375779876",
+  "Maiô Feminino Biquíni Com Estampa De Correntes E Saia Praia":
+    "https://produto.mercadolivre.com.br/MLB-5458196746-mai-feminino-biquini-com-estampa-de-correntes-e-saia-praia-_JM?pdp_filters=item_id%3AMLB5458196746",
+  "Kit Vestido Midi Pérola Rosé Evangélico Feminino Confortável":
+    "https://produto.mercadolivre.com.br/MLB-3999234625-kit-vestido-midi-perola-rose-evangelico-feminino-confortavel-_JM?pdp_filters=item_id%3AMLB3999234625",
+  "Tênis Asics Gel Revelation Original Couro Academia Caminhada":
+    "https://produto.mercadolivre.com.br/MLB-4524474431-tnis-asics-gel-revelation-original-couro-academia-caminhada-_JM",
+  "Kit 3 Pares Tênis Feminino Esportivo Para Treino Academia Azul Bebe / Marinho / Branco 37,0 Br":
+    "https://www.mercadolivre.com.br/kit-3-pares-tenis-feminino-esportivo-para-treino-academia/up/MLBU3804015691?pdp_filters=deal%3AMLB1578289-1",
+  "Tênis Asics Revelation Mulher Academia Corrida Caminhada":
+    "https://produto.mercadolivre.com.br/MLB-4524489243-tnis-asics-revelation-mulher-academia-corrida-caminhada-_JM",
+  "Tênis Masculino De Caminhada Casual Index 4 - Olympikus Preto 40 Br":
+    "https://www.mercadolivre.com.br/tenis-masculino-de-caminhada-casual-index-4--olympikus/up/MLBU3978297150?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 2 Bermuda Tática Reforçada Trilha Aventuras Premium":
+    "https://produto.mercadolivre.com.br/MLB-6246937274-kit-2-bermuda-tatica-reforcada-trilha-aventuras-premium-_JM?pdp_filters=item_id%3AMLB6246937274",
+  "Tênis Olympikus Apolis Feminino Corrida Caminhada":
+    "https://produto.mercadolivre.com.br/MLB-5410038064-tnis-olympikus-apolis-feminino-corrida-caminhada-_JM?pdp_filters=item_id%3AMLB5410038064",
+  "Bota Coturno Unissex Biqueira Pvc Segurança Adventure":
+    "https://produto.mercadolivre.com.br/MLB-4671283118-bota-coturno-unissex-biqueira-pvc-seguranca-adventure-_JM",
+  "Bolsa Challenger Extra Small Puma":
+    "https://www.mercadolivre.com.br/bolsa-challenger-extra-small-puma/p/MLB64103546?pdp_filters=deal%3AMLB1578289-1",
+  "Bolsa Esportiva Challenger Extra Small S Puma":
+    "https://www.mercadolivre.com.br/bolsa-esportiva-challenger-extra-small-s-puma/p/MLB64967429?pdp_filters=deal%3AMLB1578289-1",
+  "Calça Mom Feminina Jeans Cintura Alta Reta Bolso Premium":
+    "https://produto.mercadolivre.com.br/MLB-4954592724-calca-mom-feminina-jeans-cintura-alta-reta-bolso-premium-_JM",
+  "Calça Feminina Mom Modeladora Cós Alto Com Elastano Premium":
+    "https://produto.mercadolivre.com.br/MLB-5319138614-calca-feminina-mom-modeladora-cos-alto-com-elastano-premium-_JM?pdp_filters=item_id%3AMLB5319138614",
+  "Bolsa Feminina Grande Sacola Ombro Alça Transversal Casual":
+    "https://produto.mercadolivre.com.br/MLB-5546142894-bolsa-feminina-grande-sacola-ombro-alca-transversal-casual-_JM",
+  "Vestido Longo Plus Size Soltinho C/ Manga Elegante Festa":
+    "https://produto.mercadolivre.com.br/MLB-4270240935-vestido-longo-plus-size-soltinho-c-manga-elegante-festa-_JM?pdp_filters=item_id%3AMLB4270240935",
+  "Maiô Bloco De Cores Zíper Frontal Fato De Banho De Uma Peça":
+    "https://produto.mercadolivre.com.br/MLB-6852951532-mai-bloco-de-cores-ziper-frontal-fato-de-banho-de-uma-peca-_JM?pdp_filters=item_id%3AMLB6852951532",
+  "Sandalia Feminina Salto Fino Alto Classica Vizzano Original Preto/preto-cristal 37 Br":
+    "https://www.mercadolivre.com.br/sandalia-feminina-salto-fino-alto-classica-vizzano-original/up/MLBU4067736327?pdp_filters=item_id%3AMLB4758524801",
+  "Mochila Escolar Infantil + Lancheira E Estojo Mar E Baleia Azul Baleia":
+    "https://www.mercadolivre.com.br/mochila-escolar-infantil--lancheira-e-estojo-mar-e-baleia/up/MLBU3406569028?pdp_filters=item_id%3AMLB5665983484",
+  "Vestido Midi Evangelico Feminino Com Laço":
+    "https://produto.mercadolivre.com.br/MLB-5780858938-vestido-midi-evangelico-feminino-com-laco-_JM?pdp_filters=item_id%3AMLB5780858938",
+  "Kit 3 Bermuda Térmica Esportiva Anti Assaduras Sem Costura":
+    "https://produto.mercadolivre.com.br/MLB-3917448231-kit-3-bermuda-termica-esportiva-anti-assaduras-sem-costura-_JM?pdp_filters=item_id%3AMLB3917448231",
+  "Blusa Feminina Tricot Mousse Fenda Lateral Inverno Sku348":
+    "https://produto.mercadolivre.com.br/MLB-3763205497-blusa-feminina-tricot-mousse-fenda-lateral-inverno-sku348-_JM?pdp_filters=item_id%3AMLB3763205497",
+  "Conjunto Fitness Feminino Top Shorts Forrado Alça Ajustável Amarelo Liso M-veste Do 38 Ao 40":
+    "https://www.mercadolivre.com.br/conjunto-fitness-feminino-top-shorts-forrado-alca-ajustavel/up/MLBU4583311681?pdp_filters=item_id%3AMLB5000166413",
+  "Vestido Feminina De Festa E Casamento Madrinha Manga Capa":
+    "https://produto.mercadolivre.com.br/MLB-4903284085-vestido-feminina-de-festa-e-casamento-madrinha-manga-capa-_JM",
+  "Kit 7 Camisetas Basica Lisa Algodão Premium Masculina Sortidas G":
+    "https://www.mercadolivre.com.br/kit-7-camisetas-basica-lisa-algodao-premium-masculina/up/MLBU3873986865?pdp_filters=item_id%3AMLB6556431456",
+  "Kit 2 Shorts Alfaiataria Feminino Cintura Alta Com Pregas Preto E Marrom Liso M":
+    "https://www.mercadolivre.com.br/kit-2-shorts-alfaiataria-feminino-cintura-alta-com-pregas/up/MLBU4946305891?pdp_filters=item_id%3AMLB5141381113",
+  "Conjunto Elegante Pantalona Canelado Fem Assimet Confortavel":
+    "https://produto.mercadolivre.com.br/MLB-4698112807-conjunto-elegante-pantalona-canelado-fem-assimet-confortavel-_JM",
+  "Salto Alto Tamanco Sandália Confortável Beira Rio":
+    "https://produto.mercadolivre.com.br/MLB-4256793153-salto-alto-tamanco-sandalia-confortavel-beira-rio-_JM?pdp_filters=item_id%3AMLB4256793153",
+  "Macacão Academia Forrado Feminino Longo Zero Transparência Marrom M (36 Ao 40)":
+    "https://www.mercadolivre.com.br/macacao-academia-forrado-feminino-longo-zero-transparencia/up/MLBU3891885807?pdp_filters=item_id%3AMLB4602049299",
+  "Blusa Evangélica Manga Curta Viscose Social Chique Elegante":
+    "https://produto.mercadolivre.com.br/MLB-6018290666-blusa-evangelica-manga-curta-viscose-social-chique-elegante-_JM?pdp_filters=item_id%3AMLB6018290666",
+  "Kit 3 Short Bermuda Masculino Elastano Academia Casual Bolso Preto/cinza/azul-marinho Liso G":
+    "https://www.mercadolivre.com.br/kit-3-short-bermuda-masculino-elastano-academia-casual-bolso/up/MLBU4848911773?pdp_filters=item_id%3AMLB5101183501",
+  "Kit 2 Macaquinhos Alça Larga Feminino Zero Transparencia":
+    "https://produto.mercadolivre.com.br/MLB-6842101704-kit-2-macaquinhos-alca-larga-feminino-zero-transparencia-_JM?pdp_filters=item_id%3AMLB6842101704",
+  "Mochila Mormaii Resistente Casual 21 Litros Básica Azul Azul Un":
+    "https://www.mercadolivre.com.br/mochila-mormaii-resistente-casual-21-litros-basica-azul/up/MLBU4125560704?pdp_filters=item_id%3AMLB4788829267",
+  "Macacão Jeans Feminino Tomara Que Caia Skinny Com Lycra":
+    "https://produto.mercadolivre.com.br/MLB-3937098753-macaco-jeans-feminino-tomara-que-caia-skinny-com-lycra-_JM",
+  "Conjunto Feminino Elegante Pantalona Ana Ruga":
+    "https://produto.mercadolivre.com.br/MLB-4764861561-conjunto-feminino-elegante-pantalona-ana-ruga-_JM",
+  "Vestido Feminino Midi Amarração Frente Única Tricot Verão":
+    "https://produto.mercadolivre.com.br/MLB-4329109975-vestido-feminino-midi-amarraco-frente-unica-tricot-vero-_JM?pdp_filters=item_id%3AMLB4329109975",
+  "Vestido Midi Feminino Alças Finas Liso Acinturado Em Tule":
+    "https://produto.mercadolivre.com.br/MLB-5630015986-vestido-midi-feminino-alcas-finas-liso-acinturado-em-tule-_JM",
+  "Conjunto Feminino Top Peplum Assimétrico E Calça Pantalona":
+    "https://produto.mercadolivre.com.br/MLB-4826094483-conjunto-feminino-top-peplum-assimetrico-e-calca-pantalona-_JM",
+  "Óculos Grau Leitura Com Filtro Luz Azul Para Perto Descanso":
+    "https://produto.mercadolivre.com.br/MLB-6222533586-oculos-grau-leitura-com-filtro-luz-azul-para-perto-descanso-_JM?pdp_filters=item_id%3AMLB6222533586",
+  "Camiseta Nike Sportswear Jdi Unissex Branco G":
+    "https://www.mercadolivre.com.br/camiseta-nike-sportswear-jdi-unissex/up/MLBU3885203526?pdp_filters=deal%3AMLB1578289-1",
+  "Sapato Feminino Bico Fino Salto Fino Scarpin Slingback":
+    "https://produto.mercadolivre.com.br/MLB-5446602392-sapato-feminino-bico-fino-salto-fino-scarpin-slingback-_JM",
+  "Mochila Impermeavel Executiva Grande Para Notebook Reforçada Preto Poliéster":
+    "https://www.mercadolivre.com.br/mochila-impermeavel-executiva-grande-para-notebook-reforcada/up/MLBU4613428012?pdp_filters=item_id%3AMLB5001487431",
+  "Conjunto Calça Max Pantalona Blusa Social Festa Casual Chic":
+    "https://produto.mercadolivre.com.br/MLB-4279217735-conjunto-calca-max-pantalona-blusa-social-festa-casual-chic-_JM",
+  "Kit 3 Shorts 2 Em 1 Feminino Fitness Compressão Academia":
+    "https://produto.mercadolivre.com.br/MLB-4585748531-kit-3-shorts-2-em-1-feminino-fitness-compresso-academia-_JM?pdp_filters=item_id%3AMLB4585748531",
+  "Mala De Viagens Com Kit Frasqueira Pequena Bordo Mão Cabine Cor Azul Lisa":
+    "https://www.mercadolivre.com.br/mala-de-viagens-com-kit-frasqueira-pequena-bordo-mao-cabine-cor-azul-lisa/p/MLB75760673?pdp_filters=item_id%3AMLB7346647468",
+  "Mala De Viagens Com Kit Frasqueira Pequena Bordo Mão Cabine Cor Preto Lisa":
+    "https://www.mercadolivre.com.br/mala-de-viagens-com-kit-frasqueira-pequena-bordo-mao-cabine-cor-preto-lisa/p/MLB75312636?pdp_filters=item_id%3AMLB7346660254",
+  "Mala De Viagens Com Kit Frasqueira Pequena Bordo Mão Cabine Cor Rosa Lisa":
+    "https://www.mercadolivre.com.br/mala-de-viagens-com-kit-frasqueira-pequena-bordo-mao-cabine-cor-rosa-lisa/p/MLB75978389?pdp_filters=item_id%3AMLB7346660242",
+  "Mala Polipropileno 10kg Bordo Viagem Mão Avião Anac 55x35x25 Branco Com Marrom Lisa":
+    "https://www.mercadolivre.com.br/mala-polipropileno-10kg-bordo-viagem-mao-aviao-anac-55x35x25-branco-com-marrom-lisa/p/MLB75034237?pdp_filters=item_id%3AMLB7138654508",
+  "Mala De Viagem 10kg Promoção Rodas 360° Miami Com Frasqueira":
+    "https://www.mercadolivre.com.br/mala-de-viagem-10kg-promocao-rodas-360-miami-com-frasqueira/up/MLBU4541080125?pdp_filters=deal%3AMLB1578289-1",
+  "Mala Polipropileno 10kg Bordo Viagem Mão Avião Anac 55x35x25 Rose Lisa":
+    "https://www.mercadolivre.com.br/mala-polipropileno-10kg-bordo-viagem-mao-aviao-anac-55x35x25-rose-lisa/p/MLB75034268?pdp_filters=deal%3AMLB1578289-1",
+  "Tênis Li-ning Yueying 6 Corrida Masculino":
+    "https://produto.mercadolivre.com.br/MLB-5424465500-tnis-li-ning-yueying-6-corrida-masculino-_JM",
+  "Tênis New Balance Academia Esportes Caminhada Macio Treino New Balance Preto Branco 42 Br":
+    "https://www.mercadolivre.com.br/tenis-new-balance-academia-esportes-caminhada-macio-treino/up/MLBU5122311206?pdp_filters=deal%3AMLB1578289-1",
+  "Tênis Asics Academia Corrida Treino Macio Garantia envio ja":
+    "https://produto.mercadolivre.com.br/MLB-6443837704-tnis-asics-academia-corrida-treino-macio-garantiaenvioja-_JM",
+  "Calça Jeans Wide Leg Feminina Relaxed Cintura Baixa 29909 Sk Sky Escuro 38":
+    "https://www.mercadolivre.com.br/calca-jeans-wide-leg-feminina-relaxed-cintura-baixa-29909-sk/up/MLBU4872731521?pdp_filters=item_id%3AMLB5110221393",
+  "Vestido Midi Feminino Alcinha Elegante Moda Social Casual":
+    "https://produto.mercadolivre.com.br/MLB-4892427557-vestido-midi-feminino-alcinha-elegante-moda-social-casual-_JM?pdp_filters=item_id%3AMLB4892427557",
+  "Mochila Escolar Infantil + Lancheira E Estojo Mar Baleia Azul Baleia":
+    "https://www.mercadolivre.com.br/mochila-escolar-infantil--lancheira-e-estojo-mar-baleia/up/MLBU3400728009?pdp_filters=item_id%3AMLB5666923950",
+  "Jaqueta Feminina Bobojaco Puffer Impermeavel Capuz Removivel Preto G Gominho":
+    "https://www.mercadolivre.com.br/jaqueta-feminina-bobojaco-puffer-impermeavel-capuz-removivel/up/MLBU5183133965?pdp_filters=item_id%3AMLB5244063711",
+  "1008 Xuxinhas Rabicó Elástico Cabelo Preto Chuchinha Atacado":
+    "https://produto.mercadolivre.com.br/MLB-4184392853-1008-xuxinhas-rabico-elastico-cabelo-preto-chuchinha-atacado-_JM?pdp_filters=item_id%3AMLB4184392853",
+  "Conjunto Lingerie Sexy Renda Sensual Body Feminino":
+    "https://produto.mercadolivre.com.br/MLB-6715303442-conjunto-lingerie-sexy-renda-sensual-body-feminino-_JM?pdp_filters=item_id%3AMLB6715303442",
+  "Body Camisa Social Linho Manga Curta Bebê Menino":
+    "https://produto.mercadolivre.com.br/MLB-4465072359-body-camisa-social-linho-manga-curta-beb-menino-_JM?pdp_filters=item_id%3AMLB4465072359",
+  "Tênis Corrida Olympikus Feminino Masculino Originals Dourado 37 Br":
+    "https://www.mercadolivre.com.br/tenis-corrida-olympikus-feminino-masculino-originals/up/MLBU5221502890?pdp_filters=deal%3AMLB1578289-1",
+  "Camiseta Lula Camisa Pt Presidente Eleição 13 Faz O L 2026 Vermelho G":
+    "https://www.mercadolivre.com.br/camiseta-lula-camisa-pt-presidente-eleicao-13-faz-o-l-2026/up/MLBU4881312328?pdp_filters=item_id%3AMLB5106050213",
+  "Vestido Feminino Curto Babados Rodado Acinturado Corpete":
+    "https://produto.mercadolivre.com.br/MLB-4912119745-vestido-feminino-curto-babados-rodado-acinturado-corpete-_JM",
+  "Kit 2 Calças Jogger Tactel Com Elastano Bolsos E Zipper Preta E Cinza G":
+    "https://www.mercadolivre.com.br/kit-2-calcas-jogger-tactel-com-elastano-bolsos-e-zipper/up/MLBU4538837371?pdp_filters=item_id%3AMLB4984268095",
+  "Kit 10 Peças Bebê Body M. Longa E Mijão Listra Menino Menina":
+    "https://produto.mercadolivre.com.br/MLB-6207490364-kit-10-pecas-beb-body-m-longa-e-mijo-listra-menino-menina-_JM?pdp_filters=item_id%3AMLB6207490364",
+  "Mala De Viagens Com Kit Frasqueira Pequena Bordo Mão Cabine Cor Amarelo Lisa":
+    "https://www.mercadolivre.com.br/mala-de-viagens-com-kit-frasqueira-pequena-bordo-mao-cabine-cor-amarelo-lisa/p/MLB75771725?pdp_filters=item_id%3AMLB7346660260",
+  "Mala De Viagens Com Kit Frasqueira Pequena Bordo Mão Cabine Cor Verde Lisa":
+    "https://www.mercadolivre.com.br/mala-de-viagens-com-kit-frasqueira-pequena-bordo-mao-cabine-cor-verde-lisa/p/MLB75067586?pdp_filters=item_id%3AMLB7346660248",
+  "Vestido Noiva Casamento Civil Longo Branco Off White Simples Branco Lisa Único":
+    "https://www.mercadolivre.com.br/vestido-noiva-casamento-civil-longo-branco-off-white-simples/up/MLBU4972191296?pdp_filters=item_id%3AMLB7522976236",
+  "Kit 3 Calças Jeans Pantalona Wide Leg Feminina Cintura Alta Marmorizada Clara E Escura Lisa 46":
+    "https://www.mercadolivre.com.br/kit-3-calcas-jeans-pantalona-wide-leg-feminina-cintura-alta/up/MLBU4858573032?pdp_filters=deal%3AMLB1578289-1",
+  "Mochila Maluca Infantil Pipoca De Verdade Semana Maluca Vermelho":
+    "https://www.mercadolivre.com.br/mochila-maluca-infantil-pipoca-de-verdade-semana-maluca/up/MLBU5132141845?pdp_filters=item_id%3AMLB5215951703",
+  "Calça Social Feminina Alfaitaria Linho Aladim Cintura Alta":
+    "https://produto.mercadolivre.com.br/MLB-6149394298-calca-social-feminina-alfaitaria-linho-aladim-cintura-alta-_JM?pdp_filters=item_id%3AMLB6149394298",
 };
