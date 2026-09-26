@@ -5492,4 +5492,164 @@ export const ML_PANEL_URLS: Readonly<Record<string, string>> = {
     "https://www.mercadolivre.com.br/torneira-eletrica-elegance-4-temperaturas-de-bancada-fame-preto-cromado-60/p/MLB75321143?pdp_filters=deal%3AMLB1578289-1",
   "Torneira Cozinha Monocomando Parede Ou Bancada Extensivel Preto Fosco":
     "https://www.mercadolivre.com.br/torneira-cozinha-monocomando-parede-ou-bancada-extensivel/up/MLBU4661668843?pdp_filters=item_id%3AMLB5036759641",
+  "Tapete Higiênico Gato Coletor Caixa De Areia Preto Tam G":
+    "https://www.mercadolivre.com.br/tapete-higienico-gato-coletor-caixa-de-areia-preto-tam-g/up/MLBU736837024?pdp_filters=item_id%3AMLB1841699778",
+  "Tapete Higienico Good Pad 50 Unidades 60x60cm":
+    "https://www.mercadolivre.com.br/tapete-higienico-good-pad-50-unidades-60x60cm/p/MLB35445558?pdp_filters=deal%3AMLB1578289-1",
+  "Máquina de Tosa Kemei 1991 Sem Fio 5 W para Cachorros":
+    "https://www.mercadolivre.com.br/maquina-de-tosa-kemei-1991-sem-fio-5-w-para-cachorros/p/MLB35162005?pdp_filters=item_id%3AMLB6834008622",
+  "Maquininha Tosadora Sem Fio Profissional Kemei 1991 para Cachorros e Gatos":
+    "https://www.mercadolivre.com.br/maquininha-tosadora-sem-fio-profissional-kemei-1991-para-cachorros-e-gatos/p/MLB29913017?pdp_filters=item_id%3AMLB6829776716",
+  "Ração Golden Special Gatos Adultos Frango E Carne 10,1 Kg":
+    "https://www.mercadolivre.com.br/racao-golden-special-gatos-adultos-frango-e-carne-101-kg/p/MLB29089153?pdp_filters=item_id%3AMLB4022136737",
+  "Churu para Gatos: Petisco Úmido de Atum e Salmão em Kit c/ 6 Pacotes (24 Sachês) - Especial Pet":
+    "https://www.mercadolivre.com.br/churu-para-gatos-petisco-umido-de-atum-e-salmao-em-kit-c-6-pacotes-24-saches-especial-pet/p/MLB64977346?pdp_filters=item_id%3AMLB7073223522",
+  "GRação Golden Premium Especial Gatos Adultos Castrados Carne 10,1kg":
+    "https://www.mercadolivre.com.br/gracao-golden-premium-especial-gatos-adultos-castrados-carne-101kg/p/MLB10481561?pdp_filters=deal%3AMLB1578289-1",
+  "Ração Prime Bionatural Gato Castrado Salmão 7,5kg":
+    "https://www.mercadolivre.com.br/racao-prime-bionatural-gato-castrado-salmao-75kg/p/MLB53178514?pdp_filters=deal%3AMLB1578289-1",
+  "Bebedouro Fonte De Agua Para Gatos E Caes Miw 1,5l Usb 127/220v Transparente":
+    "https://www.mercadolivre.com.br/bebedouro-fonte-de-agua-para-gatos-e-caes-miw-15l-usb/up/MLBU3555588023?pdp_filters=item_id%3AMLB5931640032",
+  "Fórmula Natural Fresh Meat Cão Filhote Mini e Pequeno Cão Filhote 2,5kg":
+    "https://www.mercadolivre.com.br/formula-natural-fresh-meat-cao-filhote-mini-e-pequeno-cao-filhote-25kg/p/MLB22610014?pdp_filters=deal%3AMLB1578289-1",
+  "Areia Higiênica Para Gatos Feita de Mandioca e Milho Biodegradável Alta Absorção Baixo Odor 4kg - GoodVision":
+    "https://www.mercadolivre.com.br/areia-higienica-para-gatos-feita-de-mandioca-e-milho-biodegradavel-alta-absorcao-baixo-odor-4kg-goodvision/p/MLB57722636?pdp_filters=item_id%3AMLB6202488894",
+  "Jornal Pet 100 Folhas Grandes Papel Limpo Higienico Cachorro":
+    "https://www.mercadolivre.com.br/jornal-pet-100-folhas-grandes-papel-limpo-higienico-cachorro/up/MLBU1147738266?pdp_filters=item_id%3AMLB3632664538",
+  "Areia Higiênica Biodegradável para Gatos 4kg 100% Mandioca Fina Torrão Instantâneo Zero odor Sanitária GattoCat":
+    "https://www.mercadolivre.com.br/areia-higienica-biodegradavel-para-gatos-4kg-100-mandioca-fina-torrao-instantaneo-zero-odor-sanitaria-gattocat/p/MLB65041246?pdp_filters=item_id%3AMLB6207082674",
+  "Tapete Higiênico Clean Pads C/30 Unidades - 85x60cm":
+    "https://www.mercadolivre.com.br/tapete-higienico-clean-pads-c30-unidades-85x60cm/p/MLB69324687?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 3 Shampoo Dermatite Clorexidina 500ml World":
+    "https://www.mercadolivre.com.br/kit-3-shampoo-dermatite-clorexidina-500ml-world/p/MLB28175341?pdp_filters=item_id%3AMLB3938109751",
+  "Tapete Higiênico 60x90cm 50 Unidades Premium Comfort Higienepet":
+    "https://www.mercadolivre.com.br/tapete-higienico-60x90cm-50-unidades-premium-comfort-higienepet/p/MLB46051035?pdp_filters=deal%3AMLB1578289-1",
+  "Tapete Higiênico P/Cães 60x60cm 50 Unidades Premium Higienepet":
+    "https://www.mercadolivre.com.br/tapete-higienico-pcaes-60x60cm-50-unidades-premium-higienepet/p/MLB52110393?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Hydra Groomers Shampoo Neutro e Condicionador 1L Cães e Gatos":
+    "https://www.mercadolivre.com.br/kit-hydra-groomers-shampoo-neutro-e-condicionador-1l-caes-e-gatos/p/MLB50263634?pdp_filters=item_id%3AMLB5399574672",
+  "Gaiola Coelho Chinchila Porquinho Da India Com Andar Grande Cor Lilás":
+    "https://www.mercadolivre.com.br/gaiola-coelho-chinchila-porquinho-da-india-com-andar-grande-cor-lilas/p/MLB23536837?pdp_filters=item_id%3AMLB6223993280",
+  "Ração Quatree Para Gatos Life Filhotes 10,1kg":
+    "https://www.mercadolivre.com.br/racao-quatree-para-gatos-life-filhotes-101kg/p/MLB28284139?pdp_filters=deal%3AMLB1578289-1",
+  "Cadeira Para Pet Assento Carro Seguro Até 15kg Ganhe Coleira":
+    "https://produto.mercadolivre.com.br/MLB-3603051710-cadeira-para-pet-assento-carro-seguro-ate-15kg-ganhe-coleira-_JM?pdp_filters=item_id%3AMLB3603051710",
+  "Ração Premier Gatos Castrados 6 Meses A 6 Anos Frango 7,5kg":
+    "https://www.mercadolivre.com.br/racao-premier-gatos-castrados-6-meses-a-6-anos-frango-75kg/p/MLB19755406?pdp_filters=deal%3AMLB1578289-1",
+  "Afastapet Forte Adestrador E Educador Sanitário Com 500 Ml":
+    "https://www.mercadolivre.com.br/afastapet-forte-adestrador-e-educador-sanitario-com-500-ml/up/MLBU777499116?pdp_filters=item_id%3AMLB4110159946",
+  "Dermotrat Aerosol para Cães e Gatos Ourofino":
+    "https://www.mercadolivre.com.br/dermotrat-aerosol-para-caes-e-gatos-ourofino/p/MLB26220251?pdp_filters=deal%3AMLB1578289-1",
+  "Adesivo Piercing Pet Bindi 120 Cartelas Cachorro Cor Sortido De Cores Variados":
+    "https://www.mercadolivre.com.br/adesivo-piercing-pet-bindi-120-cartelas-cachorro-cor-sortido-de-cores-variados/p/MLB53394387?pdp_filters=deal%3AMLB1578289-1",
+  "Tapete Higiênico Zee Pad 30 Unidades 80x60 - Preto Zeedog":
+    "https://www.mercadolivre.com.br/tapete-higienico-zee-pad-30-unidades-80x60-preto-zeedog/p/MLB37722472?pdp_filters=deal%3AMLB1578289-1",
+  "Secador De Cachorro 110v Pente Soprador Banho Pet Gato 2 Em1 127v":
+    "https://www.mercadolivre.com.br/secador-de-cachorro-110v-pente-soprador-banho-pet-gato-2-em1/up/MLBU775880463?pdp_filters=item_id%3AMLB4393267438",
+  "Soro Antiofídico 50ml Lema Picada De Cobra Em Animais":
+    "https://www.mercadolivre.com.br/soro-antiofidico-50ml-lema-picada-de-cobra-em-animais/p/MLB25468107?pdp_filters=deal%3AMLB1578289-1",
+  "Porta Ração Pote Com Tampa Pet Gato Cachorro Dispenser Porta Racao Pote Container Porta Ração Dispenser Cor Transparente Capacidade 2,5 Litros Drop Shopy":
+    "https://www.mercadolivre.com.br/porta-racao-pote-com-tampa-pet-gato-cachorro-dispenser-porta-racao-pote-container-porta-racao-dispenser-cor-transparente-capacidade-25-litros-drop-shopy/p/MLB68573607?pdp_filters=item_id%3AMLB6670843040",
+  "Coleira Anti Pulga Leishmaniose Carrapato Mosquito Cão Gato Cinza Liso 62 Cinza":
+    "https://www.mercadolivre.com.br/coleira-anti-pulga-leishmaniose-carrapato-mosquito-cao-gato/up/MLBU3917815167?pdp_filters=item_id%3AMLB4634504445",
+  "Ração Para Carpas Poytara Sticks Premium 6kg Mix 6x1":
+    "https://www.mercadolivre.com.br/racao-para-carpas-poytara-sticks-premium-6kg-mix-6x1/up/MLBU608388059?pdp_filters=deal%3AMLB1578289-1",
+  "Cama Pet Grande Caminha Cachorros sofá luxo Suporte Cervical Espuma De Ortopédica C/fundo Impermeável 89×71×15":
+    "https://www.mercadolivre.com.br/cama-pet-grande-caminha-cachorros-sofa-luxo-suporte-cervical-espuma-de-ortopedica-cfundo-impermeavel-897115/p/MLB51867849?pdp_filters=item_id%3AMLB4562784845",
+  "Bolsa Pet Transporte Viagem Avião Bordo Carro Snoopy 4,5kg Marrom":
+    "https://www.mercadolivre.com.br/bolsa-pet-transporte-viagem-aviao-bordo-carro-snoopy-45kg/up/MLBU3281517279?pdp_filters=item_id%3AMLB5487236046",
+  "Kit Shampoo Cloresten 500ml + Hidrapet Creme 100g":
+    "https://www.mercadolivre.com.br/kit-shampoo-cloresten-500ml-hidrapet-creme-100g/p/MLB24043308?pdp_filters=deal%3AMLB1578289-1",
+  "Cercadinho Portátil para Cão e Gato Dobrável Cinza com Zíper":
+    "https://www.mercadolivre.com.br/cercadinho-portatil-para-cao-e-gato-dobravel-cinza-com-ziper/p/MLB77504635?pdp_filters=item_id%3AMLB4750869231",
+  "Ração Para Carpas Tropical Pond Sticks Mixed 1600gr":
+    "https://www.mercadolivre.com.br/racao-para-carpas-tropical-pond-sticks-mixed-1600gr/p/MLB19946260?pdp_filters=deal%3AMLB1578289-1",
+  "Cortotic Tratamento Otológico Spray Para Cães Virbac 16ml":
+    "https://www.mercadolivre.com.br/cortotic-tratamento-otologico-spray-para-caes-virbac-16ml/p/MLB36611651?pdp_filters=deal%3AMLB1578289-1",
+  "Ração Para Gatos Premier Adulto Frango 7,5kg":
+    "https://www.mercadolivre.com.br/racao-para-gatos-premier-adulto-frango-75kg/p/MLB22662335?pdp_filters=deal%3AMLB1578289-1",
+  "Bravecto Antipulgas Carrapatos MSD Cachorro 10 A 20kg 500mg 12 Semanas":
+    "https://www.mercadolivre.com.br/bravecto-antipulgas-carrapatos-msd-cachorro-10-a-20kg-500mg-12-semanas/p/MLB29831343?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Cama Para Cachorro Pets Suspensa Grande 90*60*15cm Preto Preto Liso":
+    "https://www.mercadolivre.com.br/kit-cama-para-cachorro-pets-suspensa-grande-906015cm-preto/up/MLBU3327688651?pdp_filters=item_id%3AMLB4141122179",
+  "Suplemento Avert Ograx Derme 10 em Cápsulas para Pelo e Derme de Cães e Gatos":
+    "https://www.mercadolivre.com.br/suplemento-avert-ograx-derme-10-em-capsulas-para-pelo-e-derme-de-caes-e-gatos/p/MLB25242070?pdp_filters=item_id%3AMLB4237204281",
+  "Suplemento Para Cavalos 500ml Transparente Broncodilatador":
+    "https://www.mercadolivre.com.br/suplemento-para-cavalos-500ml-transparente/p/MLB2042718935?pdp_filters=deal%3AMLB1578289-1",
+  "Bebedouro Fonte Automática MIW Para Gatos Cães Pet 1,5 Litros Com Filtro Purificador Silenciosa USB Dispensador Chafariz De Água Higiênico":
+    "https://www.mercadolivre.com.br/bebedouro-fonte-automatica-miw-para-gatos-caes-pet-15-litros-com-filtro-purificador-silenciosa-usb-dispensador-chafariz-de-agua-higienico/p/MLB73388736?pdp_filters=item_id%3AMLB4898868361",
+  "Cercado Grade 217x51cm 6 Módulos Segurança Pet Cães":
+    "https://produto.mercadolivre.com.br/MLB-4437649385-cercado-grade-217x51cm-6-modulos-seguranca-pet-ces-_JM",
+  "Kit 30 Friskies Sachês Ração Úmida Gatos Sabor Carne Ao Molho - 2 Cx":
+    "https://www.mercadolivre.com.br/kit-30-friskies-saches-racao-umida-gatos-sabor-carne-ao-molho-2-cx/p/MLB47605890?pdp_filters=deal%3AMLB1578289-1",
+  "Alimentador Automático Dosador Comida Peixes Aquario 4 Vezes":
+    "https://www.mercadolivre.com.br/alimentador-automatico-dosador-comida-peixes-aquario-4-vezes/p/MLB54124990?pdp_filters=deal%3AMLB1578289-1",
+  "Sal Rosa Himalaya Bovinos Equinos Caprinos 2.4 a 3.4kg Full":
+    "https://www.mercadolivre.com.br/sal-rosa-himalaya-bovinos-equinos-caprinos-24-a-34kg-full/p/MLB52125886?pdp_filters=item_id%3AMLB6818565546",
+  "Coleira peitoral com guia para cachorro pet Tamanho Grande Porte Regulável ajustável reforçado resistente Golden Retrievers Labrador Border Collie Pastor Alemão Pitbull cães Basic Pet cor Preto":
+    "https://www.mercadolivre.com.br/coleira-peitoral-com-guia-para-cachorro-pet-tamanho-grande-porte-regulavel-ajustavel-reforcado-resistente-golden-retrievers-labrador-border-collie-pastor-alemao-pitbull-caes-basic-pet-cor-preto/p/MLB47437490?pdp_filters=item_id%3AMLB5343618154",
+  "Coleira Peitoral Com Guia Para Cachorro Tamanho Médio Porte Regulável ajustável Bulldog Bug SRD Vira Lata Beagle Corgi Pet Cães Basic Pet Cor Preto":
+    "https://www.mercadolivre.com.br/coleira-peitoral-com-guia-para-cachorro-tamanho-medio-porte-regulavel-ajustavel-bulldog-bug-srd-vira-lata-beagle-corgi-pet-caes-basic-pet-cor-preto/p/MLB47535498?pdp_filters=item_id%3AMLB4025770233",
+  "Lamina Precision Edge 1mm Para Maquina A8s":
+    "https://www.mercadolivre.com.br/lamina-precision-edge-1mm-para-maquina-a8s/p/MLB45934019?pdp_filters=deal%3AMLB1578289-1",
+  "Caminha P/ Gato Cachorro Toca Redonda Casa Pelúcia Pet Cão Cor Cinza":
+    "https://www.mercadolivre.com.br/caminha-p-gato-cachorro-toca-redonda-casa-pelucia-pet-cao-cor-cinza/p/MLB32120665?pdp_filters=deal%3AMLB1578289-1",
+  "Bolsa Transporte Aéreo Cia Gol Para Cães E Gatos":
+    "https://www.mercadolivre.com.br/bolsa-transporte-aereo-cia-gol-para-caes-e-gatos/p/MLB23496515?pdp_filters=deal%3AMLB1578289-1",
+  "Eritros Suplemento Vitamínico Para Cães 30 Comprimidos Organnact":
+    "https://www.mercadolivre.com.br/eritros-suplemento-vitaminico-para-caes-30-comprimidos-organnact/p/MLB36861461?pdp_filters=item_id%3AMLB4719415169",
+  "Chocadeira Automática Até 48 Ovos com Ovoscópio OvoTec R-48 Viragem Automática Abastecimento de Água Automático":
+    "https://www.mercadolivre.com.br/chocadeira-automatica-ate-48-ovos-com-ovoscopio-ovotec-r-48-viragem-automatica-abastecimento-de-agua-automatico/p/MLB77326130?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 2 Tapetes Higiênicos Cães Super Secão 60 Unidades":
+    "https://www.mercadolivre.com.br/kit-2-tapetes-higienicos-caes-super-secao-60-unidades/p/MLB26460954?pdp_filters=item_id%3AMLB4439965825",
+  "Tapetes Higiênico Cachorro Cães Pads Prime Pet Prime 80x60 100un":
+    "https://www.mercadolivre.com.br/tapetes-higienico-cachorro-caes-pads-prime-pet-prime-80x60-100un/p/MLB69667686?pdp_filters=item_id%3AMLB5129597619",
+  "Kit 4 Nuxcell Fel Suplemento Vitamínico Para Gatos - 2g":
+    "https://www.mercadolivre.com.br/kit-4-nuxcell-fel-suplemento-vitaminico-para-gatos-2g/p/MLB36153622?pdp_filters=deal%3AMLB1578289-1",
+  "Shampoo Hydra Groomers Pro Pelos Claros Pet Society 1l 1:10":
+    "https://www.mercadolivre.com.br/shampoo-hydra-groomers-pro-pelos-claros-pet-society-1l-110/p/MLB70014629?pdp_filters=deal%3AMLB1578289-1",
+  "Farmadox 50 200g - Doxiciclina - Combate Doença Respiratória":
+    "https://www.mercadolivre.com.br/farmadox-50-200g--doxiciclina--combate-doenca-respiratoria/up/MLBU3681299198?pdp_filters=item_id%3AMLB4364333895",
+  "Coleira peitoral com guia para cachorro pet Tamanho Grande Porte Regulável ajustável reforçado resistente Golden Retrievers Labrador Border Collie Pastor Alemão Pitbull cães Basic Pet cor Lily":
+    "https://www.mercadolivre.com.br/coleira-peitoral-com-guia-para-cachorro-pet-tamanho-grande-porte-regulavel-ajustavel-reforcado-resistente-golden-retrievers-labrador-border-collie-pastor-alemao-pitbull-caes-basic-pet-cor-lily/p/MLB46509407?pdp_filters=item_id%3AMLB4029690785",
+  "Coleira peitoral com guia para cachorro pet Tamanho Grande Porte Regulável ajustável reforçado resistente Golden Retrievers Labrador Border Collie Pastor Alemão Pitbull cães Basic Pet cor Lawn":
+    "https://www.mercadolivre.com.br/coleira-peitoral-com-guia-para-cachorro-pet-tamanho-grande-porte-regulavel-ajustavel-reforcado-resistente-golden-retrievers-labrador-border-collie-pastor-alemao-pitbull-caes-basic-pet-cor-lawn/p/MLB47258818?pdp_filters=item_id%3AMLB5431269424",
+  "Coleira Peitoral Com Guia Para Cachorro Tamanho Médio Porte Regulável ajustável Bulldog Bug SRD Vira Lata Beagle Corgi Pet Cães Basic Pet Cor Lake":
+    "https://www.mercadolivre.com.br/coleira-peitoral-com-guia-para-cachorro-tamanho-medio-porte-regulavel-ajustavel-bulldog-bug-srd-vira-lata-beagle-corgi-pet-caes-basic-pet-cor-lake/p/MLB47673678?pdp_filters=item_id%3AMLB4024706809",
+  "Coleira Peitoral Com Guia Para Cachorro Tamanho Pequeno Pet Cães Regulável ajustável Shih Tzu Lhasa Apso Yorkshire Maltês Poodle Spitz Porte Basic Pet Cor Lawn":
+    "https://www.mercadolivre.com.br/coleira-peitoral-com-guia-para-cachorro-tamanho-pequeno-pet-caes-regulavel-ajustavel-shih-tzu-lhasa-apso-yorkshire-maltes-poodle-spitz-porte-basic-pet-cor-lawn/p/MLB47769346?pdp_filters=item_id%3AMLB4093655615",
+  "Kit Dermatite Alergia Pet Anti Coceira Aloe Pet E Derm Aloe Laranja Doce":
+    "https://www.mercadolivre.com.br/kit-dermatite-alergia-pet-anti-coceira-aloe-pet-e-derm-aloe-laranja-doce/p/MLB74727725?pdp_filters=item_id%3AMLB7071397642",
+  "Cercado Portátil Dobrável Pet Grande Cachorro Gato Anti Mord Cinza":
+    "https://www.mercadolivre.com.br/cercado-portatil-dobravel-pet-grande-cachorro-gato-anti-mord/up/MLBU4307121259?pdp_filters=item_id%3AMLB4895602937",
+  "Tenda Para Cachorro Dobrável Portátil, Uso Interno E Externo Cinza":
+    "https://www.mercadolivre.com.br/tenda-para-cachorro-dobravel-portatil-uso-interno-e-externo/up/MLBU4606644767?pdp_filters=item_id%3AMLB5011104627",
+  "Cercado Grade 331x70cm Portão + 8 Módulos Segurança Pet Cães Branco":
+    "https://www.mercadolivre.com.br/cercado-grade-331x70cm-portao--8-modulos-seguranca-pet-caes/up/MLBU3919568957?pdp_filters=deal%3AMLB1578289-1",
+  "Kit de 16 Brinquedos para Aves de Madeira, Com Sinos e Balanço, Para Periquitos e Calopsitas":
+    "https://www.mercadolivre.com.br/kit-de-16-brinquedos-para-aves-de-madeira-com-sinos-e-balanco-para-periquitos-e-calopsitas/p/MLB78763878?pdp_filters=item_id%3AMLB7569876462",
+  "Ração Quatree Supreme Filhote Raças Médias E Grandes 10,1kg":
+    "https://www.mercadolivre.com.br/racao-quatree--supreme-filhote-racas-medias-e-grandes-101kg/up/MLBU3935909898?pdp_filters=deal%3AMLB1578289-1",
+  "Brinquedo Lançador De Bolinhas Sport Para Cães Chuckit":
+    "https://www.mercadolivre.com.br/brinquedo-lancador-de-bolinhas-sport-para-caes-chuckit/up/MLBU3416835570?pdp_filters=item_id%3AMLB4199868019",
+  "Casinha De Gato 2 Andares Playground Arranhador 5 Degraus Bege":
+    "https://www.mercadolivre.com.br/casinha-de-gato-2-andares-playground-arranhador-5-degraus/up/MLBU4461890479?pdp_filters=item_id%3AMLB4959854553",
+  "Kit 50 Bandanas Pet Sortidas Ajustáveis Cães E Gatos Premium Colorido Junino Sortido":
+    "https://www.mercadolivre.com.br/kit-50-bandanas-pet-sortidas-ajustaveis-caes-e-gatos-premium/up/MLBU4037462582?pdp_filters=item_id%3AMLB4723238937",
+  "Arranhador Cama Gato Casinha Pet 2 Gatos Toca Dois Andares":
+    "https://produto.mercadolivre.com.br/MLB-3807291951-arranhador-cama-gato-casinha-pet-2-gatos-toca-dois-andares-_JM",
+  "Fralda Descartável Higiênica Cães Fêmea Hard Pet Gg 12un Gg":
+    "https://www.mercadolivre.com.br/fralda-descartavel-higienica-caes-femea-hard-pet-gg-12un/up/MLBU3045795630?pdp_filters=item_id%3AMLB3989928051",
+  "Casinha De Gato Com Arranhador Toca 2 Andares Brinquedo Bege":
+    "https://www.mercadolivre.com.br/casinha-de-gato-com-arranhador-toca-2-andares-brinquedo/up/MLBU4461664911?pdp_filters=item_id%3AMLB4959752379",
+  "Ripercol 7,5% 250ml Tratamento Bovinos E Suínos":
+    "https://www.mercadolivre.com.br/ripercol-75-250ml-tratamento-bovinos-e-suinos/up/MLBU3502565679?pdp_filters=item_id%3AMLB4265684449",
+  "Cama Pet Caminha Para Cachorro E Gato Com Almofada":
+    "https://produto.mercadolivre.com.br/MLB-5049051443-cama-pet-caminha-para-cachorro-e-gato-com-almofada-_JM?pdp_filters=item_id%3AMLB5049051443",
+  "Vermífugo NATU VERM PÓ Azul Pet 25un Cavalos Bovinos Caprinos Suínos Aves":
+    "https://www.mercadolivre.com.br/vermifugo-natu-verm-po-azul-pet-25un-cavalos-bovinos-caprinos-suinos-aves/p/MLB61632922?pdp_filters=item_id%3AMLB5890798096",
+  "Kit Shampoo Neutralizador Condicionador Perfume Cereja Avelã Dolce Pet":
+    "https://www.mercadolivre.com.br/kit-shampoo-neutralizador-condicionador-perfume-cereja-avela-dolce-pet/p/MLB48767759?pdp_filters=deal%3AMLB1578289-1",
+  "Casinha Cama Toca Sofá Casa Pet Arranhador Mdf":
+    "https://www.mercadolivre.com.br/casinha-cama-toca-sofa-casa-pet-arranhador/up/MLBU4121091973?pdp_filters=deal%3AMLB1578289-1",
 };
