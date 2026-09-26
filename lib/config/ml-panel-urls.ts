@@ -4326,4 +4326,572 @@ export const ML_PANEL_URLS: Readonly<Record<string, string>> = {
     "https://www.mercadolivre.com.br/kit-40-kg-anilhas-ferro-fundido--barras-com-presilhas-preto/up/MLBU5048483353?pdp_filters=item_id%3AMLB7570508866",
   "Mochila Para Raquete Tenis 50l Mochila Beach Tennis70cm Alto":
     "https://produto.mercadolivre.com.br/MLB-5094347213-mochila-para-raquete-tenis-50l-mochila-beach-tennis70cm-alto-_JM",
+  "Fritadeira sem óleo air fryer 4L Mondial 1500W AFN-40-BFT":
+    "https://www.mercadolivre.com.br/fritadeira-sem-oleo-air-fryer-4l-mondial-1500w-afn-40-bft/p/MLB22530387?pdp_filters=deal%3AMLB1578289-1",
+  "Purificador de Água Gelada Fria e Natural Elétrico Compacto Eletrônico placa Filtro refil 6 meses ou 3000l Painel Touch Bivolt Cinza PE12G Electrolux":
+    "https://www.mercadolivre.com.br/purificador-de-agua-gelada-fria-e-natural-eletrico-compacto-eletronico-placa-filtro-refil-6-meses-ou-3000l-painel-touch-bivolt-cinza-pe12g-electrolux/p/MLB24804661?pdp_filters=deal%3AMLB1578289-1",
+  "Robô aspirador Robot W90 varre aspira e passa pano 30w Wap cor preto":
+    "https://www.mercadolivre.com.br/robo-aspirador-robot-w90-varre-aspira-e-passa-pano-30w-wap-cor-preto/p/MLB19731776?pdp_filters=deal%3AMLB1578289-1",
+  "Cooktop Itatiaia Essencial 5 Bocas Preto":
+    "https://www.mercadolivre.com.br/cooktop-itatiaia-essencial-5-bocas-preto/p/MLB23997577?pdp_filters=deal%3AMLB1578289-1",
+  "Aspirador De Pó e Água Wap Gtw 10 Compacto 1400w 10 Litros Amarelo":
+    "https://www.mercadolivre.com.br/aspirador-de-po-e-agua-wap-gtw-10-compacto-1400w-10-litros-amarelo/p/MLB8923630?pdp_filters=deal%3AMLB1578289-1",
+  "Aspirador de Pó Vertical e Portátil WAP High Speed Plus 1350W 3 em 1":
+    "https://www.mercadolivre.com.br/aspirador-de-po-vertical-e-portatil-wap-high-speed-plus-1350w-3-em-1/p/MLB22511808?pdp_filters=deal%3AMLB1578289-1",
+  "Aspirador de Pó Turbo Cycle, Mondial, 1100W - AP-36":
+    "https://www.mercadolivre.com.br/aspirador-de-po-turbo-cycle-mondial-1100w-ap-36/p/MLB14214629?pdp_filters=deal%3AMLB1578289-1",
+  "Balança Digital Bioimpedância Profissional smart imc 180kg Bluetooth Corporal Aparelho Alta Capacidade aplicativo App para Android e para IOS Balança De Banheiro Academia":
+    "https://www.mercadolivre.com.br/balanca-digital-bioimpedancia-profissional-smart-imc-180kg-bluetooth-corporal-aparelho-alta-capacidade-aplicativo-app-para-android-e-para-ios-balanca-de-banheiro-academia/p/MLB54514525?pdp_filters=item_id%3AMLB4189368533",
+  "Micro-ondas Electrolux Prata 23L Efficient ME23S 127V":
+    "https://www.mercadolivre.com.br/micro-ondas-electrolux-prata-23l-efficient-me23s-127v/p/MLB19617680?pdp_filters=item_id%3AMLB7625193266",
+  "Aspirador de Pó e Água WAP GTW INOX 12 1400W com Bocal de Sopro":
+    "https://www.mercadolivre.com.br/aspirador-de-po-e-agua-wap-gtw-inox-12-1400w-com-bocal-de-sopro/p/MLB6339959?pdp_filters=item_id%3AMLB5080846129",
+  "Fritadeira Elétrica AFON-12L-BG Forno Oven 12 Litros Preto Mondial":
+    "https://www.mercadolivre.com.br/fritadeira-eletrica-afon-12l-bg-forno-oven-12-litros-preto-mondial/p/MLB44117615?pdp_filters=deal%3AMLB1578289-1",
+  "Cafeteira Nescafé Dolce Gusto Arno Genio S Plus Preta 110v":
+    "https://www.mercadolivre.com.br/cafeteira-nescafe-dolce-gusto-arno-genio-s-plus-preta-110v/p/MLB17003267?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora Semiautomática Lcs 10kg Branca Colormaq 110v Branco":
+    "https://www.mercadolivre.com.br/lavadora-semiautomatica-lcs-10kg-branca-colormaq-110v-branco/p/MLB14815387?pdp_filters=deal%3AMLB1578289-1",
+  "Cafeteira Espresso Lov Automática Vermelha 3 Corações Vermelho":
+    "https://www.mercadolivre.com.br/cafeteira-espresso-lov-automatica-vermelha-3-coracoes-vermelho/p/MLB18572540?pdp_filters=deal%3AMLB1578289-1",
+  "Forno Elétrico Philco 44L Preto Dupla Resistência PFE44P":
+    "https://www.mercadolivre.com.br/forno-eletrico-philco-44l-preto-dupla-resistencia-pfe44p/p/MLB26318454?pdp_filters=deal%3AMLB1578289-1",
+  "Micro-ondas Philco 20L Branco Pintura Limpa Fácil PMO23B":
+    "https://www.mercadolivre.com.br/micro-ondas-philco-20l-branco-pintura-limpa-facil-pmo23b/p/MLB18232956?pdp_filters=deal%3AMLB1578289-1",
+  "Micro-ondas MTO30 20L Com Função Tira Odor e Descongelar Cor Branco Electrolux":
+    "https://www.mercadolivre.com.br/micro-ondas-mto30-20l-com-funcao-tira-odor-e-descongelar-cor-branco-electrolux/p/MLB6309816?pdp_filters=deal%3AMLB1578289-1",
+  "Air Fryer Britânia 5,5L Antiaderente Gold 1500W BFR51":
+    "https://www.mercadolivre.com.br/air-fryer-britania-55l-antiaderente-gold-1500w-bfr51/p/MLB36263265?pdp_filters=deal%3AMLB1578289-1",
+  "Climatizador Ar Frio Portátil Evaporativo 16 Litros Umidificador Ventisol Clin 16":
+    "https://www.mercadolivre.com.br/climatizador-ar-frio-portatil-evaporativo-16-litros-umidificador-ventisol-clin-16/p/MLB26208174?pdp_filters=deal%3AMLB1578289-1",
+  "Extrator de Sucos E-10 Turbo Premium Com Potência De 250W Cor Preto e Inox Mondial":
+    "https://www.mercadolivre.com.br/extrator-de-sucos-e-10-turbo-premium-com-potencia-de-250w-cor-preto-e-inox-mondial/p/MLB27646299?pdp_filters=deal%3AMLB1578289-1",
+  "Purificador Hidrofiltros Facile C3 Água Natural Selo Inmetro Preto":
+    "https://www.mercadolivre.com.br/purificador-hidrofiltros-facile-c3-agua-natural-selo-inmetro-preto/p/MLB23487354?pdp_filters=item_id%3AMLB3605484231",
+  "Ventilador Oscilante De Coluna Ventisol Turbo 6 Pás 50cm Preto":
+    "https://www.mercadolivre.com.br/ventilador-oscilante-de-coluna-ventisol-turbo-6-pas-50cm-preto/p/MLB14434776?pdp_filters=deal%3AMLB1578289-1",
+  "Personal Blender, Mondial, Preto/prata, 500W DG-01":
+    "https://www.mercadolivre.com.br/personal-blender-mondial-pretoprata-500w-dg-01/p/MLB26862649?pdp_filters=deal%3AMLB1578289-1",
+  "Aspirador de Pó e Água Electrolux 1400W 12 Litros 5,9 raio de ação Compacto Potente Função Sopro protetor térmico AWD01":
+    "https://www.mercadolivre.com.br/aspirador-de-po-e-agua-electrolux-1400w-12-litros-59-raio-de-acao-compacto-potente-funcao-sopro-protetor-termico-awd01/p/MLB6339793?pdp_filters=deal%3AMLB1578289-1",
+  "Aspirador de Pó Vertical Electrolux 1450W STK15 com Fio Portátil de Mão 2 em 1 e 1,6 Litros de capacidade com Filtro Hepa Cinza-escuro":
+    "https://www.mercadolivre.com.br/aspirador-de-po-vertical-electrolux-1450w-stk15-com-fio-portatil-de-mao-2-em-1-e-16-litros-de-capacidade-com-filtro-hepa-cinza-escuro/p/MLB18238727?pdp_filters=deal%3AMLB1578289-1",
+  "Balança Bioimpedancia Digital 180kg Smart Imc Profissional":
+    "https://www.mercadolivre.com.br/balanca-bioimpedancia-digital-180kg-smart-imc-profissional/up/MLBU1719697350?pdp_filters=item_id%3AMLB2049989312",
+  "Aspirador de Pó e Água Electrolux Acqua Power 1400W 11L com Função Sopro, Rodas 360°, Alta Sucção e Acessórios para Limpeza Residencial e Automotiva AQP20":
+    "https://www.mercadolivre.com.br/aspirador-de-po-e-agua-electrolux-acqua-power-1400w-11l-com-funcao-sopro-rodas-360-alta-succao-e-acessorios-para-limpeza-residencial-e-automotiva-aqp20/p/MLB6215150?pdp_filters=deal%3AMLB1578289-1",
+  "Panela De Arroz Fast Rice 5 Premium Mondial NPE-08-5X":
+    "https://www.mercadolivre.com.br/panela-de-arroz-fast-rice-5-premium-mondial-npe-08-5x/p/MLB15532115?pdp_filters=deal%3AMLB1578289-1",
+  "Aspirador de Pó Vertical Electrolux 1.100W STK12 cabo de 5m portátil de mão 2 em 1 potente com capacidade 1,2L filtro HEPA preto":
+    "https://www.mercadolivre.com.br/aspirador-de-po-vertical-electrolux-1100w-stk12-cabo-de-5m-portatil-de-mao-2-em-1-potente-com-capacidade-12l-filtro-hepa-preto/p/MLB18781058?pdp_filters=deal%3AMLB1578289-1",
+  "Lava-Louças Brastemp 8 Serviços Inox - BLF08BS":
+    "https://www.mercadolivre.com.br/lava-loucas-brastemp-8-servicos-inox-blf08bs/p/MLB19628776?pdp_filters=deal%3AMLB1578289-1",
+  "Geladeira Electrolux Cycle Defrost 240L Degelo Prático Uma Porta Branca RE31":
+    "https://www.mercadolivre.com.br/geladeira-electrolux-cycle-defrost-240l-degelo-pratico-uma-porta-branca-re31/p/MLB6077911?pdp_filters=deal%3AMLB1578289-1",
+  "Ar-condicionado Electrolux Split Inverter 9.000 Btus Color Adapt Wi-Fi Só Frio Cor Branco":
+    "https://www.mercadolivre.com.br/ar-condicionado-electrolux-split-inverter-9000-btus-color-adapt-wi-fi-so-frio-cor-branco/p/MLB28473123?pdp_filters=deal%3AMLB1578289-1",
+  "Máquina de Lavar Brastemp 14Kg Branca Smart Sensor- BWJ14AB":
+    "https://www.mercadolivre.com.br/maquina-de-lavar-brastemp-14kg-branca-smart-sensor-bwj14ab/p/MLB61372818?pdp_filters=deal%3AMLB1578289-1",
+  "Fritadeira Air Fryer 5,5l Widemax Com Interior De Alumínio 1900w Midea":
+    "https://www.mercadolivre.com.br/fritadeira-air-fryer-55l-widemax-com-interior-de-aluminio-1900w-midea/p/MLB50256671?pdp_filters=item_id%3AMLB5742654474",
+  "Máquina De Lavar 13kg Electrolux Cesto Inox, Jet&clean Led13 Cor Branco":
+    "https://www.mercadolivre.com.br/maquina-de-lavar-13kg-electrolux-cesto-inox-jetclean-led13-cor-branco/p/MLB18910123?pdp_filters=deal%3AMLB1578289-1",
+  "Ar Condicionado Split Hi Wall TCL T-Pro 2.0 Inverter 9.000 Btus Frio R-32":
+    "https://www.mercadolivre.com.br/ar-condicionado-split-hi-wall-tcl-t-pro-20-inverter-9000-btus-frio-r-32/p/MLB44302915?pdp_filters=deal%3AMLB1578289-1",
+  "Philco Fritadeiras PAF16A 220":
+    "https://www.mercadolivre.com.br/philco-fritadeiras-paf16a-220/p/MLB46016994?pdp_filters=deal%3AMLB1578289-1",
+  "Robô Aspirador Xiaomi S40 Pro Alexa E Google Branco BIVOLT":
+    "https://www.mercadolivre.com.br/robo-aspirador-xiaomi-s40-pro-alexa-e-google-branco-bivolt/p/MLB64251864?pdp_filters=deal%3AMLB1578289-1",
+  "Máquina De Lavar Branca Consul 12kg Com Dosagem Econômica E Cor Branco 110v":
+    "https://www.mercadolivre.com.br/maquina-de-lavar-branca-consul-12kg-com-dosagem-economica-e-cor-branco-110v/p/MLB59322248?pdp_filters=deal%3AMLB1578289-1",
+  "Máquina De Lavar Automática Consul Hasta 12kg Branco":
+    "https://www.mercadolivre.com.br/maquina-de-lavar-automatica-consul-hasta-12kg-branco/p/MLB59322254?pdp_filters=deal%3AMLB1578289-1",
+  "Fritadeira Sem Óleo Super Cook Fryer Frt410 3,8l Cadence Cor Preto":
+    "https://www.mercadolivre.com.br/fritadeira-sem-oleo-super-cook-fryer-frt410-38l-cadence-cor-preto/p/MLB22938851?pdp_filters=item_id%3AMLB4429650375",
+  "Extratora de Sujeira Portátil WAP Spot Cleaner W3 Borrifa Esfrega e Extrai 1450W de Potência e Bico de Autolimpeza":
+    "https://www.mercadolivre.com.br/extratora-de-sujeira-portatil-wap-spot-cleaner-w3-borrifa-esfrega-e-extrai-1450w-de-potencia-e-bico-de-autolimpeza/p/MLB26797982?pdp_filters=deal%3AMLB1578289-1",
+  "Panela De Pressão Elétrica 5 Litros Aço Inox Preto Multifuncional Kian Ppe 101":
+    "https://www.mercadolivre.com.br/panela-de-pressao-eletrica-5-litros-aco-inox-preto-multifuncional-kian-ppe-101/p/MLB50190417?pdp_filters=item_id%3AMLB6527040132",
+  "Air Fryer Oven 12L WAP 10 Funções Pré-Programadas Dois Andares Antiaderente GrayStone Fritadeira Elétrica 220V":
+    "https://www.mercadolivre.com.br/air-fryer-oven-12l-wap-10-funcoes-pre-programadas-dois-andares-antiaderente-graystone-fritadeira-eletrica-220v/p/MLB42225245?pdp_filters=deal%3AMLB1578289-1",
+  "Micro-ondas Brastemp 20L Inox Espelhado - BMS20AR":
+    "https://www.mercadolivre.com.br/micro-ondas-brastemp-20l-inox-espelhado-bms20ar/p/MLB14671958?pdp_filters=deal%3AMLB1578289-1",
+  "Fritadeira Elétrica Air Fryer Oven Black INOX WAP WAOD2":
+    "https://www.mercadolivre.com.br/fritadeira-eletrica-air-fryer-oven-black-inox-wap-waod2/p/MLB43435820?pdp_filters=deal%3AMLB1578289-1",
+  "Batedeira Planetária Bowl Inox Iii Obat641 Oster Cor Preto Frequência 1":
+    "https://www.mercadolivre.com.br/batedeira-planetaria-bowl-inox-iii-obat641-oster-cor-preto-frequencia-1/p/MLB23406093?pdp_filters=deal%3AMLB1578289-1",
+  "Tanquinho Colormaq Lavadora Roupas Semi-automática Lcs 10kg Cor Prata":
+    "https://www.mercadolivre.com.br/tanquinho-colormaq-lavadora-roupas-semi-automatica-lcs-10kg-cor-prata/p/MLB14815390?pdp_filters=deal%3AMLB1578289-1",
+  "Fritadeira Air Fryer Forno Oven 12L, Mondial, 2200W - AFON-12L-BI":
+    "https://www.mercadolivre.com.br/fritadeira-air-fryer-forno-oven-12l-mondial-2200w-afon-12l-bi/p/MLB34722310?pdp_filters=deal%3AMLB1578289-1",
+  "Panificadora Automática Master Bread Mondial 700W NPF-53":
+    "https://www.mercadolivre.com.br/panificadora-automatica-master-bread-mondial-700w-npf-53/p/MLB14333316?pdp_filters=deal%3AMLB1578289-1",
+  "Tanquinho Colormaq 15kg Branco":
+    "https://www.mercadolivre.com.br/tanquinho-colormaq-15kg-branco/p/MLB25676946?pdp_filters=deal%3AMLB1578289-1",
+  "Fritadeira Air Fryer Philco 16 Litros Paf16c Preto 220v":
+    "https://www.mercadolivre.com.br/fritadeira-air-fryer-philco-16-litros-paf16c-preto-220v/p/MLB66895633?pdp_filters=deal%3AMLB1578289-1",
+  "Micro-ondas Consul 32L Branco com Menu Fácil - CMS46AB":
+    "https://www.mercadolivre.com.br/micro-ondas-consul-32l-branco-com-menu-facil-cms46ab/p/MLB21361423?pdp_filters=deal%3AMLB1578289-1",
+  "Cafeteira Espresso Lov Preta v - Tres 3 Corações Preto":
+    "https://www.mercadolivre.com.br/cafeteira-espresso-lov-preta-v-tres-3-coracoes-preto/p/MLB24527144?pdp_filters=deal%3AMLB1578289-1",
+  "Micro-ondas Mondial 21L 1200W MO-01-21-E Espelhado":
+    "https://www.mercadolivre.com.br/micro-ondas-mondial-21l-1200w-mo-01-21-e-espelhado/p/MLB45445267?pdp_filters=deal%3AMLB1578289-1",
+  "Robô Aspirador de Pó WAP ROBOT W90 PÉROLA Automático 3 em 1":
+    "https://www.mercadolivre.com.br/robo-aspirador-de-po-wap-robot-w90-perola-automatico-3-em-1/p/MLB37886166?pdp_filters=deal%3AMLB1578289-1",
+  "Mixer De Mão Portátil 8 Velocidades 3 Em 1 Inox 800w Kookin Knhb1008 Multifuncional Com Função Turbo E Lâminas Aprimoradas 2 Afiadas + 2 Reforçadas Em Aço Inox 304":
+    "https://www.mercadolivre.com.br/mixer-de-mao-portatil-8-velocidades-3-em-1-inox-800w-kookin-knhb1008-multifuncional-com-funcao-turbo-e-laminas-aprimoradas-2-afiadas-2-reforcadas-em-aco-inox-304/p/MLB56096848?pdp_filters=item_id%3AMLB6213042486",
+  "Aspirador de pó robô philco 3 em 1 pas23 Com Mop Preto":
+    "https://www.mercadolivre.com.br/aspirador-de-po-robo-philco-3-em-1-pas23-com-mop-preto/p/MLB45423603?pdp_filters=deal%3AMLB1578289-1",
+  "Fritadeira Air Fryer Oven 11 Litros 1800w 8 Funções Philco PAF11B":
+    "https://www.mercadolivre.com.br/fritadeira-air-fryer-oven-11-litros-1800w-8-funcoes-philco-paf11b/p/MLB56550237?pdp_filters=deal%3AMLB1578289-1",
+  "Purificador De Água Consul refrigerado Natural E Gelada com proteção antibactérias Bivolt Consul Branco - CPB34ASVNA":
+    "https://www.mercadolivre.com.br/purificador-de-agua-consul-refrigerado-natural-e-gelada-com-protecao-antibacterias-bivolt-consul-branco-cpb34asvna/p/MLB23501697?pdp_filters=deal%3AMLB1578289-1",
+  "Climatizador Clin Ventisol 16L Cinza CLIN16L-02":
+    "https://www.mercadolivre.com.br/climatizador-clin-ventisol-16l-cinza-clin16l-02/p/MLB26607986?pdp_filters=deal%3AMLB1578289-1",
+  "Espremedor de Fruta Industrial Metal Fenix 500W Inox Bivolt Limão Laranja":
+    "https://www.mercadolivre.com.br/espremedor-de-fruta-industrial-metal-fenix-500w-inox-bivolt-limao-laranja/p/MLB62020116?pdp_filters=item_id%3AMLB7533957894",
+  "Forno Elétrico Philco 50L Dupla Resistência PFE52P":
+    "https://www.mercadolivre.com.br/forno-eletrico-philco-50l-dupla-resistencia-pfe52p/p/MLB28529446?pdp_filters=deal%3AMLB1578289-1",
+  "Panela De Pressão Elétrica 5 Litros Kian Inox":
+    "https://www.mercadolivre.com.br/panela-de-pressao-eletrica-5-litros-kian-inox/p/MLB47405572?pdp_filters=deal%3AMLB1578289-1",
+  "Forno Elétrico Britânia 52l Dupla Resistência Bfe55p":
+    "https://www.mercadolivre.com.br/forno-eletrico-britania-52l-dupla-resistencia-bfe55p/p/MLB29126842?pdp_filters=deal%3AMLB1578289-1",
+  "Air Fryer Philco 9,5L Visor Glass Redstone 1800W PAF95A":
+    "https://www.mercadolivre.com.br/air-fryer-philco-95l-visor-glass-redstone-1800w-paf95a/p/MLB64644921?pdp_filters=deal%3AMLB1578289-1",
+  "Purificador de Água Gelada Fria e Natural Eletrônico Ibbl E-due Equilibrium Branco":
+    "https://www.mercadolivre.com.br/purificador-de-agua-gelada-fria-e-natural-eletronico-ibbl-e-due-equilibrium-branco/p/MLB23641514?pdp_filters=deal%3AMLB1578289-1",
+  "Batedeira Planetária, Mondial, 700W - BP-03-B":
+    "https://www.mercadolivre.com.br/batedeira-planetaria-mondial-700w-bp-03-b/p/MLB18623992?pdp_filters=deal%3AMLB1578289-1",
+  "Multiprocessador Philco 1700W 9 em 1 Preto PMP1600P":
+    "https://www.mercadolivre.com.br/multiprocessador-philco-1700w-9-em-1-preto-pmp1600p/p/MLB14523112?pdp_filters=deal%3AMLB1578289-1",
+  "Air Fryer Oven Britânia 11L 8 Funções 1800W Painel Digital BAF11A":
+    "https://www.mercadolivre.com.br/air-fryer-oven-britania-11l-8-funcoes-1800w-painel-digital-baf11a/p/MLB62230579?pdp_filters=deal%3AMLB1578289-1",
+  "Fritadeira Elétrica Air Fryer Quad Fry Elgin 4,2 L, 1400w":
+    "https://www.mercadolivre.com.br/fritadeira-eletrica-air-fryer-quad-fry-elgin-42-l-1400w/p/MLB50376945?pdp_filters=deal%3AMLB1578289-1",
+  "Forno Elétrico 52L Grand Family II, Mondial 1800W FRN-52-B":
+    "https://www.mercadolivre.com.br/forno-eletrico-52l-grand-family-ii-mondial-1800w-frn-52-b/p/MLB53802029?pdp_filters=deal%3AMLB1578289-1",
+  "Multiprocessador Britânia 5 Em 1 Bmp2000 1300w Cor Prateado":
+    "https://www.mercadolivre.com.br/multiprocessador-britania-5-em-1-bmp2000-1300w-cor-prateado/p/MLB32164937?pdp_filters=deal%3AMLB1578289-1",
+  "Forno Elétrico Britânia 44L Preto Dupla Resistência 1500W BFE44P 127V":
+    "https://www.mercadolivre.com.br/forno-eletrico-britania-44l-preto-dupla-resistencia-1500w-bfe44p-127v/p/MLB40535137?pdp_filters=deal%3AMLB1578289-1",
+  "Air Fryer Philco 6,5L Visor Glass e Redstone 1700W PAF65A":
+    "https://www.mercadolivre.com.br/air-fryer-philco-65l-visor-glass-e-redstone-1700w-paf65a/p/MLB52052995?pdp_filters=deal%3AMLB1578289-1",
+  "Cooktop Itatiaia Essencial 5 Bocas - Bivolt":
+    "https://www.mercadolivre.com.br/cooktop-itatiaia-essencial-5-bocas-bivolt/p/MLB22849402?pdp_filters=deal%3AMLB1578289-1",
+  "Inalador Nebulizador Compressor Gtech Infantil Adulto Bivolt Branco 127/220v":
+    "https://www.mercadolivre.com.br/inalador-nebulizador-compressor-gtech-infantil-adulto-bivolt/up/MLBU1458925248?pdp_filters=item_id%3AMLB3681033204",
+  "Ferro Vaporizador Portátil E Dobrável 3 Em 1 Black Decker Modelo Bdv3000 Branco":
+    "https://www.mercadolivre.com.br/ferro-vaporizador-portatil-e-dobravel-3-em-1-black-decker-modelo-bdv3000-branco/p/MLB53889656?pdp_filters=deal%3AMLB1578289-1",
+  "Ventilador Coluna 40cm Super Turbo 8 Pás, Mondial, 140W - VTX-40C-8P":
+    "https://www.mercadolivre.com.br/ventilador-coluna-40cm-super-turbo-8-pas-mondial-140w-vtx-40c-8p/p/MLB19518480?pdp_filters=deal%3AMLB1578289-1",
+  "Purificador Consul Cpc31af Água Natural Certificado Cor Cinza":
+    "https://www.mercadolivre.com.br/purificador-consul-cpc31af-agua-natural-certificado-cor-cinza/p/MLB28468535?pdp_filters=deal%3AMLB1578289-1",
+  "Mixer Power Oster Black Inox 750w 3 Em 1 OMIX570":
+    "https://www.mercadolivre.com.br/mixer-power-oster-black-inox-750w-3-em-1-omix570/p/MLB46012849?pdp_filters=deal%3AMLB1578289-1",
+  "Pipoqueira Popflix PP-03 1200W Vermelha Mondial":
+    "https://www.mercadolivre.com.br/pipoqueira-popflix-pp-03-1200w-vermelha-mondial/p/MLB14805721?pdp_filters=item_id%3AMLB7030936438",
+  "Panela De Arroz Bianca Rice 5 Mondial 400W NPE-05-5X":
+    "https://www.mercadolivre.com.br/panela-de-arroz-bianca-rice-5-mondial-400w-npe-05-5x/p/MLB24105320?pdp_filters=item_id%3AMLB4508253307",
+  "Panela De Arroz Elétrica 10 Xícaras 1.8 Litros Prateado":
+    "https://www.mercadolivre.com.br/panela-de-arroz-eletrica-10-xicaras-18-litros-prateado/p/MLB62592665?pdp_filters=item_id%3AMLB5136905777",
+  "Panela Pressão Elétrica Elgin 42ppr 4 Litros 840w Aço Inox":
+    "https://www.mercadolivre.com.br/panela-pressao-eletrica-elgin-42ppr-4-litros-840w-aco-inox/p/MLB19590486?pdp_filters=deal%3AMLB1578289-1",
+  "Colmeia Filtro Para Climatizador Ventisol Clin Pro 35 60 80":
+    "https://www.mercadolivre.com.br/colmeia-filtro-para-climatizador-ventisol-clin-pro-35-60-80/up/MLBU1451858033?pdp_filters=item_id%3AMLB3606739475",
+  "Fritadeira Elétrica Air Fryer Wap Wafg2s 5 Litros Com Revestimento Antiaderente 1500w 220v":
+    "https://www.mercadolivre.com.br/fritadeira-eletrica-air-fryer-wap-wafg2s-5-litros-com-revestimento-antiaderente-1500w-220v/p/MLB53767795?pdp_filters=deal%3AMLB1578289-1",
+  "Fritadeira Air Fryer Itatiaia 3,5L Preto 1300W":
+    "https://www.mercadolivre.com.br/fritadeira-air-fryer-itatiaia-35l-preto-1300w/p/MLB61695882?pdp_filters=deal%3AMLB1578289-1",
+  "NZA - Fogão Elétrico 2 Bocas 2500W - Preto":
+    "https://www.mercadolivre.com.br/nza-fogao-eletrico-2-bocas-2500w-preto/p/MLB72725809?pdp_filters=item_id%3AMLB4744737573",
+  "Marmita Elétrica Bivolt (110v/220v) e Veicular 12v":
+    "https://www.mercadolivre.com.br/marmita-eletrica-bivolt-110v220v-e-veicular-12v/p/MLB62334196?pdp_filters=item_id%3AMLB5973809182",
+  "Passadeira a Vapor Portátil Philco PVP10VD Bivolt":
+    "https://www.mercadolivre.com.br/passadeira-a-vapor-portatil-philco-pvp10vd-bivolt/p/MLB21780107?pdp_filters=deal%3AMLB1578289-1",
+  "Fogão Cooktop de Mesa Portátil Asiático com Mesa Inox 4 Bocas Á gás Acendimento Manual Braslar Preto":
+    "https://www.mercadolivre.com.br/fogao-cooktop-de-mesa-portatil-asiatico-com-mesa-inox-4-bocas-a-gas-acendimento-manual-braslar-preto/p/MLB16015195?pdp_filters=deal%3AMLB1578289-1",
+  "Chaleira Elétrica Inox 1,8L 1500W Aquecimento Rápido Automática":
+    "https://www.mercadolivre.com.br/chaleira-eletrica-inox-18l-1500w-aquecimento-rapido-automatica/p/MLB62000830?pdp_filters=item_id%3AMLB5949917728",
+  "Chaleira Elétrica Inox 1,8L 1000W Aquecimento Rápido Automática":
+    "https://www.mercadolivre.com.br/chaleira-eletrica-inox-18l-1000w-aquecimento-rapido-automatica/p/MLB57350160?pdp_filters=item_id%3AMLB5742456466",
+  "Mixer Turbo Kian 3 em 1 de 1000W com 5 Velocidades":
+    "https://www.mercadolivre.com.br/mixer-turbo-kian-3-em-1-de-1000w-com-5-velocidades/p/MLB42619930?pdp_filters=deal%3AMLB1578289-1",
+  "Mini Processador Turbo Pratic Mp16b 300w Preto Mondial":
+    "https://www.mercadolivre.com.br/mini-processador-turbo-pratic-mp16b-300w-preto-mondial/p/MLB17406693?pdp_filters=deal%3AMLB1578289-1",
+  'Ventilador de Mesa e Parede Britânia Maxx Force Turbo BVT400 Preto 150W com 3 Velocidades e Diâmetro de 40"':
+    "https://www.mercadolivre.com.br/ventilador-de-mesa-e-parede-britania-maxx-force-turbo-bvt400-preto-150w-com-3-velocidades-e-diametro-de-40/p/MLB27631235?pdp_filters=deal%3AMLB1578289-1",
+  "Multiprocessador Alimento Moedor Triturador Eletrico 2l Inox Prateado 110v":
+    "https://www.mercadolivre.com.br/multiprocessador-alimento-moedor-triturador-eletrico-2l-inox/up/MLBU4726976364?pdp_filters=item_id%3AMLB7410017304",
+  "Panela Elétrica de Arroz Elgin Rizzo 5 Xícaras 400W Preta -":
+    "https://www.mercadolivre.com.br/panela-eletrica-de-arroz-elgin-rizzo-5-xicaras-400w-preta-/p/MLB47769960?pdp_filters=deal%3AMLB1578289-1",
+  "Aspirador De Pó Vertical 2 Em 1 1400w Philco Pas1550c Cor Cinza":
+    "https://www.mercadolivre.com.br/aspirador-de-po-vertical-2-em-1-1400w-philco-pas1550c-cor-cinza/p/MLB24171276?pdp_filters=deal%3AMLB1578289-1",
+  "Balança De Bioimpedância 8 Sensores Relaxmedic Digital Preto":
+    "https://www.mercadolivre.com.br/balanca-de-bioimpedancia-8-sensores-relaxmedic-digital-preto/p/MLB64134227?pdp_filters=item_id%3AMLB6156594588",
+  "Lava e Seca Samsung WD11A com Ecobubble WD11A4453BX Inox Look 11/7kg":
+    "https://www.mercadolivre.com.br/lava-e-seca-samsung-wd11a-com-ecobubble-wd11a4453bx-inox-look-117kg/p/MLB19120023?pdp_filters=deal%3AMLB1578289-1",
+  "Geladeira Consul Frost Free 377 Litros Duplex Inox - CRM44MK":
+    "https://www.mercadolivre.com.br/geladeira-consul-frost-free-377-litros-duplex-inox-crm44mk/p/MLB54119844?pdp_filters=deal%3AMLB1578289-1",
+  "Ar Condicionado Split Elgin Eco Inverter Ii Wi-fi 12000 Btu/ Cor Branco":
+    "https://www.mercadolivre.com.br/ar-condicionado-split-elgin-eco-inverter-ii-wi-fi-12000-btu-cor-branco/p/MLB55577033?pdp_filters=deal%3AMLB1578289-1",
+  "Geladeira Electrolux Frost Free 320L Duplex Inox Look (TF38S)":
+    "https://www.mercadolivre.com.br/geladeira-electrolux-frost-free-320l-duplex-inox-look-tf38s/p/MLB57348431?pdp_filters=deal%3AMLB1578289-1",
+  "Secadora de Roupa Brastemp 10kg BSR10BB Cor Branco":
+    "https://www.mercadolivre.com.br/secadora-de-roupa-brastemp-10kg-bsr10bb-cor-branco/p/MLB24047846?pdp_filters=deal%3AMLB1578289-1",
+  "Lavadora De Roupas Midea Wave Agitator 13kg Branca 127v":
+    "https://www.mercadolivre.com.br/lavadora-de-roupas-midea-wave-agitator-13kg-branca-127v/p/MLB45804798?pdp_filters=deal%3AMLB1578289-1",
+  "Fogão Brastemp BFS5VCE 5 Bocas Preto Com Mesa de Vidro e Turbo Chama":
+    "https://www.mercadolivre.com.br/fogao-brastemp-bfs5vce-5-bocas-preto-com-mesa-de-vidro-e-turbo-chama/p/MLB18373430?pdp_filters=deal%3AMLB1578289-1",
+  "Ar Condicionado LG Ai Smart Inverter Voice 9000 Btus Frio Branco":
+    "https://www.mercadolivre.com.br/ar-condicionado-lg-ai-smart-inverter-voice-9000-btus-frio-branco/p/MLB57314352?pdp_filters=deal%3AMLB1578289-1",
+  "Ar Condicionado Dual Inverter LG Compact Ai 9000 Btus Frio":
+    "https://www.mercadolivre.com.br/ar-condicionado-dual-inverter-lg-compact-ai-9000-btus-frio/p/MLB55690976?pdp_filters=deal%3AMLB1578289-1",
+  "Máquina De Lavar Brastemp 13kg Branca Com Ciclo Tira Manchas Branco":
+    "https://www.mercadolivre.com.br/maquina-de-lavar-brastemp-13kg-branca-com-ciclo-tira-manchas-branco/p/MLB66132984?pdp_filters=deal%3AMLB1578289-1",
+  "Micro-ondas Britânia Bmo23 De Bancada 20l Preto":
+    "https://www.mercadolivre.com.br/micro-ondas-britania-bmo23-de-bancada-20l-preto/p/MLB47290851?pdp_filters=item_id%3AMLB5275873067",
+  "Adega Pad8 Display Eletrônico 8 Garrafas Philco":
+    "https://www.mercadolivre.com.br/adega-pad8-display-eletronico-8-garrafas-philco/p/MLB24524683?pdp_filters=deal%3AMLB1578289-1",
+  "Aspirador de Pó e Água Profissional Kärcher NT 3000 Tanque de Inox 30 L 1600 W Kärcher Professional NT 3000 30 L":
+    "https://www.mercadolivre.com.br/aspirador-de-po-e-agua-profissional-krcher-nt-3000-tanque-de-inox-30-l-1600-w-krcher-professional-nt-3000-30-l/p/MLB16224971?pdp_filters=deal%3AMLB1578289-1",
+  "Fritadeira industrial elétrica Valente Inox 10LTS 10L aço inoxidável":
+    "https://www.mercadolivre.com.br/fritadeira-industrial-eletrica-valente-inox-10lts-10l-aco-inoxidavel/p/MLB19934233?pdp_filters=item_id%3AMLB5247898120",
+  "Panela De Arroz Elétrica Dako 700w Com 4 L 10 Xícaras Cinza Cor Cinza-escuro Frequência 60 Hz":
+    "https://www.mercadolivre.com.br/panela-de-arroz-eletrica-dako-700w-com-4-l-10-xicaras-cinza-cor-cinza-escuro-frequencia-60-hz/p/MLB50614355?pdp_filters=item_id%3AMLB6200952932",
+  "Cooktop 5 Bocas a Gás Brastemp com Grades de Ferro Aramado e Chama Simmer - BDD75BE":
+    "https://www.mercadolivre.com.br/cooktop-5-bocas-a-gas-brastemp-com-grades-de-ferro-aramado-e-chama-simmer-bdd75be/p/MLB54534696?pdp_filters=deal%3AMLB1578289-1",
+  "Secadora de Roupas Fischer 8kg Super Ciclo Suspensa Prata 220V 28200/63978":
+    "https://www.mercadolivre.com.br/secadora-de-roupas-fischer-8kg-super-ciclo-suspensa-prata-220v-2820063978/p/MLB22954936?pdp_filters=deal%3AMLB1578289-1",
+  "Climatizador De Ar Frio Midea Branco 5l Cor branco e cinza":
+    "https://www.mercadolivre.com.br/climatizador-de-ar-frio-midea-branco-5l-cor-branco-e-cinza/p/MLB44881343?pdp_filters=deal%3AMLB1578289-1",
+  "Multiprocessador MPN-01-BE Cozinha Turbo Chef 7 em 1 1000W Preto Mondial 127V":
+    "https://www.mercadolivre.com.br/multiprocessador-mpn-01-be-cozinha-turbo-chef-7-em-1-1000w-preto-mondial-127v/p/MLB19762199?pdp_filters=deal%3AMLB1578289-1",
+  "Panela Elétrica Mecânica Pressão 4l Preta E Inox Midea":
+    "https://www.mercadolivre.com.br/panela-eletrica-mecanica-pressao-4l-preta-e-inox-midea/p/MLB45410688?pdp_filters=deal%3AMLB1578289-1",
+  "Fogão Cooktop Gás 4 Bocas Ultra Chama 127v/220v Preto":
+    "https://www.mercadolivre.com.br/fogao-cooktop-gas-4-bocas-ultra-chama-127v220v-preto/p/MLB46253120?pdp_filters=deal%3AMLB1578289-1",
+  "Fogão Cooktop Itatiaia Essencial 4 Bocas À Gás Preto-bivolt":
+    "https://www.mercadolivre.com.br/fogao-cooktop-itatiaia-essencial-4-bocas-gas-preto-bivolt/p/MLB46981302?pdp_filters=deal%3AMLB1578289-1",
+  "Aspirador de pó britânia bas87 20l 1500w Preto":
+    "https://www.mercadolivre.com.br/aspiradordepobritaniabas87-20l1500w-preto/p/MLB52300245?pdp_filters=deal%3AMLB1578289-1",
+  "Aquecedor Elétrico 2 Em 1 Kian Branco 1800w Aq100 2 Níveis De Aquecimento + Ventilação":
+    "https://www.mercadolivre.com.br/aquecedor-eletrico-2-em-1-kian-branco-1800w-aq100-2-niveis-de-aquecimento-ventilacao/p/MLB72913352?pdp_filters=item_id%3AMLB6926093152",
+  "Churrasqueira Elétrica Grande Steak Grill Para Apartamento 220v Sem Fumaça Preto - Aero Home":
+    "https://www.mercadolivre.com.br/churrasqueira-eletrica-grande-steak-grill-para-apartamento-220v-sem-fumaca-preto-aero-home/p/MLB67306669?pdp_filters=item_id%3AMLB4570835531",
+  "Mini Máquina De Bolo Bolinho Elétrica Portátil Pequena 110v":
+    "https://produto.mercadolivre.com.br/MLB-4202926117-mini-maquina-de-bolo-bolinho-eletrica-portatil-pequena-110v-_JM?pdp_filters=item_id%3AMLB4202926117",
+  "Chaleira Elétrica Inox Jarra 2l 110v Desligamento Automático Inox 127v":
+    "https://www.mercadolivre.com.br/chaleira-eletrica-inox-jarra-2l-110v-desligamento-automatico/up/MLBU4091346346?pdp_filters=item_id%3AMLB4765906045",
+  "Sanduicheira Elétrica Antiaderente Grill 750w Preto 110/220v Preto 220v":
+    "https://www.mercadolivre.com.br/sanduicheira-eletrica-antiaderente-grill-750w-preto-110220v/up/MLBU4197553394?pdp_filters=item_id%3AMLB7069530788",
+  "Chaleira Elétrica Inox 2 Litros 1500w Jarra Desligamento Automático Aquecimento Rápido Bule Pítia":
+    "https://www.mercadolivre.com.br/chaleira-eletrica-inox-2-litros-1500w-jarra-desligamento-automatico-aquecimento-rapido-bule-pitia/p/MLB75226094?pdp_filters=item_id%3AMLB4870022317",
+  "Chaleira Elétrica Inox 2 Litros Jarra Desligamento Automático Aquecimento Rápido Bule Pítia":
+    "https://www.mercadolivre.com.br/chaleira-eletrica-inox-2-litros-jarra-desligamento-automatico-aquecimento-rapido-bule-pitia/p/MLB75226095?pdp_filters=item_id%3AMLB4870047589",
+  "Chaleira Elétrica WAP WCE1 1,7L com Base Giratória 360° e Desligamento Automático":
+    "https://www.mercadolivre.com.br/chaleira-eletrica-wap-wce1-17l-com-base-giratoria-360-e-desligamento-automatico/p/MLB26797783?pdp_filters=deal%3AMLB1578289-1",
+  "Processador Triturador Elétrico De Alimentos Inox 2 Litros Prateado 220v":
+    "https://www.mercadolivre.com.br/processador-triturador-eletrico-de-alimentos-inox-2-litros/up/MLBU3900002235?pdp_filters=item_id%3AMLB6762946286",
+  "Mini Processador Elgin Turbo Press de 400 mL e 150W Preto":
+    "https://www.mercadolivre.com.br/mini-processador-elgin-turbo-press-de-400-ml-e-150w-preto/p/MLB40004228?pdp_filters=item_id%3AMLB5420951444",
+  "Iogurteira Elétrica Izumi IZ03 1L Bivolt Cinza - Livre de BPA":
+    "https://www.mercadolivre.com.br/iogurteira-eletrica-izumi-iz03-1l-bivolt-cinza-livre-de-bpa/p/MLB27848591?pdp_filters=deal%3AMLB1578289-1",
+  "Geladeira 437L Philco Inverter Side by Side Inox PRF535I":
+    "https://www.mercadolivre.com.br/geladeira-437l-philco-inverter-side-by-side-inox-prf535i/p/MLB24044938?pdp_filters=deal%3AMLB1578289-1",
+  "Máquina De Costura Reta Singer Facilita Pro 4423 Portátil - Cinza Escuro":
+    "https://www.mercadolivre.com.br/maquina-de-costura-reta-singer-facilita-pro-4423-portatil-cinza-escuro/p/MLB24343717?pdp_filters=item_id%3AMLB4039236725",
+  "Geladeira Brastemp Frost Free Inverse 591 Litros Branca - Br Branco":
+    "https://www.mercadolivre.com.br/geladeira-brastemp-frost-free-inverse-591-litros-branca-br-branco/p/MLB65411039?pdp_filters=deal%3AMLB1578289-1",
+  "Freezer Vertical Consul CVU20MB Cor Branco":
+    "https://www.mercadolivre.com.br/freezer-vertical-consul-cvu20mb-cor-branco/p/MLB65056894?pdp_filters=deal%3AMLB1578289-1",
+  "Ar Condicionado Daikin 12000 Btus Full Inverter Frio Branco":
+    "https://www.mercadolivre.com.br/ar-condicionado-daikin-12000-btus-full-inverter-frio-branco/p/MLB54153487?pdp_filters=deal%3AMLB1578289-1",
+  "Ar-Condicionado Portátil Electrolux 12.000 BTUS Frio com Wi-fi (SP12F) Branco":
+    "https://www.mercadolivre.com.br/ar-condicionado-portatil-electrolux-12000-btus-frio-com-wi-fi-sp12f-branco/p/MLB47561219?pdp_filters=deal%3AMLB1578289-1",
+  "Máquina de Lavar Brastemp 16Kg Branca - BWF16AB":
+    "https://www.mercadolivre.com.br/maquina-de-lavar-brastemp-16kg-branca-bwf16ab/p/MLB67817606?pdp_filters=deal%3AMLB1578289-1",
+  "Ar Condicionado Split LG Dual Inverter AI Voice 9000 BTU Frio":
+    "https://www.mercadolivre.com.br/ar-condicionado-split-lg-dual-inverter-ai-voice-9000-btu-frio/p/MLB66277100?pdp_filters=deal%3AMLB1578289-1",
+  "Lava e Seca Philco 16 Programas Eco Inverter 10 kg Inox PLS11T - Inox":
+    "https://www.mercadolivre.com.br/lava-e-seca-philco-16-programas-eco-inverter-10-kg-inox-pls11t-inox/p/MLB18617617?pdp_filters=deal%3AMLB1578289-1",
+  "Geladeira Brastemp Frost Free 385 Litros Duplex Branca - BRM46MB":
+    "https://www.mercadolivre.com.br/geladeira-brastemp-frost-free-385-litros-duplex-branca-brm46mb/p/MLB63996396?pdp_filters=deal%3AMLB1578289-1",
+  "Ar Condicionado LG Dual Inverter Ai Voice 12000 Btus Qf Branco":
+    "https://www.mercadolivre.com.br/ar-condicionado-lg-dual-inverter-ai-voice-12000-btus-qf-branco/p/MLB66187058?pdp_filters=deal%3AMLB1578289-1",
+  "Máquina de lavar automática Panasonic 15kg Branca Na-f150b1w":
+    "https://www.mercadolivre.com.br/maquina-de-lavar-automatica-panasonic-15kg-branca-na-f150b1w/p/MLB56540726?pdp_filters=deal%3AMLB1578289-1",
+  "Ar Condicionado Split Consul Triple Inverter 12000 Btus Branco Bivolt":
+    "https://www.mercadolivre.com.br/ar-condicionado-split-consul-triple-inverter-12000-btus-branco-bivolt/p/MLB63858991?pdp_filters=deal%3AMLB1578289-1",
+  "Ar-condicionado Electrolux 18000btu Coloradapt F Ji18f/je18f Branco":
+    "https://www.mercadolivre.com.br/ar-condicionado-electrolux-18000btu-coloradapt-f-ji18fje18f-branco/p/MLB36508877?pdp_filters=deal%3AMLB1578289-1",
+  "Máquina de Lavar Midea MA512W150A 15kg Wave Agitator Branca":
+    "https://www.mercadolivre.com.br/maquina-de-lavar-midea-ma512w150a-15kg-wave-agitator-branca/p/MLB40383128?pdp_filters=deal%3AMLB1578289-1",
+  "Ar Condicionado Split Hi Wall Eco Inverter Pac9fc Philco 9.000 Btus Frio R-32":
+    "https://www.mercadolivre.com.br/ar-condicionado-split-hi-wall-eco-inverter-pac9fc-philco-9000-btus-frio-r-32/p/MLB50527228?pdp_filters=deal%3AMLB1578289-1",
+  "Ar Condicionado Portátil Com Wi-fi Hisense 12.000 Btus Eletr":
+    "https://www.mercadolivre.com.br/ar-condicionado-portatil-com-wi-fi-hisense-12000-btus-eletr/p/MLB30379969?pdp_filters=deal%3AMLB1578289-1",
+  "Geladeira com freezer inverter Midea Frost Free Duplex MDRT533EVD461 con capacidad de 394L inox":
+    "https://www.mercadolivre.com.br/geladeira-com-freezer-inverter-midea-frost-free-duplex-mdrt533evd461-con-capacidad-de-394l-inox/p/MLB58033020?pdp_filters=deal%3AMLB1578289-1",
+  "Consul Cervejeira Titanium CZD12MT 83L 127V Cinza Escuro com porta de vidro":
+    "https://www.mercadolivre.com.br/consul-cervejeira-titanium-czd12mt-83l-127v-cinza-escuro-com-porta-de-vidro/p/MLB68919870?pdp_filters=deal%3AMLB1578289-1",
+  "Ar Condicionado 12k Elgin Eco Inverter Iii Wi-fi Q/f Branco":
+    "https://www.mercadolivre.com.br/ar-condicionado-12k-elgin-eco-inverter-iii-wi-fi-qf-branco/p/MLB66732166?pdp_filters=deal%3AMLB1578289-1",
+  "Ar Condicionado HW Inverter Hisense Eco Plus 9.000 Btus Frio R-32":
+    "https://www.mercadolivre.com.br/ar-condicionado-hw-inverter-hisense-eco-plus-9000-btus-frio-r-32/p/MLB62687115?pdp_filters=deal%3AMLB1578289-1",
+  "Máquina de Lavar Consul 13Kg Branca Ciclo Edredom - CWH13AB":
+    "https://www.mercadolivre.com.br/maquina-de-lavar-consul-13kg-branca-ciclo-edredom-cwh13ab/p/MLB66787442?pdp_filters=deal%3AMLB1578289-1",
+  "Ar Condicionado Split Hi Wall Inverter Hisense Wi-fi 9000 Bt":
+    "https://www.mercadolivre.com.br/ar-condicionado-split-hi-wall-inverter-hisense-wi-fi-9000-bt/p/MLB51788320?pdp_filters=deal%3AMLB1578289-1",
+  "Cooktop CYB5B 5 Bocas a Gás Inox Grade de Ferro Fundido Midea Bivolt":
+    "https://www.mercadolivre.com.br/cooktop-cyb5b-5-bocas-a-gas-inox-grade-de-ferro-fundido-midea-bivolt/p/MLB37783233?pdp_filters=deal%3AMLB1578289-1",
+  "Máquina de Lavar Brastemp 14Kg Cinza Smart Sensor- BWJ14A9":
+    "https://www.mercadolivre.com.br/maquina-de-lavar-brastemp-14kg-cinza-smart-sensor-bwj14a9/p/MLB61373033?pdp_filters=deal%3AMLB1578289-1",
+  "Lava Louças 8 Serviços Preta Touch Plus Midea Preto":
+    "https://www.mercadolivre.com.br/lava-loucas-8-servicos-preta-touch-plus-midea-preto/p/MLB63476642?pdp_filters=deal%3AMLB1578289-1",
+  "Air Fryer Forno 25l French Door Mondial - AFDO-25L-FD":
+    "https://www.mercadolivre.com.br/air-fryer-forno-25l-french-door-mondial-afdo-25l-fd/p/MLB54056296?pdp_filters=deal%3AMLB1578289-1",
+  "Ar Condicionado Split Inverter 9000 Btus Midea Branco":
+    "https://www.mercadolivre.com.br/ar-condicionado-split-inverter-9000-btus-midea-branco/p/MLB66182244?pdp_filters=deal%3AMLB1578289-1",
+  "Sorveteira, Ninja, Creami, 7 Programas Auto-iQ, Tecnologia Creamify, 220 v":
+    "https://www.mercadolivre.com.br/sorveteira-ninja-creami-7-programas-auto-iq-tecnologia-creamify-220-v/p/MLB47221332?pdp_filters=deal%3AMLB1578289-1",
+  "Ar Condicionado High Wall Eco Inverter Iii Wifi 9000 Btus Frio Elgin":
+    "https://www.mercadolivre.com.br/ar-condicionado-high-wall-eco-inverter-iii-wifi-9000-btus-frio-elgin/p/MLB66154233?pdp_filters=deal%3AMLB1578289-1",
+  "Freezer Horizontal Electrolux 95L Inverter Bivolt Uma Porta Branco (HB100) Bivolt":
+    "https://www.mercadolivre.com.br/freezer-horizontal-electrolux-95l-inverter-bivolt-uma-porta-branco-hb100-bivolt/p/MLB66799540?pdp_filters=deal%3AMLB1578289-1",
+  "Cooktop De Indução 4 Bocas Panda Plus Preto Painel Touch Trava De Segurança Botão Turbo":
+    "https://www.mercadolivre.com.br/cooktop-de-inducao-4-bocas-panda-plus-preto-painel-touch-trava-de-seguranca-botao-turbo/p/MLB51116737?pdp_filters=deal%3AMLB1578289-1",
+  "Fogão 5 Bocas Atlas Mônaco Top Glass Automático Mesa De Vidro Preto":
+    "https://www.mercadolivre.com.br/fogao-5-bocas-atlas-monaco-top-glass-automatico-mesa-de-vidro-preto/p/MLB66894998?pdp_filters=deal%3AMLB1578289-1",
+  "Fritadeira Digital Inox 4,8l Oster Com Painel Touch":
+    "https://www.mercadolivre.com.br/fritadeira-digital-inox-48l-oster-com-painel-touch/p/MLB24380919?pdp_filters=item_id%3AMLB4641712865",
+  "Frigobar Philco 68 Litros Compacto Econômico Compressor Porta Reversível PFG85B":
+    "https://www.mercadolivre.com.br/frigobar-philco-68-litros-compacto-economico-compressor-porta-reversivel-pfg85b/p/MLB11759111?pdp_filters=deal%3AMLB1578289-1",
+  "Aspirador Robo Philco Pas29a Bivolt Cinza":
+    "https://www.mercadolivre.com.br/aspirador-robo-philco-pas29a-bivolt-cinza/p/MLB66295129?pdp_filters=deal%3AMLB1578289-1",
+  "Robô aspirador Positivo Casa Inteligente PRA90 preto":
+    "https://www.mercadolivre.com.br/robo-aspirador-positivo-casa-inteligente-pra90-preto/p/MLB54067306?pdp_filters=deal%3AMLB1578289-1",
+  "Air fryer Oven 16L Wap Multi-Comb Digital WAFC16 Painel Touch 127V":
+    "https://www.mercadolivre.com.br/air-fryer-oven-16l-wap-multi-comb-digital-wafc16-painel-touch-127v/p/MLB57821775?pdp_filters=deal%3AMLB1578289-1",
+  "Panela Pressão Elétrica Multifunções Oster 5.7l Opan930-127 Inox 60":
+    "https://www.mercadolivre.com.br/panela-pressao-eletrica-multifuncoes-oster-57l-opan930-127-inox-60/p/MLB68053010?pdp_filters=item_id%3AMLB7094018246",
+  "Cooktop 5 Bocas Mesa De Vidro E Tripla Chama Itaplus":
+    "https://www.mercadolivre.com.br/cooktop-5-bocas-mesa-de-vidro-e-tripla-chama-itaplus/p/MLB66053997?pdp_filters=deal%3AMLB1578289-1",
+  "Cafeteira Espresso Dolce Crema 20 Bar Mondial Preto/Inox 1200W C-21-E-CNP":
+    "https://www.mercadolivre.com.br/cafeteira-espresso-dolce-crema-20-bar-mondial-pretoinox-1200w-c-21-e-cnp/p/MLB65923840?pdp_filters=deal%3AMLB1578289-1",
+  "WAP Robô W200 Aspirador Robô 3 em 1 Varre Aspira Passa Pano Bivolt":
+    "https://www.mercadolivre.com.br/wap-robo-w200-aspirador-robo-3-em-1-varre-aspira-passa-pano-bivolt/p/MLB64970204?pdp_filters=deal%3AMLB1578289-1",
+  "Cortina De Ar 120cm Agratto Acda120i-02 Alta Vazão Branco":
+    "https://www.mercadolivre.com.br/cortina-de-ar-120cm-agratto-acda120i-02-alta-vazao-branco/p/MLB66337046?pdp_filters=deal%3AMLB1578289-1",
+  "Escova Secadora Modeladora Alisadora 1200w 110v Profissional Para Cabelos Escova Elétrica Secadora Modeladora De Volume E Brilho Secagem Rapida LUPITA":
+    "https://www.mercadolivre.com.br/escova-secadora-modeladora-alisadora-1200w-110v-profissional-para-cabelos-escova-eletrica-secadora-modeladora-de-volume-e-brilho-secagem-rapida-lupita/p/MLB74014292?pdp_filters=item_id%3AMLB6998418496",
+  "Mixer EOS EMX02 aço inoxidável e preto 60 Hz 600W":
+    "https://www.mercadolivre.com.br/mixer-eos-emx02-aco-inoxidavel-e-preto-60-hz-600w/p/MLB19309284?pdp_filters=item_id%3AMLB7378919598",
+  "Bolsa Coletora Higienização Ar Cond. Split Piso Teto Até 60k Cor Azul":
+    "https://www.mercadolivre.com.br/bolsa-coletora-higienizacao-ar-cond-split-piso-teto-ate-60k-cor-azul/p/MLB27938745?pdp_filters=item_id%3AMLB5014454014",
+  "Air Fryer Fritadeira Sem Óleo 3,8l Cadence Super Cook":
+    "https://www.mercadolivre.com.br/air-fryer-fritadeira-sem-oleo-38l-cadence-super-cook/p/MLB22644184?pdp_filters=item_id%3AMLB4665086305",
+  "Climatizador De Ar 4 Litros Portátil 4 Em 1 Itatiaia Branco":
+    "https://www.mercadolivre.com.br/climatizador-de-ar-4-litros-portatil-4-em-1-itatiaia-branco/p/MLB62195834?pdp_filters=deal%3AMLB1578289-1",
+  "Panela Elétrica A Vapor 2l Multifuncional Antiaderente Branco 127v 60hz":
+    "https://www.mercadolivre.com.br/panela-eletrica-a-vapor-2l-multifuncional-antiaderente/up/MLBU3780869007?pdp_filters=item_id%3AMLB4470754587",
+  "Air Fryer Forno Electrolux 7L 1700W Digital Grade removível dupla camada Antiaderente 8 Receitas Programadas Aviso Sonoro Fritadeira Elétrica sem Óleo sistema de segurança automático EAF71 Cinza":
+    "https://www.mercadolivre.com.br/air-fryer-forno-electrolux-7l-1700w-digital-grade-removivel-dupla-camada-antiaderente-8-receitas-programadas-aviso-sonoro-fritadeira-eletrica-sem-oleo-sistema-de-seguranca-automatico-eaf71-cinza/p/MLB66581729?pdp_filters=deal%3AMLB1578289-1",
+  "Tanquinho/máquina De Lavar Roupas Semi-auto 20,5kg Newmaq Cor Branco":
+    "https://www.mercadolivre.com.br/tanquinhomaquina-de-lavar-roupas-semi-auto-205kg-newmaq-cor-branco/p/MLB27808813?pdp_filters=deal%3AMLB1578289-1",
+  "Panela Mexedora Elétrica Doces 4l Linha Power 2.6 Bivolt Branco":
+    "https://www.mercadolivre.com.br/panela-mexedora-eletrica-doces-4l-linha-power-26-bivolt-branco/p/MLB70542242?pdp_filters=deal%3AMLB1578289-1",
+  "Fritadeira Elétrica 1 Cuba 5 Litros Inox 2500 W":
+    "https://www.mercadolivre.com.br/fritadeira-eletrica-1-cuba-5-litros-inox-2500-w/p/MLB36375047?pdp_filters=item_id%3AMLB4956967672",
+  "Panela De Pressão Elétrica 6l 1000w Inox Ppe102 - Kian":
+    "https://www.mercadolivre.com.br/panela-de-pressao-eletrica-6l-1000w-inox-ppe102-kian/p/MLB58466184?pdp_filters=deal%3AMLB1578289-1",
+  "FORNO ELÉTRICO HQ 48D 2000W PRETO":
+    "https://www.mercadolivre.com.br/forno-eletrico-hq-48d-2000w-preto/p/MLB41523012?pdp_filters=deal%3AMLB1578289-1",
+  "Fritadeira Elétrica 5 Litros 1 Cuba Profissional Inox Panny Equipamentos":
+    "https://www.mercadolivre.com.br/fritadeira-eletrica-5-litros-1-cuba-profissional-inox-panny-equipamentos/p/MLB24833711?pdp_filters=item_id%3AMLB3796975129",
+  "Secador De Roupas 600w Elétrico Portátil Suspenso Cortina Compacto Econômico Seca Rápido":
+    "https://www.mercadolivre.com.br/secador-de-roupas-600w-eletrico-portatil-suspenso-cortina-compacto-economico-seca-rapido/p/MLB70009240?pdp_filters=item_id%3AMLB6832494854",
+  "Modelador de Cachos Profissional 37W 180°C Cilindro 25mm Babyliss para Ondas Cachos Perfeitos":
+    "https://www.mercadolivre.com.br/modelador-de-cachos-profissional-37w-180c-cilindro-25mm-babyliss-para-ondas-cachos-perfeitos/p/MLB70360286?pdp_filters=item_id%3AMLB6859166580",
+  "Eps-3091 Churrasqueira Elétrica Sem Fumaça Grill Ajuste de temperatura Epsilon":
+    "https://www.mercadolivre.com.br/eps-3091-churrasqueira-eletrica-sem-fumaca-grill-ajuste-de-temperatura-epsilon/p/MLB70376432?pdp_filters=item_id%3AMLB4782043527",
+  "Aspirador de pó britânia BAS87 20l 1500w":
+    "https://www.mercadolivre.com.br/aspiradordepobritaniabas87-20l1500w/p/MLB51032730?pdp_filters=deal%3AMLB1578289-1",
+  "Cafeteira Elétrica Elgin Essential 19 Xícaras 600w Jarra De Vidro":
+    "https://www.mercadolivre.com.br/cafeteira-eletrica-elgin-essential-19-xicaras-600w-jarra-de-vidro/p/MLB68722930?pdp_filters=item_id%3AMLB4648498005",
+  "Mixer 2 Em 1 Turbo 500w 2 Velocidades Preto":
+    "https://www.mercadolivre.com.br/mixer-2-em-1-turbo-500w-2-velocidades-preto/p/MLB42741871?pdp_filters=item_id%3AMLB7355997844",
+  "Sanduicheira Elétrica Inox Midea 127v Inox 127v":
+    "https://www.mercadolivre.com.br/sanduicheira-eletrica-inox-midea-127v/up/MLBU4598345259?pdp_filters=item_id%3AMLB7347420586",
+  "Fritadeira Industrial Elétrica Cuba 7l Inox Profissional":
+    "https://www.mercadolivre.com.br/fritadeira-industrial-eletrica-cuba-7l-inox-profissional/p/MLB51710230?pdp_filters=deal%3AMLB1578289-1",
+  "Aspirador De Pó Vertical 1350w 1 Litro Apv1350 Turbo Vonder 110v":
+    "https://www.mercadolivre.com.br/aspirador-de-po-vertical-1350w-1-litro-apv1350-turbo-vonder-110v/p/MLB68243483?pdp_filters=item_id%3AMLB6636032848",
+  "Panela Elétrica Redstone Com Revestimento 4l Vermelha Philco Vermelho 60 Hz":
+    "https://www.mercadolivre.com.br/panela-eletrica-redstone-com-revestimento-4l-vermelha-philco-vermelho-60-hz/p/MLB19928368?pdp_filters=deal%3AMLB1578289-1",
+  "Panela De Pressão Elétrica Fmaxx Chef 4 Litros 800w Prateado 60hz":
+    "https://www.mercadolivre.com.br/panela-de-pressao-eletrica-fmaxx-chef-4-litros-800w-prateado-60hz/p/MLB66161255?pdp_filters=deal%3AMLB1578289-1",
+  "Mixer Apr 400 Lâmina De Aço 2 Velocidade 400w Amvox Cor Preto":
+    "https://www.mercadolivre.com.br/mixer-apr-400-lamina-de-aco-2-velocidade-400w-amvox-cor-preto/p/MLB29008928?pdp_filters=item_id%3AMLB4959080006",
+  "Aspirador de Pó Para Carro Portátil Automotivo Artiko Turbo Wiper 100W com Lanterna A00440":
+    "https://www.mercadolivre.com.br/aspirador-de-po-para-carro-portatil-automotivo-artiko-turbo-wiper-100w-com-lanterna-a00440/p/MLB50610215?pdp_filters=item_id%3AMLB5410352738",
+  "Nebulizador Portátil Recarregável Silencioso Infantil Adulto Branco 127/220v":
+    "https://www.mercadolivre.com.br/nebulizador-portatil-recarregavel-silencioso-infantil-adulto/up/MLBU3917902964?pdp_filters=item_id%3AMLB6646641728",
+  "Batedeira Portátil De Mão Elétrica 7 Velocidades Para Bolo Massas Ovos Mixer Misturador Mini Batedor Compacta Potente 180w Branca Desmontável Leve Multiuso Doméstica Leve Prática Multiuso Rápida 127V":
+    "https://www.mercadolivre.com.br/batedeira-portatil-de-mao-eletrica-7-velocidades-para-bolo-massas-ovos-mixer-misturador-mini-batedor-compacta-potente-180w-branca-desmontavel-leve-multiuso-domestica-leve-pratica-multiuso-rapida-127v/p/MLB67756448?pdp_filters=item_id%3AMLB6602328206",
+  "Extrator Espremedor De Suco Grande Profissional 3 Lts Inox Cor Prateado Frequência 60hz":
+    "https://www.mercadolivre.com.br/extrator-espremedor-de-suco-grande-profissional-3-lts-inox-cor-prateado-frequencia-60hz/p/MLB43862464?pdp_filters=deal%3AMLB1578289-1",
+  "Descascador Elétrico De Alimentos Alho Legumes Frutas 127/220v":
+    "https://www.mercadolivre.com.br/descascador-eletrico-de-alimentos-alho-legumes-frutas/up/MLBU3871760381?pdp_filters=item_id%3AMLB6550333430",
+  "Ferro De Passar Roupa A Vapor 127v 1200w Base Cerâmica":
+    "https://www.mercadolivre.com.br/ferro-de-passar-roupa-a-vapor-127v-1200w-base-ceramica/p/MLB47554463?pdp_filters=item_id%3AMLB6658912210",
+  "Espremedor Extrator Industrial Profissional Inox 500w Cr Frequência 60 Mhz":
+    "https://www.mercadolivre.com.br/espremedor-extrator-industrial-profissional-inox-500w-cr-frequencia-60-mhz/p/MLB27078383?pdp_filters=deal%3AMLB1578289-1",
+  "Geladeira Frost Free Inverter 480L Efficient AutoSense 3 Portas Black Inox Look IM7B Electrolux":
+    "https://www.mercadolivre.com.br/geladeira-frost-free-inverter-480l-efficient-autosense-3-portas-black-inox-look-im7b-electrolux/p/MLB46043637?pdp_filters=deal%3AMLB1578289-1",
+  "Geladeira Electrolux Frost Free 400l Inverter Inox (if44s) Cinza":
+    "https://www.mercadolivre.com.br/geladeira-electrolux-frost-free-400l-inverter-inox-if44s-cinza/p/MLB65450433?pdp_filters=deal%3AMLB1578289-1",
+  "Secadora Electrolux Suspensa/piso 11kg Branca Svb11":
+    "https://www.mercadolivre.com.br/secadora-electrolux-suspensapiso-11kg-branca-svb11/p/MLB50835690?pdp_filters=deal%3AMLB1578289-1",
+  "Geladeira Brastemp Frost Free 415 Litros Duplex Branca - BRM52MB":
+    "https://www.mercadolivre.com.br/geladeira-brastemp-frost-free-415-litros-duplex-branca-brm52mb/p/MLB65319061?pdp_filters=deal%3AMLB1578289-1",
+  "Geladeira Frost Free Duplex 399 Litros Consul Com Freezer Em Inox":
+    "https://www.mercadolivre.com.br/geladeira-frost-free-duplex-399-litros-consul-com-freezer-em-inox/p/MLB62604426?pdp_filters=deal%3AMLB1578289-1",
+  "Geladeira Consul Frost Free 412 Litros Duplex Branca - CRM50MB":
+    "https://www.mercadolivre.com.br/geladeira-consul-frost-free-412-litros-duplex-branca-crm50mb/p/MLB65036412?pdp_filters=deal%3AMLB1578289-1",
+  "Cervejeira Home Bar Electrolux Frost Free 100L Porta de Vidro Preto EB100":
+    "https://www.mercadolivre.com.br/cervejeira-home-bar-electrolux-frost-free-100l-porta-de-vidro-preto-eb100/p/MLB59745112?pdp_filters=deal%3AMLB1578289-1",
+  "Geladeira Electrolux Frost Free 380L AutoSense Inverter Black Inox Look (IF41B) 127v":
+    "https://www.mercadolivre.com.br/geladeira-electrolux-frost-free-380l-autosense-inverter-black-inox-look-if41b-127v/p/MLB66320812?pdp_filters=deal%3AMLB1578289-1",
+  "Geladeira Consul Frost Free 333 Litros Duplex Inox - CRM40MK":
+    "https://www.mercadolivre.com.br/geladeira-consul-frost-free-333-litros-duplex-inox-crm40mk/p/MLB59801103?pdp_filters=deal%3AMLB1578289-1",
+  "Micro-ondas Agratto 32 Litros Branco Amic02bn-01 1400w":
+    "https://www.mercadolivre.com.br/micro-ondas-agratto-32-litros-branco-amic02bn-01-1400w/p/MLB46837412?pdp_filters=item_id%3AMLB4875301199",
+  "Lava Louças Portátil Praxis Bancada Llp 2.0 - Preto":
+    "https://www.mercadolivre.com.br/lava-loucas-portatil-praxis-bancada-llp-20-preto/p/MLB75740058?pdp_filters=deal%3AMLB1578289-1",
+  "Geladeira Refrigerador Compacto Hq Defrost 140l Hq-140rdf Preta":
+    "https://www.mercadolivre.com.br/geladeira-refrigerador-compacto-hq-defrost-140l-hq-140rdf-preta/p/MLB69237794?pdp_filters=deal%3AMLB1578289-1",
+  "Tanquinho De Lavar Roupa Mueller 14 Kg Semiautomático Mlt14b Cor Branco":
+    "https://www.mercadolivre.com.br/tanquinho-de-lavar-roupa-mueller-14-kg-semiautomatico-mlt14b-cor-branco/p/MLB50726823?pdp_filters=deal%3AMLB1578289-1",
+  "Fogão 4 Bocas Itatiaia Vidro Temperado Electra Glass Branco":
+    "https://www.mercadolivre.com.br/fogao-4-bocas-itatiaia-vidro-temperado-electra-glass-branco/p/MLB53226324?pdp_filters=deal%3AMLB1578289-1",
+  "Mixer 3 Em 1 Dako 800w Função Turbo Preto E Inox":
+    "https://www.mercadolivre.com.br/mixer-3-em-1-dako-800w-funcao-turbo-preto-e-inox/p/MLB50355030?pdp_filters=item_id%3AMLB4445466073",
+  "Frigobar Hq 124 Litros Preto Hq-124fb Preto":
+    "https://www.mercadolivre.com.br/frigobar-hq-124-litros-preto-hq-124fb-preto/p/MLB62694419?pdp_filters=deal%3AMLB1578289-1",
+  "Climatizador Portátil Agratto 60 Litros Cinza 220v":
+    "https://www.mercadolivre.com.br/climatizador-portatil-agratto-60-litros/up/MLBU674754690?pdp_filters=deal%3AMLB1578289-1",
+  "Tanquinho Newmaq New Plus 20,5kg Semiautomático Preto":
+    "https://www.mercadolivre.com.br/tanquinho-newmaq-new-plus-205kg-semiautomatico-preto/p/MLB49837676?pdp_filters=deal%3AMLB1578289-1",
+  "Churrasqueira Elétrica A Carvão Biscuitt Steakmaster Smoke & Fire Portátil Usb Com Bag":
+    "https://www.mercadolivre.com.br/churrasqueira-eletrica-a-carvao-biscuitt-steakmaster-smoke-fire-portatil-usb-com-bag/p/MLB48924366?pdp_filters=deal%3AMLB1578289-1",
+  "Espremedor De Frutas Limão Laranja 120w Inox Extrator Preto Preto 220v":
+    "https://www.mercadolivre.com.br/espremedor-de-frutas-limao-laranja-120w-inox-extrator-preto/up/MLBU4014578287?pdp_filters=item_id%3AMLB4718595965",
+  "Cafeteira Inox 2 Litros Ajuste Automático Marchesoni Café Cor Prateado":
+    "https://www.mercadolivre.com.br/cafeteira-inox-2-litros-ajuste-automatico-marchesoni-cafe-cor-prateado/p/MLB40268615?pdp_filters=deal%3AMLB1578289-1",
+  "Maquina De Fazer Mini Donuts Rosquinhas 16 Furos 1200w Cor Preto":
+    "https://www.mercadolivre.com.br/maquina-de-fazer-mini-donuts-rosquinhas-16-furos-1200w-cor-preto/p/MLB39892097?pdp_filters=deal%3AMLB1578289-1",
+  "Vaporizador De Roupas Profissional 1200w Coibeu Preto Passad Preto":
+    "https://www.mercadolivre.com.br/vaporizador-de-roupas-profissional-1200w-coibeu-preto-passad-preto/p/MLB75933306?pdp_filters=item_id%3AMLB4966299463",
+  "Máquina De Iogurte Elétrica Contém 7 Potes Vidro. Branco":
+    "https://www.mercadolivre.com.br/maquina-de-iogurte-eletrica-contem-7-potes-vidro-branco/p/MLB54208017?pdp_filters=item_id%3AMLB4183623347",
+  "Kit 2 Ventiladores Mesa Mondial 30cm 6 Pás Vsp-30-b Silencioso Oscilante Preto Resistente Pás Estrutura Plástico 3 Velocidades":
+    "https://www.mercadolivre.com.br/kit-2-ventiladores-mesa-mondial-30cm-6-pas-vsp-30-b-silencioso-oscilante-preto-resistente-pas-estrutura-plastico-3-velocidades/p/MLB44810316?pdp_filters=deal%3AMLB1578289-1",
+  "Fogao Elétrico Portátil Mesa 2 Boca Preto 2500w 110v Preto 127v":
+    "https://www.mercadolivre.com.br/fogao-eletrico-portatil-mesa-2-boca-preto-2500w-110v/up/MLBU3566180607?pdp_filters=deal%3AMLB1578289-1",
+  "Descascador Elétrico De Alho Legumes Frutas Sem Fio Portátil 127/220v":
+    "https://www.mercadolivre.com.br/descascador-eletrico-de-alho-legumes-frutas-sem-fio-portatil/up/MLBU4792739382?pdp_filters=item_id%3AMLB7440701066",
+  "Ar Condicionado Inverter Samsung Windfree 18000 Btus Qf Branco":
+    "https://www.mercadolivre.com.br/ar-condicionado-inverter-samsung-windfree-18000-btus-qf-branco/p/MLB63648603?pdp_filters=deal%3AMLB1578289-1",
+  "Geladeira Brastemp Frost Free 559 Litros French Door Branca - BRO85MB":
+    "https://www.mercadolivre.com.br/geladeira-brastemp-frost-free-559-litros-french-door-branca-bro85mb/p/MLB65198000?pdp_filters=deal%3AMLB1578289-1",
+  "Ar-condicionado Portátil 10000 Btus Eos Slim Eap10f Cor Branco Voltagem da unidade externa":
+    "https://www.mercadolivre.com.br/ar-condicionado-portatil-10000-btus-eos-slim-eap10f-cor-branco-voltagem-da-unidade-externa/p/MLB43551841?pdp_filters=item_id%3AMLB5209091393",
+  "Geladeira Hisense Side By Side 441L Multi Airflow Inverter RS3P428":
+    "https://www.mercadolivre.com.br/geladeira-hisense-side-by-side-441l-multi-airflow-inverter-rs3p428/p/MLB61524135?pdp_filters=deal%3AMLB1578289-1",
+  "Ar Condicionado Elgin Eco Inverter Iii 12000 Btus Quente Fri Branco 220v":
+    "https://www.mercadolivre.com.br/ar-condicionado-elgin-eco-inverter-iii-12000-btus-quente-fri/up/MLBU4590645482?pdp_filters=deal%3AMLB1578289-1",
+  "Lava E Seca Philco Smart Invertplus Lavagem 10kg Branco":
+    "https://www.mercadolivre.com.br/lava-e-seca-philco-smart-invertplus-lavagem-10kg-branco/p/MLB35438923?pdp_filters=deal%3AMLB1578289-1",
+  "Climatizador Evaporativo De Ar Portátil 30 Litros Gelo Cor Branco":
+    "https://www.mercadolivre.com.br/climatizador-evaporativo-de-ar-portatil-30-litros-gelo-cor-branco/p/MLB40878345?pdp_filters=item_id%3AMLB5080517197",
+  "Ar Condicionado Split Hi Wall Philco 24000 Btu/h Quente E Fr":
+    "https://www.mercadolivre.com.br/ar-condicionado-split-hi-wall-philco-24000-btuh-quente-e-fr/p/MLB49578931?pdp_filters=deal%3AMLB1578289-1",
+  "TCL Split Hi Wall Condensadora - Branca":
+    "https://www.mercadolivre.com.br/tcl-split-hi-wall-condensadora-branca/p/MLB75024289?pdp_filters=item_id%3AMLB7317383868",
+  "Secadora De Roupa De Piso Wanke 12kg Comfort 12 Programas Branco Promo Wave":
+    "https://www.mercadolivre.com.br/secadora-de-roupa-de-piso-wanke-12kg-comfort-12-programas-branco-promo-wave/p/MLB65008800?pdp_filters=deal%3AMLB1578289-1",
+  "Ar-condicionado Electrolux 18.000 Btus (ni18f/ne18f":
+    "https://www.mercadolivre.com.br/ar-condicionado-electrolux-18000-btus-ni18fne18f/p/MLB74643718?pdp_filters=deal%3AMLB1578289-1",
+  "Freezer horizontal Branco HB200 branco 197L Electrolux":
+    "https://www.mercadolivre.com.br/freezer-horizontal-branco-hb200-branco-197l-electrolux/p/MLB66913005?pdp_filters=deal%3AMLB1578289-1",
+  "Ar Condicionado Split Hi Wall Inverter Gree G-side 12000 Btu Branco":
+    "https://www.mercadolivre.com.br/ar-condicionado-split-hi-wall-inverter-gree-g-side-12000-btu-branco/p/MLB70529304?pdp_filters=deal%3AMLB1578289-1",
+  "Ar-condicionado Split Electrolux 12.000 Btus (ni12f/ne12f":
+    "https://www.mercadolivre.com.br/ar-condicionado-split-electrolux-12000-btus-ni12fne12f/p/MLB74056170?pdp_filters=deal%3AMLB1578289-1",
+  "Fogão 4 Bocas À Gás Atlas Havana Glass Preto Bivolt":
+    "https://www.mercadolivre.com.br/fogao-4-bocas-gas-atlas-havana-glass-preto-bivolt/p/MLB77046595?pdp_filters=deal%3AMLB1578289-1",
+  "Panificadora WAP PAN GOURMET WPAN01 550W 20 Receitas Timer 15h 127V":
+    "https://www.mercadolivre.com.br/panificadora-wap-pan-gourmet-wpan01-550w-20-receitas-timer-15h-127v/p/MLB64094598?pdp_filters=deal%3AMLB1578289-1",
+  "Frigobar 47 Litros Consul Preto - Crc04ae":
+    "https://www.mercadolivre.com.br/frigobar-47-litros-consul-preto-crc04ae/p/MLB42264653?pdp_filters=deal%3AMLB1578289-1",
+  "Bolsa Coletora De Limpeza Hulter Para Split 9 A 18 Mil Btus Azul":
+    "https://www.mercadolivre.com.br/bolsa-coletora-de-limpeza-hulter-para-split-9-a-18-mil-btus/up/MLBU3817423218?pdp_filters=item_id%3AMLB4488999699",
+  "Churrasqueira Elétrica Mondial Preto 1800w - Ch-09-bi Preto 220v":
+    "https://www.mercadolivre.com.br/churrasqueira-eletrica-mondial-preto-1800w--ch09bi/up/MLBU4067763685?pdp_filters=deal%3AMLB1578289-1",
+  "Micro-ondas Electrolux Efficient 20L Branco Função Descongelar e Receitas Pré-Programadas (ME20B)":
+    "https://www.mercadolivre.com.br/micro-ondas-electrolux-efficient-20l-branco-funcao-descongelar-e-receitas-pre-programadas-me20b/p/MLB76780230?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 3 Filtro Entrada Caixa Dagua Fortlev Refil + Chave 9.3/4":
+    "https://www.mercadolivre.com.br/kit-3-filtro-entrada-caixa-dagua-fortlev-refil-chave-934/p/MLB68988623?pdp_filters=deal%3AMLB1578289-1",
+  "Ventilador Pedestal Circulador De Ar Silencioso 45w Potente 41 Cm 127v":
+    "https://www.mercadolivre.com.br/ventilador-pedestal-circulador-de-ar-silencioso-45w-potente/up/MLBU4626444084?pdp_filters=item_id%3AMLB5008078083",
+  "Panela De Pressão Elétrica Britânia Rosa Bppe05 Frequência 50hz/60hz":
+    "https://www.mercadolivre.com.br/panela-de-pressao-eletrica-britania-rosa-bppe05-frequencia-50hz60hz/p/MLB53005464?pdp_filters=deal%3AMLB1578289-1",
+  "Torradeira Premium Inox 4 Fatias 1500w - Peabody Prateado":
+    "https://www.mercadolivre.com.br/torradeira-premium-inox-4-fatias-1500w-peabody-prateado/p/MLB58477580?pdp_filters=deal%3AMLB1578289-1",
+  "Fritadeira Elétrica Tacho Esmaltado 10 Litros E Escorredor G":
+    "https://produto.mercadolivre.com.br/MLB-5537599170-fritadeira-eletrica-tacho-esmaltado-10-litros-e-escorredor-g-_JM",
+  "Bebedouro Refrigerador Dispenser De Água Gelada Para Galão 10l Ou 20l Preto":
+    "https://www.mercadolivre.com.br/bebedouro-refrigerador-dispenser-de-agua-gelada-para-galao-10l-ou-20l-preto/p/MLB53419737?pdp_filters=deal%3AMLB1578289-1",
+  "Fritadeira Sem Óleo Air Fryer 3,5l Mondial 1500W AF-31":
+    "https://www.mercadolivre.com.br/fritadeira-sem-oleo-air-fryer-35l-mondial-1500w-af-31/p/MLB38639339?pdp_filters=deal%3AMLB1578289-1",
+  "Aspirador e Soprador Automotivo 2L Snel Home Para Carro":
+    "https://www.mercadolivre.com.br/aspirador-e-soprador-automotivo-2l-snel-home-para-carro/p/MLB62833033?pdp_filters=item_id%3AMLB5811282404",
+  "Bolsa Limpeza Ar Condicionado Split 7000 A 12000 Btus Médio Azul-aço":
+    "https://www.mercadolivre.com.br/bolsa-limpeza-ar-condicionado-split--7000-a-12000-btus-medio/up/MLBU3316247832?pdp_filters=item_id%3AMLB4132118593",
+  "Vaporizador De Roupas 300ml Vertical Horizontal Black+decker":
+    "https://www.mercadolivre.com.br/vaporizador-de-roupas-300ml-vertical-horizontal-blackdecker/p/MLB77830359?pdp_filters=deal%3AMLB1578289-1",
+  "Cafeteira Elétrica Mallory Aroma Plus 18 Xícaras":
+    "https://www.mercadolivre.com.br/cafeteira-eletrica-mallory-aroma-plus-18-xicaras/p/MLB45023700?pdp_filters=item_id%3AMLB4162723299",
+  "Liquidificador Arno Power Mix 700w Lq33 Preto":
+    "https://www.mercadolivre.com.br/liquidificador-arno-power-mix-700w-lq33-preto/p/MLB27925208?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Click Cadence - Sanduicheira E Cafeteira Single Up Caden":
+    "https://www.mercadolivre.com.br/kit-click-cadence--sanduicheira-e-cafeteira-single-up-caden/up/MLBU3515031231?pdp_filters=deal%3AMLB1578289-1",
+  "Iogurteira Elétrica 2 Litros Com Dessorador Iogurte Grego Biscuitt Grecco 2 em 1":
+    "https://www.mercadolivre.com.br/iogurteira-eletrica-2-litros-com-dessorador-iogurte-grego-biscuitt-grecco-2-em-1/p/MLB78291188?pdp_filters=deal%3AMLB1578289-1",
+  "Fritadeira Elétrica 5l Redonda - Tacho Fácil De Usar Cor Prateado Frequência 1600w":
+    "https://www.mercadolivre.com.br/fritadeira-eletrica-5l-redonda-tacho-facil-de-usar-cor-prateado-frequencia-1600w/p/MLB68331837?pdp_filters=deal%3AMLB1578289-1",
+  "Queimador De Lareira Ecológica 1 Litro - Álcool E Etanol 1 L Prateado":
+    "https://www.mercadolivre.com.br/queimador-de-lareira-ecologica-1-litro--alcool-e-etanol/up/MLBU3318066583?pdp_filters=item_id%3AMLB4135302527",
+  "Máquina De Rosquinhas 3 Mini Donuts Confeitaria 110v Pequena 127v Preto":
+    "https://www.mercadolivre.com.br/maquina-de-rosquinhas-3-mini-donuts-confeitaria-110v-pequena/up/MLBU4008340993?pdp_filters=item_id%3AMLB6845717504",
+  "Cervejeira Philco 96L Porta de Vidro Controle Digital Temperatura -6°C a 16°C PCV09A":
+    "https://www.mercadolivre.com.br/cervejeira-philco-96l-porta-de-vidro-controle-digital-temperatura-6c-a-16c-pcv09a/p/MLB65322484?pdp_filters=deal%3AMLB1578289-1",
+  "Ar Condicionado De Janela 10.000 Btus Frio - Consul Cor Branco":
+    "https://www.mercadolivre.com.br/ar-condicionado-de-janela-10000-btus-frio-consul-cor-branco/p/MLB38157252?pdp_filters=deal%3AMLB1578289-1",
+  "Fogão Mueller 4 bocas Branco com acendimento automático total MFI4BF":
+    "https://www.mercadolivre.com.br/fogao-mueller-4-bocas-branco-com-acendimento-automatico-total-mfi4bf/p/MLB36927058?pdp_filters=deal%3AMLB1578289-1",
+  "Aparelho Inalador Nebulizador Rede Vibratória G-tech Nebmesh Branco 127/220v":
+    "https://www.mercadolivre.com.br/aparelho-inalador-nebulizador-rede-vibratoria-gtech-nebmesh/up/MLBU4620062067?pdp_filters=deal%3AMLB1578289-1",
+  "Forno Elã©trico De Bancada Philco Grill 55l Branco Pfe57 220v Branco":
+    "https://www.mercadolivre.com.br/forno-elatrico-de-bancada-philco-grill-55l-branco-pfe57/up/MLBU4936049699?pdp_filters=deal%3AMLB1578289-1",
+  "Ventilador De Coluna Arno Essential Ve2c 40cm 6 Pás Preto 40cm 220v 6":
+    "https://www.mercadolivre.com.br/ventilador-de-coluna-arno-essential-ve2c-40cm-6-pas-preto/up/MLBU4969247208?pdp_filters=deal%3AMLB1578289-1",
+  "Ventilador De Mesa 6 Velocidades Com Umidificador Preto 127/220v":
+    "https://www.mercadolivre.com.br/ventilador-de-mesa-6-velocidades-com-umidificador/up/MLBU3752550466?pdp_filters=item_id%3AMLB5048515351",
+  "Processador Elétrico 3l Inox Descascador Alho Multifuncional Cinza 127v":
+    "https://www.mercadolivre.com.br/processador-eletrico-3l-inox-descascador-alho-multifuncional/up/MLBU5219876084?pdp_filters=deal%3AMLB1578289-1",
+  "Ar Condicionado Samsung Ultra Inverter 12000 Btus Frio":
+    "https://www.mercadolivre.com.br/ar-condicionado-samsung-ultra-inverter-12000-btus-frio/p/MLB38176675?pdp_filters=deal%3AMLB1578289-1",
+  "Misturador Brigadeiro Progás 5L Gás Amarelo Bivolt Progas PRMOG-05 Plus":
+    "https://www.mercadolivre.com.br/misturador-brigadeiro-progas-5l-gas-amarelo-bivolt-progas-prmog-05-plus/p/MLB27237383?pdp_filters=deal%3AMLB1578289-1",
 };
