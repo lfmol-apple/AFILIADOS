@@ -5,6 +5,7 @@ import {
   type QueueEntry,
 } from "@/lib/services/ml-panel-queue";
 import { loadRegisteredPanelIds } from "@/lib/services/ml-panel-register";
+import { loadIssuePanelIds } from "@/lib/services/ml-panel-issues";
 import { expectedIdsFromProductUrl } from "@/lib/services/ml-panel-check-logic";
 
 /** Catalog ids (MLB…) of the Mercado Livre products that already have an active link. */
@@ -35,13 +36,16 @@ export interface PanelQueueData {
   withoutAddressCount: number;
   registeredCount: number;
   onSiteCount: number;
+  /** Rows taken out of the queue because they can't become a link. */
+  issueCount: number;
 }
 
 /** The panel products still waiting for the owner's affiliate link. */
 export async function loadPanelQueue(): Promise<PanelQueueData> {
-  const [registered, registeredCatalog] = await Promise.all([
+  const [registered, registeredCatalog, issues] = await Promise.all([
     loadRegisteredPanelIds(),
     loadRegisteredCatalogIds(),
+    loadIssuePanelIds(),
   ]);
   // No title-vs-slug guessing: a row that merely LOOKS like a product already
   // on the site is a different product (different catalog id, its own
@@ -57,7 +61,10 @@ export async function loadPanelQueue(): Promise<PanelQueueData> {
     (e) => !registered.has(e.pick.id) && sameProductOnSite(e),
   );
   const notRegistered = toLink.filter(
-    (e) => !registered.has(e.pick.id) && !sameProductOnSite(e),
+    (e) =>
+      !registered.has(e.pick.id) &&
+      !issues.has(e.pick.id) &&
+      !sameProductOnSite(e),
   );
   const ready = notRegistered.filter((e) => e.pick.productUrl);
   const waiting = notRegistered.filter((e) => !e.pick.productUrl);
@@ -67,5 +74,6 @@ export async function loadPanelQueue(): Promise<PanelQueueData> {
     withoutAddressCount: waiting.length,
     registeredCount: registered.size,
     onSiteCount: onSite.length,
+    issueCount: issues.size,
   };
 }

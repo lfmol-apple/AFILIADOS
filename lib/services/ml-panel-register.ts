@@ -5,6 +5,7 @@ import { enrichCatalogListing } from "@/lib/services/ml-enrichment-collector";
 import { saveManualAffiliateLinkFromCategoryQueue } from "@/lib/services/affiliate-link-registry";
 import { logger } from "@/lib/observability/logger";
 import { scorePanelPick } from "@/lib/services/ml-panel-score";
+import { recordPanelIssue } from "@/lib/services/ml-panel-issues";
 
 export class PanelRegisterError extends Error {}
 
@@ -74,8 +75,15 @@ export async function registerPanelPick(input: {
   const catalogProductId = await resolveCatalogProductId(input.affiliateUrl);
   const tResolved = Date.now();
   if (!catalogProductId) {
+    // Not a catalog product: the site can only publish those. Take the row out
+    // of the queue so it isn't offered (and generated) again.
+    await recordPanelIssue(
+      input.panelId,
+      "no_catalog",
+      "o link não leva a um produto de catálogo",
+    );
     throw new PanelRegisterError(
-      "Não consegui identificar o produto nesse link. Cole o link gerado pelo botão Compartilhar do painel (meli.la ou mercadolivre.com/sec/...).",
+      "Não consegui identificar o produto nesse link (não é um produto de catálogo). Retirei esta linha da fila para você não gerar de novo.",
     );
   }
 
@@ -117,8 +125,13 @@ export async function registerPanelPick(input: {
       select: { id: true },
     });
     if (!sameRow) {
+      await recordPanelIssue(
+        input.panelId,
+        "same_product_live",
+        `mesmo produto de ${listing.externalId}, que já tem link`,
+      );
       throw new PanelRegisterError(
-        "Este produto já está no site com outro link (de outra linha da fila). Não sobrescrevo: se o novo link paga mais, avise para trocarmos de propósito.",
+        "Este produto já está no site com outro link (de outra linha da fila). Não sobrescrevo e retirei esta linha da fila; se o novo link paga mais, avise para trocarmos de propósito.",
       );
     }
   }

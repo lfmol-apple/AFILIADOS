@@ -5,6 +5,7 @@ import {
 } from "@/lib/services/ml-panel-check-logic";
 import { openAffiliateLink } from "@/lib/services/ml-panel-check";
 import { loadRegisteredCatalogIds } from "@/lib/services/ml-panel-queue-data";
+import { recordPanelIssue } from "@/lib/services/ml-panel-issues";
 
 const MELI_HOSTS = /^(www\.)?(mercadolivre\.com(\.br)?|meli\.la)$/i;
 
@@ -91,8 +92,27 @@ export async function previewBatch(
       return { ...empty, linkTitle: opened.title, status: "notMine" };
 
     // The product behind this link already has a link: saving would overwrite it.
-    if (opened.catalogId && registeredCatalog.has(opened.catalogId))
-      return { ...empty, linkTitle: opened.title, status: "productOnSite" };
+    if (opened.catalogId && registeredCatalog.has(opened.catalogId)) {
+      // The queue row for this same product (found by its identical title) is a
+      // dead end: take it out so it isn't generated again. Only on an exact
+      // title match, never on a rough one.
+      const twin = matchOpenedLinkToPick(opened, pending);
+      const twinId = twin.how === "title-exact" ? twin.pickId : null;
+      if (twinId)
+        await recordPanelIssue(
+          twinId,
+          "same_product_live",
+          `mesmo produto de ${opened.catalogId}, que já tem link`,
+        );
+      return {
+        ...empty,
+        linkTitle: opened.title,
+        status: "productOnSite",
+        pickId: twinId,
+        pickTitle: twinId ? (titleOf.get(twinId) ?? null) : null,
+        position: twinId ? (positionOf.get(twinId) ?? null) : null,
+      };
+    }
 
     const match = matchOpenedLinkToPick(opened, pending);
     if (!match.pickId)

@@ -905,3 +905,17 @@ model IntegrationCredential {
   updatedAt    DateTime @updatedAt
   createdAt    DateTime @default(now())
 }
+
+/// A row of the Mercado Livre panel list (lib/config/ml-panel-picks.ts) that
+/// cannot be turned into a link and must leave the /admin/fila-links queue:
+/// the same catalog product is already live through another row, the product
+/// has no catalog id (the site can only publish catalog products), or the
+/// Linkbuilder refused it. Learned automatically from failed batches so the
+/// owner never generates the same dead end twice. Keyed by the row id (title).
+model MlPanelPickIssue {
+  panelId   String   @id
+  /// same_product_live | no_catalog | program_refused | manual
+  reason    String
+  detail    String?
+  createdAt DateTime @default(now())
+}

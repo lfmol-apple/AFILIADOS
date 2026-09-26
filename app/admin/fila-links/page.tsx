@@ -27,8 +27,13 @@ export default async function LinkQueuePage() {
   );
   if (!authorized) return <AdminLoginForm />;
 
-  const { pending, withoutAddressCount, registeredCount, onSiteCount } =
-    await loadPanelQueue();
+  const {
+    pending,
+    withoutAddressCount,
+    registeredCount,
+    onSiteCount,
+    issueCount,
+  } = await loadPanelQueue();
   // 675+ rows at once made this page heavy; the batch screen is where the
   // bulk of the work happens, so list only the first ones here.
   const shown = pending.slice(0, MAX_LISTED);
@@ -51,6 +56,8 @@ export default async function LinkQueuePage() {
       <p className="text-foreground/60 mt-2 text-sm">
         {pending.length} aguardando link · {registeredCount} já salvos por aqui
         · {onSiteCount} já estavam no site
+        {issueCount > 0 &&
+          ` · ${issueCount} retiradas por não poderem virar link`}
         {withoutAddressCount > 0 &&
           ` · ${withoutAddressCount} ocultos por ainda não terem o link genérico`}
         . ⚡ = campanha temporária (confira a taxa ao gerar).

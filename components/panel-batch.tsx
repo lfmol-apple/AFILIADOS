@@ -57,7 +57,7 @@ const LABEL: Record<Status, { icon: string; text: string; tone: string }> = {
   },
   productOnSite: {
     icon: "⛔",
-    text: "Este produto já está no site com outro link (não sobrescrevo)",
+    text: "Este produto já está no site com outro link (não sobrescrevo). A linha deste produto sai da fila.",
     tone: "text-rose-600",
   },
   notMine: {
