@@ -5178,4 +5178,318 @@ export const ML_PANEL_URLS: Readonly<Record<string, string>> = {
     "https://www.mercadolivre.com.br/iphone-18-pro-max-1tb-glacial-distribuidor-autorizado/p/MLB1077855641?pdp_filters=deal%3AMLB1578289-1",
   "Xiaomi Redmi Note 17 256gb 8gb Ram Amoled 7700mah + Brindes Preto":
     "https://www.mercadolivre.com.br/xiaomi-redmi-note-17-256gb-8gb-ram-amoled-7700mah--brindes/up/MLBU5160128750?pdp_filters=item_id%3AMLB5211764243",
+  "Chuveiro Ducha Lorenzetti Loren Shower Eletrônico Branco 6800w 220V":
+    "https://www.mercadolivre.com.br/chuveiro-ducha-lorenzetti-loren-shower-eletronico-branco-6800w-220v/p/MLB19765518?pdp_filters=deal%3AMLB1578289-1",
+  "Lorenzetti Maxi Ducha Ultra Branco 5500w":
+    "https://www.mercadolivre.com.br/lorenzetti-maxi-ducha-ultra-branco-5500w/p/MLB15481244?pdp_filters=item_id%3AMLB2171821892",
+  "Ducha Eletrônica Lorenzetti Loren Shower Ultra 7500W 220V Branco":
+    "https://www.mercadolivre.com.br/ducha-eletronica-lorenzetti-loren-shower-ultra-7500w-220v-branco/p/MLB19590092?pdp_filters=deal%3AMLB1578289-1",
+  "Transformador 5000va 110-220 Ou 220-110 Conversor Bivolt 12000 Btus C/ N F Geladeira Ar Condicionado Impressoras Brother Microondas Máquina Costura Lavar Roupas":
+    "https://www.mercadolivre.com.br/transformador-5000va-110-220-ou-220-110-conversor-bivolt-12000-btus-c-n-f-geladeira-ar-condicionado-impressoras-brother-microondas-maquina-costura-lavar-roupas/p/MLB61260720?pdp_filters=deal%3AMLB1578289-1",
+  "Extensão 30metros Cabo Pp Reforçada Obra Profissional 10A/20A Preto Two Lef":
+    "https://www.mercadolivre.com.br/extensao-30metros-cabo-pp-reforcada-obra-profissional-10a20a-preto-two-lef/p/MLB54934723?pdp_filters=item_id%3AMLB5744100434",
+  "Interruptor Inteligente Wifi Novadigital 3 Teclas Botões Touch Tuya Smart Life Alexa Google 110v 220v Bivolt 4x2 Lite":
+    "https://www.mercadolivre.com.br/interruptor-inteligente-wifi-novadigital-3-teclas-botoes-touch-tuya-smart-life-alexa-google-110v-220v-bivolt-4x2-lite/p/MLB34282270?pdp_filters=deal%3AMLB1578289-1",
+  "Chuveiro Eletrônico Loren Shower Lorenzetti":
+    "https://www.mercadolivre.com.br/chuveiro-eletronico-loren-shower-lorenzetti/p/MLB35155861?pdp_filters=deal%3AMLB1578289-1",
+  "Torneira Gourmet Flexível Parede Cozinha Churrasqueira Área Externa 2 Jatos Cromada Brilhante Aromatec":
+    "https://www.mercadolivre.com.br/torneira-gourmet-flexivel-parede-cozinha-churrasqueira-area-externa-2-jatos-cromada-brilhante-aromatec/p/MLB62119124?pdp_filters=item_id%3AMLB4314887915",
+  "Chuveiro Lorenzetti Bella Ducha 4T Ultra para Parede":
+    "https://www.mercadolivre.com.br/chuveiro-lorenzetti-bella-ducha-4t-ultra-para-parede/p/MLB49609713?pdp_filters=deal%3AMLB1578289-1",
+  "Motobomba A Gasolina Branco B4T716 6,5cv 36000 L/h Alta Pressão":
+    "https://www.mercadolivre.com.br/motobomba-a-gasolina-branco-b4t716-65cv-36000-lh-alta-pressao/p/MLB21788501?pdp_filters=deal%3AMLB1578289-1",
+  "Cuba Pia Gourmet Cozinha Aço Inox 304 com Acessórios 60x42cm Stillus Home":
+    "https://www.mercadolivre.com.br/cuba-pia-gourmet-cozinha-aco-inox-304-com-acessorios-60x42cm-stillus-home/p/MLB23069881?pdp_filters=item_id%3AMLB6890117230",
+  "Balcão de Cozinha Itatiaia Aço 3 Portas 1 Gaveta Com Tampo de 105 CM Modelo Rose Branco Neve":
+    "https://www.mercadolivre.com.br/balcao-de-cozinha-itatiaia-aco-3-portas-1-gaveta-com-tampo-de-105-cm-modelo-rose-branco-neve/p/MLB28564213?pdp_filters=deal%3AMLB1578289-1",
+  "Armário Aéreo de Cozinha Branco Itatiaia 3 Portas Rose":
+    "https://www.mercadolivre.com.br/armario-aereo-de-cozinha-branco-itatiaia-3-portas-rose/p/MLB27988013?pdp_filters=item_id%3AMLB4141865463",
+  "Torneira Eletrônica Zagonel Prima Touch Preta 5500W Parede/Bancada":
+    "https://www.mercadolivre.com.br/torneira-eletronica-zagonel-prima-touch-preta-5500w-paredebancada/p/MLB27801808?pdp_filters=deal%3AMLB1578289-1",
+  "Cuba Pia De Apoio Sobrepor Retangular 37x27 Branca Para Banheiro Lavabo Beltempo BT-2010":
+    "https://www.mercadolivre.com.br/cuba-pia-de-apoio-sobrepor-retangular-37x27-branca-para-banheiro-lavabo-beltempo-bt-2010/p/MLB28993702?pdp_filters=item_id%3AMLB3542513751",
+  "Chuveiro Eletrônico Ducha Intense Preto / Cromado Fame Cor Preto/cromado Potência 7800 W":
+    "https://www.mercadolivre.com.br/chuveiro-eletronico-ducha-intense-preto-cromado-fame-cor-pretocromado-potencia-7800-w/p/MLB43777401?pdp_filters=deal%3AMLB1578289-1",
+  "Armário para Banheiro com Espelho Cleopatra da CASA JD MÓVEIS – Preto Nature 60x45cm":
+    "https://www.mercadolivre.com.br/armario-para-banheiro-com-espelho-cleopatra-da-casa-jd-moveis-preto-nature-60x45cm/p/MLB29049569?pdp_filters=deal%3AMLB1578289-1",
+  "Torneira Elétrica Zagonel Luna De Parede 5500w Acabamento Polido Cor Preto":
+    "https://www.mercadolivre.com.br/torneira-eletrica-zagonel-luna-de-parede-5500w-acabamento-polido-cor-preto/p/MLB34179704?pdp_filters=deal%3AMLB1578289-1",
+  "Stillus Home Cuba Pia Gourmet Cozinha Aço Inox 50x40cm Cesto Escorredor Dispenser Detergente 500ml Válvula 4 1/2 Sobrepor Embutir":
+    "https://www.mercadolivre.com.br/stillus-home-cuba-pia-gourmet-cozinha-aco-inox-50x40cm-cesto-escorredor-dispenser-detergente-500ml-valvula-4-12-sobrepor-embutir/p/MLB38063732?pdp_filters=deal%3AMLB1578289-1",
+  "Fruteira Armário para Cozinha Balcão Para Cafeteira E Forno Cor Preto Nova Decor":
+    "https://www.mercadolivre.com.br/fruteira-armario-para-cozinha-balcao-para-cafeteira-e-forno-cor-preto-nova-decor/p/MLB27430630?pdp_filters=deal%3AMLB1578289-1",
+  "Latex acrílica tinta coral anti mofo branco 18l coralar branco fosco":
+    "https://www.mercadolivre.com.br/latex-acrilica-tinta-coral-anti-mofo-branco-18l-coralar-branco-fosco/p/MLB38477725?pdp_filters=deal%3AMLB1578289-1",
+  "Torneira Gourmet Cozinha Monocomando Bancada Preta 360° com Ducha Flexível 2 Jatos Água Quente e Fria para Pia de Cozinha Winda":
+    "https://www.mercadolivre.com.br/torneira-gourmet-cozinha-monocomando-bancada-preta-360-com-ducha-flexivel-2-jatos-agua-quente-e-fria-para-pia-de-cozinha-winda/p/MLB50911822?pdp_filters=deal%3AMLB1578289-1",
+  "Escada Domestica De Aluminio Dobrável C/ 5 Degraus Mor":
+    "https://www.mercadolivre.com.br/escada-domestica-de-aluminio-dobravel-c-5-degraus-mor/p/MLB57313632?pdp_filters=deal%3AMLB1578289-1",
+  "Tinta Antimofo Acrílica Econômica Qualyvinil":
+    "https://produto.mercadolivre.com.br/MLB-4341231785-tinta-antimofo-acrilica-econmica-qualyvinil-_JM",
+  "Filtro De Linha com DPS iCLAMPER Energia 8 Tomadas Régua com Tecnologia LCF":
+    "https://www.mercadolivre.com.br/filtro-de-linha-com-dps-iclamper-energia-8-tomadas-regua-com-tecnologia-lcf/p/MLB22834019?pdp_filters=item_id%3AMLB3934567389",
+  "Ducha Chuveiro Elétrico Zagonel Quadratta 7700w Preto":
+    "https://www.mercadolivre.com.br/ducha-chuveiro-eletrico-zagonel-quadratta-7700w-preto/p/MLB52958460?pdp_filters=deal%3AMLB1578289-1",
+  "Heemli Torneira Banheiro Bica Alta Monocomando,quente/frio Preto":
+    "https://www.mercadolivre.com.br/heemli-torneira-banheiro-bica-alta-monocomandoquentefrio/up/MLBU5135076648?pdp_filters=deal%3AMLB1578289-1",
+  "Auto Transformador 5000va 110v 220v Ar Até 12000btus Bivolt Preto":
+    "https://www.mercadolivre.com.br/auto-transformador-5000va-110v-220v-ar-ate-12000btus-bivolt-preto/p/MLB69128500?pdp_filters=deal%3AMLB1578289-1",
+  "Filtro de Linha Clamper iClamper Energia 5 Tomadas, com DPS e Proteção contra Raios e Surtos Elétricos":
+    "https://www.mercadolivre.com.br/filtro-de-linha-clamper-iclamper-energia-5-tomadas-com-dps-e-protecao-contra-raios-e-surtos-eletricos/p/MLB22763522?pdp_filters=item_id%3AMLB5148703584",
+  "Extensão Elétrica 50 Metros 10a Cabo Pp 2x1,0 Reforçada Cor Preto Click Cabos":
+    "https://www.mercadolivre.com.br/extensao-eletrica-50-metros-10a-cabo-pp-2x10-reforcada-cor-preto-click-cabos/p/MLB22953877?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 20 Peças Conectores Emenda De Fios Inline 221-2411 Wago":
+    "https://www.mercadolivre.com.br/kit-20-pecas-conectores-emenda-de-fios-inline-2212411-wago/up/MLBU1726852265?pdp_filters=item_id%3AMLB5466180272",
+  "Chuveiro elétrico de parede Lorenzetti Futura Multitemperaturas branco 6800W":
+    "https://www.mercadolivre.com.br/chuveiro-eletrico-de-parede-lorenzetti-futura-multitemperaturas-branco-6800w/p/MLB15480890?pdp_filters=deal%3AMLB1578289-1",
+  "Torneira Com Filtro Cozinha Parede Gourmet Abs Dazie Metais":
+    "https://www.mercadolivre.com.br/torneira-com-filtro-cozinha-parede-gourmet-abs-dazie-metais/p/MLB25869462?pdp_filters=item_id%3AMLB3584285505",
+  "Torneira De Cozinha Com Filtro Gourmet 2 Jatos Tubo Flexível Refil Carvão Ativado Água Filtrada Purificada Marca Forte Lar Metais Parede Prateado Cromado Parede Cromado":
+    "https://www.mercadolivre.com.br/torneira-de-cozinha-com-filtro-gourmet-2-jatos-tubo-flexivel-refil-carvao-ativado-agua-filtrada-purificada-marca-forte-lar-metais-parede-prateado-cromado-parede-cromado/p/MLB69622274?pdp_filters=deal%3AMLB1578289-1",
+  "Interruptor Inteligente Smart Wi-fi 2.4 Ghz Alexa Google 3 Botões 4x2 Bivolt Branco Cod: 291990392 Neo Avant":
+    "https://www.mercadolivre.com.br/interruptor-inteligente-smart-wi-fi-24-ghz-alexa-google-3-botoes-4x2-bivolt-branco-cod-291990392-neo-avant/p/MLB37514572?pdp_filters=deal%3AMLB1578289-1",
+  "Torneira Com Filtro Cozinha Gourmet Parede Bica Móvel Abs":
+    "https://www.mercadolivre.com.br/torneira-com-filtro-cozinha-gourmet-parede-bica-movel-abs/p/MLB44349580?pdp_filters=deal%3AMLB1578289-1",
+  "Torneira Para Banheiro Inox Lavatório Metal Soment Água Fria Prateado Brilhante":
+    "https://www.mercadolivre.com.br/torneira-para-banheiro-inox-lavatorio-metal-soment-agua-fria/up/MLBU1540639410?pdp_filters=item_id%3AMLB5082006750",
+  "Filtro de Linha com 8 Tomadas, 2 USB e 2 PD, Cabo de 2 Metros para Proteção de Sobrecarga, 2500W":
+    "https://www.mercadolivre.com.br/filtro-de-linha-com-8-tomadas-2-usb-e-2-pd-cabo-de-2-metros-para-protecao-de-sobrecarga-2500w/p/MLB53997058?pdp_filters=deal%3AMLB1578289-1",
+  "Andaime Dobrável Portátil 225kg Com 2 Plataformas - Vonder":
+    "https://www.mercadolivre.com.br/andaime-dobravel-portatil-225kg-com-2-plataformas-vonder/p/MLB24638492?pdp_filters=item_id%3AMLB7529389942",
+  "Cuba Pia Gourmet Quadrada Aço Inox 304 Escovada 60x40cm Anti-ruído Com Acessórios Premium Stillus Home":
+    "https://www.mercadolivre.com.br/cuba-pia-gourmet-quadrada-aco-inox-304-escovada-60x40cm-anti-ruido-com-acessorios-premium-stillus-home/p/MLB27598217?pdp_filters=deal%3AMLB1578289-1",
+  "Armário de Cozinha Compacto Magazin com 5 Portas e 1 Gaveta Multiuso Freijó/Off White":
+    "https://www.mercadolivre.com.br/armario-de-cozinha-compacto-magazin-com-5-portas-e-1-gaveta-multiuso-freijooff-white/p/MLB27570102?pdp_filters=deal%3AMLB1578289-1",
+  'Espelheira Cleopatra de 60" para Banheiro com Espelho e Porta Nature/Branco':
+    "https://www.mercadolivre.com.br/espelheira-cleopatra-de-60-para-banheiro-com-espelho-e-porta-naturebranco/p/MLB35715116?pdp_filters=item_id%3AMLB4504563835",
+  "Forro De Pvc Plus 6m² - Imbuia Ei":
+    "https://www.mercadolivre.com.br/forro-de-pvc-plus-6m-imbuia-ei/p/MLB28311891?pdp_filters=deal%3AMLB1578289-1",
+  "Manta Liquida Emborrachada 18kg Impermebilizante Premium":
+    "https://www.mercadolivre.com.br/manta-liquida-emborrachada-18kg-impermebilizante-premium/p/MLB74785964?pdp_filters=deal%3AMLB1578289-1",
+  "Auto Transformador 5000va Bivolt 110 220 E 220 110 Para Ar até 12000btus, Microondas, Air Fryer, lava roupas impressora geladeira Conversor de voltagemMax Amper":
+    "https://www.mercadolivre.com.br/auto-transformador-5000va-bivolt-110-220-e-220-110-para-ar-ate-12000btus-microondas-air-fryer-lava-roupas-impressora-geladeira-conversor-de-voltagemmax-amper/p/MLB53172361?pdp_filters=deal%3AMLB1578289-1",
+  "Extensão Coibeu Série Luar 3tomadas 2 Usb 1pd Bivolt Led Branco 127/220v":
+    "https://www.mercadolivre.com.br/extensao-coibeu-serie-luar-3tomadas-2-usb-1pd-bivolt-led/up/MLBU3330099743?pdp_filters=item_id%3AMLB5531029270",
+  "Kit P/ Porta Correr Ate 100cm Trilho Preto 2mt Com Acabamentos":
+    "https://www.mercadolivre.com.br/kit-p-porta-correr-ate-100cm-trilho-preto-2mt-com-acabamentos/p/MLB57345964?pdp_filters=deal%3AMLB1578289-1",
+  "Esmalte Sintético 3,6l Mepco Alta Cobertura Brilho Intenso":
+    "https://produto.mercadolivre.com.br/MLB-5742795698-esmalte-sintetico-36l-mepco-alta-cobertura-brilho-intenso-_JM",
+  "Filtro De Linha Profissional Protetor Elétrico 4 Tomadas 20a Cabo 1,5 Metros Bivolt Micro-ondas Air Fry Cafeteria Preto":
+    "https://www.mercadolivre.com.br/filtro-de-linha-profissional-protetor-eletrico-4-tomadas-20a-cabo-15-metros-bivolt-micro-ondas-air-fry-cafeteria-preto/p/MLB68768149?pdp_filters=item_id%3AMLB6685132628",
+  "Torneira Filtro Preta Parede Gourmet Flexível All Black 1/4v Preto Fosco":
+    "https://www.mercadolivre.com.br/torneira-filtro-preta-parede-gourmet-flexivel-all-black-14v/up/MLBU3507693301?pdp_filters=deal%3AMLB1578289-1",
+  "Ducha Chuveiro Elétrico Faminho 4 Temperaturas Sem Cano 6800w Fame":
+    "https://www.mercadolivre.com.br/ducha-chuveiro-eletrico-faminho-4-temperaturas-sem-cano-6800w-fame/p/MLB27867714?pdp_filters=deal%3AMLB1578289-1",
+  "Fita manta asfáltica autoadesiva cor terracota Dryko 30cm x 10m Telhado":
+    "https://www.mercadolivre.com.br/fita-manta-asfaltica-autoadesiva-cor-terracota-dryko-30cm-x-10m-telhado/p/MLB26716506?pdp_filters=deal%3AMLB1578289-1",
+  "Armário De Cozinha Completa Modulada com Balcão para Cooktop Madesa Reims GRRM31000109 Com Armário Branco":
+    "https://www.mercadolivre.com.br/armario-de-cozinha-completa-modulada-com-balcao-para-cooktop-madesa-reims-grrm31000109-com-armario-branco/p/MLB28333069?pdp_filters=item_id%3AMLB4344403108",
+  "Bomba de Vácuo Suryha 12 CFM Duplo Estágio para Refrigeração e Ar Condicionado":
+    "https://www.mercadolivre.com.br/bomba-de-vacuo-suryha-12-cfm-duplo-estagio-para-refrigeracao-e-ar-condicionado/p/MLB40924066?pdp_filters=item_id%3AMLB6696697300",
+  "Bateria Solar JFA E-Lítio Pro LiFePO4 12V 100Ah com Bluetooth e BMS":
+    "https://www.mercadolivre.com.br/bateria-solar-jfa-e-litio-pro-lifepo4-12v-100ah-com-bluetooth-e-bms/p/MLB52359932?pdp_filters=deal%3AMLB1578289-1",
+  "Armário De Cozinha Itatiaia Reforçado 8 Portas Compacto Aço Branco":
+    "https://www.mercadolivre.com.br/armario-de-cozinha-itatiaia-reforcado-8-portas-compacto-aco/up/MLBU3496959462?pdp_filters=deal%3AMLB1578289-1",
+  "Gerador Toyama TG3200CXR 3,1KVA Bivolt Gasolina 7HP Silencioso":
+    "https://www.mercadolivre.com.br/gerador-toyama-tg3200cxr-31kva-bivolt-gasolina-7hp-silencioso/p/MLB44664924?pdp_filters=deal%3AMLB1578289-1",
+  "Balcão Cozinha Itatiaia Luce 3 Portas 2 Gavetas Branco e Preto":
+    "https://www.mercadolivre.com.br/balcao-cozinha-itatiaia-luce-3-portas-2-gavetas-branco-e-preto/p/MLB28571470?pdp_filters=deal%3AMLB1578289-1",
+  "Armário de Cozinha Compacto Poliman Sicília Médio 5 Portas 2 Gavetas 4 Nichos 2 Prateleiras Kit Cozinha Organizador Freijó Off White Ripado MDP Corrediças Telescópicas Pés Reguláveis Pintura UV":
+    "https://www.mercadolivre.com.br/armario-de-cozinha-compacto-poliman-sicilia-medio-5-portas-2-gavetas-4-nichos-2-prateleiras-kit-cozinha-organizador-freijo-off-white-ripado-mdp-corredicas-telescopicas-pes-regulaveis-pintura-uv/p/MLB65559905?pdp_filters=deal%3AMLB1578289-1",
+  "Vaso Sanitário Monobloco Privada Com Caixa Acoplada Grande Branco Brilhante":
+    "https://www.mercadolivre.com.br/vaso-sanitario-monobloco-privada-com-caixa-acoplada-grande-branco-brilhante/p/MLB66568350?pdp_filters=deal%3AMLB1578289-1",
+  "Armário de Cozinha Poliman Móveis Clarice 12 Portas 1 Gaveta":
+    "https://www.mercadolivre.com.br/armario-de-cozinha-poliman-moveis-clarice-12-portas-1-gaveta/p/MLB62724058?pdp_filters=deal%3AMLB1578289-1",
+  "Bomba de Vácuo Duplo Estágio 6 CFM 1/2 HP Bivolt Friven SMART":
+    "https://www.mercadolivre.com.br/bomba-de-vacuo-duplo-estagio-6-cfm-12-hp-bivolt-friven-smart/p/MLB51767216?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Placa Solar 2x155W Monocristalino 12V/24V Caminhão Controlador 30A":
+    "https://www.mercadolivre.com.br/kit-placa-solar-2x155w-monocristalino-12v24v-caminhao-controlador-30a/p/MLB36256127?pdp_filters=deal%3AMLB1578289-1",
+  "Gabinete Armário P/ Banheiro Balcão Lavabo Suspenso C Cuba Preto Branca Sem Furos":
+    "https://www.mercadolivre.com.br/gabinete-armario-p-banheiro-balcao-lavabo-suspenso-c-cuba/up/MLBU3769862033?pdp_filters=item_id%3AMLB6225138926",
+  "Tinta Emborrachada Masterfix 20kg Impermeável Flexível Acabamento Fosco Cor Nanquim":
+    "https://www.mercadolivre.com.br/tinta-emborrachada-masterfix-20kg-impermeavel-flexivel-acabamento-fosco-cor-nanquim/p/MLB44186302?pdp_filters=item_id%3AMLB3921647193",
+  "Armário de Cozinha M Casa Móveis Viena Compacto com Nicho e Balcão Multiuso Branco/Ripado":
+    "https://www.mercadolivre.com.br/armario-de-cozinha-m-casa-moveis-viena-compacto-com-nicho-e-balcao-multiuso-brancoripado/p/MLB75683239?pdp_filters=deal%3AMLB1578289-1",
+  "Armario De Cozinha Compacta Sol 5 Portas 1 Gaveta":
+    "https://produto.mercadolivre.com.br/MLB-3767705464-armario-de-cozinha-compacta-sol-5-portas-1-gaveta-_JM?pdp_filters=item_id%3AMLB3767705464",
+  "Bomba Submersa Caneta Palito 1/2hp 0,50cv 54m Poço Artesiano Caixa Cisterna 3 Pol ( Cano 100mm ) Submersível Chácara Sítio Rancho Fazenda":
+    "https://www.mercadolivre.com.br/bomba-submersa-caneta-palito-12hp-050cv-54m-poco-artesiano-caixa-cisterna-3-pol-cano-100mm-submersivel-chacara-sitio-rancho-fazenda/p/MLB58932586?pdp_filters=deal%3AMLB1578289-1",
+  "Carrinho De Carga Plataforma Dobrável Capacidade 300kg Aço":
+    "https://www.mercadolivre.com.br/carrinho-de-carga-plataforma-dobravel-capacidade-300kg-aco/p/MLB25712544?pdp_filters=deal%3AMLB1578289-1",
+  "Balcão Para Cooktop 5 Bocas Cozinha Multiuso":
+    "https://produto.mercadolivre.com.br/MLB-4100325959-balco-para-cooktop-5-bocas-cozinha-multiuso-_JM",
+  "Porta Correr Colméia Frisada Madeira 80x210 Kit Alumínio Marrom-escuro":
+    "https://www.mercadolivre.com.br/porta-correr-colmeia-frisada-madeira-80x210-kit-aluminio/up/MLBU3121806175?pdp_filters=deal%3AMLB1578289-1",
+  "Torneira Elétrica Fame Blindada 01046612 3000w Cromada Com Display Digital Cor Prateado":
+    "https://www.mercadolivre.com.br/torneira-eletrica-fame-blindada-01046612-3000w-cromada-com-display-digital-cor-prateado/p/MLB62308931?pdp_filters=deal%3AMLB1578289-1",
+  "Manta Asfáltica Vedatudo Dryko 90 cm Autoadesiva Terracota para Telhado":
+    "https://www.mercadolivre.com.br/manta-asfaltica-vedatudo-dryko-90-cm-autoadesiva-terracota-para-telhado/p/MLB53047902?pdp_filters=item_id%3AMLB5892346994",
+  "Tinta Piso Para Garagem Alta Resistência E Acabamento Brilha":
+    "https://produto.mercadolivre.com.br/MLB-5226608566-tinta-piso-para-garagem-alta-resistncia-e-acabamento-brilha-_JM?pdp_filters=item_id%3AMLB5226608566",
+  "Armário Aéreo Suspenso Em Mdp 90x62x27 C/ Espaço Decorativo Branco":
+    "https://www.mercadolivre.com.br/armario-aereo-suspenso-em-mdp-90x62x27-c-espaco-decorativo/up/MLBU3989587902?pdp_filters=item_id%3AMLB6809269184",
+  "Tanque 34x40 Aço Inox 304 Tecnocuba Fosco Sifão Válvula Tanque Pia Fosco":
+    "https://www.mercadolivre.com.br/tanque-34x40-aco-inox-304-tecnocuba-fosco-sifao-valvula/up/MLBU780766892?pdp_filters=deal%3AMLB1578289-1",
+  "Tinta Epoxi Industrial Bicomponente Ag 900ml":
+    "https://produto.mercadolivre.com.br/MLB-5170350326-tinta-epoxi-industrial-bicomponente-ag-900ml-_JM?pdp_filters=item_id%3AMLB5170350326",
+  "Bomba De Vacuo 1.5 Cfm Refrigeração Estágio Simples 1/4hp":
+    "https://www.mercadolivre.com.br/bomba-de-vacuo-15-cfm-refrigeracao-estagio-simples-14hp/p/MLB32972849?pdp_filters=deal%3AMLB1578289-1",
+  "Torneira Cozinha Gourmet Bancada Flexível Monocomando Pia Preto Fosco":
+    "https://www.mercadolivre.com.br/torneira-cozinha-gourmet-bancada-flexivel-monocomando-pia/up/MLBU4070928328?pdp_filters=item_id%3AMLB4749880159",
+  "Torneira Elétrica Zagonel Luna Preta 5500W Parede 4 Temperaturas Bica Alta Giratória 360° Cozinha Arejador Antirrespingo":
+    "https://www.mercadolivre.com.br/torneira-eletrica-zagonel-luna-preta-5500w-parede-4-temperaturas-bica-alta-giratoria-360-cozinha-arejador-antirrespingo/p/MLB43852134?pdp_filters=deal%3AMLB1578289-1",
+  "Balcão Aparador Compacto Para Cozinha Moderna 120x64 Branco":
+    "https://www.mercadolivre.com.br/balcao-aparador-compacto-para-cozinha-moderna-120x64/up/MLBU3971227693?pdp_filters=deal%3AMLB1578289-1",
+  "Gabinete Armário Banheiro Estilo Industrial Moderno Com Cuba Pia De Apoio Móvel Preto Amadeirado":
+    "https://www.mercadolivre.com.br/gabinete-armario-banheiro-estilo-industrial-moderno-com-cuba-pia-de-apoio-movel-preto-amadeirado/p/MLB62836932?pdp_filters=item_id%3AMLB6181614556",
+  "Chuveiro elétrico de parede Fame DUCHA INTENSE preto 7.8kW":
+    "https://www.mercadolivre.com.br/chuveiro-eletrico-de-parede-fame-ducha-intense-preto-78kw/p/MLB57341203?pdp_filters=deal%3AMLB1578289-1",
+  "Bomba Pressurizadora De Água 120w Para Aumentar Pressão Da Água Processador 1600l/h Tps120 The Black Tools":
+    "https://www.mercadolivre.com.br/bomba-pressurizadora-de-agua-120w-para-aumentar-pressao-da-agua-processador-1600lh-tps120-the-black-tools/p/MLB62998118?pdp_filters=deal%3AMLB1578289-1",
+  "Mesa Jantar Charles Eames Eiffel MDF 90cm Branca Cor dos pés Marrom Claro Algart Moveis":
+    "https://www.mercadolivre.com.br/mesa-jantar-charles-eames-eiffel-mdf-90cm-branca-cor-dos-pes-marrom-claro-algart-moveis/p/MLB24361666?pdp_filters=item_id%3AMLB3519594253",
+  "Torneira Elétrica Fame Elegance 4T 4800W Branca 4 Temperaturas":
+    "https://www.mercadolivre.com.br/torneira-eletrica-fame-elegance-4t-4800w-branca-4-temperaturas/p/MLB26865148?pdp_filters=deal%3AMLB1578289-1",
+  "Cuba Gourmet 50x40 Inox 304 Com Tábua, Acessórios Alphanox Escovada":
+    "https://www.mercadolivre.com.br/cuba-gourmet-50x40-inox-304-com-tabua-acessorios-alphanox/up/MLBU3266728738?pdp_filters=deal%3AMLB1578289-1",
+  "Armário de Cozinha Aéreo Branco AJL 120cm 4 Portas Modulado":
+    "https://www.mercadolivre.com.br/armario-de-cozinha-aereo-branco-ajl-120cm-4-portas-modulado/p/MLB37437681?pdp_filters=deal%3AMLB1578289-1",
+  "Balcão De Ferro Multiuso Para Cozinha Ou Lavanderia Preto":
+    "https://www.mercadolivre.com.br/balcao-de-ferro-multiuso-para-cozinha-ou-lavanderia/up/MLBU3410646767?pdp_filters=item_id%3AMLB5687035210",
+  "Torneira Elétrica Parede FAME Elegance 4T 5400W Brilhante Branca":
+    "https://www.mercadolivre.com.br/torneira-eletrica-parede-fame-elegance-4t-5400w-brilhante-branca/p/MLB35847461?pdp_filters=deal%3AMLB1578289-1",
+  "Bomba de pressão de água 160W 35L/min eficiente compacta silenciosa fácil instalar uso doméstico":
+    "https://www.mercadolivre.com.br/bomba-de-pressao-de-agua-160w-35lmin-eficiente-compacta-silenciosa-facil-instalar-uso-domestico/p/MLB38432676?pdp_filters=deal%3AMLB1578289-1",
+  "Torneira Pia Gourmet Para Monocomando Cozinha Flexivel Com Ducha Spray 4 Formulários 304 Inox Prateado + 60cm Tubo - Winda":
+    "https://www.mercadolivre.com.br/torneira-pia-gourmet-para-monocomando-cozinha-flexivel-com-ducha-spray-4-formularios-304-inox-prateado-60cm-tubo-winda/p/MLB42103972?pdp_filters=deal%3AMLB1578289-1",
+  "Chuveiro Ducha Lorenzetti Loren Shower Eletrônica 5500w Cor Branco":
+    "https://www.mercadolivre.com.br/chuveiro-ducha-lorenzetti-loren-shower-eletronica-5500w-cor-branco/p/MLB26017899?pdp_filters=deal%3AMLB1578289-1",
+  "Cuba Inox Smarthome 430 No2 56x34x17 C/ Válvula E Sifão":
+    "https://www.mercadolivre.com.br/cuba-inox-smarthome-430-no2-56x34x17-c-valvula-e-sifao/p/MLB65326709?pdp_filters=item_id%3AMLB5046677925",
+  "Kit Porta Correr Até 90cm Trilho Natural 1,8m C/ Acabamentos Natural":
+    "https://www.mercadolivre.com.br/kit-porta-correr-ate-90cm-trilho-natural-18m-c-acabamentos/up/MLBU797511682?pdp_filters=item_id%3AMLB2692364218",
+  "Kit 3 Rele Foto Soquete E27 Temporizador":
+    "https://www.mercadolivre.com.br/kit-3-rele-foto-soquete-e27-temporizador/up/MLBU760638518?pdp_filters=item_id%3AMLB3289269430",
+  "Torneira Cozinha Gourmet Monocomando Flexível Com Mola Luxo Prateado Mesa":
+    "https://www.mercadolivre.com.br/torneira-cozinha-gourmet-monocomando-flexivel-com-mola-luxo/up/MLBU4007118649?pdp_filters=deal%3AMLB1578289-1",
+  "Torneira Banheiro Monocomando Baixa De Luxo 2 Cores Acabamento Cromado Cor Prateado":
+    "https://www.mercadolivre.com.br/torneira-banheiro-monocomando-baixa-de-luxo-2-cores-acabamento-cromado-cor-prateado/p/MLB42441137?pdp_filters=item_id%3AMLB7085036262",
+  "Kit 5 Fita Isolante 3m Scotch 33+ 19mm X 20m Preto Liso Lisa":
+    "https://www.mercadolivre.com.br/kit-5-fita-isolante-3m-scotch-33-19mm-x-20m-preto-liso-lisa/p/MLB27503357?pdp_filters=deal%3AMLB1578289-1",
+  "Heemli Torneira Quadrada Preta Quente Fria Torneira Banheiro Preto Fosco":
+    "https://www.mercadolivre.com.br/heemli-torneira-quadrada-preta-quente-fria-torneira-banheiro/up/MLBU3435480083?pdp_filters=deal%3AMLB1578289-1",
+  "Fotocélula Solar Qualitronix Qr51 Bivolt para Automação de Iluminação":
+    "https://www.mercadolivre.com.br/fotocelula-solar-qualitronix-qr51-bivolt-para-automacao-de-iluminacao/p/MLB43813216?pdp_filters=item_id%3AMLB6297614818",
+  "Tomadas Led Extensão Coibeu 3 Tomadas 2 Usb 1pd Bivolt Bivolt":
+    "https://www.mercadolivre.com.br/tomadas-led-extensao-coibeu-3-tomadas-2-usb-1pd-bivolt/up/MLBU4032020014?pdp_filters=deal%3AMLB1578289-1",
+  "Torneira Para Banheiro De Mesa Bica Alta 1/4 De Volta Aço Inox 304 Preta Fosca Elegance Beltempo":
+    "https://www.mercadolivre.com.br/torneira-para-banheiro-de-mesa-bica-alta-14-de-volta-aco-inox-304-preta-fosca-elegance-beltempo/p/MLB45392402?pdp_filters=deal%3AMLB1578289-1",
+  "Heemli Ducha Chuveiro Alta Autolimpante Articulável Quadrada Preto Fosco":
+    "https://www.mercadolivre.com.br/heemli-ducha-chuveiro-alta-autolimpante-articulavel-quadrada/up/MLBU3859461454?pdp_filters=deal%3AMLB1578289-1",
+  "Armário De Cozinha Compacta Pequim Multimóveis V2933 Cor Preto/Lacca Fumê":
+    "https://www.mercadolivre.com.br/armario-de-cozinha-compacta-pequim-multimoveis-v2933-cor-pretolacca-fume/p/MLB27628231?pdp_filters=item_id%3AMLB4147998816",
+  "Mesa Redonda Madeira Maciça 4 Lugares Torneada 105cm Norah Freijó .":
+    "https://www.mercadolivre.com.br/mesa-redonda-madeira-macica-4-lugares-torneada-105cm-norah/up/MLBU3815630240?pdp_filters=deal%3AMLB1578289-1",
+  "Cuba Gourmet Preto Inox 304 75x46 cm Cozinha Cascata DOMUM":
+    "https://www.mercadolivre.com.br/cuba-gourmet-preto-inox-304-75x46-cm-cozinha-cascata-domum/p/MLB51038850?pdp_filters=item_id%3AMLB5520129458",
+  "Cozinha Completa Poliman Sicília Largo 160 cm Freijó Off para Cozinha":
+    "https://www.mercadolivre.com.br/cozinha-completa-poliman-sicilia-largo-160-cm-freijo-off-para-cozinha/p/MLB65770773?pdp_filters=deal%3AMLB1578289-1",
+  "Gabinete Balcão Para Cozinha Com Pia De 120cm Preto, Prateado":
+    "https://www.mercadolivre.com.br/gabinete-balcao-para-cozinha-com-pia-de-120cm/up/MLBU3261916891?pdp_filters=item_id%3AMLB4110029899",
+  "Armário De Cozinha Completo Com 5 Portas, Gaveta E Nichos Cinamomo/off White":
+    "https://www.mercadolivre.com.br/armario-de-cozinha-completo-com-5-portas-gaveta-e-nichos/up/MLBU4397647457?pdp_filters=deal%3AMLB1578289-1",
+  "Gabinete Armário Balcão 3 Portas 2 Gavetas Cozinha Serviço":
+    "https://produto.mercadolivre.com.br/MLB-3440887025-gabinete-armario-balco-3-portas-2-gavetas-cozinha-servico-_JM?pdp_filters=item_id%3AMLB3440887025",
+  "Armário De Cozinha Completo 140cm Aéreo E Balcão, 10 Portas E Gavetas, Funcional Para Cozinhas Ou Planejada Compacta Suspenso De Parede Ripado 3D Off White Bela":
+    "https://www.mercadolivre.com.br/armario-de-cozinha-completo-140cm-aereo-e-balcao-10-portas-e-gavetas-funcional-para-cozinhas-ou-planejada-compacta-suspenso-de-parede-ripado-3d-off-white-bela/p/MLB70281107?pdp_filters=deal%3AMLB1578289-1",
+  "20 Metros De Rodapé Poliestireno 10cm Kit 10 Barras":
+    "https://produto.mercadolivre.com.br/MLB-5244144106-20-metros-de-rodape-poliestireno-10cm-kit-10-barras-_JM?pdp_filters=item_id%3AMLB5244144106",
+  "Torneira Elétrica Bancada 4T Fame Elegance Preta Cromada 4800 W":
+    "https://www.mercadolivre.com.br/torneira-eletrica-bancada-4t-fame-elegance-preta-cromada-4800-w/p/MLB35732935?pdp_filters=item_id%3AMLB5199901605",
+  "Vaso Sanitário Cerâmica Monobloco Modelo Petrus - Vab0036 - Branco":
+    "https://www.mercadolivre.com.br/vaso-sanitario-ceramica-monobloco-modelo-petrus-vab0036-branco/p/MLB59003711?pdp_filters=deal%3AMLB1578289-1",
+  "Gabinete Armario De Banheiro 100% Mdf - Riva Com Nicho 60cm Branco Um Furo":
+    "https://www.mercadolivre.com.br/gabinete-armario-de-banheiro-100-mdf--riva-com-nicho-60cm/up/MLBU4116687861?pdp_filters=item_id%3AMLB4794308585",
+  "Mesa Redonda 90cm Mdf Louro Freijó Sala De Jantar Cozinha Louro Freijó E-Litoral":
+    "https://www.mercadolivre.com.br/mesa-redonda-90cm-mdf-louro-freijo-sala-de-jantar-cozinha-louro-freijo-e-litoral/p/MLB74152533?pdp_filters=item_id%3AMLB7229238068",
+  "Balcão De Cozinha Para Cooktop 4 ou 5 Bocas Com 1 Nicho 1 Gaveta Trio Casa Cor Branco":
+    "https://www.mercadolivre.com.br/balcao-de-cozinha-para-cooktop-4-ou-5-bocas-com-1-nicho-1-gaveta-trio-casa-cor-branco/p/MLB43443011?pdp_filters=item_id%3AMLB4785396895",
+  "Armário De Cozinha 8 Portas 2 Gavetas Freijó/soft Ajwt":
+    "https://www.mercadolivre.com.br/armario-de-cozinha-8-portas-2-gavetas-freijosoft-ajwt/p/MLB52116798?pdp_filters=deal%3AMLB1578289-1",
+  "Piso Vinílico Adesivo 5m2 Madeira Texturizado Mp Autocolante":
+    "https://produto.mercadolivre.com.br/MLB-4234688069-piso-vinilico-adesivo-5m2-madeira-texturizado-mp-autocolante-_JM?pdp_filters=item_id%3AMLB4234688069",
+  "Tinta Qualyvinil Acrílico Mais Rendimento Econômica Parede Acabamento Fosco Cor Camurça | Lata 18 Litros":
+    "https://www.mercadolivre.com.br/tinta-qualyvinil-acrilico-mais-rendimento-economica-parede-acabamento-fosco-cor-camurca-lata-18-litros/p/MLB57337753?pdp_filters=item_id%3AMLB7094202166",
+  "Armário Balcão Para Pia Cozinha - Cor Preto":
+    "https://www.mercadolivre.com.br/armario-balcao-para-pia-cozinha-cor-preto/p/MLB68329737?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 50 Peças Conexão Automática Wago 3 Fios Modelo 221-413":
+    "https://www.mercadolivre.com.br/kit-50-pecas-conexao-automatica-wago-3-fios-modelo-221413/up/MLBU1761611075?pdp_filters=item_id%3AMLB4838284022",
+  "Armario Gabinete Com Porta Basculante Para Banheiro Moderno Branco/ripado Não Possui Sem Furos":
+    "https://www.mercadolivre.com.br/armario-gabinete-com-porta-basculante-para-banheiro-moderno/up/MLBU3964091483?pdp_filters=item_id%3AMLB4682573013",
+  "Torneira Elétrica P/ Parede 5500w Branca Plus 4t 60 Hz Branco Polido":
+    "https://www.mercadolivre.com.br/torneira-eletrica-p-parede-5500w-branca-plus-4t-60-hz-branco-polido/p/MLB61978481?pdp_filters=item_id%3AMLB7510671412",
+  "Cuba Sobrepor Cerâmica Redonda 36cm Branca Lavabo Louça Pia Branco Alto Brilho":
+    "https://www.mercadolivre.com.br/cuba-sobrepor-ceramica-redonda-36cm-branca-lavabo-louca-pia/up/MLBU4136428419?pdp_filters=deal%3AMLB1578289-1",
+  "Porta Sanfonada De Correr Pvc 2,10mx0,80m Branca Fortlev Cor Branco":
+    "https://www.mercadolivre.com.br/porta-sanfonada-de-correr-pvc-210mx080m-branca-fortlev-cor-branco/p/MLB29132201?pdp_filters=deal%3AMLB1578289-1",
+  "Armario De Banheiro Com Espelheira Suspenso Aero Com Nicho Fendi Hanover":
+    "https://www.mercadolivre.com.br/armario-de-banheiro-com-espelheira-suspenso-aero-com-nicho/up/MLBU3877355884?pdp_filters=deal%3AMLB1578289-1",
+  "Porta Sanfonada Pvc 210x70cm Branca Fortlev Cor Branco":
+    "https://www.mercadolivre.com.br/porta-sanfonada-pvc-210x70cm-branca-fortlev-cor-branco/p/MLB28867779?pdp_filters=deal%3AMLB1578289-1",
+  "Grade Grelha Ventilação Retangular Alumínio Grelha 40x20 Cm":
+    "https://produto.mercadolivre.com.br/MLB-4076867175-grade-grelha-ventilaco-retangular-aluminio-grelha-40x20-cm-_JM?pdp_filters=item_id%3AMLB4076867175",
+  "Auto Transformador 2000va 110v 220v Bivolt Frete Gratis":
+    "https://www.mercadolivre.com.br/auto-transformador-2000va--110v--220v--bivolt-frete-gratis/up/MLBU612965870?pdp_filters=deal%3AMLB1578289-1",
+  "Armário Banheiro Espelharia Parede C/ Porta Prateleira Luxos Preto":
+    "https://www.mercadolivre.com.br/armario-banheiro-espelharia-parede-c-porta-prateleira-luxos/up/MLBU4554583004?pdp_filters=deal%3AMLB1578289-1",
+  "Bateria Selada VRLA AGM 12V 5Ah SecPower SP12-5 Para Philco PHT3000 PHT5000":
+    "https://www.mercadolivre.com.br/bateria-selada-vrla-agm-12v-5ah-secpower-sp12-5-para-philco-pht3000-pht5000/p/MLB59086830?pdp_filters=deal%3AMLB1578289-1",
+  "Armário De Cozinha Completa Suspenso 160cm Nice Madesa C 02 Cor Cinza":
+    "https://www.mercadolivre.com.br/armario-de-cozinha-completa-suspenso-160cm-nice-madesa-c-02-cor-cinza/p/MLB35440227?pdp_filters=item_id%3AMLB4214118209",
+  "Cuba Cozinha Gourmet Torneira Cascata Lavador Copos - Ermek":
+    "https://www.mercadolivre.com.br/cuba-cozinha-gourmet-torneira-cascata-lavador-copos-ermek/p/MLB55638288?pdp_filters=item_id%3AMLB4795343577",
+  "Bomba de Vácuo de Palheta Friven 7 CFM Duplo Estágio Bivolt 3/4 HP":
+    "https://www.mercadolivre.com.br/bomba-de-vacuo-de-palheta-friven-7-cfm-duplo-estagio-bivolt-34-hp/p/MLB49988870?pdp_filters=deal%3AMLB1578289-1",
+  "Balcão Gabinete Pia Cozinha 3 Porta 1 Gav Susp Nice C Madesa Cinza":
+    "https://www.mercadolivre.com.br/balcao-gabinete-pia-cozinha3-porta-1-gav-susp-nice-c-madesa-cinza/p/MLB34701404?pdp_filters=deal%3AMLB1578289-1",
+  "Janela De Correr, Vitrô 2 Folhas 60x120 Preto L. Suprema":
+    "https://produto.mercadolivre.com.br/MLB-5665258490-janela-de-correr-vitr-2-folhas-60x120-preto-l-suprema-_JM",
+  "Bomba Submersível Kärcher SP 11.000 Dirt 11.000 L/h com Sensor de Boia para Água Suja e Inundações 220v":
+    "https://www.mercadolivre.com.br/bomba-submersivel-krcher-sp-11000-dirt-11000-lh-com-sensor-de-boia-para-agua-suja-e-inundacoes-220v/p/MLB42238286?pdp_filters=deal%3AMLB1578289-1",
+  "Mesa De Jantar London Redonda Base De Ferro Tubular 90cm":
+    "https://produto.mercadolivre.com.br/MLB-5782836680-mesa-de-jantar-london-redonda-base-de-ferro-tubular-90cm-_JM?pdp_filters=item_id%3AMLB5782836680",
+  "Movelove Balcão Para Cooktop 0,80m 5 Bocas 2 Portas Turim Branco":
+    "https://www.mercadolivre.com.br/movelove-balcao-para-cooktop-080m-5-bocas-2-portas-turim-branco/p/MLB41551306?pdp_filters=deal%3AMLB1578289-1",
+  "Cooktop Alecrim Balcão De Cozinha Compacto Cara Cooktop 4 Bocas Com 1 Porta E Nicho Para Forno Cor Branco":
+    "https://www.mercadolivre.com.br/cooktop-alecrim-balcao-de-cozinha-compacto-cara-cooktop-4-bocas-com-1-porta-e-nicho-para-forno-cor-branco/p/MLB74172789?pdp_filters=item_id%3AMLB7012001160",
+  "Armário Aéreo Quarto Compacta Design Moderno Exclusiva":
+    "https://produto.mercadolivre.com.br/MLB-4026209423-armario-aereo-quarto-compacta-design-moderno-exclusiva-_JM?pdp_filters=item_id%3AMLB4026209423",
+  "Armário 1 Porta Área De Serviço Porta Vassouras Cozinha Branco":
+    "https://www.mercadolivre.com.br/armario-1-porta-area-de-servico-porta-vassouras-cozinha-branco/p/MLB62566490?pdp_filters=deal%3AMLB1578289-1",
+  "Escada Alumínio Dobrável 8 Degraus Botafogo":
+    "https://www.mercadolivre.com.br/escada-aluminio-dobravel-8-degraus-botafogo/up/MLBU4936056835?pdp_filters=deal%3AMLB1578289-1",
+  "Vaso Sanitário Celite Like Branco Caixa Acoplada Branco":
+    "https://www.mercadolivre.com.br/vaso-sanitario-celite-like-branco-caixa-acoplada/up/MLBU5219794730?pdp_filters=deal%3AMLB1578289-1",
+  "Mdf Branco Cortado Sob Medida 15mm":
+    "https://www.mercadolivre.com.br/mdf-branco-cortado-sob-medida-15mm/up/MLBU1725153084?pdp_filters=deal%3AMLB1578289-1",
+  "Andaime 1x150 - Andaime Certificado - Andaime Tubular - Nr18":
+    "https://www.mercadolivre.com.br/andaime-1x150--andaime-certificado--andaime-tubular--nr18/up/MLBU1678300818?pdp_filters=deal%3AMLB1578289-1",
+  "Armário Para Banheiro De Três Camadas Organizador Metal":
+    "https://produto.mercadolivre.com.br/MLB-4228406643-armario-para-banheiro-de-trs-camadas-organizador-metal-_JM",
+  "Pia Retangular Cuba Banheiro Sobrepor 45x30 Em Polipropileno Preto Brilhante":
+    "https://www.mercadolivre.com.br/pia-retangular-cuba-banheiro-sobrepor-45x30-em-polipropileno/up/MLBU3860179231?pdp_filters=item_id%3AMLB4561472595",
+  "Protetor Dps Elétrico 3 Tomadas Bivolt 10a Lcf Clamper":
+    "https://produto.mercadolivre.com.br/MLB-4098972467-protetor-dps-eletrico-3-tomadas-bivolt-10a-lcf-clamper-_JM?pdp_filters=item_id%3AMLB4098972467",
+  "Revestimento Efeito Pedra Grannistone 25kg Castelo De Areia Castelo De Areia":
+    "https://www.mercadolivre.com.br/revestimento-efeito-pedra-grannistone-25kg-castelo-de-areia/up/MLBU2871495386?pdp_filters=deal%3AMLB1578289-1",
+  "Balcão Nicioli Cozinha Cinza Cooktop 105cm MDP 15mm 1 Porta 1 Gaveta":
+    "https://www.mercadolivre.com.br/balcao-nicioli-cozinha-cinza-cooktop-105cm-mdp-15mm-1-porta-1-gaveta/p/MLB36527448?pdp_filters=deal%3AMLB1578289-1",
+  "Tinta Grafite 18kg Top Cor P/ Parede E Concreto Premium Grafite":
+    "https://www.mercadolivre.com.br/tinta-grafite-18kg-top-cor-p-parede-e-concreto--premium/up/MLBU3790289741?pdp_filters=deal%3AMLB1578289-1",
+  "Armário Aéreo 2 Portas Batrol Top Class Cozinha Lavanderia Branco":
+    "https://www.mercadolivre.com.br/armario-aereo-2-portas-batrol-top-class-cozinha-lavanderia/up/MLBU4761509027?pdp_filters=item_id%3AMLB7440309532",
+  "Torneira Elétrica Elegance 4 Temperaturas De Bancada Fame Preto Cromado 60":
+    "https://www.mercadolivre.com.br/torneira-eletrica-elegance-4-temperaturas-de-bancada-fame-preto-cromado-60/p/MLB75321143?pdp_filters=deal%3AMLB1578289-1",
+  "Torneira Cozinha Monocomando Parede Ou Bancada Extensivel Preto Fosco":
+    "https://www.mercadolivre.com.br/torneira-cozinha-monocomando-parede-ou-bancada-extensivel/up/MLBU4661668843?pdp_filters=item_id%3AMLB5036759641",
 };
