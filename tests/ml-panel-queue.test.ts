@@ -223,4 +223,29 @@ describe("catalogFirst", () => {
     ]);
     expect(catalogFirst([])).toEqual([]);
   });
+
+  it("never pushes a featured row behind the rows without a catalog id", () => {
+    const list = [
+      {
+        id: "up1",
+        pick: { productUrl: "https://www.mercadolivre.com.br/a/up/MLBU111" },
+      },
+      {
+        id: "starUp",
+        pick: {
+          featured: true,
+          productUrl: "https://www.mercadolivre.com.br/b/up/MLBU222",
+        },
+      },
+      {
+        id: "cat",
+        pick: { productUrl: "https://www.mercadolivre.com.br/c/p/MLB333333" },
+      },
+    ];
+    expect(catalogFirst(list).map((x) => x.id)).toEqual([
+      "starUp",
+      "cat",
+      "up1",
+    ]);
+  });
 });

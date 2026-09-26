@@ -216,10 +216,12 @@ export function rankAllForLinking(
  * every "not a catalog product" dead end came from the 152 without one — so
  * the owner works the safe rows first and meets the risky ones last.
  */
-export function catalogFirst<T extends { pick: { productUrl?: string } }>(
-  entries: readonly T[],
-): T[] {
+export function catalogFirst<
+  T extends { pick: { productUrl?: string; featured?: boolean } },
+>(entries: readonly T[]): T[] {
+  // featured rows (the owner's top picks) are worth the try even without a code
   const has = (e: T) =>
+    !!e.pick.featured ||
     !!expectedIdsFromProductUrl(e.pick.productUrl).catalogId;
   return [...entries.filter(has), ...entries.filter((e) => !has(e))];
 }

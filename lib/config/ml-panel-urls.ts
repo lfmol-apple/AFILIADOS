@@ -3670,4 +3670,660 @@ export const ML_PANEL_URLS: Readonly<Record<string, string>> = {
     "https://www.mercadolivre.com.br/mochila-maluca-infantil-pipoca-de-verdade-semana-maluca/up/MLBU5132141845?pdp_filters=item_id%3AMLB5215951703",
   "Calça Social Feminina Alfaitaria Linho Aladim Cintura Alta":
     "https://produto.mercadolivre.com.br/MLB-6149394298-calca-social-feminina-alfaitaria-linho-aladim-cintura-alta-_JM?pdp_filters=item_id%3AMLB6149394298",
+  "Creatina Soldiers Nutrition em pó Sem sabor x 1kg":
+    "https://www.mercadolivre.com.br/creatina-soldiers-nutrition-em-po-sem-sabor-x-1kg/p/MLB18725310?pdp_filters=deal%3AMLB1578289-1",
+  "Proteína Max Titanium Whey Pro Concetrado em pó sabor Baunilha x 1kg":
+    "https://www.mercadolivre.com.br/proteina-max-titanium-whey-pro-concetrado-em-po-sabor-baunilha-x-1kg/p/MLB6087974?pdp_filters=deal%3AMLB1578289-1",
+  "Proteína Black Skull Whey 100% HD em pó sabor Chocolate x 900g":
+    "https://www.mercadolivre.com.br/proteina-black-skull-whey-100-hd-em-po-sabor-chocolate-x-900g/p/MLB18995413?pdp_filters=deal%3AMLB1578289-1",
+  "Proteína Soldiers Nutrition Suplementação Whey Protein em pó sabor Chocolate x 1kg":
+    "https://www.mercadolivre.com.br/proteina-soldiers-nutrition-suplementacao-whey-protein-em-po-sabor-chocolate-x-1kg/p/MLB18953097?pdp_filters=item_id%3AMLB5414641440",
+  "Proteína Adaptogen Science Tasty Whey Gourmet em pó Sem sabor x 900g":
+    "https://www.mercadolivre.com.br/proteina-adaptogen-science-tasty-whey-gourmet-em-po-sem-sabor-x-900g/p/MLB19592785?pdp_filters=deal%3AMLB1578289-1",
+  "Proteína Dux Nutrition Whey Protein Concentrado Pote 900G sabor Chocolate x 900g":
+    "https://www.mercadolivre.com.br/proteina-dux-nutrition-whey-protein-concentrado-pote-900g-sabor-chocolate-x-900g/p/MLB23853955?pdp_filters=deal%3AMLB1578289-1",
+  "Barraca Camping Iglu para até 4 Pessoas - Mor":
+    "https://www.mercadolivre.com.br/barraca-camping-iglu-para-ate-4-pessoas-mor/p/MLB23113041?pdp_filters=deal%3AMLB1578289-1",
+  "Omegafor Plus 120 Cápsulas Ômega 3 Vitafor Sem Sabor":
+    "https://www.mercadolivre.com.br/omegafor-plus-120-capsulas-omega-3-vitafor/up/MLBU710206666?pdp_filters=deal%3AMLB1578289-1",
+  "Proteína Max Titanium Whey Pro Concetrado em pó sabor Morango x 1kg":
+    "https://www.mercadolivre.com.br/proteina-max-titanium-whey-pro-concetrado-em-po-sabor-morango-x-1kg/p/MLB6087971?pdp_filters=item_id%3AMLB2147833620",
+  "Proteína Max Titanium Whey Pro Concetrado em pó sabor Chocolate x 1kg":
+    "https://www.mercadolivre.com.br/proteina-max-titanium-whey-pro-concetrado-em-po-sabor-chocolate-x-1kg/p/MLB6087972?pdp_filters=item_id%3AMLB2173022623",
+  "Ômega 3 Vitafor em cápsula Sem sabor de 120 un":
+    "https://www.mercadolivre.com.br/mega-3-vitafor-em-capsula-sem-sabor-de-120-un/p/MLB41010745?pdp_filters=deal%3AMLB1578289-1",
+  "Barra de proteínas Nutrata WHEY Grego 40G sabor Morango com chantilly x 480g 12 un":
+    "https://www.mercadolivre.com.br/barra-de-proteinas-nutrata-whey-grego-40g-sabor-morango-com-chantilly-x-480g-12-un/p/MLB18723721?pdp_filters=item_id%3AMLB3281042229",
+  "Patinete Infantil Scooter Dobrável Com Led Freio Bv0011 Mega Compras":
+    "https://www.mercadolivre.com.br/patinete-infantil-scooter-dobravel-com-led-freio-bv0011-mega-compras/p/MLB19614953?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Ergométrica Bike Spinning 6kg Sensação Inércia Fitness Preto E Vermelho Sevenfit Para Cardio":
+    "https://www.mercadolivre.com.br/bicicleta-ergometrica-bike-spinning-6kg-sensacao-inercia-fitness-preto-e-vermelho-sevenfit-para-cardio/p/MLB42978348?pdp_filters=deal%3AMLB1578289-1",
+  "Barraca Camping Iglu Para 3 Pessoas Azul Mor":
+    "https://www.mercadolivre.com.br/barraca-camping-iglu-para-3-pessoas-azul-mor/p/MLB21969838?pdp_filters=item_id%3AMLB3304808289",
+  "Whey Protein 100% Whey Concentrado Max Titanium Sabor Morango 900g":
+    "https://www.mercadolivre.com.br/whey-protein-100-whey-concentrado-max-titanium-sabor-morango-900g/p/MLB12982625?pdp_filters=deal%3AMLB1578289-1",
+  "Whey 100% Pure Baunilha 900g Pote - Proteína Pura e Rápida Absorção para Melhor Performance":
+    "https://www.mercadolivre.com.br/whey-100-pure-baunilha-900g-pote-proteina-pura-e-rapida-absorcao-para-melhor-performance/p/MLB12702741?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Infantil Nathor Aro 12 Rosa Flower para Crianças":
+    "https://www.mercadolivre.com.br/bicicleta-infantil-nathor-aro-12-rosa-flower-para-criancas/p/MLB52067041?pdp_filters=deal%3AMLB1578289-1",
+  "Omega 3 epa dha Vitafor + vitamina E 240cps":
+    "https://www.mercadolivre.com.br/omega-3-epa-dha-vitafor-vitamina-e-240cps/p/MLB42975434?pdp_filters=deal%3AMLB1578289-1",
+  "Proteína Growth Supplements Whey concentrado em pó sabor Baunilha x 1kg":
+    "https://www.mercadolivre.com.br/proteina-growth-supplements-whey-concentrado-em-po-sabor-baunilha-x-1kg/p/MLB18953093?pdp_filters=deal%3AMLB1578289-1",
+  "100% Whey Protein Concentrado 900g Cookies & Cream":
+    "https://www.mercadolivre.com.br/100-whey-protein-concentrado-900g-cookies-cream/p/MLB18418076?pdp_filters=deal%3AMLB1578289-1",
+  "Creatina Integralmédica Monohidratada Hardcore em pó Sem sabor x 1kg":
+    "https://www.mercadolivre.com.br/creatina-integralmedica-monohidratada-hardcore-em-po-sem-sabor-x-1kg/p/MLB18552153?pdp_filters=deal%3AMLB1578289-1",
+  "Colchão Camping Casal Inflável 300kg + Bomba De Ar Bestway Cor Azul":
+    "https://www.mercadolivre.com.br/colchao-camping-casal-inflavel-300kg-bomba-de-ar-bestway-cor-azul/p/MLB26755214?pdp_filters=deal%3AMLB1578289-1",
+  "Suplemento em pó Max Titanium Mass Titanium Refil 17500 Carboidratos sabor Baunilha x 3kg":
+    "https://www.mercadolivre.com.br/suplemento-em-po-max-titanium-mass-titanium-refil-17500-carboidratos-sabor-baunilha-x-3kg/p/MLB18724695?pdp_filters=deal%3AMLB1578289-1",
+  "Trans-resveratrol Vitafor Resveratrol Plus - 60 cap em cápsula Sem sabor de 60 un":
+    "https://www.mercadolivre.com.br/trans-resveratrol-vitafor-resveratrol-plus-60-cap-em-capsula-sem-sabor-de-60-un/p/MLB24861775?pdp_filters=deal%3AMLB1578289-1",
+  "Colágeno ProFit Laboratórios Específicos em pó Sem sabor x 7mL de 120 un":
+    "https://www.mercadolivre.com.br/colageno-profit-laboratorios-especificos-em-po-sem-sabor-x-7ml-de-120-un/p/MLB19533004?pdp_filters=item_id%3AMLB3877930949",
+  "Suplemento em pó ProFit Laboratórios Pro Fit Chá Diurético Diurex CHÁ sabor Frutas vermelhas x 200g":
+    "https://www.mercadolivre.com.br/suplemento-em-po-profit-laboratorios-pro-fit-cha-diuretico-diurex-cha-sabor-frutas-vermelhas-x-200g/p/MLB19821005?pdp_filters=item_id%3AMLB3879603649",
+  "Esteira Elétrica Ergométrica Bivolt Ginastica Wct Fitness Cor Preto":
+    "https://www.mercadolivre.com.br/esteira-eletrica-ergometrica-bivolt-ginastica-wct-fitness-cor-preto/p/MLB26516485?pdp_filters=deal%3AMLB1578289-1",
+  "Barraca Automática Joyfox Camping 5-8 Pessoas Impermeável UPF 50+ Verde":
+    "https://www.mercadolivre.com.br/barraca-automatica-joyfox-camping-5-8-pessoas-impermeavel-upf-50-verde/p/MLB54560523?pdp_filters=item_id%3AMLB7653413256",
+  "Bicicleta Urbana Infantil Good Mood Tiffany R16 Rosa Aço Carbono":
+    "https://www.mercadolivre.com.br/bicicleta-urbana-infantil-good-mood-tiffany-r16-rosa-aco-carbono/p/MLB19312089?pdp_filters=item_id%3AMLB3774872286",
+  "Bicicleta Ergométrica Spinning MZY 680 15 kg Bluetooth Preto":
+    "https://www.mercadolivre.com.br/bicicleta-ergometrica-spinning-mzy-680-15-kg-bluetooth-preto/p/MLB66517451?pdp_filters=deal%3AMLB1578289-1",
+  "Colchão Inflável Queen Nepul Duplo Com 2 Travesseiro Inflável NE-999 cor Cinza":
+    "https://www.mercadolivre.com.br/colchao-inflavel-queen-nepul-duplo-com-2-travesseiro-inflavel-ne-999-cor-cinza/p/MLB67290243?pdp_filters=item_id%3AMLB6764386730",
+  'Bicicleta BMX 20" Pro-X Série 1 Aço Carbono Freio V-Brake Azul':
+    "https://www.mercadolivre.com.br/bicicleta-bmx-20-pro-x-serie-1-aco-carbono-freio-v-brake-azul/p/MLB24167722?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Motor Bike Motorizada 2 Tempos Tipo 80cc Prateado":
+    "https://www.mercadolivre.com.br/kit-motor-bike-motorizada-2-tempos-tipo-80cc-prateado/p/MLB32953357?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Halteres 6 Em 1 Peso Musculação Até 40kg Ajustável Halter, Kettlebell, Anilha Cor Preto-Vermelho":
+    "https://www.mercadolivre.com.br/kit-halteres-6-em-1-peso-musculacao-ate-40kg-ajustavel-halter-kettlebell-anilha-cor-preto-vermelho/p/MLB26591487?pdp_filters=item_id%3AMLB7679109212",
+  "Kit Halteres Barra E Anilhas Musculação Kettlebell Ajustáveis Peso Academia 15kg":
+    "https://www.mercadolivre.com.br/kit-halteres-barra-e-anilhas-musculacao-kettlebell-ajustaveis-peso-academia-15kg/p/MLB62279009?pdp_filters=item_id%3AMLB4313300945",
+  "Lanterna Mais Forte Do Mundo Tática Militar 2km Recarregável Branco Preto":
+    "https://www.mercadolivre.com.br/lanterna-mais-forte-do-mundo-tatica-militar-2km-recarregavel/up/MLBU3022910117?pdp_filters=item_id%3AMLB5293430012",
+  "Mesa Dobrável Vira Maleta Com Alça Portátil 1.80m Para Camping Pesca Jardim Área Externa Ou Interna Salão De Festas Gourmet Cor BrancoLuvinco":
+    "https://www.mercadolivre.com.br/mesa-dobravel-vira-maleta-com-alca-portatil-180m-para-camping-pesca-jardim-area-externa-ou-interna-salao-de-festas-gourmet-cor-brancoluvinco/p/MLB45341890?pdp_filters=deal%3AMLB1578289-1",
+  "Kit de Pesca Pescamping com 2 Varas Telescópicas e 2 Molinetes, Maleta Completa para Pescaria":
+    "https://www.mercadolivre.com.br/kit-de-pesca-pescamping-com-2-varas-telescopicas-e-2-molinetes-maleta-completa-para-pescaria/p/MLB50107038?pdp_filters=item_id%3AMLB5488849746",
+  "Pescamping Kit Pesca Completo 2 Varas Fibra De Vidro E 2 Molinetes Leve Com Linha Estojo E Maleta Com Acessórios - Tralha de Pescaria":
+    "https://www.mercadolivre.com.br/pescamping-kit-pesca-completo-2-varas-fibra-de-vidro-e-2-molinetes-leve-com-linha-estojo-e-maleta-com-acessorios-tralha-de-pescaria/p/MLB45906258?pdp_filters=item_id%3AMLB5995214406",
+  "Pedivela Absolute Prime 34d Direct Off Set 3mm 10v 11v 12v":
+    "https://www.mercadolivre.com.br/pedivela-absolute-prime-34d-direct-off-set-3mm-10v-11v-12v/p/MLB27062480?pdp_filters=deal%3AMLB1578289-1",
+  "Colchão Inflável Casal Acampamento Inflador Acoplado O2flow":
+    "https://www.mercadolivre.com.br/colchao-inflavel-casal-acampamento-inflador-acoplado-o2flow/p/MLB34031670?pdp_filters=item_id%3AMLB4469031872",
+  "Bola de Futebol Trionda Training Copa do Mundo da FIFA 26TM adidas":
+    "https://www.mercadolivre.com.br/bola-de-futebol-trionda-training-copa-do-mundo-da-fifa-26tm-adidas/p/MLB54774833?pdp_filters=item_id%3AMLB6003130486",
+  "Pedivela Absolute Prime 34d Direct Mount 3mm 10v 11v 12v Mtb":
+    "https://www.mercadolivre.com.br/pedivela-absolute-prime-34d-direct-mount-3mm-10v-11v-12v-mtb/up/MLBU605610725?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Infantil 2–5 Anos Nathor Homem-Aranha Aro 12 azul/vermelho com rodinhas":
+    "https://www.mercadolivre.com.br/bicicleta-infantil-25-anos-nathor-homem-aranha-aro-12-azulvermelho-com-rodinhas/p/MLB26194643?pdp_filters=deal%3AMLB1578289-1",
+  "Barra Fixa De Parede Pull-up Modelo Externo Interno Completa Preto":
+    "https://www.mercadolivre.com.br/barra-fixa-de-parede-pullup-modelo-externo-interno-completa/up/MLBU1417690491?pdp_filters=item_id%3AMLB2127256224",
+  "Creatina Soldiers Nutrition em pó Sem sabor x 1.2kg 2 un":
+    "https://www.mercadolivre.com.br/creatina-soldiers-nutrition-em-po-sem-sabor-x-12kg-2-un/p/MLB67348665?pdp_filters=item_id%3AMLB6538330654",
+  "Garrafa Térmica Azarte Inox 2,5l Tereré - 24h Frio Inox":
+    "https://www.mercadolivre.com.br/garrafa-termica-azarte-inox-25l-terere--24h-frio/up/MLBU1162439859?pdp_filters=item_id%3AMLB4401283300",
+  "Bicicleta Infantil Aro 12 Homem Aranha Nathor Spider-man Cor Vermelho Azul e Preto":
+    "https://www.mercadolivre.com.br/bicicleta-infantil-aro-12-homem-aranha-nathor-spider-man-cor-vermelho-azul-e-preto/p/MLB22648882?pdp_filters=deal%3AMLB1578289-1",
+  "Creatina 300g + Pré-treino Melancia Evolution 300g - Soldiers Nutrition":
+    "https://www.mercadolivre.com.br/creatina-300g-pre-treino-melancia-evolution-300g-soldiers-nutrition/p/MLB69974325?pdp_filters=item_id%3AMLB4718911909",
+  "Proteína Dux Nutrition Whey Protein concentrado em pó sabor Cappuccino x 900g":
+    "https://www.mercadolivre.com.br/proteina-dux-nutrition-whey-protein-concentrado-em-po-sabor-cappuccino-x-900g/p/MLB18510395?pdp_filters=deal%3AMLB1578289-1",
+  "Whey 100% Pure 900g Pote Integralmédica - Cookies E Cream Cookies & Cream":
+    "https://www.mercadolivre.com.br/whey-100-pure-900g-pote-integralmedica-cookies-e-cream-cookies-cream/p/MLB12702743?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 3 Camisas Proteção Uv Manga Longa Térmicas Segunda Pele Preto/ Azul-marinho/ Chumbo Gg (46-48)":
+    "https://www.mercadolivre.com.br/kit-3-camisas-protecao-uv-manga-longa-termicas-segunda-pele/up/MLBU3853637904?pdp_filters=item_id%3AMLB6472142664",
+  "Best Whey Protein Double Chocolate 900g Duplo Chocolate":
+    "https://www.mercadolivre.com.br/best-whey-protein-double-chocolate-900g-duplo-chocolate/p/MLB14236844?pdp_filters=deal%3AMLB1578289-1",
+  "Corrente Kmc X12 Silver Prata 126 Elos 12v 1x12v Mtb Speed":
+    "https://www.mercadolivre.com.br/corrente-kmc-x12-silver-prata-126-elos-12v-1x12v-mtb-speed/up/MLBU604922074?pdp_filters=deal%3AMLB1578289-1",
+  "Mesa Camping Dobrável USD Portátil Alumínio Praia Acampamento Camping Churrasco Cor Preto":
+    "https://www.mercadolivre.com.br/mesa-camping-dobravel-usd-portatil-aluminio-praia-acampamento-camping-churrasco-cor-preto/p/MLB57673381?pdp_filters=item_id%3AMLB4219264763",
+  "Fogareiro Portátil Usd Camping Acendimento Automático Com Maleta":
+    "https://www.mercadolivre.com.br/fogareiro-portatil-usd-camping-acendimento-automatico-com-maleta/p/MLB51139997?pdp_filters=item_id%3AMLB4093772723",
+  "TESTO ESSENCIAL para MULHERES - Fórmula Exclusiva com Feno Grego + Boro + Arginina + ZMA + Biotina + Vitaminas B6 e B12 - 60 Cápsulas":
+    "https://www.mercadolivre.com.br/testo-essencial-para-mulheres-formula-exclusiva-com-feno-grego-boro-arginina-zma-biotina-vitaminas-b6-e-b12-60-capsulas/p/MLB70523626?pdp_filters=item_id%3AMLB6867949852",
+  "Mini Bike Fisioterapia Portátil Bicicleta Ergométrica":
+    "https://www.mercadolivre.com.br/mini-bike-fisioterapia-portatil-bicicleta-ergometrica/p/MLB50614198?pdp_filters=deal%3AMLB1578289-1",
+  "Copo Térmico Stanley Pilsner Glass Happy Hour Stainless Steel 444ml":
+    "https://www.mercadolivre.com.br/copo-termico-stanley-pilsner-glass-happy-hour-stainless-steel-444ml/p/MLB28199437?pdp_filters=deal%3AMLB1578289-1",
+  "Coenzima Q10 Forged Nutrition Forged Clean em cápsula Sem sabor x 30g de 60 un":
+    "https://www.mercadolivre.com.br/coenzima-q10-forged-nutrition-forged-clean-em-capsula-sem-sabor-x-30g-de-60-un/p/MLB30465601?pdp_filters=item_id%3AMLB5552965854",
+  "Proteína Espartanos Sports Protein Fusion Whey Isolate sabor Baunilha x 1.8kg":
+    "https://www.mercadolivre.com.br/proteina-espartanos-sports-protein-fusion-whey-isolate-sabor-baunilha-x-18kg/p/MLB18906210?pdp_filters=item_id%3AMLB2694683653",
+  "Colágeno Pura Vida Premium em pó sabor Chocolate x 450g":
+    "https://www.mercadolivre.com.br/colageno-pura-vida-premium-em-po-sabor-chocolate-x-450g/p/MLB58034571?pdp_filters=deal%3AMLB1578289-1",
+  "Trave Futebol Kit 2 Mini Golzinhos Gol Infantil Bola E Bomba Branco":
+    "https://www.mercadolivre.com.br/trave-futebol-kit-2-mini-golzinhos-gol-infantil-bola-e-bomba-branco/p/MLB41445000?pdp_filters=item_id%3AMLB3870591997",
+  "CÚRCUMA 130mg + COLÁGENO Tipo Ii 45mg - Fórmula com Máxima Concentração e Pureza - 60 Cápsulas":
+    "https://www.mercadolivre.com.br/curcuma-130mg-colageno-tipo-ii-45mg-formula-com-maxima-concentracao-e-pureza-60-capsulas/p/MLB61648010?pdp_filters=item_id%3AMLB4291652941",
+  "Xiaomi Smart Band Mi Band 9 Active Relógio Preto Lisa":
+    "https://www.mercadolivre.com.br/xiaomi-smart-band-mi-band-9-active-relogio-preto-lisa/p/MLB47320998?pdp_filters=deal%3AMLB1578289-1",
+  "Whey Protein Concentrado 450g Growth Supplements Chocolate":
+    "https://www.mercadolivre.com.br/whey-protein-concentrado-450g-growth-supplements/up/MLBU3933342996?pdp_filters=deal%3AMLB1578289-1",
+  "Proteína ProFit Laboratórios Elite Series 100% Premium Whey em pó sabor Cookies and cream x 840g":
+    "https://www.mercadolivre.com.br/proteina-profit-laboratorios-elite-series-100-premium-whey-em-po-sabor-cookies-and-cream-x-840g/p/MLB22480467?pdp_filters=item_id%3AMLB3874778091",
+  "Whey Protein 100% Concentrado Premium 840g Profit Morango":
+    "https://www.mercadolivre.com.br/whey-protein-100-concentrado-premium-840g-profit-morango/p/MLB25046170?pdp_filters=item_id%3AMLB3874803203",
+  "Colchão Camping Solteiro Inflável Bestway 150kgs + Bomba Ar":
+    "https://www.mercadolivre.com.br/colchao-camping-solteiro-inflavel-bestway-150kgs-bomba-ar/p/MLB23242631?pdp_filters=item_id%3AMLB6833883318",
+  "Whey protein Profit 100% Quality Concentrate em pó sabor Leite Niño x 900g":
+    "https://www.mercadolivre.com.br/whey-protein-profit-100-quality-concentrate-em-po-sabor-leite-nino-x-900g/p/MLB42116856?pdp_filters=item_id%3AMLB5158804228",
+  "Compressor Calibrador De Pneus Calibrador B&G Portátil Mini Digital Carro Bike Sem Fio Cor Preto":
+    "https://www.mercadolivre.com.br/compressor-calibrador-de-pneus-calibrador-bg-portatil-mini-digital-carro-bike-sem-fio-cor-preto/p/MLB21163160?pdp_filters=deal%3AMLB1578289-1",
+  "COLÁGENO TIPO 2 com 45mg - Fórmula Exclusiva para a Articulação com Máxima Concentração e Biodisponibilidade - 60 Cápsulas":
+    "https://www.mercadolivre.com.br/colageno-tipo-2-com-45mg-formula-exclusiva-para-a-articulacao-com-maxima-concentracao-e-biodisponibilidade-60-capsulas/p/MLB43057072?pdp_filters=item_id%3AMLB3909103951",
+  "Mini Compressor Digital Portátil Cartel Barber Shop para Carro Moto e Bicicleta com Calibrador Digital Inflador Elétrico de Pneus 12V Display LCD Lanterna LED Compacto e Recarregável Preto":
+    "https://www.mercadolivre.com.br/mini-compressor-digital-portatil-cartel-barber-shop-para-carro-moto-e-bicicleta-com-calibrador-digital-inflador-eletrico-de-pneus-12v-display-lcd-lanterna-led-compacto-e-recarregavel-preto/p/MLB74438571?pdp_filters=item_id%3AMLB6673403614",
+  "Kit - Pro3magnésio + Complexo B + Nac Sem Sabor":
+    "https://www.mercadolivre.com.br/kit--pro3magnesio--complexo-b--nac/up/MLBU4063149129?pdp_filters=item_id%3AMLB6929626626",
+  "Barraca De Camping Para 4 Pessoas Acampamento Homefy":
+    "https://www.mercadolivre.com.br/barraca-de-camping-para-4-pessoas-acampamento-homefy/p/MLB27918147?pdp_filters=deal%3AMLB1578289-1",
+  "Barraca Iglu Homefy 4 Pessoas 900 g com Mosquiteiro Azul":
+    "https://www.mercadolivre.com.br/barraca-iglu-homefy-4-pessoas-900-g-com-mosquiteiro-azul/p/MLB51716412?pdp_filters=deal%3AMLB1578289-1",
+  "Nac N-acetil L-cisteína 600mg Molibdênio + Selênio 120 Cápsulas (4 Meses)":
+    "https://www.mercadolivre.com.br/nac-n-acetil-l-cisteina-600mg-molibdenio-selenio-120-capsulas-4-meses/p/MLB65371371?pdp_filters=item_id%3AMLB4465779455",
+  "Bicicleta Ergométrica Spinning Inércia 5kg Velocron V500 Preto":
+    "https://www.mercadolivre.com.br/bicicleta-ergometrica-spinning-inercia-5kg-velocron-v500-preto/p/MLB66042141?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Ergométrica Profissional Spinning X11 Em Aço Carbono Suporta Até 120kg - Liftness Preto":
+    "https://www.mercadolivre.com.br/bicicleta-ergometrica-profissional-spinning-x11-em-aco-carbono-suporta-ate-120kg-liftness-preto/p/MLB64996643?pdp_filters=item_id%3AMLB7665678820",
+  "Bicicleta Spinning Romantic Crown Preto Roda Inércia 13kg":
+    "https://www.mercadolivre.com.br/bicicleta-spinning-romantic-crown-preto-roda-inercia-13kg/p/MLB62816576?pdp_filters=item_id%3AMLB6418614274",
+  "Esteira Elétrica Plana Residencial Preta Cor Preto Bluetooth Preto 127v":
+    "https://www.mercadolivre.com.br/esteira-eletrica-plana-residencial-preta-cor-preto-bluetooth/up/MLBU3818599259?pdp_filters=item_id%3AMLB4505703283",
+  "Bicicleta Aro 29 Ksw 9v Freio Hidráulico Trava E K7 11/40":
+    "https://produto.mercadolivre.com.br/MLB-4436868794-bicicleta-aro-29-ksw-9v-freio-hidraulico-trava-e-k7-1140-_JM?pdp_filters=item_id%3AMLB4436868794",
+  "Bicicleta Ergométrica Bike Spinning Garrafa 6kg Sensação Inércia Com Medidor Cardíaco Fitness Preto e Rosa Sevenfit Para Cardio E Musculação":
+    "https://www.mercadolivre.com.br/bicicleta-ergometrica-bike-spinning-garrafa-6kg-sensacao-inercia-com-medidor-cardiaco-fitness-preto-e-rosa-sevenfit-para-cardio-e-musculacao/p/MLB53188213?pdp_filters=item_id%3AMLB4734677035",
+  "Bicicleta Aro 29 Gts Dexter 24 Marchas Freio A Disco Cor Grafite Com Preto Tamanho Do Quadro 21":
+    "https://www.mercadolivre.com.br/bicicleta-aro-29-gts-dexter-24-marchas-freio-a-disco-cor-grafite-com-preto-tamanho-do-quadro-21/p/MLB37800447?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Ergométrica Spinning Profissional Fitness Academia Sport 120 Kgs Preto Premium Bike academia para Cardio e Musculação com base + brinde SQUEEZEBAR":
+    "https://www.mercadolivre.com.br/bicicleta-ergometrica-spinning-profissional-fitness-academia-sport-120-kgs-preto-premium-bike-academia-para-cardio-e-musculacao-com-base-brinde-squeezebar/p/MLB53486618?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Ergométrica Spinning Indoor FITNESS – PRETA E VERMELHA":
+    "https://www.mercadolivre.com.br/bicicleta-ergometrica-spinning-indoor-fitness-preta-e-vermelha/p/MLB77831047?pdp_filters=deal%3AMLB1578289-1",
+  "Esteira KNakasaki Motorizada Dobrável Cor Preta":
+    "https://www.mercadolivre.com.br/esteira-knakasaki-motorizada-dobravel-cor-preta/p/MLB37873040?pdp_filters=deal%3AMLB1578289-1",
+  "Mesa Dobrável Vira Maleta Com Alça Portátil 1.80m Para Camping Pesca Jardim Área Externa Tft1800 The Black Tools":
+    "https://www.mercadolivre.com.br/mesa-dobravel-vira-maleta-com-alca-portatil-180m-para-camping-pesca-jardim-area-externa-tft1800-the-black-tools/p/MLB65053370?pdp_filters=deal%3AMLB1578289-1",
+  "Chuteira Futsal Umbro Pro 5 Bump Club Profissional Reforçada":
+    "https://produto.mercadolivre.com.br/MLB-3918751603-chuteira-futsal-umbro-pro-5-bump-club-profissional-reforcada-_JM",
+  "Trampolim Jump Profissional Com Capa Saia Diâmetro 1 M 200kg Preto":
+    "https://www.mercadolivre.com.br/trampolim-jump-profissional-com-capa-saia-diametro-1-m-200kg-preto/p/MLB63190122?pdp_filters=deal%3AMLB1578289-1",
+  "Coldre Hammer Pro 2 Perna Destro+adaptadores De Guarda Mato":
+    "https://www.mercadolivre.com.br/coldre-hammer-pro-2-perna-destroadaptadores-de-guarda-mato/p/MLB28203631?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Passeio Aro 12 Crianças Nathor Spider Man Azul e Vermelho":
+    "https://www.mercadolivre.com.br/bicicleta-passeio-aro-12-criancas-nathor-spider-man-azul-e-vermelho/p/MLB23937617?pdp_filters=deal%3AMLB1578289-1",
+  "Dux Melhor Whey Poten Concentrado Wey 100% Puro Ganhar Massa":
+    "https://produto.mercadolivre.com.br/MLB-3258819762-dux-melhor-whey-poten-concentrado-wey-100-puro-ganhar-massa-_JM",
+  "Patinete Infantil Luppy 3 Rodas Led Dobrável Rosa Maxi Toys":
+    "https://www.mercadolivre.com.br/patinete-infantil-luppy-3-rodas-led-dobravel-rosa-maxi-toys/p/MLB64569045?pdp_filters=item_id%3AMLB6188190038",
+  "Colchão Infllável Casal Bestway + Bomba De Ar Pronta Cor Azul":
+    "https://www.mercadolivre.com.br/colchao-infllavel-casal-bestway-bomba-de-ar-pronta-cor-azul/p/MLB24832979?pdp_filters=item_id%3AMLB7118008536",
+  "Luva Hand Grip Crossfit Thrxster Rosa Antiderrapante Neoprene Velcro":
+    "https://www.mercadolivre.com.br/luva-hand-grip-crossfit-thrxster-rosa-antiderrapante-neoprene-velcro/p/MLB37702366?pdp_filters=item_id%3AMLB3748065043",
+  "Patins Infantil Menina Led Iluminado Feminino 4 Rodas Sereia M 33-36 54 Mm Rosa":
+    "https://www.mercadolivre.com.br/patins-infantil-menina-led-iluminado-feminino-4-rodas-sereia/up/MLBU3024317599?pdp_filters=deal%3AMLB1578289-1",
+  "3x Ômega 3 Original Catarinense Pharma 1000mg 120 Cápsulas Bld67678c":
+    "https://www.mercadolivre.com.br/3x-omega-3-original-catarinense-pharma-1000mg-120-capsulas/up/MLBU3333257353?pdp_filters=item_id%3AMLB5534479426",
+  "Prohibido Pré Treino 360g - Sabor Bubble Gum - A Combinação Perfeita De 8 Ingredientes Que Proporcionam Energia Do Início Ao Fim Do Seu Treino":
+    "https://www.mercadolivre.com.br/prohibido-pre-treino-360g-sabor-bubble-gum-a-combinacao-perfeita-de-8-ingredientes-que-proporcionam-energia-do-inicio-ao-fim-do-seu-treino/p/MLB51164822?pdp_filters=item_id%3AMLB5717204004",
+  "Chuteira Campo Striker Nova Meião Mochila Caneleira Relógio Laranja 40 Br":
+    "https://www.mercadolivre.com.br/chuteira-campo-striker-nova-meiao-mochila-caneleira-relogio/up/MLBU3794179937?pdp_filters=item_id%3AMLB4478738079",
+  "Cubos Dianteiro Traseiro Bike 36 Furos Cassete K7 Absolute":
+    "https://www.mercadolivre.com.br/cubos-dianteiro-traseiro-bike-36-furos-cassete-k7-absolute/p/MLB27043486?pdp_filters=deal%3AMLB1578289-1",
+  "Caixa Térmica 17 Litros Cooler Praia Churrasco Paramount Verde-escuro":
+    "https://www.mercadolivre.com.br/caixa-termica-17-litros-cooler-praia-churrasco-paramount/up/MLBU4068625287?pdp_filters=item_id%3AMLB6937862312",
+  "Whey protein Profit 100% Quality Concentrate em pó sabor Cookies and cream x 900g":
+    "https://www.mercadolivre.com.br/whey-protein-profit-100-quality-concentrate-em-po-sabor-cookies-and-cream-x-900g/p/MLB42082926?pdp_filters=item_id%3AMLB3904676917",
+  "Colete Salva Vidas Flutuante Adulto Atividades Aquáticas":
+    "https://produto.mercadolivre.com.br/MLB-3350807805-colete-salva-vidas-flutuante-adulto-atividades-aquaticas-_JM",
+  "Kit Fit S36 + Pro3magnesio + Picolinato De Cromo + Nac Sem Sabor":
+    "https://www.mercadolivre.com.br/kit-fit-s36--pro3magnesio--picolinato-de-cromo--nac/up/MLBU4093343732?pdp_filters=item_id%3AMLB4767525385",
+  "Faca Tática Sobrevivência 33cm Aço 440c Ultra Afiada Com Soco Inglês Bússola Apito Pederneira Afiador Bainha Militar Camping Caça Pesca Trilha Emergência Resgate Selva Outdoor Combate":
+    "https://www.mercadolivre.com.br/faca-tatica-sobrevivencia-33cm-aco-440c-ultra-afiada-com-soco-ingles-bussola-apito-pederneira-afiador-bainha-militar-camping-caca-pesca-trilha-emergencia-resgate-selva-outdoor-combate/p/MLB62644290?pdp_filters=item_id%3AMLB5985639954",
+  "VITAMINA B12 Metilcobalamina - Fórmula com Máxima Pureza e Concentração - 30 Doses":
+    "https://www.mercadolivre.com.br/vitamina-b12-metilcobalamina-formula-com-maxima-pureza-e-concentracao-30-doses/p/MLB53926315?pdp_filters=item_id%3AMLB3954027253",
+  "Mini Bike Bicicleta Ergometrica Exercicio Perna Fisioterapia":
+    "https://www.mercadolivre.com.br/mini-bike-bicicleta-ergometrica-exercicio-perna-fisioterapia/p/MLB27660579?pdp_filters=deal%3AMLB1578289-1",
+  "Taco De Sinuca Bilhar Profissional Com Capa Giz Sola Brindes Snooker Bilhares Mgk":
+    "https://www.mercadolivre.com.br/taco-de-sinuca-bilhar-profissional-com-capa-giz-sola-brindes-snooker-bilhares-mgk/p/MLB51035138?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Bike Eletrica V9 Max 1000w 48km Freio Hidraulico Preto":
+    "https://www.mercadolivre.com.br/bicicleta-bike-eletrica-v9-max-1000w-48km-freio-hidraulico/up/MLBU3840440426?pdp_filters=item_id%3AMLB4518926339",
+  "Bicicleta Elétrica Nado C2 1000W Bateria Removível 48V 60km PretoBicicleta Elétrica Nado C2 1000W Bateria Removível 48V 60km Preto":
+    "https://www.mercadolivre.com.br/bicicleta-eletrica-nado-c2-1000w-bateria-removivel-48v-60km-pretobicicleta-eletrica-nado-c2-1000w-bateria-removivel-48v-60km-preto/p/MLB60923094?pdp_filters=deal%3AMLB1578289-1",
+  "Honeywhale B20 Bicicleta Elétrica, 440w-35km-25km/h-120kg, Scooter Motor-ebike-adulto-bike-autonomia-velocidade Máxima-carga-honey Whale-fat-dobravel, 14 Aro, Freios A Disco Dianteiros E Traseiros":
+    "https://www.mercadolivre.com.br/honeywhale-b20-bicicleta-eletrica-440w-35km-25kmh-120kg-scooter-motor-ebike-adulto-bike-autonomia-velocidade-maxima-carga-honey-whale-fat-dobravel-14-aro-freios-a-disco-dianteiros-e-traseiros/p/MLB53624671?pdp_filters=deal%3AMLB1578289-1",
+  "POLARES Z20PRO Patinete Elétrico Adulto Premium 500w Pneu Aderente Velocidade Máxima 32km/h Motorizado Até 30km De Autonomia Polares Cor Preto":
+    "https://www.mercadolivre.com.br/polares-z20pro-patinete-eletrico-adulto-premium-500w-pneu-aderente-velocidade-maxima-32kmh-motorizado-ate-30km-de-autonomia-polares-cor-preto/p/MLB54490025?pdp_filters=deal%3AMLB1578289-1",
+  "Esteira Ergométrica Elétrica Gallant Elite 2.5hp 14kmh 120kg GEE12M25A-127PT)":
+    "https://www.mercadolivre.com.br/esteira-ergometrica-eletrica-gallant-elite-25hp-14kmh-120kg-gee12m25a-127pt/p/MLB38669848?pdp_filters=item_id%3AMLB3801040505",
+  "HUAWEI WATCH GT 7 Pro 46mm Smart Watch, Bateria de até 21 dias, Caixa em liga de titânio e bisel em cerâmica nano-tech, ECG, Monitoramento da Frequência Cardíaca, Golfe, Ciclismo, Preto":
+    "https://www.mercadolivre.com.br/huawei-watch-gt-7-pro-46mm-smart-watch-bateria-de-ate-21-dias-caixa-em-liga-de-titanio-e-bisel-em-ceramica-nano-tech-ecg-monitoramento-da-frequencia-cardiaca-golfe-ciclismo-preto/p/MLB77599088?pdp_filters=deal%3AMLB1578289-1",
+  "Esteira Ergométrica Elétrica Dobrável Residencial Cardio Preto 127/220v":
+    "https://www.mercadolivre.com.br/esteira-ergometrica-eletrica-dobravel-residencial-cardio/up/MLBU4760101286?pdp_filters=item_id%3AMLB5070173491",
+  "Esteira Elétrica Dobrável Compacta para Caminhada Residencial 6km/h com Controle Remoto e Display LED":
+    "https://www.mercadolivre.com.br/esteira-eletrica-dobravel-compacta-para-caminhada-residencial-6kmh-com-controle-remoto-e-display-led/p/MLB64857258?pdp_filters=item_id%3AMLB6966261004",
+  "Bicicleta Ergométrica Spinning Ahead Sports Spin Pro 6/8 Kg Preto/vermelho":
+    "https://www.mercadolivre.com.br/bicicleta-ergometrica-spinning-ahead-sports-spin-pro-68-kg-pretovermelho/p/MLB76029226?pdp_filters=item_id%3AMLB4971577479",
+  "Patinete Elétrico 350w Com Amortecedor E App Gps Bateria Recarregável Dobrável Super Autonomia Para Adultos Até 150kg Preto":
+    "https://www.mercadolivre.com.br/patinete-eletrico-350w-com-amortecedor-e-app-gps-bateria-recarregavel-dobravel-super-autonomia-para-adultos-ate-150kg-preto/p/MLB73095813?pdp_filters=item_id%3AMLB4759188901",
+  "Esteira Elétrica Caminhada em Casa Dobrável Compacta 6km/h com Display LED e Controle Remoto Residencial":
+    "https://www.mercadolivre.com.br/esteira-eletrica-caminhada-em-casa-dobravel-compacta-6kmh-com-display-led-e-controle-remoto-residencial/p/MLB65574846?pdp_filters=item_id%3AMLB6973150742",
+  "Patinete Scooter Elétrico Com Velocidade Até 30 Km Bluetooth Preto":
+    "https://www.mercadolivre.com.br/patinete-scooter-eletrico-com-velocidade-ate-30-km-bluetooth/up/MLBU3628991905?pdp_filters=item_id%3AMLB6792741562",
+  "Bicicleta Spinning Sagatini Bike Premium, de Aço Reforçado, para Treino Cardio em Casa":
+    "https://www.mercadolivre.com.br/bicicleta-spinning-sagatini-bike-premium-de-aco-reforcado-para-treino-cardio-em-casa/p/MLB75083898?pdp_filters=item_id%3AMLB7159822500",
+  "Bicicleta Ergométrica Spinning Cardio E Musculação Preto E Vermelho Nao Se Aplica":
+    "https://www.mercadolivre.com.br/bicicleta-ergometrica-spinning-cardio-e-musculacao/up/MLBU4185602492?pdp_filters=item_id%3AMLB4825431031",
+  "Bicicleta Mtb Gtsnew Aro 29 Com 24v Freio A Disco Preto Com Branco 21":
+    "https://www.mercadolivre.com.br/bicicleta-mtb-gtsnew-aro-29-com-24v-freio-a-disco/up/MLBU4015308899?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Ergométrica Spinning Profissional Liftness Academia Sport 120 Kg Preto Premium Bike academia para Cardio e Musculação com base":
+    "https://www.mercadolivre.com.br/bicicleta-ergometrica-spinning-profissional-liftness-academia-sport-120-kg-preto-premium-bike-academia-para-cardio-e-musculacao-com-base/p/MLB70516829?pdp_filters=item_id%3AMLB4271753431",
+  "Bicicleta Bike Spinning Exercício Fitness Ergométrica Evo Cor Preto/vermelho":
+    "https://www.mercadolivre.com.br/bicicleta-bike-spinning-exercicio-fitness-ergometrica-evo-cor-pretovermelho/p/MLB65143333?pdp_filters=item_id%3AMLB6661765332",
+  "Colete Tático Votagoo Paintball Airsoft Modular S-gm3d Pro Marrom Tamanho Único":
+    "https://www.mercadolivre.com.br/colete-tatico-votagoo-paintball-airsoft-modular-sgm3d-pro/up/MLBU3839512680?pdp_filters=item_id%3AMLB4517660277",
+  "Hoverboard Skate Elétrico 6.5 Polegadas Com Led E Bluetooth":
+    "https://www.mercadolivre.com.br/hoverboard-skate-eletrico-65-polegadas-com-led-e-bluetooth/p/MLB65362213?pdp_filters=deal%3AMLB1578289-1",
+  "Esteira Ergométrica Elétrica Dobrável com Controle Remoto Treino Cardio Caminhada Casa Academia 150kg":
+    "https://www.mercadolivre.com.br/esteira-ergometrica-eletrica-dobravel-com-controle-remoto-treino-cardio-caminhada-casa-academia-150kg/p/MLB73035446?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Spinning Liftness Premium LCD 9 Níveis Até 120 kg":
+    "https://www.mercadolivre.com.br/bicicleta-spinning-liftness-premium-lcd-9-niveis-ate-120-kg/p/MLB75224285?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Ergométrica Spinning Redfin X11-RDF-AL com Roda de Inércia 6kg e Display LCD":
+    "https://www.mercadolivre.com.br/bicicleta-ergometrica-spinning-redfin-x11-rdf-al-com-roda-de-inercia-6kg-e-display-lcd/p/MLB64094334?pdp_filters=deal%3AMLB1578289-1",
+  "Liftness Bicicleta Ergométrica Spinning Profissional 120kg Silenciosa":
+    "https://www.mercadolivre.com.br/liftness-bicicleta-ergometrica-spinning-profissional-120kg-silenciosa/p/MLB75993020?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Ergométrica Spinning Sp50 Preto E Vermelho Cor Verde":
+    "https://www.mercadolivre.com.br/bicicleta-ergometrica-spinning-sp50-preto-e-vermelho-cor-verde/p/MLB53593109?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Ergométrica Fitness Para Cardio E Musculação Com Base Cor Preto E Azul 6kg Inercia Marca Sevenfit":
+    "https://www.mercadolivre.com.br/bicicleta-ergometrica-fitness-para-cardio-e-musculacao-com-base-cor-preto-e-azul-6kg-inercia-marca-sevenfit/p/MLB50178611?pdp_filters=deal%3AMLB1578289-1",
+  "Halter Regulavel Vermelho 24kg - Dumbell Anilhas Liftness":
+    "https://www.mercadolivre.com.br/halter-regulavel-vermelho-24kg-dumbell-anilhas-liftness/p/MLB60174472?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Ergométrica Academia Spinning Preto E Vermelho - Polex Full Training":
+    "https://www.mercadolivre.com.br/bicicleta-ergometrica-academia-spinning-preto-e-vermelho-polex-full-training/p/MLB67496550?pdp_filters=item_id%3AMLB4665115455",
+  "Bicicleta Ello Bike Velox Aro 29 21 Marchas Disco":
+    "https://produto.mercadolivre.com.br/MLB-2177336600-bicicleta-ello-bike-velox-aro-29-21-marchas-disco-_JM",
+  "Mesa Dobrável Vira Maleta Portátil De Camping Com Alça 180cm Branco":
+    "https://www.mercadolivre.com.br/mesa-dobravel-vira-maleta-portatil-de-camping-com-alca-180cm/up/MLBU3760420296?pdp_filters=item_id%3AMLB6200152580",
+  "Bicicleta Aro 29 Aço Carbono Freios A Disco Suspensão 21 Vel Preto - Azul - Rosa 17":
+    "https://www.mercadolivre.com.br/bicicleta-aro-29-aco-carbono-freios-a-disco-suspensao-21-vel/up/MLBU3983349775?pdp_filters=deal%3AMLB1578289-1",
+  "Barraca De Trilha Mh100 - 3 Pessoas Cor Preto":
+    "https://www.mercadolivre.com.br/barraca-de-trilha-mh100-3-pessoas-cor-preto/p/MLB27662283?pdp_filters=deal%3AMLB1578289-1",
+  "Lkl Bicicleta Spinning Fitness Inércia 8kg Inercia Cor Preto E Vermelho":
+    "https://www.mercadolivre.com.br/lkl-bicicleta-spinning-fitness-inercia-8kg-inercia-cor-preto-e-vermelho/p/MLB60125857?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Ergométrica Spinning JAXJON c/ Roda de Inércia 13 kg p/ Até 130 kg – Amarelo":
+    "https://www.mercadolivre.com.br/bicicleta-ergometrica-spinning-jaxjon-c-roda-de-inercia-13-kg-p-ate-130-kg-amarelo/p/MLB72069575?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta BMX Aro 20 Pro-X Série 1 V-Brake Vermelho Preto":
+    "https://www.mercadolivre.com.br/bicicleta-bmx-aro-20-pro-x-serie-1-v-brake-vermelho-preto/p/MLB37264434?pdp_filters=deal%3AMLB1578289-1",
+  "Hoverboard Skate Elétrico Roxo 6,5 Polegadas Bluetooth Cores":
+    "https://www.mercadolivre.com.br/hoverboard-skate-eletrico-roxo-65-polegadas-bluetooth-cores/p/MLB65476462?pdp_filters=deal%3AMLB1578289-1",
+  "Hoverboard Elétrico Skate Overboard Bluetooth Cor Fogo Gelo Azul":
+    "https://www.mercadolivre.com.br/hoverboard-eletrico-skate-overboard-bluetooth-cor-fogo-gelo-azul/p/MLB65457691?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta BMX Southbike Bmx Cross Aro 20 para Crianças":
+    "https://www.mercadolivre.com.br/bicicleta-bmx-southbike-bmx-cross-aro-20-para-criancas/p/MLB46687117?pdp_filters=deal%3AMLB1578289-1",
+  "Colchão Inflável Solteiro Nepul Com Travesseiro 190*100*46cm Preto":
+    "https://www.mercadolivre.com.br/colchao-inflavel-solteiro-nepul-com-travesseiro-19010046cm-preto/p/MLB67721534?pdp_filters=item_id%3AMLB6597153392",
+  "Mesa Dobrável de Plástico Retangular Para 6 Pessoas 1.80m Com Alça Portátil e Maleta Domus Vita":
+    "https://www.mercadolivre.com.br/mesa-dobravel-de-plastico-retangular-para-6-pessoas-180m-com-alca-portatil-e-maleta-domus-vita/p/MLB63425688?pdp_filters=item_id%3AMLB6178566512",
+  "Relógio Smartwatch Redmiwatch 5 Active Prata Xiaomi Original Branco Preto Prateado":
+    "https://www.mercadolivre.com.br/relogio-smartwatch-redmiwatch-5-active-prata-xiaomi-original/up/MLBU3927376425?pdp_filters=item_id%3AMLB4645414181",
+  "Mesa Dobrável Vira Maleta Com Alça Portátil 1,8 × 0,7m Para Camping Apartamentos Área De Lazer Camping Confraternizações Ambientes Corporativos Festas 150kg Zelt Preto":
+    "https://www.mercadolivre.com.br/mesa-dobravel-vira-maleta-com-alca-portatil-18-07m-para-camping-apartamentos-area-de-lazer-camping-confraternizacoes-ambientes-corporativos-festas-150kg-zelt-preto/p/MLB57492925?pdp_filters=item_id%3AMLB5738616782",
+  "Mini Bicicleta Ergométrica Portátil Fisioterapia Exercicio Idosos Joyfox Fitness Azul Branco":
+    "https://www.mercadolivre.com.br/mini-bicicleta-ergometrica-portatil-fisioterapia-exercicio-idosos-joyfox-fitness-azul-branco/p/MLB53995602?pdp_filters=item_id%3AMLB4186966717",
+  "Bicicleta Ergométrica Spinning Liftness 8 kg LCD Até 100 kg":
+    "https://www.mercadolivre.com.br/bicicleta-ergometrica-spinning-liftness-8-kg-lcd-ate-100-kg/p/MLB28467076?pdp_filters=deal%3AMLB1578289-1",
+  "Bola Futsal Penalty Max 500 Term Xxiv - Cor Azul/Vermelho":
+    "https://www.mercadolivre.com.br/bola-futsal-penalty-max-500-term-xxiv-cor-azulvermelho/p/MLB42694622?pdp_filters=deal%3AMLB1578289-1",
+  "Barraca Camping Automatica Forestdog 5-6 Pessoas Impermeavel Acampamento Barraca 240*240*135cm Verde Ventilação Uv":
+    "https://www.mercadolivre.com.br/barraca-camping-automatica-forestdog-5-6-pessoas-impermeavel-acampamento-barraca-240240135cm-verde-ventilacao-uv/p/MLB70506737?pdp_filters=item_id%3AMLB6918854558",
+  "Barraca 4 Pessoas Camping Acampamento Colchão Casal + Bomba Azul":
+    "https://www.mercadolivre.com.br/barraca-4-pessoas-camping-acampamento-colchao-casal--bomba/up/MLBU3936813016?pdp_filters=item_id%3AMLB4643135927",
+  "Chuteira Society Umbro Pro 5 Bump Club Reforçado Pro Society":
+    "https://produto.mercadolivre.com.br/MLB-5137601344-chuteira-society-umbro-pro-5-bump-club-reforcado-pro-society-_JM",
+  "Trampolim Jump Profissional Com Capa Saia Diâmetro 1 M 200kg Rosa-chiclete":
+    "https://www.mercadolivre.com.br/trampolim-jump-profissional-com-capa-saia-diametro-1-m-200kg-rosa-chiclete/p/MLB63215892?pdp_filters=deal%3AMLB1578289-1",
+  "Colchonete Inflável Joyfox Casal com Bomba de Pé e Travesseiro Integrado":
+    "https://www.mercadolivre.com.br/colchonete-inflavel-joyfox-casal-com-bomba-de-pe-e-travesseiro-integrado/p/MLB60712497?pdp_filters=item_id%3AMLB5831191572",
+  "Trave De Futebol Infantil 120*90cm Desmontável Portátil 2pcs Laranja":
+    "https://www.mercadolivre.com.br/trave-de-futebol-infantil-12090cm-desmontavel-portatil-2pcs/up/MLBU3305710978?pdp_filters=item_id%3AMLB5505285614",
+  "Freio Hidraulico Absolute Wild 2 Modelo 2025 + Discos":
+    "https://www.mercadolivre.com.br/freio-hidraulico-absolute-wild-2-modelo-2025-discos/p/MLB41734849?pdp_filters=item_id%3AMLB5533435930",
+  "Garrafa Térmica Stanley Aerolight Flip Straw Black 473ml":
+    "https://www.mercadolivre.com.br/garrafa-termica-stanley-aerolight-flip-straw-black-473ml/p/MLB51033327?pdp_filters=deal%3AMLB1578289-1",
+  "Garrafa Térmica Stanley Aerolight Fast Flow Ash 1.1L":
+    "https://www.mercadolivre.com.br/garrafa-termica-stanley-aerolight-fast-flow-ash-11l/p/MLB59132637?pdp_filters=deal%3AMLB1578289-1",
+  "Colchão Inflável Casal /colchao de ar Joyfox Série Forest C/ Bomba Elétrica, Luz, 2 Travesseiros E Bolsa":
+    "https://www.mercadolivre.com.br/colchao-inflavel-casal-colchao-de-ar-joyfox-serie-forest-c-bomba-eletrica-luz-2-travesseiros-e-bolsa/p/MLB67486812?pdp_filters=item_id%3AMLB5038206299",
+  "Mira Red Rossi 1x30 Rd Trilho 11mm/20mm":
+    "https://www.mercadolivre.com.br/mira-red-rossi-1x30-rd-trilho-11mm20mm/p/MLB75284181?pdp_filters=item_id%3AMLB5100386285",
+  "Bicicleta Infantil Aro 12 Nathor Flower Rosa Menina 2-5 Anos Rosa":
+    "https://www.mercadolivre.com.br/bicicleta-infantil-aro-12-nathor-flower-rosa-menina-25-anos/up/MLBU2863067117?pdp_filters=item_id%3AMLB3919471147",
+  "Barraca Camping Automática 1-2 Pessoas 200x150x125cm Oxford Verde-escuro":
+    "https://www.mercadolivre.com.br/barraca-camping-automatica-12-pessoas-200x150x125cm-oxford/up/MLBU3696888804?pdp_filters=deal%3AMLB1578289-1",
+  "Mesa Dobrável 120cm Resistente Para Camping Garden Life Acampamentos Churrascos Piqueniques Caminhadas Pesca Preto":
+    "https://www.mercadolivre.com.br/mesa-dobravel-120cm-resistente-para-camping-garden-life-acampamentos-churrascos-piqueniques-caminhadas-pesca-preto/p/MLB44355155?pdp_filters=item_id%3AMLB5476373874",
+  "Mini Bike Fisioterapia Portátil Bicicleta Com Apoio De Mãos":
+    "https://www.mercadolivre.com.br/mini-bike-fisioterapia-portatil-bicicleta-com-apoio-de-maos/p/MLB68725907?pdp_filters=deal%3AMLB1578289-1",
+  "Trx Profissional Kit Completo Melhor Manopla Emborrachada":
+    "https://www.mercadolivre.com.br/trx-profissional-kit-completo-melhor-manopla-emborrachada/up/MLBU1435569721?pdp_filters=item_id%3AMLB2915815505",
+  "Barraca Camping Nautika Pop-up Portátil Impermeável 120x120x190cm":
+    "https://www.mercadolivre.com.br/barraca-camping-nautika-pop-up-portatil-impermeavel-120x120x190cm/p/MLB35425358?pdp_filters=deal%3AMLB1578289-1",
+  "Patins Quad Infantil Ajustável 4 Rodas Com Luz Led":
+    "https://produto.mercadolivre.com.br/MLB-6853564634-patins-quad-infantil-ajustavel-4-rodas-com-luz-led-_JM?pdp_filters=item_id%3AMLB6853564634",
+  "Colchonete Inflável Solteiro Joyfox 190x60cm Verde Com Travesseiro e Bomba Manual":
+    "https://www.mercadolivre.com.br/colchonete-inflavel-solteiro-joyfox-190x60cm-verde-com-travesseiro-e-bomba-manual/p/MLB45691791?pdp_filters=item_id%3AMLB4188864805",
+  "Colchão Camping Casal Inflável Onetech 300kg + Bomba De Ar Bestway Cor Bege":
+    "https://www.mercadolivre.com.br/colchao-camping-casal-inflavel-onetech-300kg-bomba-de-ar-bestway-cor-bege/p/MLB73954562?pdp_filters=item_id%3AMLB4865251587",
+  "Patins Menina Led Iluminado Feminino 4 Rodas Lindo 28-32 Rosa Tudo Na Caixola":
+    "https://www.mercadolivre.com.br/patins-menina-led-iluminado-feminino-4-rodas-lindo-28-32-rosa-tudo-na-caixola/p/MLB63337587?pdp_filters=item_id%3AMLB4437535905",
+  "Rolo De Treino Bicicletas Preto Speed Mtb C/ Suporte Bike":
+    "https://www.mercadolivre.com.br/rolo-de-treino-bicicletas-preto-speed-mtb-c-suporte-bike/p/MLB27720820?pdp_filters=deal%3AMLB1578289-1",
+  "Caneca Térmica Original 354ml Camp Mug Stanley Com Tampa":
+    "https://produto.mercadolivre.com.br/MLB-2751782543-caneca-termica-original-354ml-camp-mug-stanley-com-tampa-_JM?pdp_filters=item_id%3AMLB2751782543",
+  "Freio Disco Hidráulico Absolute C/ Rotor 160mm Bike Mtb":
+    "https://www.mercadolivre.com.br/freio-disco-hidraulico-absolute-c-rotor-160mm-bike-mtb/p/MLB29178590?pdp_filters=item_id%3AMLB4820376241",
+  "Capa Carabina Pcp De Pressão Com Luneta Instalada Original":
+    "https://www.mercadolivre.com.br/capa-carabina-pcp-de-pressao-com-luneta--instalada-original/up/MLBU1317326983?pdp_filters=item_id%3AMLB5066900054",
+  "Freio A Disco Hidraúlico Absolute Bike Bicicleta Dxu-1901 Rt":
+    "https://www.mercadolivre.com.br/freio-a-disco-hidraulico-absolute-bike-bicicleta-dxu1901-rt/up/MLBU669020579?pdp_filters=deal%3AMLB1578289-1",
+  "Patinete Infantil 3 Rodas Com Luz Led Menino Menina 40 Kg":
+    "https://produto.mercadolivre.com.br/MLB-5906265712-patinete-infantil-3-rodas-com-luz-led-menino-menina-40-kg-_JM",
+  "Mesa Portátil Azuza Dobrável Portátil Compacta Resistente Preto":
+    "https://www.mercadolivre.com.br/mesa-portatil-azuza-dobravel-portatil-compacta-resistente-preto/p/MLB73858203?pdp_filters=item_id%3AMLB6990931496",
+  "Patins Roller Ajustável Infantil Juvenil Adulto Com Kit Proteção Completo Cor Rosa JustFun":
+    "https://www.mercadolivre.com.br/patins-roller-ajustavel-infantil-juvenil-adulto-com-kit-protecao-completo-cor-rosa-justfun/p/MLB56093702?pdp_filters=deal%3AMLB1578289-1",
+  "Pedivela Shimano Altus Fc-mt101 40/30/22d 175mm Quadrada 9v Cor Preto":
+    "https://www.mercadolivre.com.br/pedivela-shimano-altus-fc-mt101-403022d-175mm-quadrada-9v-cor-preto/p/MLB29797946?pdp_filters=deal%3AMLB1578289-1",
+  "Ultimate Fitness Mini Bike Bicicleta Ergométrica":
+    "https://www.mercadolivre.com.br/ultimate-fitness-mini-bike-bicicleta-ergometrica/p/MLB76515710?pdp_filters=deal%3AMLB1578289-1",
+  "Rolo De Treino Fixo Base Niveladora Bike Aro 29,26,700 Unic Sports":
+    "https://www.mercadolivre.com.br/rolo-de-treino-fixo-base-niveladora-bike-aro-2926700-unic-sports/p/MLB27383313?pdp_filters=deal%3AMLB1578289-1",
+  "Trampolim New Speed Cama Elástica Exercício 80cm Preto Molas":
+    "https://www.mercadolivre.com.br/trampolim-new-speed-cama-elastica-exercicio-80cm-preto-molas/p/MLB59395305?pdp_filters=deal%3AMLB1578289-1",
+  "Capacete Ciclismo Bike Mtb + Pisca + Óculos + Par De Luvas":
+    "https://produto.mercadolivre.com.br/MLB-4803580632-capacete-ciclismo-bike-mtb-pisca-oculos-par-de-luvas-_JM",
+  "Kit Aro 29 Par Vzan Extreme Pro Disc Tubeless Ready 32 Furos com Raios 290mm":
+    "https://www.mercadolivre.com.br/kit-aro-29-par-vzan-extreme-pro-disc-tubeless-ready-32-furos-com-raios-290mm/p/MLB38283223?pdp_filters=deal%3AMLB1578289-1",
+  "Chuteira Futsal Fast Ii Umbro Preto/branco/limao 41 Br":
+    "https://www.mercadolivre.com.br/chuteira-futsal-fast-ii-umbro/up/MLBU3739760576?pdp_filters=deal%3AMLB1578289-1",
+  "Cesta Térmica Bolsa Piquenique Dobrável Praia Picnic Camping Preto":
+    "https://www.mercadolivre.com.br/cesta-termica-bolsa-piquenique-dobravel-praia-picnic-camping/up/MLBU3317321751?pdp_filters=item_id%3AMLB5124159736",
+  "Facão Tático Militar Full Tang Serrilhado 48cm Com Bainha Camping Caça Pesca Mato Floresta Trabalho Com Abridor De Garrafa Perfeito Para Presente Peixeira Super Afiado Bruto Roça Fazenda Dia dia":
+    "https://www.mercadolivre.com.br/facao-tatico-militar-full-tang-serrilhado-48cm-com-bainha-camping-caca-pesca-mato-floresta-trabalho-com-abridor-de-garrafa-perfeito-para-presente-peixeira-super-afiado-bruto-roca-fazenda-dia-dia/p/MLB62589862?pdp_filters=item_id%3AMLB6228720090",
+  "Barraca Iglu De Camping 2 Pessoas Impermeável Acampamento Verde (120x200x105) Nautika":
+    "https://www.mercadolivre.com.br/barraca-iglu-de-camping-2-pessoas-impermeavel-acampamento/up/MLBU4760396202?pdp_filters=deal%3AMLB1578289-1",
+  "Mini Mesa de Sinuca Infantil Madeira 51 cm Acessórios Incluídos Verde":
+    "https://www.mercadolivre.com.br/mini-mesa-de-sinuca-infantil-madeira-51-cm-acessorios-incluidos-verde/p/MLB21612923?pdp_filters=item_id%3AMLB5099420643",
+  "Mini Mesa De Sinuca Bilhar Portátil Infantil Kit Completo Verde":
+    "https://www.mercadolivre.com.br/mini-mesa-de-sinuca-bilhar-portatil-infantil-kit-completo/up/MLBU3096762513?pdp_filters=item_id%3AMLB5336586132",
+  "Patins Infantil Menina 4 Rodas Led Iluminado Feminino M (32-36) 6 Mm Violeta":
+    "https://www.mercadolivre.com.br/patins-infantil-menina-4-rodas-led-iluminado-feminino-m-32-36-6-mm-violeta/p/MLB74240920?pdp_filters=deal%3AMLB1578289-1",
+  "Garrafa Térmica Inox 600ml Com Base De Silicone Premium Preto":
+    "https://www.mercadolivre.com.br/garrafa-termica-inox-600ml-com-base-de-silicone-premium/up/MLBU3779953682?pdp_filters=item_id%3AMLB6225448564",
+  "Mini Futebol de Mesa Totó Pebolim 51x32x9 cm Portátil MDF Infantil":
+    "https://www.mercadolivre.com.br/mini-futebol-de-mesa-toto-pebolim-51x32x9-cm-portatil-mdf-infantil/p/MLB39322050?pdp_filters=item_id%3AMLB6254103874",
+  "Freio A Disco Dianteiro Hidraulico Shimano Mt200 Esquerdo":
+    "https://www.mercadolivre.com.br/freio-a-disco-dianteiro-hidraulico-shimano-mt200-esquerdo/p/MLB29216508?pdp_filters=deal%3AMLB1578289-1",
+  "Freio Disco Hidráulico Traseiro Absolute Dxu-1901 C/ Disco":
+    "https://www.mercadolivre.com.br/freio-disco-hidraulico-traseiro-absolute-dxu-1901-c-disco/p/MLB65135361?pdp_filters=item_id%3AMLB4820429501",
+  "Conjunto De Vara De Pesca Com Molinete Azul, 1,8 M Azul":
+    "https://www.mercadolivre.com.br/conjunto-de-vara-de-pesca-com-molinete-azul-18-m/up/MLBU3765070331?pdp_filters=deal%3AMLB1578289-1",
+  "Caixa De Armazenamento Dobrável 30 Litros Para Camping Apartamentos Área De Lazer Confraternizações Ambientes Corporativos Festas Atividade Ao Ar Livre Transporte De Compras Organizadora":
+    "https://www.mercadolivre.com.br/caixa-de-armazenamento-dobravel-30-litros-para-camping-apartamentos-area-de-lazer-confraternizacoes-ambientes-corporativos-festas-atividade-ao-ar-livre-transporte-de-compras-organizadora/p/MLB65822972?pdp_filters=deal%3AMLB1578289-1",
+  "Copo Térmico Inox 473ml Flamengo Personalizado Nome Laser Vermelho Flamengo":
+    "https://www.mercadolivre.com.br/copo-termico-inox-473ml-flamengo-personalizado-nome-laser/up/MLBU3810972879?pdp_filters=item_id%3AMLB6311952948",
+  "Copo Térmico Gigante 1,2l Inox Com Tampa Inox Canudo Escova Roxo Claro Cor Pura / Material Fosco":
+    "https://www.mercadolivre.com.br/copo-termico-gigante-12l-inox-com-tampa-inox-canudo-escova/up/MLBU4689539388?pdp_filters=item_id%3AMLB5036716671",
+  "Bipé Tático Abs Retrátil Ajustável Preto Alumínio 182-255mm":
+    "https://www.mercadolivre.com.br/bipe-tatico-abs-retratil-ajustavel-preto-aluminio-182-255mm/p/MLB53018039?pdp_filters=deal%3AMLB1578289-1",
+  "Barraca Iglu Para 4 Pessoas Fps 100 A Prova D'água Zelt":
+    "https://www.mercadolivre.com.br/barraca-iglu-para-4-pessoas-fps-100-a-prova-dagua-zelt/p/MLB62677555?pdp_filters=deal%3AMLB1578289-1",
+  "Patinete Eletrico 500w Sistema De Suspensao Autonomia 30km Preto":
+    "https://www.mercadolivre.com.br/patinete-eletrico-500w-sistema-de-suspensao-autonomia-30km/up/MLBU3939599177?pdp_filters=item_id%3AMLB6726183980",
+  "Patinete Eletrico Dobravel Bluetooth Autonomia 30km 500w Preto":
+    "https://www.mercadolivre.com.br/patinete-eletrico-dobravel-bluetooth-autonomia-30km-500w/up/MLBU3951433112?pdp_filters=item_id%3AMLB4658641343",
+  "Oimotoo Patinete Scooter Elétrico 350w Dobrável C/bluetooth Preto Oimotoo":
+    "https://www.mercadolivre.com.br/oimotoo-patinete-scooter-eletrico-350w-dobravel-cbluetooth/up/MLBU3684668328?pdp_filters=item_id%3AMLB6060966046",
+  "Patinete Elétrico Triciclo Infantil Drift 350w Com Bluetooth Vermelho":
+    "https://www.mercadolivre.com.br/patinete-eletrico-triciclo-infantil-drift-350w-com-bluetooth/up/MLBU3970382259?pdp_filters=item_id%3AMLB6795004670",
+  "Bicicleta Aro 29 Krw Alumínio Shimano TZ 24 Velocidades Freio A Disco Mecânico S60 Cor: Branco/Preto Tamanho do Quadro: 19":
+    "https://www.mercadolivre.com.br/bicicleta-aro-29-krw-aluminio-shimano-tz-24-velocidades-freio-a-disco-mecanico-s60-cor-brancopreto-tamanho-do-quadro-19/p/MLB19169122?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Aro 29 Highlevel Aço Carbono Freios Disco Suspensão 21v Cor Preto-azul":
+    "https://www.mercadolivre.com.br/bicicleta-aro-29-highlevel-aco-carbono-freios-disco-suspensao-21v-cor-preto-azul/p/MLB51485549?pdp_filters=deal%3AMLB1578289-1",
+  "Tenis Futsal Umbro Pro 5 Bump Profissional Lançamento":
+    "https://produto.mercadolivre.com.br/MLB-5084792846-tenis-futsal-umbro-pro-5-bump-profissional-lancamento-_JM?pdp_filters=item_id%3AMLB5084792846",
+  "Bicicleta Infantil Aro 16 3 4 5 6 7 8 Anos Com Rodinha Kids Cor ROSA BEBE - LILÁS":
+    "https://www.mercadolivre.com.br/bicicleta-infantil-aro-16-3-4-5-6-7-8-anos-com-rodinha-kids-cor-rosa-bebe-lilas/p/MLB22831745?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Freio Disco Hidráulico +alavanca Passador Rapid Fire 21v":
+    "https://www.mercadolivre.com.br/kit-freio-disco-hidraulico-alavanca-passador-rapid-fire-21v/up/MLBU2203699533?pdp_filters=item_id%3AMLB2969833602",
+  "Botijão Térmico 5,5l Inox Garrafão Conserva Quente E Frio Inox":
+    "https://www.mercadolivre.com.br/botijao-termico-55l-inox-garrafao-conserva-quente-e-frio/up/MLBU3805750984?pdp_filters=item_id%3AMLB4479300437",
+  "Jump Cama Elástica Profissional 200kg Reforçado 32 Molas Mini Trampolim Academia Fitness Exercícios Aeróbicos Treino Funcional Residencial":
+    "https://www.mercadolivre.com.br/jump-cama-elastica-profissional-200kg-reforcado-32-molas-mini-trampolim-academia-fitness-exercicios-aerobicos-treino-funcional-residencial/p/MLB77870669?pdp_filters=item_id%3AMLB5108976957",
+  "Kit Halteres e Anilhas Ajustáveis 15 kg para Kettlebell, Barras e Flexões Marca Sagatini":
+    "https://www.mercadolivre.com.br/kit-halteres-e-anilhas-ajustaveis-15-kg-para-kettlebell-barras-e-flexoes-marca-sagatini/p/MLB75914086?pdp_filters=deal%3AMLB1578289-1",
+  "Selante P/ PNEU ARO Tubeless Joes 1l BIKE BICICLETA MTB TRILHA":
+    "https://www.mercadolivre.com.br/selante-p-pneu-aro-tubeless-joes-1l-bike-bicicleta-mtb-trilha/p/MLB28539980?pdp_filters=item_id%3AMLB6454825792",
+  "Chuteira Campo Nike Phantom 6 Club Low Branco/rosa 39 Br":
+    "https://www.mercadolivre.com.br/chuteira-campo-nike-phantom-6-club-low/up/MLBU4015876681?pdp_filters=deal%3AMLB1578289-1",
+  "Barraca 4 Pessoas Versátil Otimiza Camping Fácil Montar Colchão Casal + Bomba Inclusa":
+    "https://www.mercadolivre.com.br/barraca-4-pessoas-versatil-otimiza-camping-facil-montar-colchao-casal-bomba-inclusa/p/MLB68389249?pdp_filters=deal%3AMLB1578289-1",
+  "Patinete Scooter Dobrável Ajustável Criança Adulto Até 100kg Preto Scooter":
+    "https://www.mercadolivre.com.br/patinete-scooter-dobravel-ajustavel-crianca-adulto-ate-100kg-preto-scooter/p/MLB74866595?pdp_filters=item_id%3AMLB7083941182",
+  "Patinete Princesa Sereia 3 Rodinhas Luz E Som + Fone Gatinho Rosa Bluetooth Brinde":
+    "https://www.mercadolivre.com.br/patinete-princesa-sereia-3-rodinhas-luz-e-som--fone-gatinho/up/MLBU3468791870?pdp_filters=item_id%3AMLB4235473651",
+  "Kit Pesca Vara 2,10m 5-10lb Em 2 Partes + Carretilha 7,2:1":
+    "https://produto.mercadolivre.com.br/MLB-6084675650-kit-pesca-vara-210m-5-10lb-em-2-partes-carretilha-721-_JM",
+  "Kit Fogareiro Fogão Portátil Pesca Camping Com Acessórios":
+    "https://www.mercadolivre.com.br/kit-fogareiro-fogao-portatil-pesca-camping-com-acessorios/up/MLBU3992314372?pdp_filters=deal%3AMLB1578289-1",
+  "Mesa Dobrável Portátil Alumínio 120x60cm 4 Banquetas Zelt":
+    "https://www.mercadolivre.com.br/mesa-dobravel-portatil-aluminio-120x60cm-4-banquetas-zelt/p/MLB60925557?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Fogareiro Cozinha Para Camping Pesca Com Acessório 4 Gás Preto":
+    "https://www.mercadolivre.com.br/kit-fogareiro-cozinha-para-camping-pesca-com-acessorio-4-gas/up/MLBU4312808605?pdp_filters=deal%3AMLB1578289-1",
+  "Chuteira De Futsal Unissex Confortável Para Estrelar":
+    "https://produto.mercadolivre.com.br/MLB-5178983610-chuteira-de-futsal-unissex-confortavel-para-estrelar-_JM?pdp_filters=item_id%3AMLB5178983610",
+  "Almofada Yoga Restaurativa Bolster 65x22 Capa Removível Sarj":
+    "https://produto.mercadolivre.com.br/MLB-4112679237-almofada-yoga-restaurativa-bolster-65x22-capa-removivel-sarj-_JM",
+  "Selante Tubeless Tectire 1L para Pneus de Bicicleta MTB Aro 29":
+    "https://www.mercadolivre.com.br/selante-tubeless-tectire-1l-para-pneus-de-bicicleta-mtb-aro-29/p/MLB25829116?pdp_filters=deal%3AMLB1578289-1",
+  "Fita De Suspensão Trx Treinamento Funcional Profissional Preto":
+    "https://www.mercadolivre.com.br/fita-de-suspensao-trx-treinamento-funcional-profissional/up/MLBU3256009659?pdp_filters=item_id%3AMLB4105803027",
+  "Bike Eletrica V9 Max 2 Baterias 20ah 32km/h 1000w Bicicleta Preto 20":
+    "https://www.mercadolivre.com.br/bike-eletrica-v9-max-2-baterias-20ah-32kmh-1000w-bicicleta/up/MLBU5121606659?pdp_filters=item_id%3AMLB7613740522",
+  "Bicicleta Bike Eletrica L40 Plus 1000w 48km Autopropelido Marrom - Pneu Asfalto 20":
+    "https://www.mercadolivre.com.br/bicicleta-bike-eletrica-l40-plus-1000w-48km-autopropelido/up/MLBU4323947049?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Bike Eletrica V9 Max 1000w 48km Freio Hidraulico Preto 20":
+    "https://www.mercadolivre.com.br/bicicleta-bike-eletrica-v9-max-1000w-48km-freio-hidraulico/up/MLBU4551760938?pdp_filters=item_id%3AMLB7308622380",
+  "Inow V20 Pro Elétrica Adultos":
+    "https://www.mercadolivre.com.br/inow-v20-pro-eletrica-adultos/p/MLB64318742?pdp_filters=item_id%3AMLB6983649146",
+  "Bicicleta Elétrica Xroymexroy EB5 750W para Adultos, Aro 20, com Bateria 10.4Ah":
+    "https://www.mercadolivre.com.br/bicicleta-eletrica-xroymexroy-eb5-750w-para-adultos-aro-20-com-bateria-104ah/p/MLB63467688?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Elétrica Smart Mt-5 Motor 500w Bateria 48v 12ah":
+    "https://produto.mercadolivre.com.br/MLB-4018012625-bicicleta-eletrica-smart-mt-5-motor-500w-bateria-48v-12ah-_JM?pdp_filters=item_id%3AMLB4018012625",
+  "Oimotoo S6 Bicicleta Elétrica Dobrável 450w-35km-40km/h Preto":
+    "https://www.mercadolivre.com.br/oimotoo-s6-bicicleta-eletrica-dobravel-450w35km40kmh/up/MLBU3903560662?pdp_filters=item_id%3AMLB6608022580",
+  "Bicicleta Elétrica Altrax 1000w Bateria Removível 48v 60km Preto":
+    "https://www.mercadolivre.com.br/bicicleta-eletrica-altrax-1000w-bateria-removivel-48v-60km-preto/p/MLB67402742?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Elétrica xroymexroy UCITYS Aro 26 de 750W e Bateria Removível":
+    "https://www.mercadolivre.com.br/bicicleta-eletrica-xroymexroy-ucitys-aro-26-de-750w-e-bateria-removivel/p/MLB72999627?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Elétrica Dobrável EB1S 500W, até 50km com Bateria 36V 12Ah, Suspensão Traseira, Display LCD, Farol LED e USB":
+    "https://www.mercadolivre.com.br/bicicleta-eletrica-dobravel-eb1s-500w-ate-50km-com-bateria-36v-12ah-suspensao-traseira-display-lcd-farol-led-e-usb/p/MLB75251097?pdp_filters=deal%3AMLB1578289-1",
+  "Patinete Elétrico Oimotoo 500w 40km/h C/assento Destacável Preto Star Wars":
+    "https://www.mercadolivre.com.br/patinete-eletrico-oimotoo-500w-40kmh-cassento-destacavel/up/MLBU4364915469?pdp_filters=item_id%3AMLB4921800463",
+  "Esteira Ergométrica Elétrica Gallant Elite 2.9hp 16km/h 130kg GEE13M29A-220PT)":
+    "https://www.mercadolivre.com.br/esteira-ergometrica-eletrica-gallant-elite-29hp-16kmh-130kg-gee13m29a-220pt/p/MLB38668054?pdp_filters=item_id%3AMLB6609285864",
+  "Bicicleta Elétrica Dobrável 350w Bateria 48v 7.8ah + Brinde Preto 14":
+    "https://www.mercadolivre.com.br/bicicleta-eletrica-dobravel-350w-bateria-48v-78ah--brinde/up/MLBU4096828747?pdp_filters=item_id%3AMLB6972566658",
+  "Bicicleta Elétrica Dobrável 440w 42v 7.8ah | Até 32 Km/h B20 Preto":
+    "https://www.mercadolivre.com.br/bicicleta-eletrica-dobravel-440w-42v-78ah--ate-32-kmh-b20/up/MLBU3818881259?pdp_filters=item_id%3AMLB4505992705",
+  "Bike Elétrica Urban Scooter 500w 48v 12ah Mobilidade Urbana":
+    "https://www.mercadolivre.com.br/bike-eletrica-urban-scooter-500w-48v-12ah-mobilidade-urbana/p/MLB64161431?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Elétrica Zj Scooter 1003 48v/12ah 500w S/cnh 36km Preto M":
+    "https://www.mercadolivre.com.br/bicicleta-eletrica-zj-scooter-1003-48v12ah-500w-scnh-36km/up/MLBU3911419772?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Elétrica Yoo Mobility Y-200 350w Farol Led Scooter Cor Vermelho":
+    "https://www.mercadolivre.com.br/bicicleta-eletrica-yoo-mobility-y-200-350w-farol-led-scooter-cor-vermelho/p/MLB74458044?pdp_filters=deal%3AMLB1578289-1",
+  "Patinete Elétrico Com Amortecedor E App Gps Bateria Dobrável Preto Com Vermelho":
+    "https://www.mercadolivre.com.br/patinete-eletrico-com-amortecedor-e-app-gps-bateria-dobravel/up/MLBU4360162055?pdp_filters=item_id%3AMLB7210127338",
+  "Patinete Elétrico Scooter 350w Amortecedor Dobrável Preto Preto-350w":
+    "https://www.mercadolivre.com.br/patinete-eletrico-scooter-350w-amortecedor-dobravel-preto/up/MLBU3970016803?pdp_filters=item_id%3AMLB4688854381",
+  "Esteira Elétrica Caminhada Bluetooth Dobrável Bivolt Som Led Preto Bivolt 110/220v":
+    "https://www.mercadolivre.com.br/esteira-eletrica-caminhada-bluetooth-dobravel-bivolt-som-led/up/MLBU4408852209?pdp_filters=deal%3AMLB1578289-1",
+  "Jobe Sports Bota Para Wakeboard Maze 37-43 Cor Preto":
+    "https://www.mercadolivre.com.br/jobe-sports-bota-para-wakeboard-maze-37-43-cor-preto/p/MLB28059993?pdp_filters=deal%3AMLB1578289-1",
+  "Esteira Ergométrica Elétrica Dobrável Compacta Liftness Preto 127v":
+    "https://www.mercadolivre.com.br/esteira-ergometrica-eletrica-dobravel-compacta-liftness/up/MLBU4668923915?pdp_filters=deal%3AMLB1578289-1",
+  "Patinete Triciclo Infantil Drift Elétrico Brinquedo 100kg Vermelho":
+    "https://www.mercadolivre.com.br/patinete-triciclo-infantil-drift-eletrico-brinquedo-100kg/up/MLBU5170726474?pdp_filters=item_id%3AMLB5217766945",
+  "Bicicleta Aro 29 Ksw Xlt 100 24 Marchas Alumínio Freio Disco Preto/rosa/azul 21":
+    "https://www.mercadolivre.com.br/bicicleta-aro-29-ksw-xlt-100-24-marchas-aluminio-freio-disco-pretorosaazul-21/p/MLB68057453?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Aro 29 Ksw Xlt 100 24 Marchas Alumínio Freio Disco Cinza/preto 17":
+    "https://www.mercadolivre.com.br/bicicleta-aro-29-ksw-xlt-100-24-marchas-aluminio-freio-disco-cinzapreto-17/p/MLB68057906?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Mtb Gts Urban Color Aro 29 24 Marchas Disco Prata/preto 21":
+    "https://www.mercadolivre.com.br/bicicleta-mtb-gts-urban-color-aro-29-24-marchas-disco/up/MLBU3544039280?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Mtb Gts Urban Color Aro 29 24 Marchas Disco Neón/preto 17":
+    "https://www.mercadolivre.com.br/bicicleta-mtb-gts-urban-color-aro-29-24-marchas-disco/up/MLBU3536787865?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Aro 29 South Legend 21v Câmbio Shimano Alumínio":
+    "https://www.mercadolivre.com.br/bicicleta-aro-29-south-legend-21v-cambio-shimano-aluminio/p/MLB46645091?pdp_filters=deal%3AMLB1578289-1",
+  "Patinete Elétrico Triciclo Drift 8'' Grande Com Amortecedor Lilás":
+    "https://www.mercadolivre.com.br/patinete-eletrico-triciclo-drift-8-grande-com-amortecedor/up/MLBU4287202763?pdp_filters=deal%3AMLB1578289-1",
+  "Patinete Elétrico Triciclo Infantil Drift 250w Com Bluetooth Mesclado":
+    "https://www.mercadolivre.com.br/patinete-eletrico-triciclo-infantil-drift-250w-com-bluetooth/up/MLBU5020678953?pdp_filters=deal%3AMLB1578289-1",
+  "Esteira Mecânica Dobrável Liftness Sports com Display para Casa":
+    "https://www.mercadolivre.com.br/esteira-mecanica-dobravel-liftness-sports-com-display-para-casa/p/MLB63495400?pdp_filters=deal%3AMLB1578289-1",
+  "Honeywhale Rm2 Pro Patinete Elétrico Infantil, 70w-11km-10km/h, Motor-autonomia-velocidade, Triciclo Dobrável Com Luzes De Led E Bluetooth, Honey Whale 3 Rodas Para Crianças A Partir De 3 Anos":
+    "https://www.mercadolivre.com.br/honeywhale-rm2-pro-patinete-eletrico-infantil-70w-11km-10kmh-motor-autonomia-velocidade-triciclo-dobravel-com-luzes-de-led-e-bluetooth-honey-whale-3-rodas-para-criancas-a-partir-de-3-anos/p/MLB53624162?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Ergométrica Spinning Liftness Preto 100kg Aço Carbono + Garrafa":
+    "https://www.mercadolivre.com.br/bicicleta-ergometrica-spinning-liftness-preto-100kg-aco-carbono-garrafa/p/MLB78933768?pdp_filters=deal%3AMLB1578289-1",
+  "Triciclo Patinete com Amortecedor Elétrico 36v 20km/h Até 120kg Rosa Zelt":
+    "https://www.mercadolivre.com.br/triciclo-patinete-com-amortecedor-eletrico-36v-20kmh-ate-120kg-rosa-zelt/p/MLB59881112?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Ergometrica Spinning Liftness Profissional Para Cardio Fitness Musculação Atividade Física Inercia":
+    "https://www.mercadolivre.com.br/bicicleta-ergometrica-spinning-liftness-profissional-para-cardio-fitness-musculacao-atividade-fisica-inercia/p/MLB73943860?pdp_filters=deal%3AMLB1578289-1",
+  "Colchão Inflável Solteiro Fortech Elétrico + Bolsa Bestway Cor Cinza 220V":
+    "https://www.mercadolivre.com.br/colchao-inflavel-solteiro-fortech-eletrico-bolsa-bestway-cor-cinza-220v/p/MLB42036760?pdp_filters=item_id%3AMLB5131187102",
+  "Bicicleta Aro 16 Menina 4, 5 Anos Infantil Criança Flygirl Com Rodinha - Rosa":
+    "https://www.mercadolivre.com.br/bicicleta-aro-16-menina-4-5-anos-infantil-crianca-flygirl-com-rodinha-rosa/p/MLB75897170?pdp_filters=item_id%3AMLB7283665244",
+  "Patinete Elétrico Infantil Triciclo PARES Drift Bluetooth 3 Rodas 450W Vermelho Diversão e Lazer + Kit de segurança":
+    "https://www.mercadolivre.com.br/patinete-eletrico-infantil-triciclo-pares-drift-bluetooth-3-rodas-450w-vermelho-diversao-e-lazer-kit-de-seguranca/p/MLB79483467?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Carretilha 3.8:1 Drag 25kg + Vara Pesca Molinete 2,10m":
+    "https://produto.mercadolivre.com.br/MLB-6023116946-kit-carretilha-381-drag-25kg-vara-pesca-molinete-210m-_JM?pdp_filters=item_id%3AMLB6023116946",
+  "JAXJON JJ2668 Elétrica - Preto":
+    "https://www.mercadolivre.com.br/jaxjon-jj2668-eletrica-preto/p/MLB76042055?pdp_filters=deal%3AMLB1578289-1",
+  "Mochila Raqueteira Tenis Tenista Beach Tennis Head 3raquetes Cor Radical":
+    "https://www.mercadolivre.com.br/mochila-raqueteira-tenis-tenista-beach-tennis-head-3raquetes-cor-radical/p/MLB32393689?pdp_filters=item_id%3AMLB4822949253",
+  "Lanterna Táctica Wurkkos Ts28 3200lm, 506m 21700 Ipx8 Type-c Branco Preto":
+    "https://www.mercadolivre.com.br/lanterna-tactica-wurkkos-ts28-3200lm-506m-21700-ipx8-typec/up/MLBU3705670199?pdp_filters=item_id%3AMLB4404185801",
+  "Mesa Dobrável Vira Maleta 1,80m Luxena Preta com Alça Portátil para Camping Pesca Jardim Festa Área Gourmet Mesa Retangular Dobrável Resistente para Uso Interno e Externo até 150kg Luxena":
+    "https://www.mercadolivre.com.br/mesa-dobravel-vira-maleta-180m-luxena-preta-com-alca-portatil-para-camping-pesca-jardim-festa-area-gourmet-mesa-retangular-dobravel-resistente-para-uso-interno-e-externo-ate-150kg-luxena/p/MLB74537737?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Panelas Camping Portátil Com Chaleira E Talheres Verde-escuro":
+    "https://www.mercadolivre.com.br/kit-panelas-camping-portatil-com-chaleira-e-talheres/up/MLBU4112685469?pdp_filters=deal%3AMLB1578289-1",
+  "Chuteira Futsal Joma Dribling Original Indoor Antiderrapante Preto/verde 39":
+    "https://www.mercadolivre.com.br/chuteira-futsal-joma-dribling-original-indoor-antiderrapante/up/MLBU4539685434?pdp_filters=deal%3AMLB1578289-1",
+  "Tapete Para Rolo De Treino Anti Impacto E Ruído Thinkrider":
+    "https://www.mercadolivre.com.br/tapete-para-rolo-de-treino-anti-impacto-e-ruido-thinkrider/p/MLB72887880?pdp_filters=deal%3AMLB1578289-1",
+  "Pre Treino Venom Underground 300g Limão Dark Lab Limão":
+    "https://www.mercadolivre.com.br/pre-treino-venom-underground-300g-limao-dark-lab/up/MLBU4682495988?pdp_filters=deal%3AMLB1578289-1",
+  "Monitor Pesca Câmera Subaquática Água Barco Peixe Cabo 30m":
+    "https://www.mercadolivre.com.br/monitor-pesca-camera-subaquatica-agua-barco-peixe-cabo-30m/up/MLBU3691956931?pdp_filters=deal%3AMLB1578289-1",
+  "Barraca De Camping Automática New Hawaii 3-4 Pessoas Verde Impermeável-p753":
+    "https://www.mercadolivre.com.br/barraca-de-camping-automatica-new-hawaii-3-4-pessoas-verde-impermeavel-p753/p/MLB65122500?pdp_filters=deal%3AMLB1578289-1",
+  "Par Halter Pintado 8kg Musculação Exercício Peso Sextavado Preto":
+    "https://www.mercadolivre.com.br/par-halter-pintado-8kg-musculacao-exercicio-peso-sextavado-preto/p/MLB68912438?pdp_filters=item_id%3AMLB6695249828",
+  "Patins Infantil Quad 4 Rodas Kit Proteção Capacete Menina 34-37 53 Mm Preto-rosa":
+    "https://www.mercadolivre.com.br/patins-infantil-quad-4-rodas-kit-protecao-capacete-menina/up/MLBU5112070289?pdp_filters=item_id%3AMLB7607800490",
+  "Mesa Dobrável Camping Alumínio 90x60cm Vira Maleta Externa Interna Salão De Festas Gourmet Branco BMD900 The Black Tools":
+    "https://www.mercadolivre.com.br/mesa-dobravel-camping-aluminio-90x60cm-vira-maleta-externa-interna-salao-de-festas-gourmet-branco-bmd900-the-black-tools/p/MLB29762119?pdp_filters=deal%3AMLB1578289-1",
+  "Chuteira Society Nike Tiempo Maestro Club Rosa/preto 39 Br":
+    "https://www.mercadolivre.com.br/chuteira-society-nike-tiempo-maestro-club/up/MLBU4029390494?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Fogareiro Fogão Portátil Camping Pesca + Acessórios Frontier Azul":
+    "https://www.mercadolivre.com.br/kit-fogareiro-fogao-portatil-camping-pesca--acessorios/up/MLBU4111784528?pdp_filters=item_id%3AMLB4782501073",
+  "Bolsa De Tênis Wilson Roland Garros Com Capacidade Para":
+    "https://www.mercadolivre.com.br/w-bolsa-de-tenis-wilson-roland-garros-com-capacidade-para-j/p/MLB2100108148?pdp_filters=deal%3AMLB1578289-1",
+  "Zafu Almofada Zenai Ideal P/ Yoga Meditar E Relaxar Cinza":
+    "https://www.mercadolivre.com.br/zafu-almofada-zenai-ideal-p-yoga-meditar-e-relaxar-cinza/p/MLB57085257?pdp_filters=item_id%3AMLB4214726487",
+  "Trave De Futebol Golzinho De Aço Traves E Redes Oficial Branco":
+    "https://www.mercadolivre.com.br/trave-de-futebol-golzinho-de-aco-traves-e-redes-oficial/up/MLBU3013929809?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Grade Com 6 Garrafinhas 1 Litro Tampa Automática Oferta":
+    "https://produto.mercadolivre.com.br/MLB-5376155036-kit-grade-com-6-garrafinhas-1-litro-tampa-automatica-oferta-_JM?pdp_filters=item_id%3AMLB5376155036",
+  "Compressor De Ar Portátil Digital Calibrador Inova 80w 150psi 4000mah Bomba De Encher Pneu Sem Fio Com Lanterna Led E Acessórios Para Pneu De Carro Moto Bicicleta 50hz/60hz":
+    "https://www.mercadolivre.com.br/compressor-de-ar-portatil-digital-calibrador-inova-80w-150psi-4000mah-bomba-de-encher-pneu-sem-fio-com-lanterna-led-e-acessorios-para-pneu-de-carro-moto-bicicleta-50hz60hz/p/MLB74002062?pdp_filters=item_id%3AMLB7009384346",
+  "Kit Luva Naja Extreme Boxe Muay Thai + Bandagem Bucal Bolsa Cor Preto Tamanho 10oz":
+    "https://www.mercadolivre.com.br/kit-luva-naja-extreme-boxe-muay-thai-bandagem-bucal-bolsa-cor-preto-tamanho-10oz/p/MLB56070969?pdp_filters=deal%3AMLB1578289-1",
+  "Camisa Futebol Flamengo 26/27 Torcedor Leia A Descrição":
+    "https://produto.mercadolivre.com.br/MLB-4931790555-camisa-futebol-flamengo-2627-torcedor-leia-a-descrico-_JM",
+  "Mini Bicicleta Ergométrica Gallant Pedalinho Cicloergômetro Branco (GBE1HNAA-BR)":
+    "https://www.mercadolivre.com.br/mini-bicicleta-ergometrica-gallant-pedalinho-cicloergometro-branco-gbe1hnaa-br/p/MLB30966994?pdp_filters=item_id%3AMLB4413166660",
+  "Capacete Wosawe Protetor Futebol Rugby Goleiro Petr Cech":
+    "https://produto.mercadolivre.com.br/MLB-3085953362-capacete-wosawe-protetor-futebol-rugby-goleiro-petr-cech-_JM?pdp_filters=item_id%3AMLB3085953362",
+  "Mochila Esportiva Porta Raquete Tênis Beach Com Bolsos Off White":
+    "https://www.mercadolivre.com.br/mochila-esportiva-porta-raquete-tenis-beach-com-bolsos/up/MLBU4847564398?pdp_filters=item_id%3AMLB5093419563",
+  "Stanley - Quencher Protour Frost Fade 1,18l":
+    "https://www.mercadolivre.com.br/stanley-quencher-protour-frost-fade-118l/p/MLB50044807?pdp_filters=deal%3AMLB1578289-1",
+  "Faca Vórtice Artesanal Full Tang Aço Resistente Com Bainha Preto Black Carvão Noturno Grafite":
+    "https://www.mercadolivre.com.br/faca-vortice-artesanal-full-tang-aco-resistente-com-bainha/up/MLBU3748563330?pdp_filters=item_id%3AMLB6185255594",
+  "Pedivela Single Gta Coroa Única 34d Mtb 170mm Camaleão":
+    "https://www.mercadolivre.com.br/pedivela-single-gta-coroa-unica-34d-mtb-170mm-camaleao/p/MLB45788546?pdp_filters=deal%3AMLB1578289-1",
+  "Bolsa Térmica 30L Preta para Bebida e Cerveja Use Bag com Bolsos":
+    "https://www.mercadolivre.com.br/bolsa-termica-30l-preta-para-bebida-e-cerveja-use-bag-com-bolsos/p/MLB47703112?pdp_filters=deal%3AMLB1578289-1",
+  "Supercoffee 3.0 380g Super Coffee Caffeine Army Sabor Baunilha":
+    "https://www.mercadolivre.com.br/supercoffee-30-380g-super-coffee-caffeine-army-sabor-baunilha/p/MLB73057949?pdp_filters=deal%3AMLB1578289-1",
+  "Chuteira Society Campo Sintético Adulto Profissional Morelia":
+    "https://produto.mercadolivre.com.br/MLB-6250151140-chuteira-society-campo-sintetico-adulto-profissional-morelia-_JM",
+  "Whey Protein Concentrado Zero Lactose 450gr - Growth Chocolate":
+    "https://www.mercadolivre.com.br/whey-protein-concentrado-zero-lactose-450gr--growth/up/MLBU4153009622?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 2 Cappuccino Fit Proteico C Whey Protein E Colágeno 200g":
+    "https://produto.mercadolivre.com.br/MLB-5283808254-kit-2-cappuccino-fit-proteico-c-whey-protein-e-colageno-200g-_JM",
+  "Triciclo Elétrico Veego Spark 1000 Watts C/ Ré E Alarme":
+    "https://produto.mercadolivre.com.br/MLB-5424049544-triciclo-eletrico-veego-spark-1000-watts-c-re-e-alarme-_JM?pdp_filters=item_id%3AMLB5424049544",
+  "Triciclo Elétrico Veg S250 Zub 600w 3 Lugares 2026 vermelho":
+    "https://www.mercadolivre.com.br/triciclo-eletrico-veg-s250-zub-600w-3-lugares-2026-vermelho/p/MLB64085758?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Elétrica 48v Bateria Removível Velocidade 32kmh Bike Urbana Scooter Smart Branca Não Precisa De Cnh":
+    "https://www.mercadolivre.com.br/bicicleta-eletrica-48v-bateria-removivel-velocidade-32kmh-bike-urbana-scooter-smart-branca-nao-precisa-de-cnh/p/MLB66470308?pdp_filters=item_id%3AMLB4524707449",
+  "Esteira Elétrica Ergométrica Profissional Inteligente 0.75hp, Inclinação 10.5%, 1-12 Km/h, Max 120kg, Dobrável,bivolt, Com Tela Led Touch, Monitor De Frequência Cardíaca, Controle Remoto E App Kinvo":
+    "https://www.mercadolivre.com.br/esteira-eletrica-ergometrica-profissional-inteligente-075hp-inclinacao-105-1-12-kmh-max-120kg-dobravelbivolt-com-tela-led-touch-monitor-de-frequencia-cardiaca-controle-remoto-e-app-kinvo/p/MLB64692559?pdp_filters=item_id%3AMLB6188848292",
+  "Norvortex Esteira Elétrica Caminhada Corrida Dobrável 2hp Cor Preto":
+    "https://www.mercadolivre.com.br/norvortex-esteira-eletrica-caminhada-corrida-dobravel-2hp-cor-preto/p/MLB75799334?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Aro 29 Ksw Xlt 100 24 Marchas Alumínio Freio Disco Azul/preto 17":
+    "https://www.mercadolivre.com.br/bicicleta-aro-29-ksw-xlt-100-24-marchas-aluminio-freio-disco-azulpreto-17/p/MLB68660800?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Aro 29 Gts Urban Color 24 Marchas Freio A Disco Neón/preto 21":
+    "https://www.mercadolivre.com.br/bicicleta-aro-29-gts-urban-color-24-marchas-freio-a-disco-neonpreto-21/p/MLB62887165?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Barra + Peso + Halter + Step + Corda + Caneleira + Colch":
+    "https://www.mercadolivre.com.br/kit-barra--peso--halter--step--corda--caneleira--colch/up/MLBU602410889?pdp_filters=item_id%3AMLB3256896099",
+  "Chuteira Futsal Joma Top Flex Rebound Masculina Original Nfe Branco/azul 39":
+    "https://www.mercadolivre.com.br/chuteira-futsal-joma-top-flex-rebound-masculina-original-nfe/up/MLBU4117033281?pdp_filters=item_id%3AMLB4794499277",
+  "Pistola De Pressão C11 4.5mm - Crosman Preto 4.5 Mm":
+    "https://www.mercadolivre.com.br/pistola-de-pressao-c11-45mm--crosman/up/MLBU4008656103?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Prancha Bodyboard Semi Profissional Maré Pró Com Leash":
+    "https://produto.mercadolivre.com.br/MLB-6200232774-kit-prancha-bodyboard-semi-profissional-mare-pro-com-leash-_JM?pdp_filters=item_id%3AMLB6200232774",
+  "Bicicleta Aro 24 Masculina Azul Azul 13":
+    "https://www.mercadolivre.com.br/bicicleta-aro-24-masculina-azul/up/MLBU4213025875?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Infantil Altrax Kids Aro 16 Princesa Rosa Com Rodinhas":
+    "https://www.mercadolivre.com.br/bicicleta-infantil-altrax-kids-aro-16-princesa-rosa-com-rodinhas/p/MLB79316520?pdp_filters=deal%3AMLB1578289-1",
+  "Capacete Ciclismo Mtb Giro Fixture Ii Mips Titânio Titânio 54 - 61cm":
+    "https://www.mercadolivre.com.br/capacete-ciclismo-mtb-giro-fixture-ii-mips-titanio/up/MLBU3116723045?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Musculação 40kg Anilhas Ferro Barra 1,20m Halteres 40cm Preto":
+    "https://www.mercadolivre.com.br/kit-musculacao-40kg-anilhas-ferro-barra-120m-halteres-40cm/up/MLBU5128844877?pdp_filters=deal%3AMLB1578289-1",
+  "Capacete De Hóquei Capacete Esportivo Capacete De S":
+    "https://www.mercadolivre.com.br/q-capacete-de-hoquei-capacete-profissional-de-jogador-de/p/MLB2058309607?pdp_filters=deal%3AMLB1578289-1",
+  "Trampolim De 40 Polegadas Trampolim De Fitness Dobrável":
+    "https://www.mercadolivre.com.br/trampolim-de-40-polegadas-trampolim-de-fitness-dobravel/p/MLB64580421?pdp_filters=deal%3AMLB1578289-1",
+  "Patins Ajustável Infantil 4 Rodas Menina Kit Proteção E Led M -33 Ao 36 Kit Sereia Roxo":
+    "https://www.mercadolivre.com.br/patins-ajustavel-infantil-4-rodas-menina-kit-protecao-e-led/up/MLBU5186839780?pdp_filters=deal%3AMLB1578289-1",
+  "Par Halter Sextavado Pintado 10kg Cor Preto Preto Preto":
+    "https://www.mercadolivre.com.br/par-halter-sextavado-pintado-10kg-cor-preto-preto/up/MLBU4739243920?pdp_filters=deal%3AMLB1578289-1",
+  "Suporte De Varas Para Caiaque - 2 Varas Trilho":
+    "https://www.mercadolivre.com.br/suporte-de-varas-para-caiaque--2-varas-trilho/up/MLBU3549458416?pdp_filters=item_id%3AMLB6183209886",
+  "120x90cm Trave Futebol Infantil Equipamento Treinamento Bola Preto/vermelho":
+    "https://www.mercadolivre.com.br/120x90cm-trave-futebol-infantil-equipamento-treinamento-bola/up/MLBU5002175384?pdp_filters=deal%3AMLB1578289-1",
+  "Bicicleta Elétrica Xroymexroy EB5 para Adultos com Motor de 750W e Bateria de 10.4Ah":
+    "https://www.mercadolivre.com.br/bicicleta-eletrica-xroymexroy-eb5-para-adultos-com-motor-de-750w-e-bateria-de-104ah/p/MLB64996605?pdp_filters=deal%3AMLB1578289-1",
+  "Kit Peso Academia 40kgs Halken Halteres Anilhas Musculação 6 em 1":
+    "https://www.mercadolivre.com.br/kit-peso-academia-40kgs-halken-halteres-anilhas-musculacao-6-em-1/p/MLB79733012?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 40 Kg Anilhas Ferro Fundido + Barras Com Presilhas Preto Preto":
+    "https://www.mercadolivre.com.br/kit-40-kg-anilhas-ferro-fundido--barras-com-presilhas-preto/up/MLBU5048483353?pdp_filters=item_id%3AMLB7570508866",
+  "Mochila Para Raquete Tenis 50l Mochila Beach Tennis70cm Alto":
+    "https://produto.mercadolivre.com.br/MLB-5094347213-mochila-para-raquete-tenis-50l-mochila-beach-tennis70cm-alto-_JM",
 };
