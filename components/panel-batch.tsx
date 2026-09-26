@@ -304,14 +304,38 @@ export function PanelBatch(props: {
           placeholder={"https://meli.la/…\nhttps://meli.la/…"}
           className="border-border-subtle bg-surface-muted mt-2 w-full rounded-lg border p-2 text-sm"
         />
-        <button
-          type="button"
-          onClick={() => void check()}
-          disabled={!!busy || !text.trim()}
-          className="bg-brand text-brand-foreground mt-2 min-h-10 rounded-lg px-4 text-sm font-semibold disabled:opacity-50"
-        >
-          {busy === "checking" ? "Conferindo os links…" : "Conferir o lote"}
-        </button>
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => void check()}
+            disabled={!!busy || !text.trim()}
+            className="bg-brand text-brand-foreground min-h-10 rounded-lg px-4 text-sm font-semibold disabled:opacity-50"
+          >
+            {busy === "checking" ? "Conferindo os links…" : "Conferir o lote"}
+          </button>
+          {/* Same action as the button at the end of the results, kept here so
+              the owner doesn't have to scroll down after every check. */}
+          <button
+            type="button"
+            onClick={() => void saveMatches()}
+            disabled={!!busy || readyCount === 0}
+            className="min-h-10 rounded-lg bg-emerald-600 px-4 text-sm font-semibold text-white disabled:opacity-40"
+          >
+            {busy === "saving"
+              ? progress || "Salvando…"
+              : `Salvar os ${readyCount} que conferem`}
+          </button>
+          {likelyCount > 0 && (
+            <button
+              type="button"
+              onClick={() => void saveAllLikely()}
+              disabled={!!busy}
+              className="border-border-subtle hover:border-brand min-h-10 rounded-lg border px-4 text-sm font-medium disabled:opacity-50"
+            >
+              Confirmar e salvar os {likelyCount} “só o título bate”
+            </button>
+          )}
+        </div>
       </section>
 
       {message && <p className="text-sm">{message}</p>}
