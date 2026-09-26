@@ -4894,4 +4894,288 @@ export const ML_PANEL_URLS: Readonly<Record<string, string>> = {
     "https://www.mercadolivre.com.br/ar-condicionado-samsung-ultra-inverter-12000-btus-frio/p/MLB38176675?pdp_filters=deal%3AMLB1578289-1",
   "Misturador Brigadeiro Progás 5L Gás Amarelo Bivolt Progas PRMOG-05 Plus":
     "https://www.mercadolivre.com.br/misturador-brigadeiro-progas-5l-gas-amarelo-bivolt-progas-prmog-05-plus/p/MLB27237383?pdp_filters=deal%3AMLB1578289-1",
+  "Celular Samsung Galaxy A17 Com Ia, 256gb, 8gb Ram, Câm De 50mp, Tela De 6.7 , Nfc, Ip54 - Preto 4G":
+    "https://www.mercadolivre.com.br/celular-samsung-galaxy-a17-com-ia-256gb-8gb-ram-cam-de-50mp-tela-de-67-nfc-ip54-preto-4g/p/MLB55254425?pdp_filters=deal%3AMLB1578289-1",
+  "Smartphone Moto G06 128GB 4GB RAM + 8GB RAM Boost, Câmera 50mp,Bateria 5200mah - Azul":
+    "https://www.mercadolivre.com.br/smartphone-moto-g06-128gb-4gb-ram-8gb-ram-boost-camera-50mpbateria-5200mah-azul/p/MLB58353028?pdp_filters=deal%3AMLB1578289-1",
+  "Samsung Galaxy A07":
+    "https://www.mercadolivre.com.br/samsung-galaxy-a07/p/MLB55027908?pdp_filters=deal%3AMLB1578289-1",
+  "Carregador Super Rápido 25w Para Samsung Galaxy S24 S23 S22 S21 S20 Fe Ultra Motorola M22 M31 M32 M62 M63 M64 G15 Xiaomi Redmi Note 12 13 14 15 LG - Super Fast Cabo Blindado Tipo Usb C -Dtimp":
+    "https://www.mercadolivre.com.br/carregador-super-rapido-25w-para-samsung-galaxy-s24-s23-s22-s21-s20-fe-ultra-motorola-m22-m31-m32-m62-m63-m64-g15-xiaomi-redmi-note-12-13-14-15-lg-super-fast-cabo-blindado-tipo-usb-c-dtimp/p/MLB47889235?pdp_filters=item_id%3AMLB4235549699",
+  "Smartphone Motorola Moto G35 5g - 256gb 4gb Ram+8gb Ram Boost e Camera 50mp Com Ai Nfc Tela 6.7 Com Superbrilho - Coral - Vegan Leather":
+    "https://www.mercadolivre.com.br/smartphone-motorola-moto-g35-5g-256gb-4gb-ram8gb-ram-boost-e-camera-50mp-com-ai-nfc-tela-67-com-superbrilho-coral-vegan-leather/p/MLB41540860?pdp_filters=deal%3AMLB1578289-1",
+  "Celular Samsung Galaxy A07 256gb 8gb Câmera 50mp Verde":
+    "https://www.mercadolivre.com.br/celular-samsung-galaxy-a07-256gb-8gb-camera-50mp-verde/p/MLB54963045?pdp_filters=deal%3AMLB1578289-1",
+  'Celular Samsung Galaxy A17 Com Ia, 128gb, 4gb Ram, Câm De 50mp, Tela De 6.7", Nfc, Ip54 - Preto':
+    "https://www.mercadolivre.com.br/celular-samsung-galaxy-a17-com-ia-128gb-4gb-ram-cam-de-50mp-tela-de-67-nfc-ip54-preto/p/MLB65114795?pdp_filters=deal%3AMLB1578289-1",
+  "Smartphone Motorola Moto G06 - 256gb 4gb Ram + 8gb Ram Boost, e Camera 50mp Com Ai Bateria De 5200 Mah Tela 6.9 - Bege":
+    "https://www.mercadolivre.com.br/smartphone-motorola-moto-g06-256gb-4gb-ram-8gb-ram-boost-e-camera-50mp-com-ai-bateria-de-5200-mah-tela-69-bege/p/MLB55762063?pdp_filters=deal%3AMLB1578289-1",
+  "Smartphone Motorola Moto G35 5g 12gb Ram Boost 128g Cor Grafite":
+    "https://www.mercadolivre.com.br/smartphone-motorola-moto-g35-5g-12gb-ram-boost-128g-cor-grafite/p/MLB63016702?pdp_filters=deal%3AMLB1578289-1",
+  "Carregador Portátil 20000 Turbo 22.5w Power Bank Premium Universal Rápido Voo Transporte Aéreo Para Samsung iPhone Xiaomi Motorola Celular Smartwatch Tablet Casenn Preto":
+    "https://www.mercadolivre.com.br/carregador-portatil-20000-turbo-225w-power-bank-premium-universal-rapido-voo-transporte-aereo-para-samsung-iphone-xiaomi-motorola-celular-smartwatch-tablet-casenn-preto/p/MLB50853162?pdp_filters=item_id%3AMLB4084327457",
+  "Power Bank Basike 20000mAh Preto, Carga Rápida 22.5W para iPhone e Samsung, Com Cabos Embutidos e Display":
+    "https://www.mercadolivre.com.br/power-bank-basike-20000mah-preto-carga-rapida-225w-para-iphone-e-samsung-com-cabos-embutidos-e-display/p/MLB50592250?pdp_filters=deal%3AMLB1578289-1",
+  "Celular Samsung Galaxy S25 Ultra 5g, 256gb, 12gb, Câm. Quád. Cor Prata":
+    "https://www.mercadolivre.com.br/celular-samsung-galaxy-s25-ultra-5g-256gb-12gb-cam-quad-cor-prata/p/MLB45524778?pdp_filters=deal%3AMLB1578289-1",
+  "Apple iPhone 15 (256 GB) - Azul - Distribuidor Autorizado":
+    "https://www.mercadolivre.com.br/apple-iphone-15-256-gb-azul-distribuidor-autorizado/p/MLB1027172673?pdp_filters=deal%3AMLB1578289-1",
+  "Apple iPhone 16 (128 GB) - Ultramarine - Distribuidor Autorizado":
+    "https://www.mercadolivre.com.br/apple-iphone-16-128-gb-ultramarine-distribuidor-autorizado/p/MLB1040287800?pdp_filters=deal%3AMLB1578289-1",
+  "Apple iPhone 15 (128 GB) - Azul - Distribuidor Autorizado":
+    "https://www.mercadolivre.com.br/apple-iphone-15-128-gb-azul-distribuidor-autorizado/p/MLB1027172667?pdp_filters=deal%3AMLB1578289-1",
+  "Samsung Galaxy S25 5G, 256GB, 12GB, Câmera Tripla - Azul marinho":
+    "https://www.mercadolivre.com.br/samsung-galaxy-s25-5g-256gb-12gb-camera-tripla-azul-marinho/p/MLB45502223?pdp_filters=deal%3AMLB1578289-1",
+  "iPhone 16e (128 GB) - Preto - Distribuidor Autorizado":
+    "https://www.mercadolivre.com.br/iphone-16e-128-gb-preto-distribuidor-autorizado/p/MLB1046215784?pdp_filters=deal%3AMLB1578289-1",
+  "Celular Samsung Galaxy S25 Fe 5g, 128gb, 8gb Ram, Câmera Tripla De 50+12+8, Tela Grande De 6.7 Azul Marinho":
+    "https://www.mercadolivre.com.br/celular-samsung-galaxy-s25-fe-5g-128gb-8gb-ram-camera-tripla-de-50128-tela-grande-de-67-azul-marinho/p/MLB61655019?pdp_filters=deal%3AMLB1578289-1",
+  "Celular Samsung Galaxy A57 5G 256GB, 8GB RAM, Recursos AI":
+    "https://www.mercadolivre.com.br/celular-samsung-galaxy-a57-5g-256gb-8gb-ram-recursos-ai/p/MLB68201987?pdp_filters=deal%3AMLB1578289-1",
+  "Samsung Galaxy A55 5g Dual Sim 128 Gb Azul-escuro 8 Gb Ram":
+    "https://www.mercadolivre.com.br/samsung-galaxy-a55-5g-dual-sim-128-gb-azul-escuro-8-gb-ram/p/MLB41671313?pdp_filters=deal%3AMLB1578289-1",
+  "Xiaomi Poco X7 Pro Dual SIM 5g 512gb Preto 12ram 50mpx":
+    "https://www.mercadolivre.com.br/xiaomi-poco-x7-pro-dual-sim-5g-512gb-preto-12ram-50mpx/p/MLB45766004?pdp_filters=deal%3AMLB1578289-1",
+  "Smartphone Motorola Edge 60 Fusion 5g - 256gb 8gb Ram+8gb Ram Boost, 50mp Sony Ai Camera Ip68 Nfc - Cinza Vegan Leather":
+    "https://www.mercadolivre.com.br/smartphone-motorola-edge-60-fusion-5g-256gb-8gb-ram8gb-ram-boost-50mp-sony-ai-camera-ip68-nfc-cinza-vegan-leather/p/MLB47245501?pdp_filters=deal%3AMLB1578289-1",
+  "Smartphone Motorola Moto G56 5g - 256gb 8gb Ram+8gb Ram Boost, Camera 50mp Sony Lytia 600 Ultrarresistencia Militar e Ip68 + Ip69 - Cinza":
+    "https://www.mercadolivre.com.br/smartphone-motorola-moto-g56-5g-256gb-8gb-ram8gb-ram-boost-camera-50mp-sony-lytia-600-ultrarresistencia-militar-e-ip68-ip69-cinza/p/MLB50301060?pdp_filters=deal%3AMLB1578289-1",
+  "Smartphone Samsung Galaxy A36 5G 128GB 6GB RAM Câmera Tripla de até 50MP Selfie de 12MP IP67 Super AMOLED 6.7'' NFC Recursos AI Android e Segurança Snapdragon - Branco":
+    "https://www.mercadolivre.com.br/smartphone-samsung-galaxy-a36-5g-128gb-6gb-ram-camera-tripla-de-ate-50mp-selfie-de-12mp-ip67-super-amoled-67-nfc-recursos-ai-android-e-seguranca-snapdragon-branco/p/MLB65952157?pdp_filters=deal%3AMLB1578289-1",
+  "Smartphone Samsung Galaxy A17 5g A17 256gb - Cinza Cinza":
+    "https://www.mercadolivre.com.br/smartphone-samsung-galaxy-a17-5g-a17-256gb-cinza-cinza/p/MLB54961626?pdp_filters=deal%3AMLB1578289-1",
+  "Relógio Smartwatch Bettdow FB041 GPS Alexa 5M/IP68 À Prova D'Água":
+    "https://www.mercadolivre.com.br/relogio-smartwatch-bettdow-fb041-gps-alexa-5mip68-prova-dagua/p/MLB62959421?pdp_filters=item_id%3AMLB6663443062",
+  "Xiaomi Redmi Note 14 4g 6.67 128gb 6gb Ram 108mpx - cor preta":
+    "https://www.mercadolivre.com.br/xiaomi-redmi-note-14-4g-667-128gb-6gb-ram-108mpx-cor-preta/p/MLB45818940?pdp_filters=deal%3AMLB1578289-1",
+  "Xiaomi Redmi 15 16gb 8gb+8gb boster Ram 256gb Dual Sim 50mp Fm Impressão digital Dimm preta":
+    "https://www.mercadolivre.com.br/xiaomi-redmi-15-16gb-8gb8gb-boster-ram-256gb-dual-sim-50mp-fm-impressao-digital-dimm-preta/p/MLB54103877?pdp_filters=deal%3AMLB1578289-1",
+  "Carregador Portátil Power Bank Turbo 20000mah 22.5w universal para iphone samsung motorola xiaomi Com Display Digital DTimp":
+    "https://www.mercadolivre.com.br/carregador-portatil-power-bank-turbo-20000mah-225w-universal-para-iphone-samsung-motorola-xiaomi-com-display-digital-dtimp/p/MLB54026101?pdp_filters=item_id%3AMLB4169895537",
+  "Fone de ouvido Plantronics Blackwire C3220 USB Tipo A e Tipo C":
+    "https://www.mercadolivre.com.br/fone-de-ouvido-plantronics-blackwire-c3220-usb-tipo-a-e-tipo-c/p/MLB37929237?pdp_filters=item_id%3AMLB4842869442",
+  "Relógio Smartwatch Qcy Gt S8 Tela Amoled Bluetooth Ipx8 Cor Preto":
+    "https://www.mercadolivre.com.br/relogio-smartwatch-qcy-gt-s8-tela-amoled-bluetooth-ipx8-cor-preto/p/MLB29243287?pdp_filters=item_id%3AMLB6470094054",
+  "Relógio Inteligente Gps Smartwatch Amoled 3atm Sport Gps Caixa Preto":
+    "https://www.mercadolivre.com.br/relogio-inteligente-gps-smartwatch-amoled-3atm-sport-gps-caixa-preto/p/MLB62756066?pdp_filters=deal%3AMLB1578289-1",
+  "Fone Qcy Buds T43 Bluetooth 5.3 Enc IPX4 Cor Preto":
+    "https://www.mercadolivre.com.br/fone-qcy-buds-t43-bluetooth-53-enc-ipx4-cor-preto/p/MLB50002371?pdp_filters=item_id%3AMLB6438701316",
+  "Fone de Ouvido Bluetooth Kaidi KD-790 TWS Original Sem Fio com Microfone HD Estojo de carregamento Som Hi-Fi Estéreo Controle Touch":
+    "https://www.mercadolivre.com.br/fone-de-ouvido-bluetooth-kaidi-kd-790-tws-original-sem-fio-com-microfone-hd-estojo-de-carregamento-som-hi-fi-estereo-controle-touch/p/MLB27832035?pdp_filters=item_id%3AMLB6911738468",
+  "Relógio Microwear Smartwatch S11 Mini Series 11 42mm Whatsapp Gps Nfc 2026 Preto SMARTWATCH ADVANCED PRO":
+    "https://www.mercadolivre.com.br/relogio-microwear-smartwatch-s11-mini-series-11-42mm-whatsapp-gps-nfc-2026-preto-smartwatch-advanced-pro/p/MLB65770866?pdp_filters=item_id%3AMLB6290165490",
+  "Suporte de Cabeça para Celular para Filmar com as Mãos Livres no Dia a Dia":
+    "https://www.mercadolivre.com.br/suporte-de-cabeca-para-celular-para-filmar-com-as-maos-livres-no-dia-a-dia/p/MLB39187734?pdp_filters=item_id%3AMLB7477645338",
+  "Carregador Portátil Power Bank 20.000mah Turbo Celular Carga Rápida 22.5w Premium Display Visor Grande Universal Usb-c Viagens Festa Para los E Android iPhone Samsung Motorola Xiaomi Preto Nixzen":
+    "https://www.mercadolivre.com.br/carregador-portatil-power-bank-20000mah-turbo-celular-carga-rapida-225w-premium-display-visor-grande-universal-usb-c-viagens-festa-para-los-e-android-iphone-samsung-motorola-xiaomi-preto-nixzen/p/MLB70514531?pdp_filters=item_id%3AMLB6867741698",
+  "Apple Earpods Fone de ouvido USB-C Branco Distribuidor Autorizado - Distribuidor Autorizado":
+    "https://www.mercadolivre.com.br/apple-earpods-fone-de-ouvido-usb-c-branco-distribuidor-autorizado-distribuidor-autorizado/p/MLB1031455940?pdp_filters=deal%3AMLB1578289-1",
+  "Kit 4 Radios Baofeng Comunicador Frequencia Profissional 16 Canais Cor Preto BF-777S":
+    "https://www.mercadolivre.com.br/kit-4-radios-baofeng-comunicador-frequencia-profissional-16-canais-cor-preto-bf-777s/p/MLB32961720?pdp_filters=deal%3AMLB1578289-1",
+  "Carregador Portátil Power Bank Basike 20000mAh 22.5W Rápido Cabos Embutidos Tipo C iPhone Samsung":
+    "https://www.mercadolivre.com.br/carregador-portatil-power-bank-basike-20000mah-225w-rapido-cabos-embutidos-tipo-c-iphone-samsung/p/MLB52327865?pdp_filters=deal%3AMLB1578289-1",
+  "Carregador Portátil Power Bank Turbo voo transporte aéreo 10000mah Universal Para iPhone Samsung Motorola Xiaomi 22.5w Com Display Digital Dtimp":
+    "https://www.mercadolivre.com.br/carregador-portatil-power-bank-turbo-voo-transporte-aereo-10000mah-universal-para-iphone-samsung-motorola-xiaomi-225w-com-display-digital-dtimp/p/MLB67640933?pdp_filters=item_id%3AMLB6580566028",
+  "Carregador Fonte iPhone Original 20w Apple Tipo C Turbo Branco":
+    "https://www.mercadolivre.com.br/carregador-fonte-iphone-original-20w-apple-tipo-c-turbo/up/MLBU3310659861?pdp_filters=item_id%3AMLB4132103523",
+  "Fone de Ouvido JBL Tune 530BT Bluetooth Sem Fio Preto Headphone com Microfone Wireless Estéreo Graves Potentes Confortável":
+    "https://www.mercadolivre.com.br/fone-de-ouvido-jbl-tune-530bt-bluetooth-sem-fio-preto-headphone-com-microfone-wireless-estereo-graves-potentes-confortavel/p/MLB65541449?pdp_filters=deal%3AMLB1578289-1",
+  "Fone De Ouvido Bluetooth TWS Dapon F25 Touch Sem Fio Com Microfone Cor Preto":
+    "https://www.mercadolivre.com.br/fone-de-ouvido-bluetooth-tws-dapon-f25-touch-sem-fio-com-microfone-cor-preto/p/MLB25757804?pdp_filters=item_id%3AMLB4589827433",
+  "Capa Capinha Glass Para iPhone Vidro Fosco Case Premium Luxo":
+    "https://produto.mercadolivre.com.br/MLB-4204166123-capa-capinha-glass-para-iphone-vidro-fosco-case-premium-luxo-_JM?pdp_filters=item_id%3AMLB4204166123",
+  "Cabo Tipo C Turbo 2 Metros Kit com 3 Cabos Carregador Rápido Cabo Usb Reforçado Carga Acelerada Sincronização De Dados Resistência Máxima Longa Duração Uso Diário Intenso Confiável Brasiliana Tech":
+    "https://www.mercadolivre.com.br/cabo-tipo-c-turbo-2-metros-kit-com-3-cabos-carregador-rapido-cabo-usb-reforcado-carga-acelerada-sincronizacao-de-dados-resistencia-maxima-longa-duracao-uso-diario-intenso-confiavel-brasiliana-tech/p/MLB53177065?pdp_filters=item_id%3AMLB4076848491",
+  "Carregador Turbo Usb C 67w (fonte + Cabo) Branco":
+    "https://www.mercadolivre.com.br/carregador-turbo-usb-c-67w-fonte-cabo-branco/p/MLB34066848?pdp_filters=item_id%3AMLB5471720438",
+  "Power Bank 10000 mah Turbo 22.5w Carregador Portátil Display Digital Usb C Universal iPhone Samsung Xiaomi Motorola Audiophile":
+    "https://www.mercadolivre.com.br/power-bank-10000-mah-turbo-225w-carregador-portatil-display-digital-usb-c-universal-iphone-samsung-xiaomi-motorola-audiophile/p/MLB69628935?pdp_filters=item_id%3AMLB6773319210",
+  "Apple iPhone 16 (256 GB) - Rosa - Distribuidor Autorizado":
+    "https://www.mercadolivre.com.br/apple-iphone-16-256-gb-rosa-distribuidor-autorizado/p/MLB1040287790?pdp_filters=deal%3AMLB1578289-1",
+  "Smartphone Motorola Edge 70 Fusion 5g Fifa World Cup Collection - 256gb 8gb Ram + 16gb Ram Boost, Camera 50mp Sony Lytia 710, Tela 1.5k Extreme Amoled - Grafite":
+    "https://www.mercadolivre.com.br/smartphone-motorola-edge-70-fusion-5g-fifa-world-cup-collection-256gb-8gb-ram-16gb-ram-boost-camera-50mp-sony-lytia-710-tela-15k-extreme-amoled-grafite/p/MLB67444410?pdp_filters=deal%3AMLB1578289-1",
+  'Celular Samsung Galaxy A57 5G 128GB, 8GB RAM, Câmera 50MP, IP68, Super AMOLED 6.7", Recursos AI - Lilás':
+    "https://www.mercadolivre.com.br/celular-samsung-galaxy-a57-5g-128gb-8gb-ram-camera-50mp-ip68-super-amoled-67-recursos-ai-lilas/p/MLB68213841?pdp_filters=deal%3AMLB1578289-1",
+  "Relógio Smartwatch Bettdow Fb041 47 mm Esportivo Alexa E Gps 1.85 Cor Rosa":
+    "https://www.mercadolivre.com.br/relogio-smartwatch-bettdow-fb041-47-mm-esportivo-alexa-e-gps-185-cor-rosa/p/MLB64255289?pdp_filters=item_id%3AMLB5199884159",
+  "Celular Smartphone Realme C73 128gb 4gb Ram Dual Sim 120hz 6000mAh Violeta":
+    "https://www.mercadolivre.com.br/celular-smartphone-realme-c73-128gb-4gb-ram-dual-sim-120hz-6000mah-violeta/p/MLB62511762?pdp_filters=deal%3AMLB1578289-1",
+  "Smartphone Motorola Moto G17 4g - 128gb 4gb Ram + 8gb Ram Boost, Camera 50mp Sony Lytia 600, Tela Fhd+ 60hz, Bateria 5200 Mah - Azul":
+    "https://www.mercadolivre.com.br/smartphone-motorola-moto-g17-4g-128gb-4gb-ram-8gb-ram-boost-camera-50mp-sony-lytia-600-tela-fhd-60hz-bateria-5200-mah-azul/p/MLB65041642?pdp_filters=deal%3AMLB1578289-1",
+  "Redmi 15C":
+    "https://www.mercadolivre.com.br/redmi-15c/p/MLB54993504?pdp_filters=deal%3AMLB1578289-1",
+  "Roteador Ubiquiti UniFi Cloud Gateway Ultra UCG-Ultra 1Gbps":
+    "https://www.mercadolivre.com.br/roteador-ubiquiti-unifi-cloud-gateway-ultra-ucg-ultra-1gbps/p/MLB66694188?pdp_filters=deal%3AMLB1578289-1",
+  "Relógio Smartwatch W11 Pro Series 11 Amoled Whatsapp Gps Nfc Preto SMARTWATCH ADVANCED PRO":
+    "https://www.mercadolivre.com.br/relogio-smartwatch-w11-pro-series-11-amoled-whatsapp-gps-nfc-preto-smartwatch-advanced-pro/p/MLB65009778?pdp_filters=item_id%3AMLB6203484060",
+  "Fone de Ouvido Bluetooth soundcore Q20i da Anker, ANC Híbrido Ativo, 60H,Áudio Hi-Res Graves Potentes, Cancelamento de Ruído Headphone Bluetooth Over Ear, Personalização de Som via App, Preto":
+    "https://www.mercadolivre.com.br/fone-de-ouvido-bluetooth-soundcore-q20i-da-anker-anc-hibrido-ativo-60haudio-hi-res-graves-potentes-cancelamento-de-ruido-headphone-bluetooth-over-ear-personalizacao-de-som-via-app-preto/p/MLB33981251?pdp_filters=deal%3AMLB1578289-1",
+  "Multi Vita 4g C/ Base Carregadora Botão Sos - P9225 Cor Preto":
+    "https://www.mercadolivre.com.br/multi-vita-4g-c-base-carregadora-botao-sos-p9225-cor-preto/p/MLB47306653?pdp_filters=deal%3AMLB1578289-1",
+  "Smartwatch Microwear S11 Pro AMOLED 47mm GPS NFC WhatsApp Preto SMARTWATCH ADVANCED PRO":
+    "https://www.mercadolivre.com.br/smartwatch-microwear-s11-pro-amoled-47mm-gps-nfc-whatsapp-preto-smartwatch-advanced-pro/p/MLB62833819?pdp_filters=item_id%3AMLB6167004834",
+  "Power Bank 10000mAh Carregador Portátil Turbo 22,5W PD USB-C Carga Rápida 4 Portas Display Digital Bateria Externa Cabo Incluído Proteção Sobrecarga Universal Android iOS Brasiliana Tech":
+    "https://www.mercadolivre.com.br/power-bank-10000mah-carregador-portatil-turbo-225w-pd-usb-c-carga-rapida-4-portas-display-digital-bateria-externa-cabo-incluido-protecao-sobrecarga-universal-android-ios-brasiliana-tech/p/MLB43777583?pdp_filters=item_id%3AMLB6032088928",
+  "Power Bank MagSafe 10000mAh Magnético Carregador Portátil Sem Fio iPhone Ultrapixel":
+    "https://www.mercadolivre.com.br/power-bank-magsafe-10000mah-magnetico-carregador-portatil-sem-fio-iphone-ultrapixel/p/MLB70486079?pdp_filters=item_id%3AMLB4726602503",
+  "iPhone 17 Pro Max 256GB - Prateado - Distribuidor Autorizado":
+    "https://www.mercadolivre.com.br/iphone-17-pro-max-256gb-prateado-distribuidor-autorizado/p/MLB1055308605?pdp_filters=deal%3AMLB1578289-1",
+  'Celular Samsung Galaxy S26 Ultra 5G, 256GB, 12GB RAM, Câmera Quádrupla, Tela Grande de 6.9" Preto':
+    "https://www.mercadolivre.com.br/celular-samsung-galaxy-s26-ultra-5g-256gb-12gb-ram-camera-quadrupla-tela-grande-de-69-preto/p/MLB65503984?pdp_filters=deal%3AMLB1578289-1",
+  "iPhone 17 Pro 256GB - Prateado - Distribuidor Autorizado":
+    "https://www.mercadolivre.com.br/iphone-17-pro-256gb-prateado-distribuidor-autorizado/p/MLB1055308767?pdp_filters=deal%3AMLB1578289-1",
+  "iPhone 17 512 GB - Branco - Distribuidor Autorizado":
+    "https://www.mercadolivre.com.br/iphone-17-512gb-branco-distribuidor-autorizado/p/MLB1055309039?pdp_filters=deal%3AMLB1578289-1",
+  "iPhone 17 Pro Max 256GB - Laranja-cósmico":
+    "https://www.mercadolivre.com.br/iphone-17-pro-max-256gb-laranja-cosmico/p/MLB55308620?pdp_filters=deal%3AMLB1578289-1",
+  "Apple iPhone 13 (128gb) Branco Novo + Acessórios":
+    "https://produto.mercadolivre.com.br/MLB-5848367348-apple-iphone-13-128gb-branco-novo-acessorios-_JM?pdp_filters=item_id%3AMLB5848367348",
+  "iPhone 17 256 GB - Sálvia - Distribuidor Autorizado":
+    "https://www.mercadolivre.com.br/iphone-17-256gb-salvia-distribuidor-autorizado/p/MLB1055308843?pdp_filters=deal%3AMLB1578289-1",
+  "Poco X8 Pro 512gb 12gb Ram Original Lancamento Global C/ Nfc Preto":
+    "https://www.mercadolivre.com.br/poco-x8-pro-512gb-12gb-ram-original-lancamento-global-c-nfc/up/MLBU3891250867?pdp_filters=deal%3AMLB1578289-1",
+  "iPhone 17e 256GB Rosa-palido - Distribuidor Autorizado":
+    "https://www.mercadolivre.com.br/iphone-17e-256gb-rosa-palido-distribuidor-autorizado/p/MLB1066130043?pdp_filters=deal%3AMLB1578289-1",
+  "Celular Samsung Galaxy A37 5g 256gb, 8gb Ram, Câmera 50mp Branco":
+    "https://www.mercadolivre.com.br/celular-samsung-galaxy-a37-5g-256gb-8gb-ram-camera-50mp-branco/p/MLB68085223?pdp_filters=deal%3AMLB1578289-1",
+  "Xiaomi Redmi 15c 256gb 8gb Ram + Brinde Fone E Relogio Preto":
+    "https://www.mercadolivre.com.br/xiaomi-redmi-15c-256gb-8gb-ram--brinde-fone-e-relogio/up/MLBU3523040016?pdp_filters=item_id%3AMLB4276009245",
+  "Smartwatch Samsung Galaxy Watch 8 40mm Prateado com Bluetooth e Wi-Fi":
+    "https://www.mercadolivre.com.br/smartwatch-samsung-galaxy-watch-8-40mm-prateado-com-bluetooth-e-wi-fi/p/MLB52053574?pdp_filters=deal%3AMLB1578289-1",
+  "Samsung Galaxy Watch8 Smartwatch 40mm Bt, Galaxy Ai Branco Milanês Cinza-escuro":
+    "https://www.mercadolivre.com.br/samsung-galaxy-watch8-smartwatch-40mm-bt-galaxy-ai/up/MLBU3318266468?pdp_filters=deal%3AMLB1578289-1",
+  "Smartphone Xiaomi Poco C85 256gb 2chip +brinde-fone-relógio Preto":
+    "https://www.mercadolivre.com.br/smartphone-xiaomi-poco-c85-256gb-2chip--brindefonerelogio/up/MLBU3479628733?pdp_filters=item_id%3AMLB4245669251",
+  "Celular Xiaomi Poco X7 Pro 5g 512 Gb 12 Gb Ram + Top Cor Verde":
+    "https://www.mercadolivre.com.br/celular-xiaomi-poco-x7-pro-5g-512-gb-12-gb-ram-top-cor-verde/p/MLB47313326?pdp_filters=deal%3AMLB1578289-1",
+  "Xiaomi Redmi Note 15 Pro 8 GB de RAM 256 GB Rom 4G Lte 200 mpx Glacier Blue":
+    "https://www.mercadolivre.com.br/xiaomi-redmi-note-15-pro-8-gb-de-ram-256-gb-rom-4g-lte-200-mpx-glacier-blue/p/MLB65759096?pdp_filters=deal%3AMLB1578289-1",
+  "Relógio Inteligente Smartwatch GPS Autônomo À prova d'água 3ATM NOVANTE Masculino Feminino Esportivo Digital 530mAh Preto Bluetooth Chamadas Notificações Instantâneas Android IOS Com Lanterna Bússola":
+    "https://www.mercadolivre.com.br/relogio-inteligente-smartwatch-gps-autonomo-prova-dagua-3atm-novante-masculino-feminino-esportivo-digital-530mah-preto-bluetooth-chamadas-notificacoes-instantaneas-android-ios-com-lanterna-bussola/p/MLB64212276?pdp_filters=item_id%3AMLB6161925990",
+  "Relógio Inteligente Smartwatch Redondo Peje Pro Amoled Nfc Preto Lançamento Unisexx":
+    "https://www.mercadolivre.com.br/relogio-inteligente-smartwatch-redondo-peje-pro-amoled-nfc/up/MLBU3856828711?pdp_filters=item_id%3AMLB6507871556",
+  "Celular Smartphone Realme Note 80s 128gb 4gb Ram Dual Sim Azul Bateria 6000mah Ultrafino 7,94 Mm Resistência À Poeira E Água Ip54":
+    "https://www.mercadolivre.com.br/celular-smartphone-realme-note-80s-128gb-4gb-ram-dual-sim-azul-bateria-6000mah-ultrafino-794-mm-resistencia-poeira-e-agua-ip54/p/MLB67652541?pdp_filters=deal%3AMLB1578289-1",
+  "Relógio Inteligente Smart Band Sports E À Prova De Água Caixa Preto":
+    "https://www.mercadolivre.com.br/relogio-inteligente-smart-band-sports-e-prova-de-agua-caixa-preto/p/MLB62870615?pdp_filters=item_id%3AMLB4739897121",
+  "Fone De Ouvido Bluetooth 5.3 soundcore Q11i da Anker, Fone Gamer, Headphone Bluetooth Over-Ear, Graves Profundos, 60H Autonomia, Hi-Res Áudio, Almofadas Removíveis, Conexão Multiponto, Preto":
+    "https://www.mercadolivre.com.br/fone-de-ouvido-bluetooth-53-soundcore-q11i-da-anker-fone-gamer-headphone-bluetooth-over-ear-graves-profundos-60h-autonomia-hi-res-audio-almofadas-removiveis-conexao-multiponto-preto/p/MLB47293464?pdp_filters=item_id%3AMLB5515226606",
+  "Fone Open Ear Dapon DPF25 Bluetooth 6.0 Sem Fio Com Microfone ENC 6H Tempo de espera de até 200 horas Cor Preto":
+    "https://www.mercadolivre.com.br/fone-open-ear-dapon-dpf25-bluetooth-60-sem-fio-com-microfone-enc-6h-tempo-de-espera-de-ate-200-horas-cor-preto/p/MLB62953439?pdp_filters=item_id%3AMLB6582757530",
+  "Power Bank Magnético 10000mah Para Magsafe iPhone 17 Pro Max Laranja":
+    "https://www.mercadolivre.com.br/power-bank-magnetico-10000mah-para-magsafe-iphone-17-pro-max/up/MLBU4027420659?pdp_filters=item_id%3AMLB4732038959",
+  "Power Bank Magnético 10000mah Para Magsafe iPhone 15 16 17 Cinza Chumbo":
+    "https://www.mercadolivre.com.br/power-bank-magnetico-10000mah-para-magsafe-iphone-15-16-17/up/MLBU4048816958?pdp_filters=item_id%3AMLB6890003192",
+  "Relógio Inteligente Smartwatch Chamadas Bluetooth NOVANTE Masculino Feminino Digital Esportivo IP68 Notificações Instantâneas 1.95 AMOLED Tela Curva 380mAh Monitoramento Frequência Cardíaca Sono Watch":
+    "https://www.mercadolivre.com.br/relogio-inteligente-smartwatch-chamadas-bluetooth-novante-masculino-feminino-digital-esportivo-ip68-notificacoes-instantaneas-195-amoled-tela-curva-380mah-monitoramento-frequencia-cardiaca-sono-watch/p/MLB66699452?pdp_filters=deal%3AMLB1578289-1",
+  "Relógio Inteligente Smartwatch Alexa Chamadas NOVANTE Masculino Feminino Esportivo IP68 Bluetooth Notificações Instantâneas Tela Hd 1.83 300mAh 10Dias Monitor Cardíaco Spo2 Sono Ecg Pagamento Offline":
+    "https://www.mercadolivre.com.br/relogio-inteligente-smartwatch-alexa-chamadas-novante-masculino-feminino-esportivo-ip68-bluetooth-notificacoes-instantaneas-tela-hd-183-300mah-10dias-monitor-cardiaco-spo2-sono-ecg-pagamento-offline/p/MLB64244402?pdp_filters=item_id%3AMLB6162191874",
+  "Fone de Ouvido Bluetooth soundcore Q20i da Anker, ANC Híbrido Ativo, 60H,Áudio Hi-Res Graves Potentes, Cancelamento de Ruído Headphone Bluetooth Over Ear, Personalização de Som via App, Rosa":
+    "https://www.mercadolivre.com.br/fone-de-ouvido-bluetooth-soundcore-q20i-da-anker-anc-hibrido-ativo-60haudio-hi-res-graves-potentes-cancelamento-de-ruido-headphone-bluetooth-over-ear-personalizacao-de-som-via-app-rosa/p/MLB53592690?pdp_filters=deal%3AMLB1578289-1",
+  "Carregador Portátil Power Bank Turbo Inova 30000mah Pd 22.5w Preto":
+    "https://www.mercadolivre.com.br/carregador-portatil-power-bank-turbo-inova-30000mah-pd-225w/up/MLBU4408392653?pdp_filters=item_id%3AMLB7244865040",
+  "Smartwatch X5 Pro Max Tela Amoled Integração Com Chatgpt Capacidade Nfc Bateria De Longa Duração 7 Pulseiras Intercambiáveis Caixa Preta":
+    "https://www.mercadolivre.com.br/smartwatch-x5-pro-max-tela-amoled-integracao-com-chatgpt-capacidade-nfc-bateria-de-longa-duracao-7-pulseiras-intercambiaveis-caixa-preta/p/MLB62287307?pdp_filters=item_id%3AMLB6948399354",
+  "Power Bank 20000mah 22,5w Turbo Carregador Portátil Com Display Digital Bateria Externa Usb-c Para Celular Tablet Android Ios Carregamento Rápido Alta Capacidade Proteções Elétricas Brasiliana Tech":
+    "https://www.mercadolivre.com.br/power-bank-20000mah-225w-turbo-carregador-portatil-com-display-digital-bateria-externa-usb-c-para-celular-tablet-android-ios-carregamento-rapido-alta-capacidade-protecoes-eletricas-brasiliana-tech/p/MLB65463254?pdp_filters=item_id%3AMLB6242178132",
+  "Relógio Microwear Smartwatch S11 Mini Series 11 42mm Whatsapp Gps Nfc 2026 Prateado SMARTWATCH ADVANCED PRO":
+    "https://www.mercadolivre.com.br/relogio-microwear-smartwatch-s11-mini-series-11-42mm-whatsapp-gps-nfc-2026-prateado-smartwatch-advanced-pro/p/MLB65770865?pdp_filters=item_id%3AMLB6290277558",
+  "Relógio Smartwatch Forestory Inteligente Tela 1.83 Bluetooth Ip68 À Prova D'água Notificações Chamadas Saúde Smart Watch Relogio Corrida Com Android E Ios Com 2 Pulseiras Feminino Masculino":
+    "https://www.mercadolivre.com.br/relogio-smartwatch-forestory-inteligente-tela-183-bluetooth-ip68-prova-dagua-notificacoes-chamadas-saude-smart-watch-relogio-corrida-com-android-e-ios-com-2-pulseiras-feminino-masculino/p/MLB75079337?pdp_filters=deal%3AMLB1578289-1",
+  'Relógio Inteligente Masculino Militar Smartwatch Esportes Smartwatch LAKEYLOYI QX11 Militar Masculino com Chamada Bluetooth e Tela de 1.96"':
+    "https://www.mercadolivre.com.br/relogio-inteligente-masculino-militar-smartwatch-esportes-smartwatch-lakeyloyi-qx11-militar-masculino-com-chamada-bluetooth-e-tela-de-196/p/MLB64294397?pdp_filters=deal%3AMLB1578289-1",
+  "Smartwatch Inteligente Relógio À Prova D'água Ip68 Bluetooth Chamadas Redondo Monitoramento Sono Saúde Esporte Preto Eletromind":
+    "https://www.mercadolivre.com.br/smartwatch-inteligente-relogio-prova-dagua-ip68-bluetooth-chamadas-redondo-monitoramento-sono-saude-esporte-preto-eletromind/p/MLB69600970?pdp_filters=item_id%3AMLB6781917290",
+  "Relógio Smartwatch Feminino + Fone De Ouvido Lad Gatinho Cor Rosa":
+    "https://www.mercadolivre.com.br/relogio-smartwatch-feminino--fone-de-ouvido-lad-gatinho-cor/up/MLBU3488646567?pdp_filters=item_id%3AMLB4253735829",
+  "Positivo P26 2G":
+    "https://www.mercadolivre.com.br/positivo-p26-2g/p/MLB39444841?pdp_filters=item_id%3AMLB7586453870",
+  "Carregador Turbo Gan Ugreen Nexode 2 Usb-c 45w Pd Cinza-escuro":
+    "https://www.mercadolivre.com.br/carregador-turbo-gan-ugreen-nexode-2-usb-c-45w-pd-cinza-escuro/p/MLB28976090?pdp_filters=deal%3AMLB1578289-1",
+  "Fone de Ouvido Semfio JSKJ S730 Esportivo TWS Bluetooth 5.4 Com Gancho e LED ANC Premium Para Corrida Academia Compatível Com Xiaomi Samsung Preto":
+    "https://www.mercadolivre.com.br/fone-de-ouvido-semfio-jskj-s730-esportivo-tws-bluetooth-54-com-gancho-e-led-anc-premium-para-corrida-academia-compativel-com-xiaomi-samsung-preto/p/MLB70006469?pdp_filters=item_id%3AMLB4694600511",
+  "Smartwatch Bazik Prime S35 Ultra Max 47mm, Com Bluetooth e GPS Para Android e iOS":
+    "https://www.mercadolivre.com.br/smartwatch-bazik-prime-s35-ultra-max-47mm-com-bluetooth-e-gps-para-android-e-ios/p/MLB51868065?pdp_filters=deal%3AMLB1578289-1",
+  "Smartwatch Relógio Inteligente Bazik Prime W38 Pro Max 47mm Tela AMOLED 1.51 HD Faz Chamadas Bluetooth Bateria 460mAh Monitor Cardíaco Esportivo IP67 Compatível Android e iOS Pulseira Silicone":
+    "https://www.mercadolivre.com.br/smartwatch-relogio-inteligente-bazik-prime-w38-pro-max-47mm-tela-amoled-151-hd-faz-chamadas-bluetooth-bateria-460mah-monitor-cardiaco-esportivo-ip67-compativel-android-e-ios-pulseira-silicone/p/MLB42851560?pdp_filters=deal%3AMLB1578289-1",
+  "Carregador Por Indução Wireless Magnético Sem Fio Tipo C 15W, Compatível com MagSafe Carregamento Rápido 1M, Branco GShield":
+    "https://www.mercadolivre.com.br/carregador-por-inducao-wireless-magnetico-sem-fio-tipo-c-15w-compativel-com-magsafe-carregamento-rapido-1m-branco-gshield/p/MLB23156253?pdp_filters=deal%3AMLB1578289-1",
+  "Fone De Ouvido Bluetooth Clip-ear Ajustável Redução De Ruído Preto":
+    "https://www.mercadolivre.com.br/fone-de-ouvido-bluetooth-clipear-ajustavel-reducao-de-ruido/up/MLBU3914400291?pdp_filters=item_id%3AMLB6664766554",
+  "Kit de 5 Cartões Micro SD 256GB Classe 10 de Alta Performance Com Adaptador SD para Câmera e Celular":
+    "https://www.mercadolivre.com.br/kit-de-5-cartoes-micro-sd-256gb-classe-10-de-alta-performance-com-adaptador-sd-para-camera-e-celular/p/MLB75467280?pdp_filters=deal%3AMLB1578289-1",
+  'Celular Samsung Galaxy S26 5G, 256GB, 12GB RAM, Galaxy AI, Câmera Tripla de 50+12+10, Tela de 6.3" Violeta':
+    "https://www.mercadolivre.com.br/celular-samsung-galaxy-s26-5g-256gb-12gb-ram-galaxy-ai-camera-tripla-de-501210-tela-de-63-violeta/p/MLB65560108?pdp_filters=deal%3AMLB1578289-1",
+  "Xiaomi Poco X8 Pro 12gb Ram 512gb Global Lançamento C/ Nfc Preto":
+    "https://www.mercadolivre.com.br/xiaomi-poco-x8-pro-12gb-ram-512gb-global-lancamento-c-nfc/up/MLBU3951935310?pdp_filters=deal%3AMLB1578289-1",
+  "Xiaomi Poco X8 Pro 5g 512gb 12gb Global Prova D'água C/ Nfc Preto":
+    "https://www.mercadolivre.com.br/xiaomi-poco-x8-pro-5g-512gb-12gb-global-prova-dagua-c-nfc/up/MLBU3938698487?pdp_filters=deal%3AMLB1578289-1",
+  "Smartphone Xiaomi Redmi 15c 5g Br 4+4gb Ram Virtual + 256gb, Preto":
+    "https://www.mercadolivre.com.br/smartphone-xiaomi-redmi-15c-5g-br-44gb-ram-virtual-256gb-preto/p/MLB60051172?pdp_filters=deal%3AMLB1578289-1",
+  "Samsung Galaxy Buds4 Pro, Fone De Ouvido Sem Fio, Áudio Hi-fi, Auto-falante Aprimorado Branco":
+    "https://www.mercadolivre.com.br/samsung-galaxy-buds4-pro-fone-de-ouvido-sem-fio-audio-hi-fi-auto-falante-aprimorado-branco/p/MLB66148251?pdp_filters=deal%3AMLB1578289-1",
+  "Fone + Xiaomi Redmi 15 256gb 8gb Ram 2025+brinde Cor Cinza":
+    "https://www.mercadolivre.com.br/fone-xiaomi-redmi-15-256gb-8gb-ram-2025brinde-cor-cinza/p/MLB61062663?pdp_filters=deal%3AMLB1578289-1",
+  "Fone + Xiaomi Redmi 15 256gb 8gb Ram Global 2025+brinde Pret":
+    "https://www.mercadolivre.com.br/fone-xiaomi-redmi-15-256gb-8gb-ram-global-2025brinde-pret/p/MLB64896436?pdp_filters=deal%3AMLB1578289-1",
+  "Fone Ouvido Headphone Bluetooth 5.3 Soundcore Space One Cancelamento de Ruido ANC 98% Graves Potentes Agudos Nítidos Hi-Res LDAC 50H Conforto Uso Prolongado Chamadas Claras Multiponto Fio Cor Branco":
+    "https://www.mercadolivre.com.br/fone-ouvido-headphone-bluetooth-53-soundcore-space-one-cancelamento-de-ruido-anc-98-graves-potentes-agudos-nitidos-hi-res-ldac-50h-conforto-uso-prolongado-chamadas-claras-multiponto-fio-cor-branco/p/MLB29595591?pdp_filters=deal%3AMLB1578289-1",
+  'Smartwatch HUAWEI WATCH FIT 5 AMOLED de 182" Design Leve Mini Treino Bateria com Até 10 Dias 64 GB Gerenciamento Avançado da Saúde Monitor do Sono SpO2 GPS Compatível com iOS e Android Branco':
+    "https://www.mercadolivre.com.br/smartwatch-huawei-watch-fit-5-amoled-de-182-design-leve-mini-treino-bateria-com-ate-10-dias-64-gb-gerenciamento-avancado-da-saude-monitor-do-sono-spo2-gps-compativel-com-ios-e-android-branco/p/MLB67714382?pdp_filters=deal%3AMLB1578289-1",
+  "Carregador GaN 65W Dapon USB-C Turbo 3 Portas Celular e Notebook":
+    "https://www.mercadolivre.com.br/carregador-gan-65w-dapon-usb-c-turbo-3-portas-celular-e-notebook/p/MLB21898811?pdp_filters=item_id%3AMLB4580376427",
+  "Relógios Inteligentes Homem Smart Watch Esportes Bluetooth Caixa Verde Pulseira Verde Bisel Verde":
+    "https://www.mercadolivre.com.br/relogios-inteligentes-homem-smart-watch-esportes-bluetooth-caixa-verde-pulseira-verde-bisel-verde/p/MLB63561521?pdp_filters=deal%3AMLB1578289-1",
+  "Carregador Turbo Dapon 67w Usb- C Gan Pd Para Notebook E Celular":
+    "https://www.mercadolivre.com.br/carregador-turbo-dapon-67w-usb-c-gan-pd-para-notebook-e-celular/p/MLB22622430?pdp_filters=item_id%3AMLB6556450328",
+  "Celular Samsung Galaxy Z Fold7 512gb, 12gb Ram, Tela 8.0 + 6.5 , Câmera Traseira 200+12+10mp, Frontal 10+10mp - Azul Prata":
+    "https://www.mercadolivre.com.br/celular-samsung-galaxy-z-fold7-512gb-12gb-ram-tela-80-65-camera-traseira-2001210mp-frontal-1010mp-azul-prata/p/MLB62000121?pdp_filters=deal%3AMLB1578289-1",
+  "iPhone 18 Pro Max 512GB Glacial - Distribuidor Autorizado":
+    "https://www.mercadolivre.com.br/iphone-18-pro-max-512gb-glacial-distribuidor-autorizado/p/MLB1077855627?pdp_filters=deal%3AMLB1578289-1",
+  "iPhone 18 Pro de 256 GB — Preto - Distribuidor Autorizado":
+    "https://www.mercadolivre.com.br/iphone-18-pro-de-256-gb-preto-distribuidor-autorizado/p/MLB1077872085?pdp_filters=deal%3AMLB1578289-1",
+  "Smartphone HUAWEI Pura 80 Pro 12GB+512GB Câmera Ultra-iluminação de 1 Polegada Câmera Teleobjetiva Macro Ultra-iluminação Cancelamento de Ruído por IA 5.17 Ah Dual SuperCharge Celular Preto":
+    "https://www.mercadolivre.com.br/smartphone-huawei-pura-80-pro-12gb512gb-camera-ultra-iluminacao-de-1-polegada-camera-teleobjetiva-macro-ultra-iluminacao-cancelamento-de-ruido-por-ia-517-ah-dual-supercharge-celular-preto/p/MLB58089730?pdp_filters=deal%3AMLB1578289-1",
+  "Xiaomi Redmi Note 15 Pro 5g 512gb 12gb Ram Original + Nfc Preto":
+    "https://www.mercadolivre.com.br/xiaomi-redmi-note-15-pro-5g-512gb-12gb-ram-original--nfc/up/MLBU4888031997?pdp_filters=deal%3AMLB1578289-1",
+  "Smartphone Xiaomi Poco C85 256gb 8gb Ram 4g 50mp Nfc Global Preto":
+    "https://www.mercadolivre.com.br/smartphone-xiaomi-poco-c85-256gb-8gb-ram-4g-50mp-nfc-global/up/MLBU4180220645?pdp_filters=item_id%3AMLB7072321142",
+  "HUAWEI WATCH GT 7 Pro 46mm Smart Watch, Bateria de até 21 dias, Caixa em liga de titânio e bisel em cerâmica nano-tech, ECG, Monitoramento da Frequência Cardíaca, Golfe, Ciclismo, Amarelo":
+    "https://www.mercadolivre.com.br/huawei-watch-gt-7-pro-46mm-smart-watch-bateria-de-ate-21-dias-caixa-em-liga-de-titanio-e-bisel-em-ceramica-nano-tech-ecg-monitoramento-da-frequencia-cardiaca-golfe-ciclismo-amarelo/p/MLB77599086?pdp_filters=deal%3AMLB1578289-1",
+  "Xiaomi Pocophone Poco X8 Pro Branco 8+256gb Dual Sim":
+    "https://www.mercadolivre.com.br/xiaomi-pocophone-poco-x8-pro-branco-8256gb-dual-sim/p/MLB67646524?pdp_filters=deal%3AMLB1578289-1",
+  "Smartwatch Aurafit G6 Verde Militar Whatsapp Com 5atm E Gps Verde Militar Sport 2 Pulseiras De Relógio":
+    "https://www.mercadolivre.com.br/smartwatch-aurafit-g6-verde-militar-whatsapp-com-5atm-e-gps/up/MLBU4219992806?pdp_filters=item_id%3AMLB4843882541",
+  "Smartphone Galaxy A17 Câmera Tripla 256 Gb 4g A175 Samsung Azul":
+    "https://www.mercadolivre.com.br/smartphone-galaxy-a17-camera-tripla-256-gb-4g-a175-samsung-azul/p/MLB63364148?pdp_filters=deal%3AMLB1578289-1",
+  "Xiaomi Poco C85 256gb 16 Ram Lançamento 2026 Global Nfc+fone Lilás":
+    "https://www.mercadolivre.com.br/xiaomi-poco-c85-256gb-16-ram-lancamento-2026-global-nfcfone/up/MLBU4658120568?pdp_filters=deal%3AMLB1578289-1",
+  'Celular Samsung Galaxy A17 5G Com IA, 128gb, 4gb Ram, Câm De 50mp, Tela De 6.7", Nfc, Ip54 - Preto':
+    "https://www.mercadolivre.com.br/celular-samsung-galaxy-a17-5g-com-ia-128gb-4gb-ram-cam-de-50mp-tela-de-67-nfc-ip54-preto/p/MLB63335606?pdp_filters=deal%3AMLB1578289-1",
+  "Mini Impressora de Sticker Portátil Nelko PM290 com Bluetooth e 3 Rolos de Papel Térmico":
+    "https://www.mercadolivre.com.br/mini-impressora-de-sticker-portatil-nelko-pm290-com-bluetooth-e-3-rolos-de-papel-termico/p/MLB69982294?pdp_filters=item_id%3AMLB4879484041",
+  "Fone De Ouvido Bluetooth 5.3 soundcore Q11i da Anker, Fone Gamer, Headphone Bluetooth Over-Ear, Graves Profundos, 60H Autonomia, Hi-Res Áudio, Almofadas Removíveis, Conexão Multiponto, Branco":
+    "https://www.mercadolivre.com.br/fone-de-ouvido-bluetooth-53-soundcore-q11i-da-anker-fone-gamer-headphone-bluetooth-over-ear-graves-profundos-60h-autonomia-hi-res-audio-almofadas-removiveis-conexao-multiponto-branco/p/MLB47297124?pdp_filters=item_id%3AMLB5417383406",
+  "Monitor Selfie Magnético Para Câmera Traseira iPhone Android":
+    "https://www.mercadolivre.com.br/monitor-selfie-magnetico-para-camera-traseira-iphone-android/p/MLB2085133107?pdp_filters=item_id%3AMLB5249733735",
+  "Power Bank Tantsa 20000mah Turbo Usb-c 22,5w Powerbank Preto":
+    "https://www.mercadolivre.com.br/power-bank-tantsa-20000mah-turbo-usbc-225w/up/MLBU5156929856?pdp_filters=item_id%3AMLB5210188245",
+  "Smartwatch Multi G2r wr208 tela de 1,43 Hd Gps Proteção Ip67 Preto Multilaser":
+    "https://www.mercadolivre.com.br/smartwatch-multi-g2r-wr208-tela-de-143-hd-gps-protecao-ip67-preto-multilaser/p/MLB66446939?pdp_filters=deal%3AMLB1578289-1",
+  "Adaptador Usb Bluetooth 6.0 Ugreen Pc Controle Ps5 Xbox Fone":
+    "https://www.mercadolivre.com.br/adaptador-usb-bluetooth-60-ugreen-pc-controle-ps5-xbox-fone/up/MLBU3310499949?pdp_filters=item_id%3AMLB4132012633",
+  "Fone Ouvido Sem Fio Bluetooth Eletro Mex J-60w, Compacto E Confortável, Graves Poderosos E Impactantes Bluetooth 6.0, 30h De Reprodução Resistência, Corrida, Sono, Preto fosco":
+    "https://www.mercadolivre.com.br/fone-ouvido-sem-fio-bluetooth-eletro-mex-j-60w-compacto-e-confortavel-graves-poderosos-e-impactantes-bluetooth-60-30h-de-reproducao-resistencia-corrida-sono-preto-fosco/p/MLB78054950?pdp_filters=item_id%3AMLB7576857868",
+  "Capa Capinha Premium Fosca Magsafe Para iPhone Todos Modelos":
+    "https://produto.mercadolivre.com.br/MLB-5552808312-capa-capinha-premium-fosca-magsafe-para-iphone-todos-modelos-_JM?pdp_filters=item_id%3AMLB5552808312",
+  "iPhone 18 Pro de 512 GB — Preto - Distribuidor Autorizado":
+    "https://www.mercadolivre.com.br/iphone-18-pro-de-512-gb-preto-distribuidor-autorizado/p/MLB1077855525?pdp_filters=deal%3AMLB1578289-1",
+  "Celular Realme C85 256gb 8gb Ram Nfc 4g Global + Brinde Azul":
+    "https://www.mercadolivre.com.br/celular-realme-c85-256gb-8gb-ram-nfc-4g-global--brinde/up/MLBU5089459811?pdp_filters=deal%3AMLB1578289-1",
+  "Relógio Microwear S10 Série 11 47mm Amoled Gps Nfc":
+    "https://produto.mercadolivre.com.br/MLB-7620212854-relogio-microwear-s10-serie-11-47mm-amoled-gps-nfc-_JM?pdp_filters=item_id%3AMLB7620212854",
+  "iPhone 18 Pro Max 1TB Glacial - Distribuidor Autorizado":
+    "https://www.mercadolivre.com.br/iphone-18-pro-max-1tb-glacial-distribuidor-autorizado/p/MLB1077855641?pdp_filters=deal%3AMLB1578289-1",
+  "Xiaomi Redmi Note 17 256gb 8gb Ram Amoled 7700mah + Brindes Preto":
+    "https://www.mercadolivre.com.br/xiaomi-redmi-note-17-256gb-8gb-ram-amoled-7700mah--brindes/up/MLBU5160128750?pdp_filters=item_id%3AMLB5211764243",
 };
