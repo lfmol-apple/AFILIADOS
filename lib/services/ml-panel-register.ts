@@ -70,7 +70,9 @@ export async function registerPanelPick(input: {
   sold?: number;
   rating?: number | null;
 }): Promise<PanelRegisterResult> {
+  const t0 = Date.now();
   const catalogProductId = await resolveCatalogProductId(input.affiliateUrl);
+  const tResolved = Date.now();
   if (!catalogProductId) {
     throw new PanelRegisterError(
       "Não consegui identificar o produto nesse link. Cole o link gerado pelo botão Compartilhar do painel (meli.la ou mercadolivre.com/sec/...).",
@@ -121,6 +123,7 @@ export async function registerPanelPick(input: {
     }
   }
 
+  const tBeforeEnrich = Date.now();
   try {
     const provider = await createMercadoLivreProvider();
     await enrichCatalogListing(provider, merchant.id, listing, 60, new Map());
@@ -193,6 +196,13 @@ export async function registerPanelPick(input: {
     merchantCode: "MERCADO_LIVRE",
     publicUrl: current.productUrl,
     affiliateUrl: input.affiliateUrl,
+  });
+
+  // Where the time of one save goes (ms), to tune the slow part with data.
+  logger.info("ml_panel_register.timing", {
+    resolveMs: tResolved - t0,
+    enrichMs: Date.now() - tBeforeEnrich - 0,
+    totalMs: Date.now() - t0,
   });
 
   return {
