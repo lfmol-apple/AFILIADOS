@@ -27,6 +27,7 @@ interface Row {
 const LINKBUILDER_URL =
   "https://www.mercadolivre.com.br/afiliados/linkbuilder#hub";
 const MAX = 40;
+const SAVE_CONCURRENCY = 3;
 
 const LABEL: Record<Status, { icon: string; text: string; tone: string }> = {
   match: {
@@ -165,11 +166,23 @@ export function PanelBatch(props: {
       for (const r of todo) if (next[r.link] !== "ok") delete next[r.link];
       return next;
     });
+    // Three at a time: one by one took 2-14 s each. Rows of a batch are
+    // different products (repeats were already flagged), so they don't collide.
     const okLinks: string[] = [];
-    for (const [i, row] of todo.entries()) {
-      setProgress(`Salvando ${i + 1} de ${todo.length}…`);
-      if (await saveOne(row)) okLinks.push(row.link);
-    }
+    let done = 0;
+    let next = 0;
+    const worker = async () => {
+      while (next < todo.length) {
+        const row = todo[next++]!;
+        if (await saveOne(row)) okLinks.push(row.link);
+        done += 1;
+        setProgress(`Salvando ${done} de ${todo.length}…`);
+      }
+    };
+    setProgress(`Salvando 0 de ${todo.length}…`);
+    await Promise.all(
+      Array.from({ length: Math.min(SAVE_CONCURRENCY, todo.length) }, worker),
+    );
     setProgress("");
     setBusy("");
     finishBatch(okLinks, todo.length);

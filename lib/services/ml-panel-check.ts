@@ -38,6 +38,30 @@ export interface OpenedLink {
 export async function openAffiliateLink(
   affiliateUrl: string,
 ): Promise<OpenedLink> {
+  const cached = openedCache.get(affiliateUrl);
+  if (cached && Date.now() - cached.at < OPENED_TTL_MS) return cached.value;
+  const value = await fetchOpenedLink(affiliateUrl);
+  // Only remember a link that was really read: an unreadable one may work next time.
+  if (value.title || value.catalogId) {
+    if (openedCache.size >= OPENED_MAX) {
+      const oldest = openedCache.keys().next().value;
+      if (oldest !== undefined) openedCache.delete(oldest);
+    }
+    openedCache.set(affiliateUrl, { at: Date.now(), value });
+  }
+  return value;
+}
+
+/**
+ * The same link is opened by the batch check, by the save check and by the
+ * registration; without this each save opened it 3 times (2-4 s wasted). Small
+ * on purpose: only the derived fields are kept, never the page.
+ */
+const OPENED_TTL_MS = 10 * 60 * 1000;
+const OPENED_MAX = 300;
+const openedCache = new Map<string, { at: number; value: OpenedLink }>();
+
+async function fetchOpenedLink(affiliateUrl: string): Promise<OpenedLink> {
   let finalUrl = affiliateUrl;
   let html = "";
   try {

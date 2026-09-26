@@ -41,15 +41,10 @@ export async function resolveCatalogProductId(
   if (!MELI_HOSTS.test(url.hostname)) return null;
   const direct = extractCatalogProductId(decodeURIComponent(affiliateUrl));
   if (direct) return direct;
-  const response = await fetch(affiliateUrl, {
-    redirect: "follow",
-    headers: {
-      "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)",
-    },
-    signal: AbortSignal.timeout(20000),
-  });
-  if (!response.ok) return null;
-  return extractCatalogProductId(await response.text());
+  // Same read the live check already did (cached for a few minutes), so saving
+  // does not open the link a third time. Loaded here to avoid an import cycle.
+  const { openAffiliateLink } = await import("@/lib/services/ml-panel-check");
+  return (await openAffiliateLink(affiliateUrl)).catalogId;
 }
 
 export interface PanelRegisterResult {

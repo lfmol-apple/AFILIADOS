@@ -5,7 +5,10 @@ import {
   type MercadoLivreSellerReputation,
 } from "@/lib/providers/mercado-livre-provider";
 import { calculateMonetizationScore } from "@/lib/services/monetization-score";
-import { offerQualityScore, getDiscountPercent } from "@/lib/services/ml-offer-quality";
+import {
+  offerQualityScore,
+  getDiscountPercent,
+} from "@/lib/services/ml-offer-quality";
 import { getHistoricalClickSignal } from "@/lib/services/historical-click-signal";
 import type { MonetizationScoreInput } from "@/types/monetization";
 
@@ -24,7 +27,11 @@ export interface EnrichCatalogListingResult {
   offersUpdated: number;
 }
 
-type CatalogListingLike = { id: string; externalId: string; canonicalProductId: string | null };
+type CatalogListingLike = {
+  id: string;
+  externalId: string;
+  canonicalProductId: string | null;
+};
 
 export async function enrichCatalogListing(
   provider: MercadoLivreProvider,
@@ -50,7 +57,9 @@ export async function enrichCatalogListing(
   // first, which this phase does not do.
   const manufacturer = findAttribute(detail, "MANUFACTURER") ?? null;
   const alphanumericModel =
-    findAttribute(detail, "ALPHANUMERIC_MODELS") ?? findAttribute(detail, "ALPHANUMERIC_MODEL") ?? null;
+    findAttribute(detail, "ALPHANUMERIC_MODELS") ??
+    findAttribute(detail, "ALPHANUMERIC_MODEL") ??
+    null;
 
   const canonical = await prisma.canonicalProduct.upsert({
     where: { slug: `ml-catalog-${catalogProductId}` },
@@ -96,12 +105,26 @@ export async function enrichCatalogListing(
 
   const items = await provider.getCatalogProductItems(catalogProductId);
 
+  // One reputation call per distinct seller, all at once: they were awaited one
+  // by one inside the loop below (about 10 round trips per product).
+  const unseen = [...new Set(items.map((item) => item.seller_id))].filter(
+    (id) => !sellerCache.has(id),
+  );
+  await Promise.all(
+    unseen.map(async (id) => {
+      sellerCache.set(id, await provider.getSellerReputation(id));
+    }),
+  );
+
   let offersCreated = 0;
   let offersUpdated = 0;
 
   for (const item of items) {
     if (!sellerCache.has(item.seller_id)) {
-      sellerCache.set(item.seller_id, await provider.getSellerReputation(item.seller_id));
+      sellerCache.set(
+        item.seller_id,
+        await provider.getSellerReputation(item.seller_id),
+      );
     }
     const seller = sellerCache.get(item.seller_id) ?? null;
 
@@ -158,11 +181,19 @@ export async function enrichCatalogListing(
     });
 
     const input: MonetizationScoreInput = {
-      demandSignal: { value: catalogDemandScore, quality: "DERIVED_FROM_OBSERVED" },
+      demandSignal: {
+        value: catalogDemandScore,
+        quality: "DERIVED_FROM_OBSERVED",
+      },
       commissionSignal: null,
       trendSignal: null,
-      historicalConversionSignal: await getHistoricalClickSignal(offerListing.id),
-      offerQualitySignal: { value: offerQualityScore(item, seller), quality: "OBSERVED" },
+      historicalConversionSignal: await getHistoricalClickSignal(
+        offerListing.id,
+      ),
+      offerQualitySignal: {
+        value: offerQualityScore(item, seller),
+        quality: "OBSERVED",
+      },
     };
     const score = calculateMonetizationScore(input);
     await prisma.monetizationScore.upsert({
