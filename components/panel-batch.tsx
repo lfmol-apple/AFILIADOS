@@ -24,6 +24,20 @@ interface Row {
   how?: "id" | "title-exact" | "title";
 }
 
+/** Rows the owner has nothing to do about: an old link pasted again, a product
+ * that is already live, or a row the system already took out of the queue. */
+function isQuiet(
+  row: { status: Status; link: string },
+  saved: Record<string, string>,
+) {
+  const result = saved[row.link] ?? "";
+  return (
+    row.status === "duplicate" ||
+    row.status === "productOnSite" ||
+    result.includes("Retirei esta linha")
+  );
+}
+
 const LINKBUILDER_URL =
   "https://www.mercadolivre.com.br/afiliados/linkbuilder#hub";
 const MAX = 40;
@@ -308,63 +322,93 @@ export function PanelBatch(props: {
           <p className="text-foreground/60 mt-1 text-xs">
             {rows.filter((r) => r.status === "match").length} conferem ·{" "}
             {rows.filter((r) => r.status === "likely").length} para confirmar ·{" "}
-            {rows.filter((r) => !["match", "likely"].includes(r.status)).length}{" "}
-            com problema
+            {
+              rows.filter(
+                (r) =>
+                  !["match", "likely"].includes(r.status) && !isQuiet(r, saved),
+              ).length
+            }{" "}
+            com problema · {rows.filter((r) => isQuiet(r, saved)).length}{" "}
+            ignorados (links antigos ou produtos que já estão no ar)
           </p>
           <ul className="mt-2 space-y-2">
-            {rows.map((row) => {
-              const info = LABEL[row.status];
-              const result = saved[row.link];
-              return (
-                <li
-                  key={row.link}
-                  className="border-border-subtle rounded-lg border p-2 text-xs"
-                >
-                  <p className={`font-semibold ${info.tone}`}>
-                    {info.icon} {info.text}
-                  </p>
-                  <p className="text-foreground/60 mt-0.5 break-all">
-                    {row.link}
-                  </p>
-                  <p className="mt-0.5">
-                    <span className="text-foreground/60">O link abre: </span>
-                    {row.linkTitle ?? "(não consegui ler)"}
-                  </p>
-                  {row.how === "title-exact" && (
-                    <p className="text-foreground/60 mt-0.5">
-                      Conferido pelo título idêntico (o endereço do painel não
-                      traz o código do produto).
+            {rows
+              .filter((r) => !isQuiet(r, saved))
+              .map((row) => {
+                const info = LABEL[row.status];
+                const result = saved[row.link];
+                return (
+                  <li
+                    key={row.link}
+                    className="border-border-subtle rounded-lg border p-2 text-xs"
+                  >
+                    <p className={`font-semibold ${info.tone}`}>
+                      {info.icon} {info.text}
                     </p>
-                  )}
-                  {row.pickTitle && (
+                    <p className="text-foreground/60 mt-0.5 break-all">
+                      {row.link}
+                    </p>
                     <p className="mt-0.5">
-                      <span className="text-foreground/60">
-                        Linha #{row.position} da fila:{" "}
-                      </span>
-                      {row.pickTitle}
+                      <span className="text-foreground/60">O link abre: </span>
+                      {row.linkTitle ?? "(não consegui ler)"}
                     </p>
-                  )}
-                  {result && (
-                    <p
-                      className={`mt-1 font-semibold ${result === "ok" ? "text-emerald-700 dark:text-emerald-400" : "text-rose-600"}`}
-                    >
-                      {result === "ok" ? "Salvo" : `Não salvou: ${result}`}
-                    </p>
-                  )}
-                  {row.status === "likely" && !result && (
-                    <button
-                      type="button"
-                      onClick={() => void saveLikely(row)}
-                      disabled={!!busy}
-                      className="border-border-subtle hover:border-brand mt-1 min-h-9 rounded-lg border px-3 font-medium disabled:opacity-50"
-                    >
-                      Confirmo que é o mesmo produto, salvar
-                    </button>
-                  )}
-                </li>
-              );
-            })}
+                    {row.how === "title-exact" && (
+                      <p className="text-foreground/60 mt-0.5">
+                        Conferido pelo título idêntico (o endereço do painel não
+                        traz o código do produto).
+                      </p>
+                    )}
+                    {row.pickTitle && (
+                      <p className="mt-0.5">
+                        <span className="text-foreground/60">
+                          Linha #{row.position} da fila:{" "}
+                        </span>
+                        {row.pickTitle}
+                      </p>
+                    )}
+                    {result && (
+                      <p
+                        className={`mt-1 font-semibold ${result === "ok" ? "text-emerald-700 dark:text-emerald-400" : "text-rose-600"}`}
+                      >
+                        {result === "ok" ? "Salvo" : `Não salvou: ${result}`}
+                      </p>
+                    )}
+                    {row.status === "likely" && !result && (
+                      <button
+                        type="button"
+                        onClick={() => void saveLikely(row)}
+                        disabled={!!busy}
+                        className="border-border-subtle hover:border-brand mt-1 min-h-9 rounded-lg border px-3 font-medium disabled:opacity-50"
+                      >
+                        Confirmo que é o mesmo produto, salvar
+                      </button>
+                    )}
+                  </li>
+                );
+              })}
           </ul>
+          {rows.some((r) => isQuiet(r, saved)) && (
+            <details className="text-foreground/60 mt-3 text-xs">
+              <summary className="cursor-pointer">
+                Ver os {rows.filter((r) => isQuiet(r, saved)).length} ignorados
+                (nada a fazer)
+              </summary>
+              <ul className="mt-1 space-y-1">
+                {rows
+                  .filter((r) => isQuiet(r, saved))
+                  .map((r) => (
+                    <li key={r.link} className="break-all">
+                      {r.link} —{" "}
+                      {r.status === "duplicate"
+                        ? "link já salvo"
+                        : r.pickTitle
+                          ? `${r.pickTitle} (já está no ar; linha retirada)`
+                          : "produto já está no ar"}
+                    </li>
+                  ))}
+              </ul>
+            </details>
+          )}
           <button
             type="button"
             onClick={() => void saveMatches()}

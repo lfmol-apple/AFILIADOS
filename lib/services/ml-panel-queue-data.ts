@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { ML_PANEL_PICKS } from "@/lib/config/ml-panel-picks";
 import {
+  catalogFirst,
   rankAllForLinking,
   type QueueEntry,
 } from "@/lib/services/ml-panel-queue";
@@ -69,7 +70,7 @@ export async function loadPanelQueue(): Promise<PanelQueueData> {
   const ready = notRegistered.filter((e) => e.pick.productUrl);
   const waiting = notRegistered.filter((e) => !e.pick.productUrl);
   return {
-    pending: ready,
+    pending: catalogFirst(ready),
     readyCount: ready.length,
     withoutAddressCount: waiting.length,
     registeredCount: registered.size,

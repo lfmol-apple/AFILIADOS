@@ -1,4 +1,5 @@
 import type { PanelPick } from "@/lib/config/ml-panel-picks";
+import { expectedIdsFromProductUrl } from "@/lib/services/ml-panel-check-logic";
 
 /** Criteria a panel product must clear to enter the "generate link" queue. */
 export const QUEUE_RULES = {
@@ -205,4 +206,20 @@ export function rankAllForLinking(
       (b.pick.rating ?? -1) - (a.pick.rating ?? -1),
   );
   return { toLink, onSite };
+}
+
+/**
+ * Rows whose panel address carries the catalog product id (/p/MLB…) first, the
+ * rest (user-product /up/ addresses and single listings) after, each group in
+ * its own order. Measured on Beleza (2026-09-26): none of the 523 rows with a
+ * catalog id repeats another, while every "same product already live" and
+ * every "not a catalog product" dead end came from the 152 without one — so
+ * the owner works the safe rows first and meets the risky ones last.
+ */
+export function catalogFirst<T extends { pick: { productUrl?: string } }>(
+  entries: readonly T[],
+): T[] {
+  const has = (e: T) =>
+    !!expectedIdsFromProductUrl(e.pick.productUrl).catalogId;
+  return [...entries.filter(has), ...entries.filter((e) => !has(e))];
 }

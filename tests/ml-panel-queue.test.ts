@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildQueue,
+  catalogFirst,
   evaluatePick,
   isAlreadyOnSite,
   rankAllForLinking,
@@ -191,5 +192,35 @@ describe("rankAllForLinking", () => {
       "Seringa Destaque Injetavel",
     ]);
     expect(toLink[0]!.notes.join()).toContain("Top 20");
+  });
+});
+
+describe("catalogFirst", () => {
+  const e = (id: string, productUrl: string) => ({ id, pick: { productUrl } });
+  it("puts rows with a catalog id first and keeps each group's own order", () => {
+    const list = [
+      e(
+        "up1",
+        "https://www.mercadolivre.com.br/a/up/MLBU111?pdp_filters=item_id%3AMLB1",
+      ),
+      e(
+        "cat1",
+        "https://www.mercadolivre.com.br/b/p/MLB222222?pdp_filters=item_id%3AMLB2",
+      ),
+      e("item1", "https://produto.mercadolivre.com.br/MLB-333-c-_JM"),
+      e(
+        "cat2",
+        "https://www.mercadolivre.com.br/d/p/MLB444444?pdp_filters=deal%3AMLB1578289-1",
+      ),
+      e("up2", "https://www.mercadolivre.com.br/e/up/MLBU555"),
+    ];
+    expect(catalogFirst(list).map((x) => x.id)).toEqual([
+      "cat1",
+      "cat2",
+      "up1",
+      "item1",
+      "up2",
+    ]);
+    expect(catalogFirst([])).toEqual([]);
   });
 });
