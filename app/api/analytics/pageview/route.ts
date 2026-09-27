@@ -82,7 +82,7 @@ export async function POST(request: Request) {
       rest.pageSlug,
     );
     void sendPushToOwner({
-      title: "Novo visitante no PreçoCaindo",
+      title: "🔔 Novo visitante no PreçoCaindo",
       body: label,
       url,
     }).catch((error) =>

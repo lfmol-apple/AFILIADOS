@@ -38,7 +38,7 @@ describe("POST /api/analytics/pageview — owner notification", () => {
     expect(res.status).toBe(200);
     expect(sendPushToOwner).toHaveBeenCalledTimes(1);
     expect(sendPushToOwner).toHaveBeenCalledWith(
-      expect.objectContaining({ title: "Novo visitante no PreçoCaindo" }),
+      expect.objectContaining({ title: "🔔 Novo visitante no PreçoCaindo" }),
     );
   });
 
@@ -77,7 +77,7 @@ describe("POST /api/analytics/pageview — owner notification", () => {
       post({ ...base, pageType: "product", pageSlug: "escova-secadora-xyz" }),
     );
     expect(sendPushToOwner).toHaveBeenCalledWith({
-      title: "Novo visitante no PreçoCaindo",
+      title: "🔔 Novo visitante no PreçoCaindo",
       body: "Produto: escova-secadora-xyz",
       url: "/produto/escova-secadora-xyz",
     });
