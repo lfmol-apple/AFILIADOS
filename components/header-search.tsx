@@ -44,8 +44,10 @@ export function HeaderSearch({
           id={id}
           type="search"
           name="q"
+          enterKeyHint="search"
+          autoComplete="off"
           placeholder={placeholder}
-          className="border-border-subtle bg-surface-muted focus:border-brand w-full rounded-full border py-2.5 pr-4 pl-10 text-sm outline-none"
+          className="border-border-subtle bg-surface-muted focus:border-brand w-full rounded-full border py-2.5 pr-4 pl-10 text-base outline-none sm:text-sm"
         />
       </div>
     </form>

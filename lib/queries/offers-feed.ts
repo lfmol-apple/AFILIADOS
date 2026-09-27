@@ -290,14 +290,105 @@ function normalizeText(value: string): string {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
+/** Words people type that products spell differently. Small on purpose: only
+ * pairs that are the same thing to a shopper. */
+const SYNONYMS: Record<string, string[]> = {
+  celular: ["smartphone"],
+  smartphone: ["celular"],
+  geladeira: ["refrigerador"],
+  refrigerador: ["geladeira"],
+  notebook: ["laptop"],
+  laptop: ["notebook"],
+  tv: ["televisao", "smart tv"],
+  televisao: ["tv"],
+  fritadeira: ["air fryer", "airfryer"],
+};
+
+function alternatives(word: string): string[] {
+  return [word, ...(SYNONYMS[word] ?? []).map(normalizeText)];
+}
+
+const collapse = (value: string) =>
+  normalizeText(value).replace(/[^a-z0-9]+/g, "");
+
+function queryWords(query: string): string[] {
+  return normalizeText(query).split(/\s+/).filter(Boolean);
+}
+
 /** Every word of the query must appear in the title, in any order, ignoring
  * accents and case ("creatina growth" finds "Creatina Monohidratada Growth").
- * The old check was one exact substring, so multi-word searches missed. */
+ * A word also matches its synonym ("celular" ~ "smartphone"), and the whole
+ * query matches with the spaces removed ("air fryer" ~ "airfryer"). */
 export function matchesQuery(title: string, query: string): boolean {
-  const words = normalizeText(query).split(/\s+/).filter(Boolean);
+  const words = queryWords(query);
   if (words.length === 0) return false;
   const haystack = normalizeText(title);
-  return words.every((w) => haystack.includes(w));
+  const collapsedTitle = collapse(title);
+  if (
+    words.every((w) =>
+      alternatives(w).some(
+        (alt) =>
+          haystack.includes(alt) || collapsedTitle.includes(collapse(alt)),
+      ),
+    )
+  )
+    return true;
+  const whole = collapse(query);
+  return whole.length >= 4 && collapsedTitle.includes(whole);
+}
+
+/** Words that mark the thing before them as an accessory or compatible item
+ * ("Cabo PARA iPhone", "Suporte PARA celular"). */
+const ACCESSORY_MARKERS = new Set(["para", "pra", "compativel", "compat", "p"]);
+
+/**
+ * How well a title IS what was searched, 0 (best) to 3. A product whose name
+ * starts with the searched word is the thing itself; one that only mentions it
+ * late ("Kit potes ... Airfryer") or as a compatibility note ("Cabo para
+ * iPhone") is not. Ranking by this first, then by demand signal, is what makes
+ * "air fryer" show air fryers before the containers that fit in one.
+ */
+export function searchRelevanceTier(
+  title: string,
+  query: string,
+): 0 | 1 | 2 | 3 {
+  const words = queryWords(query).flatMap(alternatives);
+  const tw = normalizeText(title)
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean);
+  let pos = -1;
+  for (let i = 0; i < tw.length && pos < 0; i++) {
+    if (
+      words.some((w) =>
+        w
+          .split(" ")
+          .some(
+            (part) =>
+              part.length >= 3 &&
+              (tw[i]!.startsWith(part) ||
+                (tw[i]!.length >= 3 && part.startsWith(tw[i]!))),
+          ),
+      )
+    )
+      pos = i;
+  }
+  if (pos < 0) return 2;
+  if (tw.slice(0, pos).some((w) => ACCESSORY_MARKERS.has(w))) return 3;
+  return pos <= 2 ? 0 : pos <= 5 ? 1 : 2;
+}
+
+/** Best relevance tier first; demand signal breaks ties. */
+export function rankForSearch<
+  T extends { title: string; opportunitySignal: number | null },
+>(cards: T[], query: string): T[] {
+  return cards
+    .map((c) => ({ c, tier: searchRelevanceTier(c.title, query) }))
+    .sort(
+      (a, b) =>
+        a.tier - b.tier ||
+        (b.c.opportunitySignal ?? -1) - (a.c.opportunitySignal ?? -1),
+    )
+    .map((x) => x.c);
 }
 
 /** Same card, but its outbound link is tagged as coming from search (what
@@ -320,10 +411,39 @@ export function searchPoolCards(
   pool: UnifiedOfferCard[],
   query: string,
 ): UnifiedOfferCard[] {
-  return pool
-    .filter((c) => c.merchant !== "AMAZON" && matchesQuery(c.title, query))
-    .map((c) => retagForSearch(c, query))
-    .sort((a, b) => (b.opportunitySignal ?? -1) - (a.opportunitySignal ?? -1));
+  return rankForSearch(
+    pool
+      .filter((c) => c.merchant !== "AMAZON" && matchesQuery(c.title, query))
+      .map((c) => retagForSearch(c, query)),
+    query,
+  );
+}
+
+/** When nothing has ALL the words ("tênis nike"), offer what has at least one
+ * of them, the ones with more of the words first. Marketplace offers only. */
+export function searchPoolCardsPartial(
+  pool: UnifiedOfferCard[],
+  query: string,
+): UnifiedOfferCard[] {
+  const words = queryWords(query).filter((w) => w.length >= 3);
+  if (words.length < 2) return [];
+  const scored = pool
+    .filter((c) => c.merchant !== "AMAZON")
+    .map((c) => {
+      const hay = normalizeText(c.title);
+      const hits = words.filter((w) =>
+        alternatives(w).some((alt) => hay.includes(alt)),
+      ).length;
+      return { c, hits };
+    })
+    .filter((x) => x.hits > 0);
+  const best = Math.max(0, ...scored.map((x) => x.hits));
+  return rankForSearch(
+    scored
+      .filter((x) => x.hits === best)
+      .map((x) => retagForSearch(x.c, query)),
+    query,
+  );
 }
 
 /**
@@ -340,10 +460,16 @@ export async function searchOffers(input: {
     getOfertas({ query: input.query, page: 1, pageSize: AMAZON_SEARCH_LIMIT }),
     getOffersPool(),
   ]);
-  const all = [
-    ...amazonResult.items.map(mapAmazonProductToUnifiedCard),
-    ...searchPoolCards(pool, input.query),
-  ].sort((a, b) => (b.opportunitySignal ?? -1) - (a.opportunitySignal ?? -1));
+  const amazon = amazonResult.items.map(mapAmazonProductToUnifiedCard);
+  let all = rankForSearch(
+    [...amazon, ...searchPoolCards(pool, input.query)],
+    input.query,
+  );
+  let partial = false;
+  if (all.length === 0) {
+    all = searchPoolCardsPartial(pool, input.query);
+    partial = all.length > 0;
+  }
 
   const totalPages = Math.max(1, Math.ceil(all.length / SEARCH_PAGE_SIZE));
   const start = (page - 1) * SEARCH_PAGE_SIZE;
@@ -351,5 +477,7 @@ export async function searchOffers(input: {
     items: stripNoindexDetailLinks(all.slice(start, start + SEARCH_PAGE_SIZE)),
     page,
     totalPages,
+    total: all.length,
+    partial,
   };
 }

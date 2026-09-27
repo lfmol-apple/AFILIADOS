@@ -218,8 +218,11 @@ describe("GET /api/ofertas", () => {
 
 import {
   matchesQuery,
+  rankForSearch,
   retagForSearch,
   searchPoolCards,
+  searchPoolCardsPartial,
+  searchRelevanceTier,
 } from "@/lib/queries/offers-feed";
 
 describe("search over the full pool", () => {
@@ -282,6 +285,78 @@ describe("search over the full pool", () => {
       "2",
       "1",
     ]);
+  });
+});
+
+describe("search relevance", () => {
+  it("matches with the spaces removed, both ways, and through synonyms", () => {
+    expect(matchesQuery("Fritadeira Air Fryer 5,5l Midea", "airfryer")).toBe(
+      true,
+    );
+    expect(matchesQuery("Kit potes Airfryer", "air fryer")).toBe(true);
+    expect(matchesQuery("Smartphone Motorola Moto G56", "celular")).toBe(true);
+    expect(matchesQuery("Tapete de sala", "celular")).toBe(false);
+  });
+
+  it("puts the product itself before things that only mention it", () => {
+    const q = "air fryer";
+    const thing = searchRelevanceTier("Air Fryer Philco 9,5L", q);
+    const late = searchRelevanceTier(
+      "Kit 10 Potes Herméticos Vidro Marmita Forno Micro-ondas Airfryer",
+      q,
+    );
+    expect(thing).toBe(0);
+    expect(late).toBeGreaterThan(thing);
+    // "para" before the word marks an accessory
+    expect(
+      searchRelevanceTier("Cabo Carregador Turbo Para iPhone 13", "iphone"),
+    ).toBe(3);
+    expect(searchRelevanceTier("iPhone 13 128GB Apple", "iphone")).toBe(0);
+  });
+
+  it("ranks by relevance first and demand signal second", () => {
+    const mk = (title: string, signal: number) => ({
+      ...card(1, "casa"),
+      title,
+      opportunitySignal: signal,
+    });
+    const out = rankForSearch(
+      [
+        mk("Kit Potes Herméticos Vidro Marmita Forno Micro-ondas Airfryer", 99),
+        mk("Air Fryer Mondial 4L", 10),
+        mk("Air Fryer Philco 9,5L", 50),
+      ],
+      "air fryer",
+    );
+    expect(out.map((c) => c.title.slice(0, 12))).toEqual([
+      "Air Fryer Ph",
+      "Air Fryer Mo",
+      "Kit Potes He",
+    ]);
+  });
+
+  it("offers the offers with the most of the words when none has all", () => {
+    const pool = [
+      {
+        ...card(1, "moda"),
+        title: "Tênis de corrida masculino",
+        href: "/go/x/1?source=ofertas",
+      },
+      {
+        ...card(2, "moda"),
+        title: "Camisa Nike Dry",
+        href: "/go/x/2?source=ofertas",
+      },
+      { ...card(3, "casa"), title: "Tapete", href: "/go/x/3?source=ofertas" },
+    ];
+    expect(searchPoolCards(pool, "tenis nike")).toEqual([]);
+    expect(
+      searchPoolCardsPartial(pool, "tenis nike")
+        .map((c) => c.id)
+        .sort(),
+    ).toEqual(["1", "2"]);
+    // one word: no partial fallback, that is just "no result"
+    expect(searchPoolCardsPartial(pool, "nike")).toEqual([]);
   });
 });
 

@@ -10,6 +10,8 @@ import { UnifiedOfferCard } from "@/components/unified-offer-card";
 import { OffersCategoryNav } from "@/components/offers-category-nav";
 import { OffersInfiniteList } from "@/components/offers-infinite-list";
 import { OffersToolbar } from "@/components/offers-toolbar";
+import { OfferCategoryTile } from "@/components/offer-category-icon";
+import { SearchPageForm } from "@/components/search-page-form";
 import { parseOffersView } from "@/lib/offers/view";
 import {
   FEED_PAGE_SIZE,
@@ -23,6 +25,18 @@ import { buildOffersMetadata } from "@/lib/offers/seo";
 import { MAX_FEED_PAGE, offersHref, type OffersView } from "@/lib/offers/view";
 
 export const revalidate = 300;
+
+/** Where an empty search sends people: the categories with the most offers. */
+const SEARCH_EMPTY_CATEGORIES = [
+  "beleza",
+  "casa",
+  "eletrodomesticos",
+  "ferramentas",
+  "esporte-suplementos",
+  "moda",
+  "celulares",
+  "pet",
+];
 
 // The default (no search) view is an infinite-scroll feed over one cached,
 // ranked cross-merchant pool (lib/queries/offers-feed.ts) — the first page
@@ -74,29 +88,54 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
       items,
       page: currentPage,
       totalPages,
+      total,
+      partial,
     } = await searchOffers({ query, page });
 
     await recordSearchEvent(query, items.length);
 
     return (
-      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6 sm:py-8">
         <AnalyticsBeacon pageType="ofertas" pageSlug={`busca:${query}`} />
         <Breadcrumbs
           items={[{ label: "Início", href: "/" }, { label: "Ofertas" }]}
         />
-        <h1 className="mt-4 text-2xl font-semibold">
+        <h1 className="mt-4 text-xl font-semibold sm:text-2xl">
           Resultados para &quot;{query}&quot;
         </h1>
-        <p className="text-foreground/60 mt-1 text-sm">
-          Resultados reais em qualquer loja parceira, priorizados por demanda e
-          evidência.
-        </p>
-        {items.length === 0 ? (
-          <p className="text-foreground/60 mt-10 text-sm">
-            Nenhum produto encontrado.
+        <SearchPageForm query={query} />
+        {items.length > 0 && (
+          <p className="text-foreground/60 mt-3 text-sm">
+            <strong className="text-foreground">{total ?? items.length}</strong>{" "}
+            {(total ?? items.length) === 1 ? "oferta" : "ofertas"}
+            {partial
+              ? ". Nenhuma tem todas as palavras; estas têm o máximo delas."
+              : ", as mais relevantes primeiro."}
           </p>
+        )}
+        {items.length === 0 ? (
+          <div className="mt-8 flex flex-col gap-4">
+            <p className="text-foreground/70 text-sm">
+              Nenhum produto encontrado para &quot;{query}&quot;. Tente uma
+              palavra só (por exemplo: tênis, whey, panela) ou escolha uma
+              categoria.
+            </p>
+            <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {SEARCH_EMPTY_CATEGORIES.map((slug) => (
+                <li key={slug}>
+                  <Link
+                    href={`/ofertas?categoria=${slug}`}
+                    className="border-border-subtle hover:border-brand/50 bg-background flex min-h-12 items-center gap-2.5 rounded-2xl border px-3 text-sm font-medium"
+                  >
+                    <OfferCategoryTile slug={slug} />
+                    {offerCategoryLabel(slug)}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         ) : (
-          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
             {items.map((item) => (
               <UnifiedOfferCard
                 key={`${item.merchant}-${item.id}`}
@@ -106,12 +145,16 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
           </div>
         )}
         {totalPages > 1 && (
-          <nav className="mt-8 flex justify-center gap-2 text-sm">
+          <nav
+            aria-label="Páginas de resultados"
+            className="mt-8 flex flex-wrap justify-center gap-2 text-sm"
+          >
             {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
               <Link
                 key={p}
                 href={`/ofertas?${new URLSearchParams({ q: query, page: String(p) })}`}
-                className={`rounded-full px-3 py-1.5 ${p === currentPage ? "bg-brand text-brand-foreground" : "border-border-subtle hover:border-brand border"}`}
+                aria-current={p === currentPage ? "page" : undefined}
+                className={`flex min-h-11 min-w-11 items-center justify-center rounded-full px-3 ${p === currentPage ? "bg-brand text-brand-foreground font-semibold" : "border-border-subtle hover:border-brand border"}`}
               >
                 {p}
               </Link>

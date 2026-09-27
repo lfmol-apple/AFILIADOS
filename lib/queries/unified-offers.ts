@@ -63,7 +63,10 @@ export interface UnifiedOfferCard {
  * brief: "se houver 5 boas, mostrar 5") and /ofertas's default grid, so
  * both surfaces apply the exact same real, commission-free ranking rule.
  */
-export function selectTopUnifiedOffers(cards: UnifiedOfferCard[], limit: number): UnifiedOfferCard[] {
+export function selectTopUnifiedOffers(
+  cards: UnifiedOfferCard[],
+  limit: number,
+): UnifiedOfferCard[] {
   return [...cards]
     .sort((a, b) => (b.opportunitySignal ?? -1) - (a.opportunitySignal ?? -1))
     .slice(0, limit);
@@ -71,7 +74,10 @@ export function selectTopUnifiedOffers(cards: UnifiedOfferCard[], limit: number)
 
 function nonCommissionSignal(components: unknown): number | null {
   const c = components as
-    | { demand?: { value: number | null }; offerQuality?: { value: number | null } }
+    | {
+        demand?: { value: number | null };
+        offerQuality?: { value: number | null };
+      }
     | null
     | undefined;
   const values = [c?.demand?.value, c?.offerQuality?.value].filter(
@@ -81,7 +87,9 @@ function nonCommissionSignal(components: unknown): number | null {
   return Math.round(values.reduce((a, b) => a + b, 0) / values.length);
 }
 
-export function mapAmazonProductToUnifiedCard(product: ProductListItem): UnifiedOfferCard {
+export function mapAmazonProductToUnifiedCard(
+  product: ProductListItem,
+): UnifiedOfferCard {
   const offer = product.offers[0];
   return {
     id: product.id,
@@ -125,7 +133,10 @@ export function mapAmazonProductToUnifiedCard(product: ProductListItem): Unified
 const CANDIDATE_POOL_MULTIPLIER = 5;
 const CANDIDATE_POOL_CEILING = 200;
 
-function candidatePoolSize(limit: number, ceiling: number = CANDIDATE_POOL_CEILING): number {
+function candidatePoolSize(
+  limit: number,
+  ceiling: number = CANDIDATE_POOL_CEILING,
+): number {
   return Math.min(limit * CANDIDATE_POOL_MULTIPLIER, ceiling);
 }
 
@@ -185,7 +196,14 @@ export async function getUnifiedMerchantOffers(
     prisma.merchantListing.findMany({
       where: { id: { in: mlCatalogIds } },
       include: {
-        canonicalProduct: { select: { title: true, imageUrl: true, specifications: true, publicSlug: true } },
+        canonicalProduct: {
+          select: {
+            title: true,
+            imageUrl: true,
+            specifications: true,
+            publicSlug: true,
+          },
+        },
         monetizationScore: true,
       },
     }),
@@ -199,9 +217,14 @@ export async function getUnifiedMerchantOffers(
   }).toString();
 
   const shopeeCards: UnifiedOfferCard[] = shopeeListings.map((listing) => {
-    const raw = listing.signals[0]?.raw as
-      | { productName?: string; imageUrl?: string; priceMin?: string; priceDiscountRate?: number; rating?: number; sales?: number }
-      | null;
+    const raw = listing.signals[0]?.raw as {
+      productName?: string;
+      imageUrl?: string;
+      priceMin?: string;
+      priceDiscountRate?: number;
+      rating?: number;
+      sales?: number;
+    } | null;
     const price = raw?.priceMin ? Number(raw.priceMin) : null;
     return {
       id: listing.id,
@@ -210,13 +233,20 @@ export async function getUnifiedMerchantOffers(
       imageUrl: raw?.imageUrl ?? null,
       currentPrice: price !== null && !Number.isNaN(price) ? price : null,
       referencePrice: null, // Shopee's API gives a discount rate, not a literal original price.
-      discountPercent: typeof raw?.priceDiscountRate === "number" ? raw.priceDiscountRate / 100 : null,
+      discountPercent:
+        typeof raw?.priceDiscountRate === "number"
+          ? raw.priceDiscountRate / 100
+          : null,
       rating: raw?.rating ?? null,
       soldQuantity: raw?.sales ?? null,
-      opportunitySignal: nonCommissionSignal(listing.monetizationScore?.components),
+      opportunitySignal: nonCommissionSignal(
+        listing.monetizationScore?.components,
+      ),
       href: `/go/shopee/${encodeURIComponent(listing.externalId)}?${params}`,
       detailHref: listing.slug ? `/produto/${listing.slug}` : undefined,
-      categorySlug: classifyOffer({ title: raw?.productName ?? listing.externalId }),
+      categorySlug: classifyOffer({
+        title: raw?.productName ?? listing.externalId,
+      }),
     };
   });
 
@@ -232,11 +262,17 @@ export async function getUnifiedMerchantOffers(
     .map((c) => c.canonicalProductId)
     .filter((id): id is string => id !== null);
   const catalogListingIds = mlCatalogListings.map((c) => c.id);
-  const bestOfferIds = await selectBestOfferIdsPerCanonicalProduct(canonicalProductIds, catalogListingIds);
+  const bestOfferIds = await selectBestOfferIdsPerCanonicalProduct(
+    canonicalProductIds,
+    catalogListingIds,
+  );
   const bestOffers = bestOfferIds.length
     ? await prisma.merchantListing.findMany({
         where: { id: { in: bestOfferIds } },
-        include: { monetizationScore: true, signals: { orderBy: { observedAt: "desc" }, take: 1 } },
+        include: {
+          monetizationScore: true,
+          signals: { orderBy: { observedAt: "desc" }, take: 1 },
+        },
       })
     : [];
   const bestOfferByCanonicalId = bestByNonCommissionSignal(
@@ -244,38 +280,46 @@ export async function getUnifiedMerchantOffers(
     (offer) => nonCommissionSignal(offer.monetizationScore?.components) ?? -1,
   );
 
-  const mlCards: UnifiedOfferCard[] = mlCatalogListings.map((catalogListing) => {
-    const bestOffer = catalogListing.canonicalProductId
-      ? bestOfferByCanonicalId.get(catalogListing.canonicalProductId)
-      : undefined;
-    const offerRaw = bestOffer?.signals[0]?.raw as
-      | { price?: number; original_price?: number | null; discountPercent?: number | null }
-      | null;
-    return {
-      id: catalogListing.id,
-      merchant: "MERCADO_LIVRE",
-      title: catalogListing.canonicalProduct?.title ?? catalogListing.externalId,
-      imageUrl: catalogListing.canonicalProduct?.imageUrl ?? null,
-      currentPrice: offerRaw?.price ?? null,
-      referencePrice: offerRaw?.original_price ?? null,
-      discountPercent: offerRaw?.discountPercent ?? null,
-      rating: null, // UNKNOWN for Mercado Livre — see docs/MONETIZATION_SCORE.md.
-      soldQuantity: null, // UNKNOWN for Mercado Livre.
-      opportunitySignal: nonCommissionSignal(
-        (bestOffer ?? catalogListing).monetizationScore?.components,
-      ),
-      href: `/go/mercado-livre/${encodeURIComponent(catalogListing.externalId)}?${params}`,
-      detailHref: catalogListing.canonicalProduct?.publicSlug
-        ? `/produto/${catalogListing.canonicalProduct.publicSlug}`
-        : undefined,
-      categorySlug: classifyOffer({
-        title: catalogListing.canonicalProduct?.title ?? catalogListing.externalId,
-        mlDomainId: (
-          catalogListing.canonicalProduct?.specifications as { domainId?: string } | null
-        )?.domainId,
-      }),
-    };
-  });
+  const mlCards: UnifiedOfferCard[] = mlCatalogListings.map(
+    (catalogListing) => {
+      const bestOffer = catalogListing.canonicalProductId
+        ? bestOfferByCanonicalId.get(catalogListing.canonicalProductId)
+        : undefined;
+      const offerRaw = bestOffer?.signals[0]?.raw as {
+        price?: number;
+        original_price?: number | null;
+        discountPercent?: number | null;
+      } | null;
+      return {
+        id: catalogListing.id,
+        merchant: "MERCADO_LIVRE",
+        title:
+          catalogListing.canonicalProduct?.title ?? catalogListing.externalId,
+        imageUrl: catalogListing.canonicalProduct?.imageUrl ?? null,
+        currentPrice: offerRaw?.price ?? null,
+        referencePrice: offerRaw?.original_price ?? null,
+        discountPercent: offerRaw?.discountPercent ?? null,
+        rating: null, // UNKNOWN for Mercado Livre — see docs/MONETIZATION_SCORE.md.
+        soldQuantity: null, // UNKNOWN for Mercado Livre.
+        opportunitySignal: nonCommissionSignal(
+          (bestOffer ?? catalogListing).monetizationScore?.components,
+        ),
+        href: `/go/mercado-livre/${encodeURIComponent(catalogListing.externalId)}?${params}`,
+        detailHref: catalogListing.canonicalProduct?.publicSlug
+          ? `/produto/${catalogListing.canonicalProduct.publicSlug}`
+          : undefined,
+        categorySlug: classifyOffer({
+          title:
+            catalogListing.canonicalProduct?.title ?? catalogListing.externalId,
+          mlDomainId: (
+            catalogListing.canonicalProduct?.specifications as {
+              domainId?: string;
+            } | null
+          )?.domainId,
+        }),
+      };
+    },
+  );
 
   return [...shopeeCards, ...mlCards]
     .sort((a, b) => (b.opportunitySignal ?? -1) - (a.opportunitySignal ?? -1))
@@ -286,6 +330,10 @@ export interface SearchUnifiedOffersResult {
   items: UnifiedOfferCard[];
   page: number;
   totalPages: number;
+  /** How many offers matched in all (set by the /ofertas search). */
+  total?: number;
+  /** True when nothing had every word and these have some of them. */
+  partial?: boolean;
 }
 
 /**
@@ -360,5 +408,9 @@ export async function searchUnifiedOffers(input: {
     (a, b) => (b.opportunitySignal ?? -1) - (a.opportunitySignal ?? -1),
   );
 
-  return { items, page: amazonResult.page, totalPages: amazonResult.totalPages };
+  return {
+    items,
+    page: amazonResult.page,
+    totalPages: amazonResult.totalPages,
+  };
 }
