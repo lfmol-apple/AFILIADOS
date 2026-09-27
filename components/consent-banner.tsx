@@ -34,7 +34,7 @@ export function ConsentBanner() {
   }
 
   return (
-    <div className="border-border-subtle bg-background fixed inset-x-0 bottom-0 z-50 max-w-[100vw] border-t p-3 shadow-lg sm:p-4">
+    <div className="glass border-border-subtle fixed inset-x-0 bottom-0 z-50 max-w-[100vw] rounded-t-2xl border-x-0 border-b-0 p-3 sm:p-4">
       <div className="mx-auto w-full max-w-3xl">
         <p className="text-foreground/80 text-xs leading-snug sm:text-sm sm:leading-normal">
           Usamos cookies essenciais para o site funcionar. Com sua permissão,
@@ -67,7 +67,7 @@ export function ConsentBanner() {
           </div>
         )}
 
-        <div className="mt-3 grid grid-cols-3 gap-2 sm:mt-4 sm:flex sm:flex-wrap">
+        <div className="mt-2 grid grid-cols-3 gap-2 sm:mt-4 sm:flex sm:flex-wrap">
           <button
             type="button"
             onClick={() =>

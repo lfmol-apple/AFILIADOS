@@ -33,22 +33,20 @@ describe("HeaderShortcuts", () => {
     { slug: "casa", label: "Casa e Decoração" },
   ];
 
-  it("lists sections and categories on ordinary pages", () => {
+  it("lists the categories on ordinary pages (Achados sits next to the search box)", () => {
     pathname = "/achados";
     const html = renderToStaticMarkup(
       <HeaderShortcuts categories={categories} />,
     );
-    expect(html).toContain('href="/achados"');
     expect(html).not.toContain('href="/guias"');
     expect(html).toContain('href="/ofertas?categoria=pet"');
   });
 
-  it("does not repeat the categories on /ofertas, which shows its own chips", () => {
+  it("renders nothing on /ofertas, which shows its own sticky category bar", () => {
     pathname = "/ofertas";
     const html = renderToStaticMarkup(
       <HeaderShortcuts categories={categories} />,
     );
-    expect(html).toContain('href="/achados"');
-    expect(html).not.toContain("categoria=pet");
+    expect(html).toBe("");
   });
 });

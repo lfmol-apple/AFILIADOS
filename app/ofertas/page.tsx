@@ -150,7 +150,7 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
   );
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+    <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6 sm:py-8">
       <AnalyticsBeacon
         pageType="ofertas"
         pageSlug={category ? `ofertas:${category}` : "ofertas"}
@@ -159,7 +159,7 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
         items={[{ label: "Início", href: "/" }, { label: "Ofertas" }]}
       />
 
-      <header className="relative mt-4 overflow-hidden rounded-2xl bg-linear-to-br from-teal-700 to-teal-950 p-5 text-white sm:p-8">
+      <header className="relative mt-3 overflow-hidden rounded-2xl bg-linear-to-br from-teal-700 to-teal-950 p-4 text-white sm:mt-4 sm:p-8">
         <div
           aria-hidden
           className="pointer-events-none absolute -top-16 -right-10 h-56 w-56 rounded-full bg-white/10"
@@ -169,16 +169,16 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
           className="pointer-events-none absolute right-28 -bottom-24 h-44 w-44 rounded-full bg-white/5"
         />
         <div className="relative max-w-2xl">
-          <h1 className="text-2xl font-bold tracking-tight text-balance sm:text-4xl">
+          <h1 className="text-xl font-bold tracking-tight text-balance sm:text-4xl">
             {title}
           </h1>
-          <p className="mt-2 text-sm leading-relaxed text-white/85 sm:text-base">
+          <p className="mt-2 hidden text-sm leading-relaxed text-white/85 sm:block sm:text-base">
             Priorizamos por demanda, preço e evidência real, sem olhar a
             comissão. Atualizado automaticamente.
           </p>
         </div>
         {pool.length > 0 && (
-          <ul className="relative mt-5 flex flex-wrap gap-2 text-xs font-semibold sm:text-sm">
+          <ul className="relative mt-3 flex flex-wrap gap-2 text-xs font-semibold sm:mt-5 sm:text-sm">
             <li className="rounded-full bg-white/15 px-3 py-1.5">
               {firstPage.total} {firstPage.total === 1 ? "oferta" : "ofertas"}
               {category ? " nesta categoria" : ""}
@@ -199,7 +199,9 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
           Nenhuma oferta real disponível agora.
         </p>
       ) : (
-        <div className="mt-6 grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-8">
+        // Flex on phones, not a 2-row grid: the sticky category bar then
+        // sticks for the whole list (a grid item is confined to its own row).
+        <div className="mt-3 flex flex-col gap-3 lg:mt-6 lg:grid lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-8">
           <OffersCategoryNav
             categories={categories}
             view={view}

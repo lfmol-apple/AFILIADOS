@@ -7,11 +7,11 @@ const chip =
   "border-border-subtle hover:border-brand flex min-h-11 items-center rounded-full border px-4 text-sm font-medium whitespace-nowrap";
 
 /**
- * Phone-only shortcut strip under the header search. On /ofertas the page
- * already shows its own category chips right below, so repeating the
- * categories here would be noise: there the strip keeps only "Achados".
- * (Guias is deliberately not in the menu — the owner's call; it stays in
- * the footer and is still linked from the home page.) Everywhere else the categories are one swipe away.
+ * Phone-only category strip under the header search (Achados sits next to
+ * the search box itself). On /ofertas the page shows its own sticky category
+ * bar, so the strip is dropped there. (Guias is deliberately not in the
+ * menu — the owner's call; it stays in the footer and is still linked from
+ * the home page.)
  */
 export function HeaderShortcuts({
   categories,
@@ -19,26 +19,20 @@ export function HeaderShortcuts({
   categories: { slug: string; label: string }[];
 }) {
   const pathname = usePathname();
-  const showCategories = pathname !== "/ofertas";
+  if (pathname === "/ofertas") return null;
 
   return (
     <ul
       aria-label="Atalhos"
       className="-mx-4 mt-2.5 flex gap-2 overflow-x-auto px-4 pb-0.5"
     >
-      <li className="shrink-0">
-        <Link href="/achados" className={`${chip} bg-surface-muted`}>
-          Achados
-        </Link>
-      </li>
-      {showCategories &&
-        categories.map((c) => (
-          <li key={c.slug} className="shrink-0">
-            <Link href={`/ofertas?categoria=${c.slug}`} className={chip}>
-              {c.label}
-            </Link>
-          </li>
-        ))}
+      {categories.map((c) => (
+        <li key={c.slug} className="shrink-0">
+          <Link href={`/ofertas?categoria=${c.slug}`} className={chip}>
+            {c.label}
+          </Link>
+        </li>
+      ))}
     </ul>
   );
 }

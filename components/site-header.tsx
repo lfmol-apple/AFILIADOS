@@ -13,9 +13,9 @@ const NAV_CATEGORIES = OFFER_CATEGORIES.filter((c) => c.slug !== "outros");
  * 1. A compact sticky bar — logo, and on wide screens the search, the
  *    Categorias menu, Achados and Guias. "Ofertas" is the one loud element
  *    (.cta-offers in globals.css) and is always in this bar.
- * 2. Phones only: a non-sticky strip with the search box and a scrollable
- *    row of chips (Achados, Guias, then every category) — everything is one
- *    thumb-swipe away without a hidden menu.
+ * 2. Phones only: a non-sticky strip with the search box, Achados and (off
+ *    /ofertas, which has its own sticky category bar) a scrollable row of
+ *    category chips — everything is one thumb-swipe away without a hidden menu.
  *
  * The Categorias dropdown is CSS-only (group-hover / focus-within) so it
  * needs no client JS and stays keyboard accessible.
@@ -23,8 +23,8 @@ const NAV_CATEGORIES = OFFER_CATEGORIES.filter((c) => c.slug !== "outros");
 export function SiteHeader() {
   return (
     <>
-      <header className="border-border-subtle bg-background/95 sticky top-0 z-40 border-b backdrop-blur">
-        <div className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-2 sm:gap-5 sm:px-6 sm:py-3">
+      <header className="glass-bar sticky top-0 z-40">
+        <div className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-2 sm:gap-5 sm:px-6 sm:py-2.5">
           <Link
             href="/"
             aria-label="PreçoCaindo — página inicial"
@@ -36,9 +36,9 @@ export function SiteHeader() {
               alt=""
               width={64}
               height={64}
-              className="h-12 w-12 min-[360px]:h-14 min-[360px]:w-14 sm:h-16 sm:w-16"
+              className="h-9 w-9 min-[360px]:h-10 min-[360px]:w-10 sm:h-12 sm:w-12"
             />
-            <span className="text-base font-extrabold tracking-tight min-[360px]:text-lg min-[380px]:text-xl sm:text-2xl">
+            <span className="text-base font-extrabold tracking-tight min-[360px]:text-lg sm:text-xl">
               PreçoCaindo
             </span>
           </Link>
@@ -120,8 +120,19 @@ export function SiteHeader() {
       </header>
 
       <div className="border-border-subtle border-b sm:hidden">
-        <div className="mx-auto w-full max-w-6xl px-4 py-3">
-          <HeaderSearch id="header-search-mobile" className="w-full" />
+        <div className="mx-auto w-full max-w-6xl px-4 py-2.5">
+          <div className="flex items-center gap-2">
+            <HeaderSearch
+              id="header-search-mobile"
+              className="min-w-0 flex-1"
+            />
+            <Link
+              href="/achados"
+              className="border-border-subtle bg-surface-muted hover:border-brand flex min-h-11 shrink-0 items-center rounded-full border px-4 text-sm font-medium"
+            >
+              Achados
+            </Link>
+          </div>
           <HeaderShortcuts categories={NAV_CATEGORIES} />
         </div>
       </div>
