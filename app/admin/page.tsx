@@ -57,6 +57,10 @@ export const metadata: Metadata = {
   // de Início) shows "Admin" instead of the site's own name — see
   // app/layout.tsx's default appleWebApp for the rest of the site.
   appleWebApp: { title: "Admin" },
+  // iOS opens whichever manifest's start_url is linked on the page the
+  // shortcut was added FROM, not the page you were viewing — this points
+  // /admin's own shortcut at /admin instead of the root manifest's "/".
+  manifest: "/admin/manifest.webmanifest",
 };
 export const dynamic = "force-dynamic";
 
@@ -131,9 +135,9 @@ export default async function AdminPage(props: PagePropsWithSearch) {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-semibold">Admin</h1>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <a
             href="/admin/desempenho"
             className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
