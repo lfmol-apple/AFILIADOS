@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HeaderCategoriesMenu } from "@/components/header-categories-menu";
 import { HeaderSearch } from "@/components/header-search";
 import { HeaderShortcuts } from "@/components/header-shortcuts";
 import { OFFER_CATEGORIES } from "@/lib/offers/categories";
@@ -17,8 +18,8 @@ const NAV_CATEGORIES = OFFER_CATEGORIES.filter((c) => c.slug !== "outros");
  *    /ofertas, which has its own sticky category bar) a scrollable row of
  *    category chips — everything is one thumb-swipe away without a hidden menu.
  *
- * The Categorias dropdown is CSS-only (group-hover / focus-within) so it
- * needs no client JS and stays keyboard accessible.
+ * The Categorias dropdown (HeaderCategoriesMenu) is CSS-only (group-hover /
+ * focus-within) and hidden on /ofertas, which lists the categories itself.
  */
 export function SiteHeader() {
   return (
@@ -52,43 +53,7 @@ export function SiteHeader() {
             aria-label="Principal"
             className="ml-auto flex items-center gap-3 text-sm sm:gap-5"
           >
-            <div className="group relative hidden sm:block">
-              <Link
-                href="/ofertas"
-                className="hover:text-brand flex items-center gap-1 py-2 font-medium"
-                aria-haspopup="true"
-              >
-                Categorias
-                <svg
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  className="h-4 w-4"
-                  aria-hidden
-                >
-                  <path
-                    d="m5 8 5 5 5-5"
-                    stroke="currentColor"
-                    strokeWidth="1.6"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </Link>
-              <div className="invisible absolute top-full left-1/2 z-50 -translate-x-1/2 pt-2 opacity-0 transition group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
-                <ul className="border-border-subtle bg-background grid w-[26rem] grid-cols-2 gap-x-2 gap-y-0.5 rounded-xl border p-2 shadow-xl">
-                  {NAV_CATEGORIES.map((c) => (
-                    <li key={c.slug}>
-                      <Link
-                        href={`/ofertas?categoria=${c.slug}`}
-                        className="hover:bg-surface-muted block rounded-lg px-3 py-2 text-sm"
-                      >
-                        {c.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+            <HeaderCategoriesMenu categories={NAV_CATEGORIES} />
             <Link
               href="/achados"
               className="hover:text-brand hidden font-medium sm:inline"

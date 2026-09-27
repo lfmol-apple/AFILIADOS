@@ -1,26 +1,9 @@
 import Link from "next/link";
 import { CategoryScroller } from "@/components/category-scroller";
 import { CategorySheet } from "@/components/category-sheet";
+import { OfferCategoryTile } from "@/components/offer-category-icon";
 import type { CategoryCount } from "@/lib/queries/offers-feed";
 import { offersHref, type OffersView } from "@/lib/offers/view";
-
-/** One accent dot per category so the list scans by color as well as by
- * label. Spelled out in full so Tailwind can see every class. */
-const DOT: Record<string, string> = {
-  "esporte-suplementos": "bg-emerald-500",
-  celulares: "bg-indigo-500",
-  "audio-games": "bg-blue-600",
-  informatica: "bg-violet-500",
-  eletrodomesticos: "bg-sky-500",
-  casa: "bg-orange-500",
-  limpeza: "bg-cyan-500",
-  beleza: "bg-rose-500",
-  bebe: "bg-pink-400",
-  pet: "bg-amber-500",
-  ferramentas: "bg-stone-500",
-  moda: "bg-fuchsia-500",
-  outros: "bg-zinc-400",
-};
 
 /**
  * Category filter for /ofertas. Wide screens: a glass card beside the grid
@@ -58,11 +41,11 @@ export function OffersCategoryNav({
         <CategorySheet
           items={items.map((item) => ({
             key: item.slug ?? "todas",
+            slug: item.slug,
             label: item.label,
             count: item.count,
             href: offersHref(view, { category: item.slug }),
             active: item.slug === active,
-            dot: DOT[item.slug ?? ""] ?? "bg-teal-500",
           }))}
         />
         <h2 className="text-foreground/50 hidden px-2 pt-1 pb-2 text-xs font-bold tracking-wide uppercase lg:block">
@@ -86,14 +69,7 @@ export function OffersCategoryNav({
                       : "border-border-subtle bg-background/70 hover:border-brand/50 lg:hover:bg-foreground/5 border lg:border-transparent lg:bg-transparent"
                   }`}
                 >
-                  <span
-                    aria-hidden
-                    className={`h-2 w-2 shrink-0 rounded-full ${
-                      isActive
-                        ? "bg-brand-foreground"
-                        : (DOT[item.slug ?? ""] ?? "bg-teal-500")
-                    }`}
-                  />
+                  <OfferCategoryTile slug={item.slug} active={isActive} />
                   <span className="min-w-0 flex-1 leading-tight">
                     {item.label}
                   </span>

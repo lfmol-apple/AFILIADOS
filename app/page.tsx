@@ -1,3 +1,4 @@
+import { OfferCategoryTile } from "@/components/offer-category-icon";
 import Link from "next/link";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { HeroCarousel } from "@/components/hero-carousel";
@@ -198,11 +199,14 @@ export default async function Home() {
             <li key={c.slug}>
               <Link
                 href={`/ofertas?categoria=${c.slug}`}
-                className="border-border-subtle hover:border-brand block h-full min-h-16 rounded-xl border px-3 py-3 transition sm:px-4"
+                className="border-border-subtle hover:border-brand flex h-full min-h-16 items-center gap-3 rounded-xl border px-3 py-3 transition sm:px-4"
               >
-                <span className="block text-sm font-semibold">{c.label}</span>
-                <span className="text-foreground/60 mt-0.5 block text-xs leading-snug">
-                  {c.hint}
+                <OfferCategoryTile slug={c.slug} size="md" />
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold">{c.label}</span>
+                  <span className="text-foreground/60 mt-0.5 block text-xs leading-snug">
+                    {c.hint}
+                  </span>
                 </span>
               </Link>
             </li>

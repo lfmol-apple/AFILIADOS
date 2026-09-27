@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { OfferCategoryTile } from "@/components/offer-category-icon";
 
 export interface CategorySheetItem {
   key: string;
@@ -9,7 +10,7 @@ export interface CategorySheetItem {
   count: number;
   href: string;
   active: boolean;
-  dot: string;
+  slug: string | null;
 }
 
 /**
@@ -107,10 +108,7 @@ export function CategorySheet({ items }: { items: CategorySheetItem[] }) {
                       : "hover:bg-foreground/5"
                   }`}
                 >
-                  <span
-                    aria-hidden
-                    className={`h-2 w-2 shrink-0 rounded-full ${item.active ? "bg-brand-foreground" : item.dot}`}
-                  />
+                  <OfferCategoryTile slug={item.slug} active={item.active} />
                   <span className="min-w-0 flex-1 leading-tight">
                     {item.label}
                   </span>

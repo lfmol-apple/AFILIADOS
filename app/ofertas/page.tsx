@@ -201,7 +201,7 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
       ) : (
         // Flex on phones, not a 2-row grid: the sticky category bar then
         // sticks for the whole list (a grid item is confined to its own row).
-        <div className="mt-3 flex flex-col gap-3 lg:mt-6 lg:grid lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-8">
+        <div className="mt-3 flex flex-col gap-3 lg:mt-6 lg:grid lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-8">
           <OffersCategoryNav
             categories={categories}
             view={view}
