@@ -21,6 +21,11 @@ COPY . .
 # "http://localhost:3000" fallback from lib/config/env.ts.
 ARG NEXT_PUBLIC_SITE_URL="http://localhost:3000"
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
+# Same story for the Web Push public key (lib/push/send.ts, /admin/notificacoes):
+# missing here, the client bundle bakes in an empty string and
+# "Ativar avisos" fails with no useful error (found live, 2026-09-27).
+ARG NEXT_PUBLIC_VAPID_PUBLIC_KEY=""
+ENV NEXT_PUBLIC_VAPID_PUBLIC_KEY=$NEXT_PUBLIC_VAPID_PUBLIC_KEY
 # Placeholder DATABASE_URL: `next build` needs env.ts (Zod) to parse
 # successfully and `prisma generate` needs a syntactically valid URL, but
 # neither talks to a real database at build time. The real DATABASE_URL is

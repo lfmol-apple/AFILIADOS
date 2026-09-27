@@ -61,19 +61,33 @@ export function PushNotificationsManager() {
     setBusy(true);
     setError(null);
     try {
-      const registration = await navigator.serviceWorker.ready;
       const key = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
-      if (!key) throw new Error("no-key");
+      if (!key) {
+        setError(
+          "O servidor não está configurado para push (chave pública ausente). Avise quem administra o site.",
+        );
+        return;
+      }
+      const registration = await navigator.serviceWorker.ready;
       const sub = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(key) as BufferSource,
       });
       await postSubscription(sub);
       setSubscription(sub);
-    } catch {
-      setError(
-        "Não consegui ativar. Confirme que você permitiu notificações quando o navegador perguntou.",
-      );
+    } catch (err) {
+      const name = err instanceof Error ? err.name : "";
+      if (name === "NotAllowedError") {
+        setError(
+          isIOS
+            ? "Notificação negada. Nos Ajustes do iPhone, procure o ícone do PreçoCaindo na tela de início e permita notificações — ou remova o ícone e adicione de novo."
+            : "Você bloqueou as notificações para este site. Permita nas configurações do navegador e tente de novo.",
+        );
+      } else {
+        setError(
+          `Não consegui ativar${err instanceof Error ? `: ${err.message}` : ""}.`,
+        );
+      }
     } finally {
       setBusy(false);
     }
