@@ -341,6 +341,21 @@ export function matchesQuery(title: string, query: string): boolean {
  * ("Cabo PARA iPhone", "Suporte PARA celular"). */
 const ACCESSORY_MARKERS = new Set(["para", "pra", "compativel", "compat", "p"]);
 
+/** Accessory nouns: "Cabo iPhone", "Capa Galaxy" name an accessory, not the
+ * device. Only counts when the searched word comes after them. */
+const ACCESSORY_NOUNS = new Set([
+  "cabo",
+  "carregador",
+  "capa",
+  "capinha",
+  "case",
+  "pelicula",
+  "suporte",
+  "fonte",
+  "adaptador",
+  "protetor",
+]);
+
 /**
  * How well a title IS what was searched, 0 (best) to 3. A product whose name
  * starts with the searched word is the thing itself; one that only mentions it
@@ -373,7 +388,12 @@ export function searchRelevanceTier(
       pos = i;
   }
   if (pos < 0) return 2;
-  if (tw.slice(0, pos).some((w) => ACCESSORY_MARKERS.has(w))) return 3;
+  if (
+    tw
+      .slice(0, pos)
+      .some((w) => ACCESSORY_MARKERS.has(w) || ACCESSORY_NOUNS.has(w))
+  )
+    return 3;
   return pos <= 2 ? 0 : pos <= 5 ? 1 : 2;
 }
 

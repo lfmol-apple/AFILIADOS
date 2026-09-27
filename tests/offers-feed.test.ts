@@ -311,7 +311,12 @@ describe("search relevance", () => {
     expect(
       searchRelevanceTier("Cabo Carregador Turbo Para iPhone 13", "iphone"),
     ).toBe(3);
+    expect(searchRelevanceTier("Cabo Iphone Lightning 1 Metro", "iphone")).toBe(
+      3,
+    );
     expect(searchRelevanceTier("iPhone 13 128GB Apple", "iphone")).toBe(0);
+    // searching for the accessory itself is fine
+    expect(searchRelevanceTier("Cabo Lightning 1 Metro", "cabo")).toBe(0);
   });
 
   it("ranks by relevance first and demand signal second", () => {
