@@ -172,12 +172,12 @@ export function OfferCategoryTile({
     <span
       aria-hidden
       className={`grid shrink-0 place-items-center ${
-        size === "md" ? "h-10 w-10 rounded-xl" : "h-7 w-7 rounded-lg"
+        size === "md" ? "h-11 w-11 rounded-xl" : "h-8 w-8 rounded-lg"
       } ${active ? "bg-brand-foreground/15" : "bg-brand/10 text-brand"}`}
     >
       <OfferCategoryIcon
         slug={slug}
-        className={size === "md" ? "h-5 w-5" : "h-[1.1rem] w-[1.1rem]"}
+        className={size === "md" ? "h-6 w-6" : "h-5 w-5"}
       />
     </span>
   );
