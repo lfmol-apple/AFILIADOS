@@ -18,6 +18,16 @@ const envSchema = z.object({
   NEXT_PUBLIC_SITE_URL: z.string().url().default("http://localhost:3000"),
   NEXT_PUBLIC_SITE_NAME: z.string().default("PreçoCaindo"),
 
+  // Web Push for the owner-only "site was accessed" alert (lib/push/send.ts).
+  // The public key is also read directly as process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+  // from client components — Next only inlines a NEXT_PUBLIC_ var into the
+  // browser bundle from a literal reference, never through this module
+  // (which also validates DATABASE_URL and other server-only secrets, so it
+  // must never be imported by a "use client" file).
+  NEXT_PUBLIC_VAPID_PUBLIC_KEY: z.string().default(""),
+  VAPID_PRIVATE_KEY: z.string().default(""),
+  VAPID_SUBJECT: z.string().default("mailto:contato@precocaindo.com.br"),
+
   AMAZON_PROVIDER: z.enum(["mock", "live"]).default("mock"),
 
   // Which marketplace the public site renders. Defaults to BR for the

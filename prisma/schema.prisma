@@ -873,6 +873,21 @@ model OwnerTrafficMark {
   @@index([expiresAt])
 }
 
+/// The owner's own browser(s), subscribed to Web Push for the
+/// "site was accessed" alert (lib/push/send.ts, /admin/notificacoes). One row
+/// per subscribed browser/device. `endpoint`, `p256dh` and `auth` are exactly
+/// what the browser's PushSubscription gives back — nothing here identifies
+/// a visitor, only the owner's own receiving device.
+model PushSubscription {
+  id         String   @id @default(cuid())
+  endpoint   String   @unique
+  p256dh     String
+  auth       String
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  lastSeenAt DateTime @default(now())
+}
+
 /// Basic login rate limiting for /admin — see lib/admin/auth.ts.
 /// ipHash is a SHA-256 hash of the client IP, never the raw address
 /// (data minimization principle applied the same way as PriceAlert.contactHash).

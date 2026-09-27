@@ -154,6 +154,12 @@ export default async function AdminPage(props: PagePropsWithSearch) {
           >
             Modo dono (não contar minhas visitas) →
           </a>
+          <a
+            href="/admin/notificacoes"
+            className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
+          >
+            Notificações (avisar quando o site for acessado) →
+          </a>
           {isAdminAuthConfigured() && <AdminLogoutButton />}
         </div>
       </div>

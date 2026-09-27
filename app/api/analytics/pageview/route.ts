@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { isOwnerRequest } from "@/lib/admin/owner-traffic";
+import { describePageviewForOwner } from "@/lib/analytics/pageview-notification";
+import { sendPushToOwner } from "@/lib/push/send";
+import { logger } from "@/lib/observability/logger";
 
 const schema = z.object({
   pageType: z.string().min(1).max(50),
@@ -48,6 +51,22 @@ export async function POST(request: Request) {
 
   const { referrer, ...rest } = parsed.data;
 
+  // Checked BEFORE inserting this pageview: is this session's first one
+  // today? Owner notifications fire once per new visitor per day, not once
+  // per page — see /admin/notificacoes.
+  const todayStart = new Date();
+  todayStart.setUTCHours(0, 0, 0, 0);
+  let isFirstOfSessionToday = false;
+  try {
+    const priorToday = await prisma.pageView.findFirst({
+      where: { sessionId: rest.sessionId, createdAt: { gte: todayStart } },
+      select: { id: true },
+    });
+    isFirstOfSessionToday = !priorToday;
+  } catch {
+    // Best-effort — worst case we skip a notification, never break the beacon.
+  }
+
   try {
     await prisma.pageView.create({
       data: { ...rest, referrerDomain: extractHostname(referrer) },
@@ -55,6 +74,20 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("analytics.pageview_not_persisted", error);
     return NextResponse.json({ ok: true, stored: false }, { status: 202 });
+  }
+
+  if (isFirstOfSessionToday) {
+    const { label, url } = describePageviewForOwner(
+      rest.pageType,
+      rest.pageSlug,
+    );
+    void sendPushToOwner({
+      title: "Novo visitante no PreçoCaindo",
+      body: label,
+      url,
+    }).catch((error) =>
+      logger.warn("push.owner_notify_failed", { error: String(error) }),
+    );
   }
 
   return NextResponse.json({ ok: true });
