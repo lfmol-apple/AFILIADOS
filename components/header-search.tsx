@@ -11,9 +11,11 @@ import { usePathname } from "next/navigation";
 export function HeaderSearch({
   id,
   className,
+  placeholder = "Buscar produto, marca ou categoria",
 }: {
   id: string;
   className: string;
+  placeholder?: string;
 }) {
   const pathname = usePathname();
   if (pathname === "/") return null;
@@ -42,7 +44,7 @@ export function HeaderSearch({
           id={id}
           type="search"
           name="q"
-          placeholder="Buscar produto, marca ou categoria"
+          placeholder={placeholder}
           className="border-border-subtle bg-surface-muted focus:border-brand w-full rounded-full border py-2.5 pr-4 pl-10 text-sm outline-none"
         />
       </div>

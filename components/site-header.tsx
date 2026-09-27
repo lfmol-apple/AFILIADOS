@@ -125,6 +125,7 @@ export function SiteHeader() {
             <HeaderSearch
               id="header-search-mobile"
               className="min-w-0 flex-1"
+              placeholder="Buscar produtos"
             />
             <Link
               href="/achados"

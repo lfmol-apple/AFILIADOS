@@ -101,7 +101,7 @@ export function CategorySheet({ items }: { items: CategorySheetItem[] }) {
                   scroll={false}
                   aria-current={item.active ? "page" : undefined}
                   onClick={() => setOpen(false)}
-                  className={`flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm ${
+                  className={`flex min-h-11 items-center gap-2 rounded-xl px-2.5 text-[0.8rem] ${
                     item.active
                       ? "bg-brand text-brand-foreground font-semibold"
                       : "hover:bg-foreground/5"
