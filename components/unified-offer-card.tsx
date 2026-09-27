@@ -21,10 +21,13 @@ const MERCHANT_LABEL: Record<UnifiedOfferCardData["merchant"], string> = {
   MERCADO_LIVRE: "Mercado Livre",
 };
 
-const MERCHANT_BADGE: Record<UnifiedOfferCardData["merchant"], string> = {
-  AMAZON: "bg-slate-900 text-white",
-  SHOPEE: "border border-orange-200 bg-orange-50 text-orange-800",
-  MERCADO_LIVRE: "border border-yellow-300 bg-yellow-100 text-yellow-900",
+/** Store badge: a small frosted-glass pill over the photo, the store told by
+ * a colored dot. Kept dark-on-light in both themes because the photo box is
+ * always white. */
+const MERCHANT_DOT: Record<UnifiedOfferCardData["merchant"], string> = {
+  AMAZON: "bg-slate-800",
+  SHOPEE: "bg-orange-500",
+  MERCADO_LIVRE: "bg-yellow-400",
 };
 
 const brl = (value: number) =>
@@ -51,7 +54,7 @@ export function UnifiedOfferCard({ item }: { item: UnifiedOfferCardData }) {
   ].filter(Boolean);
 
   return (
-    <div className="group border-border-subtle bg-background hover:border-brand/50 relative flex h-full flex-col overflow-hidden rounded-2xl border transition duration-200 hover:-translate-y-0.5 hover:shadow-lg">
+    <div className="group border-border-subtle bg-background hover:border-brand/40 relative flex h-full flex-col overflow-hidden rounded-3xl border shadow-[0_1px_2px_rgb(0_0_0/0.04)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_20px_40px_-20px_rgb(15_118_110/0.5)]">
       <a
         href={item.href}
         target={item.merchant === "AMAZON" ? undefined : "_blank"}
@@ -73,13 +76,15 @@ export function UnifiedOfferCard({ item }: { item: UnifiedOfferCardData }) {
             />
           ) : null}
           {discount !== null && (
-            <span className="absolute top-2 left-2 rounded-full bg-rose-600 px-2.5 py-1 text-xs leading-none font-bold text-white shadow">
+            <span className="absolute top-2.5 left-2.5 rounded-full bg-rose-600 px-2.5 py-1 text-xs leading-none font-bold text-white shadow-md shadow-rose-600/30">
               −{discount}%
             </span>
           )}
-          <span
-            className={`absolute top-2 right-2 rounded-full px-2 py-1 text-[11px] leading-none font-semibold ${MERCHANT_BADGE[item.merchant]}`}
-          >
+          <span className="absolute top-2.5 right-2.5 flex items-center gap-1.5 rounded-full border border-black/8 bg-white/70 px-2 py-1 text-[11px] leading-none font-semibold text-slate-800 shadow-sm backdrop-blur-md">
+            <span
+              aria-hidden
+              className={`h-1.5 w-1.5 rounded-full ${MERCHANT_DOT[item.merchant]}`}
+            />
             {MERCHANT_LABEL[item.merchant]}
           </span>
         </div>
@@ -103,8 +108,8 @@ export function UnifiedOfferCard({ item }: { item: UnifiedOfferCardData }) {
                   )}
                 </>
               ) : (
-                <span className="text-foreground/50 text-sm">
-                  Ver preço na loja
+                <span className="bg-foreground/5 text-foreground/70 inline-flex items-center rounded-full px-3 py-1.5 text-xs font-medium">
+                  Preço na loja
                 </span>
               )}
             </div>
@@ -118,8 +123,14 @@ export function UnifiedOfferCard({ item }: { item: UnifiedOfferCardData }) {
               {meta.join(" · ")}
             </p>
 
-            <span className="bg-brand text-brand-foreground mt-3 flex min-h-10 items-center justify-center rounded-full px-4 text-sm font-semibold transition group-hover:bg-teal-800 dark:group-hover:bg-teal-300">
-              Ver oferta
+            <span className="bg-brand text-brand-foreground mt-3 flex min-h-11 items-center justify-center gap-1.5 rounded-full px-4 text-sm font-semibold shadow-[inset_0_1px_0_rgb(255_255_255/0.25)] transition group-hover:bg-teal-800 dark:group-hover:bg-teal-300">
+              {item.currentPrice !== null ? "Ver oferta" : "Ver preço"}
+              <span
+                aria-hidden
+                className="transition-transform duration-200 group-hover:translate-x-0.5"
+              >
+                →
+              </span>
             </span>
           </div>
         </div>
@@ -127,7 +138,7 @@ export function UnifiedOfferCard({ item }: { item: UnifiedOfferCardData }) {
       {item.detailHref && (
         <a
           href={item.detailHref}
-          className="text-brand border-border-subtle hover:bg-surface-muted border-t px-4 py-2.5 text-center text-xs font-medium"
+          className="text-brand border-border-subtle/60 hover:bg-brand/8 border-t px-4 py-2.5 text-center text-xs font-medium"
         >
           Ver detalhes →
         </a>

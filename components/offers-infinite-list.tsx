@@ -142,7 +142,7 @@ export function OffersInfiniteList({
 
   return (
     <div>
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3">
         {items.map((item) => (
           <UnifiedOfferCard key={`${item.merchant}-${item.id}`} item={item} />
         ))}

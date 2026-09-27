@@ -179,12 +179,12 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
         </div>
         {pool.length > 0 && (
           <ul className="relative mt-3 flex flex-wrap gap-2 text-xs font-semibold sm:mt-5 sm:text-sm">
-            <li className="rounded-full bg-white/15 px-3 py-1.5">
+            <li className="rounded-full border border-white/25 bg-white/15 px-3 py-1.5 shadow-[inset_0_1px_0_rgb(255_255_255/0.3)] backdrop-blur-md">
               {firstPage.total} {firstPage.total === 1 ? "oferta" : "ofertas"}
               {category ? " nesta categoria" : ""}
             </li>
             {merchantsPresent.length > 0 && (
-              <li className="rounded-full bg-white/15 px-3 py-1.5">
+              <li className="rounded-full border border-white/25 bg-white/15 px-3 py-1.5 shadow-[inset_0_1px_0_rgb(255_255_255/0.3)] backdrop-blur-md">
                 {merchantsPresent.join(" · ")}
               </li>
             )}
