@@ -53,6 +53,10 @@ import {
 export const metadata: Metadata = {
   title: "Admin",
   robots: { index: false, follow: false },
+  // A Home Screen shortcut added from this page (Share > Adicionar à Tela
+  // de Início) shows "Admin" instead of the site's own name — see
+  // app/layout.tsx's default appleWebApp for the rest of the site.
+  appleWebApp: { title: "Admin" },
 };
 export const dynamic = "force-dynamic";
 

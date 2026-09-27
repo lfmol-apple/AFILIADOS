@@ -31,6 +31,15 @@ export const metadata: Metadata = {
     title: siteConfig.name,
     description: siteConfig.description,
   },
+  // Lets an "Add to Home Screen" shortcut (any page — see the /admin
+  // override for a distinct one) open in standalone mode on iOS, which
+  // still needs this meta tag as well as the manifest. Per-page metadata
+  // (like /admin's) overrides just the `title` here, not the whole object.
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: siteConfig.name,
+  },
   twitter: {
     card: "summary_large_image",
     title: siteConfig.name,
