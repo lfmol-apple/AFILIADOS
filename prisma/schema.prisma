@@ -857,6 +857,22 @@ model AdminSession {
   @@index([expiresAt])
 }
 
+/// A long-lived, opt-in marker so the owner's own everyday browsing (not
+/// only while logged into /admin, whose session lasts 12h) never counts as
+/// real traffic. Created only from an already-authenticated /admin request
+/// (lib/admin/owner-traffic.ts) — this table grants no admin access itself,
+/// it only says "skip this visitor in the reports". Same shape as
+/// AdminSession: only the hash is stored.
+model OwnerTrafficMark {
+  id         String   @id @default(cuid())
+  tokenHash  String   @unique
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+  lastSeenAt DateTime @default(now())
+
+  @@index([expiresAt])
+}
+
 /// Basic login rate limiting for /admin — see lib/admin/auth.ts.
 /// ipHash is a SHA-256 hash of the client IP, never the raw address
 /// (data minimization principle applied the same way as PriceAlert.contactHash).
