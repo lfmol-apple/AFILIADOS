@@ -120,6 +120,77 @@ export async function getTopProductsByClicks(
   }));
 }
 
+export interface TopClickedProductMulti {
+  merchant: ClickMerchantCode;
+  title: string;
+  clicks7d: number;
+  clicks30d: number;
+  clicksAllTime: number;
+  lastClickAt: Date;
+  firstClickAt: Date;
+  /** "/produto/<slug>" when the click's product has a public page, else null
+   * — some Shopee listings and every non-catalog Mercado Livre item don't. */
+  href: string | null;
+}
+
+/**
+ * The full "which products are people actually clicking" picture for
+ * /admin/produtos-populares — one pass, three windows (7d/30d/all-time) so
+ * a product's momentum shows without three separate queries. Real counts
+ * only, same rule as the rest of this file. Ranked by clicksAllTime so a
+ * proven long-term seller doesn't get buried by one noisy day.
+ */
+export async function getTopClickedProductsMulti(
+  limit = 50,
+): Promise<TopClickedProductMulti[]> {
+  const since7d = startOfDayInBrasilDaysAgo(7);
+  const since30d = startOfDayInBrasilDaysAgo(30);
+
+  const rows = await prisma.$queryRaw<
+    {
+      merchant: ClickMerchantCode | null;
+      title: string;
+      href: string | null;
+      clicks_7d: bigint;
+      clicks_30d: bigint;
+      clicks_all: bigint;
+      first_click: Date;
+      last_click: Date;
+    }[]
+  >`
+    select coalesce(m.code::text, 'AMAZON') as merchant,
+           coalesce(cp.title, p.title, ml.slug, ml."externalId", 'desconhecido') as title,
+           case when coalesce(cp."publicSlug", p.slug, ml.slug) is not null
+                then '/produto/' || coalesce(cp."publicSlug", p.slug, ml.slug)
+                else null end as href,
+           count(*) filter (where ac."createdAt" >= ${since7d}) as clicks_7d,
+           count(*) filter (where ac."createdAt" >= ${since30d}) as clicks_30d,
+           count(*) as clicks_all,
+           min(ac."createdAt") as first_click,
+           max(ac."createdAt") as last_click
+    from "AffiliateClick" ac
+    left join "Merchant" m on m.id = ac."merchantId"
+    left join "CanonicalProduct" cp on cp.id = ac."canonicalProductId"
+    left join "Product" p on p.id = ac."productId"
+    left join "MerchantListing" ml on ml.id = ac."merchantListingId"
+    where ${REAL_VISITOR_CLICKS_SQL}
+    group by 1, 2, 3
+    order by clicks_all desc
+    limit ${limit}
+  `;
+
+  return rows.map((r) => ({
+    merchant: (r.merchant ?? "AMAZON") as ClickMerchantCode,
+    title: r.title,
+    href: r.href,
+    clicks7d: Number(r.clicks_7d),
+    clicks30d: Number(r.clicks_30d),
+    clicksAllTime: Number(r.clicks_all),
+    firstClickAt: r.first_click,
+    lastClickAt: r.last_click,
+  }));
+}
+
 export interface ClickSourceBreakdown {
   source: string;
   pageType: string;
