@@ -1,6 +1,19 @@
-import { describe, expect, it, beforeAll, afterAll, afterEach } from "vitest";
+import {
+  describe,
+  expect,
+  it,
+  beforeAll,
+  afterAll,
+  afterEach,
+  vi,
+} from "vitest";
 import { prisma } from "@/lib/db";
-import { resolveMerchantRedirect } from "@/lib/services/merchant-redirect";
+
+const sendPushToOwner = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+vi.mock("@/lib/push/send", () => ({ sendPushToOwner }));
+
+const { resolveMerchantRedirect } =
+  await import("@/lib/services/merchant-redirect");
 
 let merchantId: string;
 let listingId: string;
@@ -31,8 +44,13 @@ afterAll(async () => {
 });
 
 afterEach(async () => {
-  await prisma.affiliateClick.deleteMany({ where: { merchantListingId: listingId } });
-  await prisma.affiliateLinkRegistry.deleteMany({ where: { merchantListingId: listingId } });
+  await prisma.affiliateClick.deleteMany({
+    where: { merchantListingId: listingId },
+  });
+  await prisma.affiliateLinkRegistry.deleteMany({
+    where: { merchantListingId: listingId },
+  });
+  sendPushToOwner.mockClear();
 });
 
 describe("resolveMerchantRedirect — generic (non-Amazon) merchants", () => {
@@ -62,7 +80,10 @@ describe("resolveMerchantRedirect — generic (non-Amazon) merchants", () => {
     const result = await resolveMerchantRedirect({
       merchant: "shopee",
       externalId: `TEST-REDIRECT-${runId}`,
-      searchParams: new URLSearchParams({ pageType: "ofertas", source: "test" }),
+      searchParams: new URLSearchParams({
+        pageType: "ofertas",
+        source: "test",
+      }),
     });
 
     expect(result.status).toBe("redirect");
@@ -77,6 +98,35 @@ describe("resolveMerchantRedirect — generic (non-Amazon) merchants", () => {
     expect(clicks[0]!.productId).toBeNull();
     expect(clicks[0]!.provider).toBe("SHOPEE");
     expect(clicks[0]!.merchantId).toBe(merchantId);
+
+    expect(sendPushToOwner).toHaveBeenCalledTimes(1);
+    expect(sendPushToOwner).toHaveBeenCalledWith(
+      expect.objectContaining({ title: "🔔 Clique para Shopee" }),
+    );
+  });
+
+  it("never notifies the owner for their own click (isOwner: true)", async () => {
+    await prisma.affiliateLinkRegistry.create({
+      data: {
+        merchantListingId: listingId,
+        merchantId,
+        publicUrl: "https://shopee.com.br/product/1/123456",
+        affiliateUrl: "https://s.shopee.com.br/ownerlink",
+        attributionTag: "precocaindo",
+        source: "API",
+        status: "ACTIVE",
+      },
+    });
+
+    const result = await resolveMerchantRedirect({
+      merchant: "shopee",
+      externalId: `TEST-REDIRECT-${runId}`,
+      searchParams: new URLSearchParams(),
+      isOwner: true,
+    });
+
+    expect(result.status).toBe("redirect");
+    expect(sendPushToOwner).not.toHaveBeenCalled();
   });
 
   it("404s (never redirects) when the link exists but isn't ACTIVE", async () => {

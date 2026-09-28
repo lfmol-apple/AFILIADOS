@@ -6,6 +6,8 @@ import {
 import { logger } from "@/lib/observability/logger";
 import type { MarketplaceCode } from "@/types/marketplace";
 import { OWNER_CLICK_MEDIUM } from "@/lib/admin/owner-traffic";
+import { describeAffiliateClickForOwner } from "@/lib/analytics/click-notification";
+import { sendPushToOwner } from "@/lib/push/send";
 
 export type GoAmazonResult =
   | { status: "redirect"; destination: string }
@@ -103,6 +105,13 @@ export async function handleGoAmazonRequest(
         campaign: searchParams.get("campaign") ?? undefined,
       },
     });
+    if (!isOwner) {
+      void sendPushToOwner(
+        describeAffiliateClickForOwner("amazon", product.title),
+      ).catch((error) =>
+        logger.warn("push.click_notify_failed", { error: String(error) }),
+      );
+    }
   }
 
   return { status: "redirect", destination };

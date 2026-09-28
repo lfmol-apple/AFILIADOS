@@ -1,6 +1,19 @@
-import { describe, expect, it, beforeAll, afterAll } from "vitest";
+import {
+  describe,
+  expect,
+  it,
+  beforeAll,
+  afterAll,
+  afterEach,
+  vi,
+} from "vitest";
 import { prisma } from "@/lib/db";
-import { handleGoAmazonRequest } from "@/lib/services/go-amazon-handler";
+
+const sendPushToOwner = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+vi.mock("@/lib/push/send", () => ({ sendPushToOwner }));
+
+const { handleGoAmazonRequest } =
+  await import("@/lib/services/go-amazon-handler");
 
 const ASIN = "TESTGOAMZ1";
 let productId: string;
@@ -46,7 +59,11 @@ afterAll(async () => {
 });
 
 describe("handleGoAmazonRequest", () => {
-  it("redirects for BR and records a click", async () => {
+  afterEach(() => {
+    sendPushToOwner.mockClear();
+  });
+
+  it("redirects for BR, records a click and notifies the owner", async () => {
     const before = await prisma.affiliateClick.count({ where: { productId } });
     const result = await handleGoAmazonRequest(
       "BR",
@@ -59,6 +76,24 @@ describe("handleGoAmazonRequest", () => {
     }
     const after = await prisma.affiliateClick.count({ where: { productId } });
     expect(after).toBe(before + 1);
+
+    expect(sendPushToOwner).toHaveBeenCalledTimes(1);
+    expect(sendPushToOwner).toHaveBeenCalledWith({
+      title: "🔔 Clique para Amazon",
+      body: "Test Product for go/amazon",
+      url: "/admin/desempenho",
+    });
+  });
+
+  it("never notifies the owner for their own click (isOwner: true)", async () => {
+    const result = await handleGoAmazonRequest(
+      "BR",
+      ASIN,
+      new URLSearchParams(),
+      true,
+    );
+    expect(result.status).toBe("redirect");
+    expect(sendPushToOwner).not.toHaveBeenCalled();
   });
 
   it("refuses US and does not record a click", async () => {

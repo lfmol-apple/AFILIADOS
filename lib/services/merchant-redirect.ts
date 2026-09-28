@@ -13,18 +13,21 @@ import {
 import { logger } from "@/lib/observability/logger";
 import type { CommerceProviderName } from "@prisma/client";
 import { OWNER_CLICK_MEDIUM } from "@/lib/admin/owner-traffic";
+import { describeAffiliateClickForOwner } from "@/lib/analytics/click-notification";
+import { sendPushToOwner } from "@/lib/push/send";
 
 export type MerchantRedirectResult =
   | { status: "redirect"; destination: string }
   | { status: "error"; errorStatus: number; errorMessage: string };
 
-const MERCHANT_TO_PROVIDER: Record<MerchantCode, CommerceProviderName | null> = {
-  amazon: "AMAZON",
-  "mercado-livre": "MERCADO_LIVRE",
-  shopee: "SHOPEE",
-  awin: null,
-  "generic-affiliate": null,
-};
+const MERCHANT_TO_PROVIDER: Record<MerchantCode, CommerceProviderName | null> =
+  {
+    amazon: "AMAZON",
+    "mercado-livre": "MERCADO_LIVRE",
+    shopee: "SHOPEE",
+    awin: null,
+    "generic-affiliate": null,
+  };
 
 export async function resolveMerchantRedirect(input: {
   merchant: string;
@@ -159,10 +162,17 @@ async function resolveGenericMerchantRedirect(input: {
       externalId: input.externalId,
       active: true,
     },
-    include: { affiliateLink: true },
+    include: {
+      affiliateLink: true,
+      canonicalProduct: { select: { title: true } },
+    },
   });
 
-  if (!listing || listing.affiliateLink?.status !== "ACTIVE" || !listing.affiliateLink.affiliateUrl) {
+  if (
+    !listing ||
+    listing.affiliateLink?.status !== "ACTIVE" ||
+    !listing.affiliateLink.affiliateUrl
+  ) {
     return {
       status: "error",
       errorStatus: 404,
@@ -191,6 +201,18 @@ async function resolveGenericMerchantRedirect(input: {
         campaign: input.searchParams.get("campaign") ?? undefined,
       },
     });
+
+    if (!input.isOwner) {
+      const productLabel =
+        listing.canonicalProduct?.title ??
+        input.searchParams.get("pageSlug") ??
+        listing.externalId;
+      void sendPushToOwner(
+        describeAffiliateClickForOwner(input.merchant, productLabel),
+      ).catch((error) =>
+        logger.warn("push.click_notify_failed", { error: String(error) }),
+      );
+    }
 
     logger.info("merchant.redirect", {
       merchant: input.merchant,
