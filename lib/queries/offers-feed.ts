@@ -18,6 +18,10 @@ import {
   type OfferSort,
   type OfferStore,
 } from "@/lib/offers/view";
+import {
+  applyEngagementBoost,
+  getEngagementSignals,
+} from "@/lib/queries/engagement-boost";
 
 /**
  * Paginated, category-filterable feed behind /ofertas (infinite scroll).
@@ -60,7 +64,7 @@ const state = (g.__offersFeedState ??= { cached: null, inflight: null });
 
 async function buildPool(): Promise<UnifiedOfferCard[]> {
   const catalogSafe = currentlyVisibleDataSources().length > 0;
-  const [amazonResult, merchantOffers] = await Promise.all([
+  const [amazonResult, merchantOffers, engagementSignals] = await Promise.all([
     catalogSafe
       ? getOfertas({ page: 1, pageSize: AMAZON_POOL_SIZE })
       : { items: [] },
@@ -74,12 +78,19 @@ async function buildPool(): Promise<UnifiedOfferCard[]> {
         source: "ofertas",
       });
     }),
+    // Best-effort: a failure here must never take the whole feed down —
+    // it just means this build goes out with no engagement boost.
+    getEngagementSignals().catch((error) => {
+      console.error("offers_feed.engagement_signals_failed", error);
+      return { clicksByCardId: new Map(), viewsBySlug: new Map() };
+    }),
   ]);
   const all = [
     ...amazonResult.items.map(mapAmazonProductToUnifiedCard),
     ...merchantOffers,
   ];
-  return interleaveByMerchant(selectTopUnifiedOffers(all, all.length));
+  const boosted = applyEngagementBoost(all, engagementSignals);
+  return interleaveByMerchant(selectTopUnifiedOffers(boosted, boosted.length));
 }
 
 /**
