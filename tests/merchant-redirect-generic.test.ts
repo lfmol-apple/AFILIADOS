@@ -129,6 +129,37 @@ describe("resolveMerchantRedirect — generic (non-Amazon) merchants", () => {
     expect(sendPushToOwner).not.toHaveBeenCalled();
   });
 
+  it("still redirects for a prefetch (next/link warming up the link, not a real click) but never records a click or notifies — found live 2026-10-01", async () => {
+    await prisma.affiliateLinkRegistry.create({
+      data: {
+        merchantListingId: listingId,
+        merchantId,
+        publicUrl: "https://shopee.com.br/product/1/123456",
+        affiliateUrl: "https://s.shopee.com.br/prefetchlink",
+        attributionTag: "precocaindo",
+        source: "API",
+        status: "ACTIVE",
+      },
+    });
+
+    const result = await resolveMerchantRedirect({
+      merchant: "shopee",
+      externalId: `TEST-REDIRECT-${runId}`,
+      searchParams: new URLSearchParams({ _rsc: "abc123" }),
+      isPrefetch: true,
+    });
+
+    expect(result.status).toBe("redirect");
+    if (result.status === "redirect") {
+      expect(result.destination).toBe("https://s.shopee.com.br/prefetchlink");
+    }
+    expect(sendPushToOwner).not.toHaveBeenCalled();
+    const clicks = await prisma.affiliateClick.count({
+      where: { merchantListingId: listingId },
+    });
+    expect(clicks).toBe(0);
+  });
+
   it("404s (never redirects) when the link exists but isn't ACTIVE", async () => {
     await prisma.affiliateLinkRegistry.create({
       data: {

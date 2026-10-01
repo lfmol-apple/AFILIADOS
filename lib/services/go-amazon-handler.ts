@@ -44,6 +44,11 @@ export async function handleGoAmazonRequest(
   /** True when the request carries a valid admin session (see
    * lib/admin/owner-traffic.ts) — the click is kept but tagged. */
   isOwner = false,
+  /** True for a prefetch, not a real navigation (lib/http/is-prefetch-
+   * request.ts) — still redirects (so a genuine prefetch isn't broken),
+   * but never counts as a click or notifies the owner. Found live,
+   * 2026-10-01: next/link prefetching this href was enough on its own. */
+  isPrefetch = false,
 ): Promise<GoAmazonResult> {
   const product = await prisma.product.findUnique({
     where: {
@@ -86,7 +91,7 @@ export async function handleGoAmazonRequest(
     productFound: Boolean(product),
   });
 
-  if (product && !localDraftPreview) {
+  if (product && !localDraftPreview && !isPrefetch) {
     const merchant = await prisma.merchant.findUnique({
       where: { code: "AMAZON" },
     });

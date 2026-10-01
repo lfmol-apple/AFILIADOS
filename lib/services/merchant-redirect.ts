@@ -36,6 +36,10 @@ export async function resolveMerchantRedirect(input: {
   /** True when the request carries a valid admin session — the click is
    * still recorded but tagged so admin reports can exclude it. */
   isOwner?: boolean;
+  /** True for a prefetch, not a real navigation (lib/http/is-prefetch-
+   * request.ts) — only resolveGenericMerchantRedirect acts on this today;
+   * resolveAmazonRedirect is deliberately untouched, see its own comment. */
+  isPrefetch?: boolean;
 }): Promise<MerchantRedirectResult> {
   if (!isMerchantCode(input.merchant)) {
     return {
@@ -146,6 +150,7 @@ async function resolveGenericMerchantRedirect(input: {
   externalId: string;
   searchParams: URLSearchParams;
   isOwner?: boolean;
+  isPrefetch?: boolean;
 }): Promise<MerchantRedirectResult> {
   const provider = MERCHANT_TO_PROVIDER[input.merchant];
   if (!provider) {
@@ -186,32 +191,34 @@ async function resolveGenericMerchantRedirect(input: {
       input.merchant,
     );
 
-    await prisma.affiliateClick.create({
-      data: {
-        canonicalProductId: listing.canonicalProductId,
-        merchantId: listing.merchantId,
-        merchantListingId: listing.id,
-        provider,
-        pageType: input.searchParams.get("pageType") ?? "unknown",
-        pageSlug: input.searchParams.get("pageSlug") ?? listing.externalId,
-        source: input.searchParams.get("source") ?? undefined,
-        medium: input.isOwner
-          ? OWNER_CLICK_MEDIUM
-          : (input.searchParams.get("medium") ?? undefined),
-        campaign: input.searchParams.get("campaign") ?? undefined,
-      },
-    });
+    if (!input.isPrefetch) {
+      await prisma.affiliateClick.create({
+        data: {
+          canonicalProductId: listing.canonicalProductId,
+          merchantId: listing.merchantId,
+          merchantListingId: listing.id,
+          provider,
+          pageType: input.searchParams.get("pageType") ?? "unknown",
+          pageSlug: input.searchParams.get("pageSlug") ?? listing.externalId,
+          source: input.searchParams.get("source") ?? undefined,
+          medium: input.isOwner
+            ? OWNER_CLICK_MEDIUM
+            : (input.searchParams.get("medium") ?? undefined),
+          campaign: input.searchParams.get("campaign") ?? undefined,
+        },
+      });
 
-    if (!input.isOwner) {
-      const productLabel =
-        listing.canonicalProduct?.title ??
-        input.searchParams.get("pageSlug") ??
-        listing.externalId;
-      void sendPushToOwner(
-        describeAffiliateClickForOwner(input.merchant, productLabel),
-      ).catch((error) =>
-        logger.warn("push.click_notify_failed", { error: String(error) }),
-      );
+      if (!input.isOwner) {
+        const productLabel =
+          listing.canonicalProduct?.title ??
+          input.searchParams.get("pageSlug") ??
+          listing.externalId;
+        void sendPushToOwner(
+          describeAffiliateClickForOwner(input.merchant, productLabel),
+        ).catch((error) =>
+          logger.warn("push.click_notify_failed", { error: String(error) }),
+        );
+      }
     }
 
     logger.info("merchant.redirect", {

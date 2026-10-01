@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { AffiliateDisclosure } from "@/components/affiliate-disclosure";
 import { isValidAsin } from "@/lib/amazon/policy-guard";
 import { getAmazonMarketplaceConfig } from "@/lib/config/marketplaces";
@@ -9,6 +8,11 @@ import type { MarketplaceCode } from "@/types/marketplace";
  * user-initiated tracked redirect. If the current PreçoCaindo application
  * does not have a confirmed Associate tag for the marketplace, do not show a
  * direct Amazon URL and do not imply affiliate commission.
+ *
+ * Plain <a>, never next/link's <Link> (found live, 2026-10-01, see
+ * merchant-cta.tsx's same note): href is a /go/ redirect leaving the site,
+ * not an app page — Link would prefetch it and inflate AffiliateClick with
+ * every page render, not just a real click.
  */
 export function AmazonCta({
   asin,
@@ -50,9 +54,9 @@ export function AmazonCta({
 
   return (
     <div className={`flex flex-col items-start gap-1.5 ${className}`}>
-      <Link href={href} className={classNameValue}>
+      <a href={href} className={classNameValue}>
         {label}
-      </Link>
+      </a>
       {showDisclosure && <AffiliateDisclosure />}
     </div>
   );

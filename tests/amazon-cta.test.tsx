@@ -56,6 +56,34 @@ describe("AmazonCta", () => {
     expect(hrefs.some((href) => href.includes("tag="))).toBe(false);
   });
 
+  it("renders a plain <a>, never next/link's <Link> — found live 2026-10-01: Link prefetches /go/ and gets recorded as a fake click", async () => {
+    vi.stubEnv("AMAZON_BR_ENABLED", "true");
+    vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", "confirmed-preco-20");
+
+    const { AmazonCta } = await import("@/components/amazon-cta");
+    const element = AmazonCta({
+      asin: "B0MOCK0001",
+      pageType: "product",
+      pageSlug: "produto-teste",
+    });
+
+    function findByHref(node: ReactNode): unknown {
+      if (!isValidElement<Record<string, unknown>>(node)) return undefined;
+      if (typeof node.props.href === "string") return node.type;
+      const children = node.props.children;
+      if (Array.isArray(children)) {
+        for (const child of children) {
+          const found = findByHref(child);
+          if (found) return found;
+        }
+        return undefined;
+      }
+      return findByHref(children as ReactNode);
+    }
+
+    expect(findByHref(element)).toBe("a");
+  });
+
   it("does not render a redirect for invalid ASIN values", async () => {
     vi.stubEnv("AMAZON_BR_ENABLED", "true");
     vi.stubEnv("AMAZON_BR_ASSOCIATE_TAG", "confirmed-preco-20");

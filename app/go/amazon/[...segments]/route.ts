@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { isMarketplaceCode } from "@/lib/config/marketplaces";
 import { handleGoAmazonRequest } from "@/lib/services/go-amazon-handler";
 import { isOwnerRequest } from "@/lib/admin/owner-traffic";
+import { isPrefetchRequest } from "@/lib/http/is-prefetch-request";
 import type { RouteParams } from "@/lib/next-route-types";
 
 /**
@@ -48,6 +49,7 @@ export async function GET(
     asin,
     url.searchParams,
     await isOwnerRequest(request),
+    isPrefetchRequest(request.headers, url.searchParams),
   );
 
   if (result.status === "error") {

@@ -96,6 +96,21 @@ describe("handleGoAmazonRequest", () => {
     expect(sendPushToOwner).not.toHaveBeenCalled();
   });
 
+  it("still redirects for a prefetch but never records a click or notifies — found live 2026-10-01", async () => {
+    const before = await prisma.affiliateClick.count({ where: { productId } });
+    const result = await handleGoAmazonRequest(
+      "BR",
+      ASIN,
+      new URLSearchParams({ _rsc: "abc123" }),
+      false,
+      true,
+    );
+    expect(result.status).toBe("redirect");
+    const after = await prisma.affiliateClick.count({ where: { productId } });
+    expect(after).toBe(before);
+    expect(sendPushToOwner).not.toHaveBeenCalled();
+  });
+
   it("refuses US and does not record a click", async () => {
     const before = await prisma.affiliateClick.count({ where: { productId } });
     const result = await handleGoAmazonRequest(
