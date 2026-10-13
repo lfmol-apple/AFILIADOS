@@ -1758,6 +1758,135 @@ const BASE_GUIDES = [
     ],
   },
   {
+    slug: "como-escolher-uma-bicicleta-ergometrica-de-spinning",
+    title:
+      "Como escolher uma bicicleta ergométrica de spinning sem olhar apenas o preço",
+    description:
+      "Peso do volante, tipo de resistência, peso suportado, ajuste de banco e ruído pesam mais no dia a dia do que o preço anunciado.",
+    category: "Decisão de compra",
+    author,
+    publishedAt,
+    updatedAt: publishedAt,
+    depth: "deep",
+    hero: {
+      label: "Bicicleta ergométrica",
+      alt: "Arte editorial sobre escolha de bicicleta ergométrica de spinning",
+    },
+    tool: null,
+    relatedSlugs: [
+      "como-saber-se-vale-a-pena-comprar-agora",
+      "como-comparar-precos-sem-cair-em-falso-desconto",
+      "parcelado-ou-a-vista-como-comparar-corretamente",
+    ],
+    seo: {
+      title: "Como escolher uma bicicleta ergométrica de spinning",
+      description:
+        "Critérios práticos para comparar bicicleta ergométrica por volante, resistência, peso suportado, ruído e montagem.",
+    },
+    sections: [
+      {
+        heading: "Resposta rápida",
+        body: [
+          "A bicicleta ergométrica mais barata do anúncio nem sempre é a mais barata no uso. Compare peso do volante de inércia, tipo de resistência, peso máximo suportado, ajuste de banco e guidão, e nível de ruído antes de decidir pelo preço — um volante leve demais ou uma resistência que gasta rápido custam caro depois, em frustração ou em peça de reposição.",
+        ],
+      },
+      {
+        heading: "Peso do volante de inércia",
+        body: [
+          "O volante de inércia é o disco que gira e dá a sensação de pedalada contínua, sem travar entre uma pedalada e outra. Quanto mais pesado, mais suave e constante fica o movimento — modelos muito leves (abaixo de 6-8 kg) tendem a pedalar de forma mais 'solta' e irregular, especialmente em ritmos mais fortes.",
+          "Isso não significa que o mais pesado é sempre melhor: um volante muito pesado também pesa na hora de mover a bicicleta pela casa e, em modelos domésticos, raramente faz diferença perceptível acima de determinado ponto. O número sozinho na ficha técnica importa menos do que ele parecer condizente com o restante da estrutura — um volante pesado numa estrutura muito leve pode indicar desequilíbrio entre as peças.",
+        ],
+      },
+      {
+        heading: "Tipo de resistência: magnética ou por atrito",
+        body: [
+          "Existem dois sistemas comuns. Resistência magnética usa ímãs que se aproximam ou afastam do volante, sem contato físico — é silenciosa, não desgasta por atrito e costuma ser ajustada por controle, manopla ou aplicativo. Resistência por atrito (pastilha de feltro ou lona pressionada contra o volante) é mais barata de fabricar, mas gera mais ruído, esquenta com o uso prolongado e a pastilha desgasta e precisa ser trocada com o tempo.",
+          "Anúncios nem sempre deixam claro qual sistema o modelo usa — às vezes aparece só 'resistência ajustável', sem dizer o tipo. Vale perguntar ao vendedor ou procurar essa informação antes de comparar dois preços parecidos, porque o sistema muda tanto o ruído quanto o custo de manutenção dali a um ano.",
+        ],
+      },
+      {
+        heading: "Peso suportado e estrutura",
+        body: [
+          "O peso máximo suportado anunciado (comum ver 100 kg, 120 kg ou 150 kg) é um limite de segurança da estrutura, não uma recomendação de uso confortável — pedalar próximo do limite máximo por período prolongado tende a desgastar rolamentos e solda mais rápido do que pedalar com folga em relação a esse número.",
+          "Estruturas com tubos mais grossos e base mais larga costumam ser mais estáveis em pedaladas fortes, mesmo quando o peso suportado anunciado é parecido entre dois modelos. Isso raramente aparece como número comparável — dá para ter uma ideia olhando fotos do produto com a base e os tubos, não só a ficha técnica.",
+        ],
+      },
+      {
+        heading: "Ajuste de banco e guidão",
+        body: [
+          "A faixa de ajuste de altura (e, em alguns modelos, de distância) do banco e do guidão decide se a bicicleta serve para quem vai usá-la — não existe tamanho único confortável para alturas muito diferentes. Modelos sem ajuste horizontal do banco, só vertical, podem deixar o joelho desalinhado do pedal em pessoas mais altas ou mais baixas que a média.",
+          "Banco desconfortável é a reclamação mais comum em avaliações de bicicleta ergométrica, e trocar o banco por um modelo mais confortável depois costuma ser mais barato e resolver mais rápido do que trocar a bicicleta inteira — vale checar se o modelo usa encaixe padrão de banco de bicicleta antes de comprar, caso isso vire necessário.",
+        ],
+      },
+      {
+        heading: "Bluetooth, aplicativo e monitor",
+        body: [
+          "Conectividade Bluetooth e integração com aplicativo (tipo FitShow ou similar) aparecem como diferencial em muitos anúncios, mas o que o aplicativo realmente mostra varia muito: alguns calculam velocidade e distância a partir da rotação do pedal (uma estimativa, não uma medição real de percurso), outros só registram tempo e calorias estimadas. Vale não tratar esses números como medição precisa de desempenho físico.",
+          "Monitor com LCD embutido, sem aplicativo, tende a ser mais simples e também mais barato de manter — não depende de bateria de celular nem de um aplicativo que pode parar de ser atualizado pelo fabricante depois de um tempo.",
+        ],
+      },
+      {
+        heading: "Ruído e montagem",
+        body: [
+          "Ruído importa mais do que parece para quem mora em apartamento ou vai usar a bicicleta em horário que incomoda outras pessoas em casa. Resistência magnética e volante bem balanceado tendem a ser mais silenciosos; resistência por atrito e pedais soltos ou mal fixados são a causa mais comum de barulho reclamado depois da compra.",
+          "A maioria chega desmontada, com montagem do comprador — ferramentas inclusas costumam ser básicas. Avaliações que mencionam tempo de montagem e se o manual é claro ajudam mais do que a nota geral do produto nesse ponto específico.",
+        ],
+        bullets: [
+          "escolher só pelo peso do volante sem olhar o tipo de resistência",
+          "ignorar o ajuste de banco para a própria altura",
+          "tratar dado do aplicativo como medição precisa",
+          "não verificar se a pastilha de resistência é peça de reposição disponível",
+        ],
+      },
+      {
+        heading: "Quando o custo-benefício fecha",
+        body: [
+          "Fecha quando o peso do volante combina com a intensidade de uso pretendida, o sistema de resistência é conhecido antes da compra (não descoberto depois), a estrutura suporta o peso do usuário com folga em relação ao limite anunciado, o banco e o guidão ajustam para a altura de quem vai pedalar, e o ruído esperado é compatível com o ambiente onde a bicicleta vai ficar.",
+        ],
+        bullets: [
+          "peso do volante combina com a intensidade de uso",
+          "tipo de resistência confirmado antes de comprar",
+          "peso suportado com folga, não no limite",
+          "banco e guidão ajustam para a altura de quem usa",
+          "ruído esperado é compatível com o ambiente",
+        ],
+      },
+      {
+        heading: "O que não avaliamos sem teste",
+        body: [
+          "Não avaliamos conforto do banco sem um teste próprio — é a reclamação mais subjetiva e mais comum nas avaliações. Também não confirmamos a precisão dos dados do aplicativo (velocidade, distância, calorias) sem comparar contra um equipamento de referência, e o nível de ruído real depende do piso, da instalação e da pastilha específica de cada unidade, não só do modelo.",
+          "Durabilidade da pastilha de resistência por atrito e do rolamento do volante só aparece com uso prolongado — nenhuma ficha técnica ou review inicial antecipa isso com segurança.",
+        ],
+        bullets: [
+          "não avaliamos conforto do banco sem teste próprio",
+          "não confirmamos precisão dos dados do aplicativo",
+          "ruído real depende de piso e instalação, não só do modelo",
+          "durabilidade de peças de desgaste só aparece com uso prolongado",
+        ],
+      },
+      {
+        heading: "Perguntas frequentes sobre bicicleta ergométrica",
+        body: [
+          "Bicicleta ergométrica de spinning emagrece? Ajuda como parte de um déficit calórico junto com alimentação — nenhum equipamento sozinho garante perda de peso, e calorias mostradas no monitor são estimativa, não medição exata.",
+          "Vale a pena pagar mais por volante mais pesado? Vale se a intensidade de uso for alta e constante; para uso leve e esporádico, a diferença prática costuma ser pequena perto do que ajuste de banco e tipo de resistência mudam no conforto.",
+          "Resistência magnética é sempre melhor que por atrito? É mais silenciosa e não desgasta por atrito, mas costuma custar mais; por atrito pode ser suficiente para uso leve, desde que o ruído e a troca futura da pastilha sejam aceitáveis para quem compra.",
+          "Preciso de tapete embaixo da bicicleta? Ajuda a proteger o piso de vibração e a reduzir ruído transmitido para vizinhos de baixo, além de evitar que a base deslize durante pedaladas mais fortes.",
+        ],
+      },
+      {
+        heading: "Checklist da bicicleta ergométrica",
+        body: [],
+        bullets: [
+          "peso do volante avaliado",
+          "tipo de resistência confirmado",
+          "peso suportado com folga",
+          "ajuste de banco e guidão conferido",
+          "ruído esperado considerado",
+        ],
+      },
+    ],
+  },
+  {
     slug: "como-comparar-celulares-alem-do-preco",
     title: "Como comparar celulares além do preço",
     description:
@@ -2384,7 +2513,9 @@ const BASE_GUIDES = [
   },
 ] satisfies BaseGuide[];
 
-export function guideText(guide: Pick<Guide, "title" | "description" | "sections">): string {
+export function guideText(
+  guide: Pick<Guide, "title" | "description" | "sections">,
+): string {
   return [
     guide.title,
     guide.description,
