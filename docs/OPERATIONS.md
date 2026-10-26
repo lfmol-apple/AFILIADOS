@@ -218,3 +218,29 @@ are narrow by construction:
 Check `docker system df -v` before ever widening this scope — build
 cache is normally the overwhelming majority of reclaimable space, so
 these two commands alone should stay sufficient.
+
+## Database connection pool size (2026-10-26)
+
+Prisma's default connection pool is `num_physical_cpus * 2 + 1`. The
+production VPS has 1 vCPU, so the default was 3 — thin enough that a
+traffic spike (Meta's `meta-externalagent` crawler hammering every `/go/`
+link on `/ofertas`, see the bot-filtering fix in
+`lib/http/is-bot-request.ts`) exhausted it and took the whole app
+unhealthy: every request doing a DB query, not just affiliate-click
+writes, started failing with `PrismaClientKnownRequestError P2024` /
+"Timed out fetching a new connection from the connection pool".
+
+Fixed by appending `?connection_limit=10&pool_timeout=20` to
+`DATABASE_URL` in the VPS's `.env` (not committed — see `.env.example`'s
+comment on `DATABASE_URL` for the exact value) and recreating just the
+`app` service to pick it up:
+
+```bash
+docker compose -p precocaindo -f docker-compose.prod.yml up -d --force-recreate app
+```
+
+No image rebuild needed — this is a runtime env var, not a
+`NEXT_PUBLIC_*` build-time one. Postgres' own `max_connections` is 100
+with ~14 in use under normal load, so 10 for the app is cheap insurance,
+not a tight budget; raise it further only if `pg_stat_activity` ever
+shows it's actually the bottleneck again.
