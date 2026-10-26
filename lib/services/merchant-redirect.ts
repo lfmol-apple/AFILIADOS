@@ -36,9 +36,10 @@ export async function resolveMerchantRedirect(input: {
   /** True when the request carries a valid admin session — the click is
    * still recorded but tagged so admin reports can exclude it. */
   isOwner?: boolean;
-  /** True for a prefetch, not a real navigation (lib/http/is-prefetch-
-   * request.ts) — only resolveGenericMerchantRedirect acts on this today;
-   * resolveAmazonRedirect is deliberately untouched, see its own comment. */
+  /** True for a prefetch or a known bot/crawler (lib/http/is-prefetch-
+   * request.ts, lib/http/is-bot-request.ts) — only resolveGenericMerchantRedirect
+   * acts on this today; resolveAmazonRedirect is deliberately untouched,
+   * see its own comment. */
   isPrefetch?: boolean;
 }): Promise<MerchantRedirectResult> {
   if (!isMerchantCode(input.merchant)) {
@@ -150,6 +151,8 @@ async function resolveGenericMerchantRedirect(input: {
   externalId: string;
   searchParams: URLSearchParams;
   isOwner?: boolean;
+  /** Prefetch or known bot/crawler — see the field's doc on
+   * resolveMerchantRedirect's input above. */
   isPrefetch?: boolean;
 }): Promise<MerchantRedirectResult> {
   const provider = MERCHANT_TO_PROVIDER[input.merchant];

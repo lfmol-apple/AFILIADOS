@@ -44,10 +44,13 @@ export async function handleGoAmazonRequest(
   /** True when the request carries a valid admin session (see
    * lib/admin/owner-traffic.ts) — the click is kept but tagged. */
   isOwner = false,
-  /** True for a prefetch, not a real navigation (lib/http/is-prefetch-
-   * request.ts) — still redirects (so a genuine prefetch isn't broken),
-   * but never counts as a click or notifies the owner. Found live,
-   * 2026-10-01: next/link prefetching this href was enough on its own. */
+  /** True for a prefetch or a known bot/crawler (lib/http/is-prefetch-
+   * request.ts, lib/http/is-bot-request.ts) — still redirects (so a
+   * genuine prefetch isn't broken), but never counts as a click or
+   * notifies the owner. Found live, 2026-10-01: next/link prefetching this
+   * href was enough on its own. Found live again, 2026-10-26: a crawler
+   * issuing plain GETs straight at /go/ URLs doesn't carry a prefetch
+   * signal at all, so it needed the separate bot check. */
   isPrefetch = false,
 ): Promise<GoAmazonResult> {
   const product = await prisma.product.findUnique({
