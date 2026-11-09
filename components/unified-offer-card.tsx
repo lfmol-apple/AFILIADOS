@@ -21,6 +21,27 @@ const MERCHANT_LABEL: Record<UnifiedOfferCardData["merchant"], string> = {
   MERCADO_LIVRE: "Mercado Livre",
 };
 
+/** The main CTA names the actual store ("Ver na Shopee") instead of a
+ * generic "Ver oferta" — owner's request, 2026-11-09: with a second,
+ * equally real button for Amazon now sitting right next to it, "ver
+ * oferta" stopped saying which of the two it meant. */
+const CTA_STORE_LABEL: Record<UnifiedOfferCardData["merchant"], string> = {
+  AMAZON: "Ver na Amazon",
+  SHOPEE: "Ver na Shopee",
+  MERCADO_LIVRE: "Ver no Mercado Livre",
+};
+
+/** Each store's own brand color on its button, not one generic brand-teal
+ * for all three — owner's request, 2026-11-09, same reasoning as the label
+ * above. Amazon's own CTA reuses the dark pill the secondary Amazon button
+ * already uses elsewhere on the card, so the color always means the same
+ * store everywhere it appears. */
+const CTA_STORE_STYLE: Record<UnifiedOfferCardData["merchant"], string> = {
+  AMAZON: "bg-slate-900 text-white hover:bg-slate-800",
+  SHOPEE: "bg-[#EE4D2D] text-white hover:bg-[#D8431F]",
+  MERCADO_LIVRE: "bg-[#FFE600] text-slate-900 hover:bg-[#FFD400]",
+};
+
 /** Store badge: a small frosted-glass pill over the photo, the store told by
  * a colored dot. Kept dark-on-light in both themes because the photo box is
  * always white. */
@@ -156,8 +177,12 @@ export function UnifiedOfferCard({ item }: { item: UnifiedOfferCardData }) {
             {meta.join(" · ")}
           </p>
 
-          <span className="bg-brand text-brand-foreground mt-3 flex min-h-11 items-center justify-center gap-1.5 rounded-full px-4 text-sm font-semibold shadow-[inset_0_1px_0_rgb(255_255_255/0.25)] transition group-hover:bg-teal-800 dark:group-hover:bg-teal-300">
-            {item.currentPrice !== null ? "Ver oferta" : "Ver preço"}
+          <span
+            className={`${CTA_STORE_STYLE[item.merchant]} mt-3 flex min-h-11 items-center justify-center gap-1.5 rounded-full px-4 text-sm font-semibold shadow-[inset_0_1px_0_rgb(255_255_255/0.2)] transition`}
+          >
+            {item.currentPrice !== null
+              ? CTA_STORE_LABEL[item.merchant]
+              : "Ver preço"}
             <span
               aria-hidden
               className="transition-transform duration-200 group-hover:translate-x-0.5"
@@ -167,6 +192,14 @@ export function UnifiedOfferCard({ item }: { item: UnifiedOfferCardData }) {
           </span>
         </div>
       </a>
+      {item.amazonMatch && (
+        <a
+          href={item.amazonMatch.href}
+          className="mx-3 mb-3 flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-slate-900 px-4 text-sm font-semibold text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.15)] transition hover:bg-slate-800 sm:mx-4 sm:mb-4"
+        >
+          Ver preço na <AmazonMark />
+        </a>
+      )}
       {item.detailHref && (
         <a
           href={item.detailHref}
