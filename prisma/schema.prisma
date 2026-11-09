@@ -293,10 +293,41 @@ model MerchantListing {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  amazonMatch AmazonMatch?
+
   @@unique([merchantId, marketplace, externalId])
   @@index([canonicalProductId])
   @@index([legacyProductId])
   @@index([merchantId, active])
+}
+
+enum AmazonMatchStatus {
+  MATCHED
+  NO_MATCH
+}
+
+/// One human decision per ML/Shopee MerchantListing: "does this exact
+/// product also exist on Amazon BR?" (owner's request, 2026-11-09 — every
+/// active listing, not just already-clicked ones, since a product with
+/// zero clicks today can still get one tomorrow). NO_MATCH is recorded
+/// just as deliberately as MATCHED, so the review queue (/admin's Amazon
+/// matching tool) never asks about the same listing twice. MATCHED always
+/// points at a real Product row (dataSource=MANUAL_VERIFIED, never price/
+/// image — see lib/services/manual-product-registration.ts) so the "Ver na
+/// Amazon" CTA on the original ML/Shopee page can reuse the exact same
+/// /go/amazon/[asin] redirect every other Amazon link already uses.
+model AmazonMatch {
+  id                String            @id @default(cuid())
+  merchantListingId String            @unique
+  merchantListing   MerchantListing   @relation(fields: [merchantListingId], references: [id], onDelete: Cascade)
+  status            AmazonMatchStatus
+  amazonProductId   String?
+  amazonProduct     Product?          @relation(fields: [amazonProductId], references: [id])
+  reviewedAt        DateTime          @default(now())
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@index([amazonProductId])
 }
 
 /// One decision the ProductMatcher made (or is proposing) about whether two
@@ -489,6 +520,7 @@ model Product {
   pageViews       PageView[]
   candidate       ProductCandidate?
   merchantListings MerchantListing[]
+  amazonMatches   AmazonMatch[]
 
   @@unique([provider, marketplace, asin])
   @@index([categoryId])

@@ -68,6 +68,13 @@ export interface PublicMerchantProductViewModel {
    * RadarEvent (never a fabricated summary); a neutral honest line when
    * there isn't one yet. */
   decisionSummary: string;
+  /** A human-confirmed AmazonMatch for this exact listing (owner's request,
+   * 2026-11-09 — every active listing gets checked, not just clicked
+   * ones) — never the shadow ProductMatcher mentioned below on
+   * getRelatedMerchantProducts, which stays unconfirmed by design. Null
+   * whenever no match was ever recorded, or the recorded decision was
+   * NO_MATCH. */
+  amazonMatch: { asin: string; href: string } | null;
 }
 
 /** Mirrors radar.ts's EVENT_TYPE_BASE_WEIGHT ordering (PRICE_DROP >
@@ -145,6 +152,26 @@ function buildRadarEventsForFacts(facts: MerchantListingFacts): RadarEvent[] {
   return events;
 }
 
+async function loadAmazonMatchCta(
+  merchantListingId: string,
+  slug: string,
+): Promise<{ asin: string; href: string } | null> {
+  const match = await prisma.amazonMatch.findUnique({
+    where: { merchantListingId },
+    include: { amazonProduct: { select: { asin: true, active: true } } },
+  });
+  if (match?.status !== "MATCHED" || !match.amazonProduct?.active) return null;
+  const params = new URLSearchParams({
+    pageType: "product",
+    pageSlug: slug,
+    source: "product_page",
+  }).toString();
+  return {
+    asin: match.amazonProduct.asin,
+    href: `/go/amazon/${match.amazonProduct.asin}?${params}`,
+  };
+}
+
 function buildViewModel(facts: MerchantListingFacts, slug: string): PublicMerchantProductViewModel {
   const gate = evaluatePublicationGate(facts);
   const radarEvents = buildRadarEventsForFacts(facts);
@@ -171,6 +198,9 @@ function buildViewModel(facts: MerchantListingFacts, slug: string): PublicMercha
     gate,
     radarEvents,
     decisionSummary: buildDecisionSummary(radarEvents),
+    // Filled in by loadPublicMerchantProduct (needs its own async query) —
+    // never left as a stale default on any path that returns this object.
+    amazonMatch: null,
   };
 }
 
@@ -253,11 +283,17 @@ export async function loadPublicMerchantProduct(slug: string): Promise<PublicMer
     const effectiveSlug = mlResult.hasPublicSlug
       ? slug
       : await ensureCanonicalProductPublicSlug(mlResult.canonicalProductId, mlResult.facts.title);
-    return buildViewModel(mlResult.facts, effectiveSlug);
+    const viewModel = buildViewModel(mlResult.facts, effectiveSlug);
+    viewModel.amazonMatch = await loadAmazonMatchCta(mlResult.facts.merchantListingId, effectiveSlug);
+    return viewModel;
   }
 
   const shopeeFacts = await loadMerchantListingFactsBySlug(slug);
-  if (shopeeFacts) return buildViewModel(shopeeFacts, slug);
+  if (shopeeFacts) {
+    const viewModel = buildViewModel(shopeeFacts, slug);
+    viewModel.amazonMatch = await loadAmazonMatchCta(shopeeFacts.merchantListingId, slug);
+    return viewModel;
+  }
 
   return null;
 }

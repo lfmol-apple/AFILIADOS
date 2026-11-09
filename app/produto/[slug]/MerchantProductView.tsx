@@ -1,5 +1,6 @@
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { MerchantCta } from "@/components/merchant-cta";
+import { AffiliateDisclosure } from "@/components/affiliate-disclosure";
 import { ProductImage } from "@/components/product-image";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { formatCurrency, formatDate } from "@/lib/format";
@@ -132,6 +133,18 @@ export function MerchantProductView({
           <div className="mt-6">
             <MerchantCta ctaHref={data.ctaHref} />
           </div>
+
+          {data.amazonMatch && (
+            <div className="mt-4 flex flex-col items-start gap-1.5">
+              <a
+                href={data.amazonMatch.href}
+                className="border-border-subtle hover:border-brand inline-flex items-center justify-center rounded-full border px-6 py-3 text-sm font-semibold transition"
+              >
+                Ver na Amazon →
+              </a>
+              <AffiliateDisclosure />
+            </div>
+          )}
         </div>
       </div>
 
