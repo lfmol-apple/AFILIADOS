@@ -55,6 +55,13 @@ export interface UnifiedOfferCard {
   /** Sidebar category on /ofertas (lib/offers/categories.ts) — derived
    * from the ML domainId or the title, presentation-only. */
   categorySlug?: string;
+  /** A human-confirmed AmazonMatch for this exact listing (owner's
+   * request, 2026-11-09 — the "Ver na Amazon" button belongs on the
+   * vitrine card itself, not just the deep product page). Null whenever
+   * no match was ever recorded, or it was recorded as NO_MATCH. Never set
+   * for an AMAZON card itself — only ML/Shopee cards point sideways at a
+   * real Amazon product this way. */
+  amazonMatch?: { asin: string; href: string } | null;
 }
 
 /**
@@ -320,6 +327,31 @@ export async function getUnifiedMerchantOffers(
       };
     },
   );
+
+  // One batched query for every listing in this pool — never N+1 (same
+  // discipline as bestOfferIds above). A listing with no recorded
+  // decision, or a recorded NO_MATCH, simply has no entry in the map.
+  const allListingIds = [
+    ...shopeeListings.map((l) => l.id),
+    ...mlCatalogListings.map((l) => l.id),
+  ];
+  const amazonMatches = allListingIds.length
+    ? await prisma.amazonMatch.findMany({
+        where: { merchantListingId: { in: allListingIds }, status: "MATCHED" },
+        select: { merchantListingId: true, amazonProduct: { select: { asin: true, active: true } } },
+      })
+    : [];
+  const amazonHrefByListingId = new Map<string, { asin: string; href: string }>();
+  for (const match of amazonMatches) {
+    if (!match.amazonProduct?.active) continue;
+    amazonHrefByListingId.set(match.merchantListingId, {
+      asin: match.amazonProduct.asin,
+      href: `/go/amazon/${match.amazonProduct.asin}?${params}`,
+    });
+  }
+  for (const card of [...shopeeCards, ...mlCards]) {
+    card.amazonMatch = amazonHrefByListingId.get(card.id) ?? null;
+  }
 
   return [...shopeeCards, ...mlCards]
     .sort((a, b) => (b.opportunitySignal ?? -1) - (a.opportunitySignal ?? -1))
