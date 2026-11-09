@@ -7,9 +7,6 @@ interface Row extends AmazonMatchQueueRow {
   suggestedCategorySlug: string;
 }
 
-const DEFAULT_DESCRIPTION =
-  "Também disponível na Amazon.com.br. Confira fotos, especificações e condições de entrega direto na página do produto antes de comprar.";
-
 const CATEGORY_OPTIONS = [
   { slug: "esporte-suplementos", label: "Esporte e Suplementos" },
   { slug: "celulares", label: "Celulares e Acessórios" },
@@ -38,10 +35,10 @@ function RowCard({
   onDone: (merchantListingId: string) => void;
 }) {
   const [asin, setAsin] = useState("");
-  const [title, setTitle] = useState(row.title);
+  const [title, setTitle] = useState("");
   const [brand, setBrand] = useState("");
   const [categorySlug, setCategorySlug] = useState(row.suggestedCategorySlug);
-  const [description, setDescription] = useState(DEFAULT_DESCRIPTION);
+  const [description, setDescription] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -127,7 +124,7 @@ function RowCard({
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Título do produto na Amazon"
+          placeholder="Título exato do produto NA AMAZON (nunca o título original do anúncio)"
           className="border-border-subtle rounded border px-2 py-1.5 text-sm sm:col-span-2"
         />
         <input
@@ -140,6 +137,7 @@ function RowCard({
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={2}
+          placeholder="Descrição editorial PRÓPRIA deste produto (o que é, pra quem serve, o que checar antes de comprar) — nunca o mesmo texto genérico em dois produtos"
           className="border-border-subtle rounded border px-2 py-1.5 text-sm sm:col-span-2"
         />
       </div>
@@ -148,7 +146,7 @@ function RowCard({
 
       <div className="mt-3 flex gap-2">
         <button
-          disabled={busy || !asin}
+          disabled={busy || !asin || title.trim().length < 5 || description.trim().length < 25}
           onClick={() =>
             submit({
               merchantListingId: row.merchantListingId,

@@ -14,10 +14,16 @@ const bodySchema = z.discriminatedUnion("decision", [
     merchantListingId: z.string().min(1),
     decision: z.literal("MATCHED"),
     asin: z.string().min(1),
-    title: z.string().min(1),
+    /// The real Amazon title, never the original listing's own title
+    /// (found live, 2026-11-09: a rushed review pass reused the ML/Shopee
+    /// listing's title + the same boilerplate description across several
+    /// matches — exactly the duplicate/thin-content shape that hurts
+    /// indexing). Minimums are a mechanical speed bump, not a quality
+    /// guarantee, but they make "forgot to look" impossible.
+    title: z.string().min(5),
     brand: z.string().optional(),
     categorySlug: z.string().min(1),
-    description: z.string().min(1),
+    description: z.string().min(25),
   }),
 ]);
 
