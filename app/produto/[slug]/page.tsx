@@ -357,7 +357,7 @@ export default async function ProductPage(
       ? [
           {
             label: product.category.name,
-            href: `/categorias/${product.category.slug}`,
+            href: `/ofertas?categoria=${product.category.slug}`,
           },
         ]
       : []),
