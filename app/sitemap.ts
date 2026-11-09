@@ -120,47 +120,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ];
   }
 
-  const [products, categories, content] = await Promise.all([
-    prisma.product.findMany({
-      where: {
-        marketplace: PRIMARY_PUBLIC_MARKETPLACE,
-        active: true,
-        dataSource: { in: visibleDataSources },
-      },
-      select: {
-        slug: true,
-        updatedAt: true,
-        description: true,
-        specifications: true,
-        priceStats: { select: { coverageDays: true } },
-      },
-    }),
-    // Empty categories (no currently-visible product) must not be indexed
-    // — a category page with zero products is thin/useless content.
-    prisma.category.findMany({
-      where: {
-        active: true,
-        products: {
-          some: {
-            marketplace: PRIMARY_PUBLIC_MARKETPLACE,
-            active: true,
-            dataSource: { in: visibleDataSources },
-          },
-        },
-      },
-      select: { slug: true, updatedAt: true },
-    }),
-    // NOTE (audited, not changed this round — scope is ML/Shopee only):
-    // this query has no Product/dataSource filter of its own, but stays
-    // gated behind visibleDataSources here, same as before this fix,
-    // because that's pre-existing behavior this round doesn't have
-    // evidence to call a bug. Revisit with its own audit if that coupling
-    // ever needs to change.
-    prisma.generatedContent.findMany({
-      where: { status: "PUBLISHED", noindex: false },
-      select: { contentType: true, slug: true, updatedAt: true },
-    }),
-  ]);
+  const products = await prisma.product.findMany({
+    where: {
+      marketplace: PRIMARY_PUBLIC_MARKETPLACE,
+      active: true,
+      dataSource: { in: visibleDataSources },
+    },
+    select: {
+      slug: true,
+      updatedAt: true,
+      description: true,
+      specifications: true,
+      priceStats: { select: { coverageDays: true } },
+    },
+  });
 
   const productEntries: MetadataRoute.Sitemap = products
     .filter((p) =>
@@ -180,27 +153,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     }));
 
-  const categoryEntries: MetadataRoute.Sitemap = categories.map((c) => ({
-    url: `${siteConfig.url}/categorias/${c.slug}`,
-    lastModified: c.updatedAt,
-    changeFrequency: "weekly",
-    priority: 0.6,
-  }));
-
-  const contentEntries: MetadataRoute.Sitemap = content.map((c) => ({
-    url: `${siteConfig.url}/${c.contentType === "BEST_OF" ? "melhores" : "comparar"}/${c.slug}`,
-    lastModified: c.updatedAt,
-    changeFrequency: "weekly",
-    priority: 0.6,
-  }));
-
   return [
     ...staticEntries,
     ...offersEntries,
     ...guideEntries,
     ...productEntries,
     ...merchantProductEntries,
-    ...categoryEntries,
-    ...contentEntries,
   ];
 }

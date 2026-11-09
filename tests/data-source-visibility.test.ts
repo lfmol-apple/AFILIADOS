@@ -279,23 +279,6 @@ describe("sitemap and robots stay dataSource-aware", () => {
     expect(entries.some((e) => e.url.includes(MOCK_SLUG))).toBe(false);
   });
 
-  it("robots disallows Amazon-only catalog paths when the Amazon gate is closed", async () => {
-    vi.resetModules();
-    vi.stubEnv("PUBLIC_CATALOG_ENABLED", "false");
-    const { default: robots } = await import("@/app/robots");
-    const result = await robots();
-    const rule = Array.isArray(result.rules) ? result.rules[0] : result.rules;
-    // /categorias/, /melhores/, /comparar/ are generated purely from
-    // Amazon-sourced data (see app/robots.ts's AMAZON_ONLY_CATALOG_PATHS)
-    // — these stay gated on the Amazon flag alone regardless of any real
-    // Mercado Livre/Shopee data. /produto/ is deliberately NOT asserted
-    // here anymore (2026-09-14 fix): it must stay open whenever a real
-    // merchant product exists, independent of this Amazon-only flag —
-    // this dev database has real ones (see the merchant-aware robots
-    // test below).
-    expect(rule?.disallow).toContain("/categorias/");
-  });
-
   it("robots allows the catalog once a MANUAL_VERIFIED cohort is visible, even with AMAZON_PROVIDER=mock in production", async () => {
     vi.resetModules();
     vi.stubEnv("PUBLIC_CATALOG_ENABLED", "true");

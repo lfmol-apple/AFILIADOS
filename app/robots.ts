@@ -4,11 +4,6 @@ import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 import { listIndexableMerchantProductUrls } from "@/lib/queries/public-product";
 import { isOffersPageIndexable } from "@/lib/seo/offers-indexability";
 
-// Generated purely from Amazon-sourced data (see app/sitemap.ts's
-// categoryEntries/contentEntries) — no ML/Shopee equivalent exists, so
-// these stay gated on currentlyVisibleDataSources() alone.
-const AMAZON_ONLY_CATALOG_PATHS = ["/categorias/", "/melhores/", "/comparar/"];
-
 // Product pages and /ofertas have independent merchant-side gates. The
 // Amazon catalog gate has no bearing on MerchantListing, so a closed
 // Amazon catalog must never hide otherwise-legitimate ML/Shopee surfaces
@@ -37,9 +32,6 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
   // still be served (so a direct visit doesn't 404), but must never be
   // crawled/indexed while nothing real is actually there.
   const amazonVisible = currentlyVisibleDataSources().length > 0;
-  if (!amazonVisible) {
-    disallow.push(...AMAZON_ONLY_CATALOG_PATHS);
-  }
 
   // Real bug found and fixed 2026-09-14: currentlyVisibleDataSources() only
   // ever knew about Amazon (MOCK/AMAZON_API/MANUAL_VERIFIED) — it has no
