@@ -11,12 +11,12 @@ const NAV_CATEGORIES = OFFER_CATEGORIES.filter((c) => c.slug !== "outros");
  * sticky for the whole page (a sticky element only sticks within its
  * parent):
  *
- * 1. A compact sticky bar — logo, and on wide screens the search, the
- *    Categorias menu, Achados and Guias. "Ofertas" is the one loud element
- *    (.cta-offers in globals.css) and is always in this bar.
- * 2. Phones only: a non-sticky strip with the search box, Achados and (off
- *    /ofertas, which has its own sticky category bar) a scrollable row of
- *    category chips — everything is one thumb-swipe away without a hidden menu.
+ * 1. A compact sticky bar — logo, and on wide screens the search and the
+ *    Categorias menu. "Ofertas" is the one loud element (.cta-offers in
+ *    globals.css) and is always in this bar.
+ * 2. Phones only: a non-sticky strip with the search box and (off /ofertas,
+ *    which has its own sticky category bar) a scrollable row of category
+ *    chips — everything is one thumb-swipe away without a hidden menu.
  *
  * The Categorias dropdown (HeaderCategoriesMenu) is CSS-only (group-hover /
  * focus-within) and hidden on /ofertas, which lists the categories itself.
@@ -55,12 +55,6 @@ export function SiteHeader() {
           >
             <HeaderCategoriesMenu categories={NAV_CATEGORIES} />
             <Link
-              href="/achados"
-              className="hover:text-brand hidden font-medium sm:inline"
-            >
-              Achados
-            </Link>
-            <Link
               href="/ofertas"
               className="cta-offers text-[0.95rem] sm:text-base"
             >
@@ -92,12 +86,6 @@ export function SiteHeader() {
               className="min-w-0 flex-1"
               placeholder="Buscar produtos"
             />
-            <Link
-              href="/achados"
-              className="border-border-subtle bg-surface-muted hover:border-brand flex min-h-11 shrink-0 items-center rounded-full border px-4 text-sm font-medium"
-            >
-              Achados
-            </Link>
           </div>
           <HeaderShortcuts categories={NAV_CATEGORIES} />
         </div>
