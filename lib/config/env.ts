@@ -191,6 +191,16 @@ const envSchema = z.object({
   DAILY_DIGEST_EMAIL_FROM: z
     .string()
     .default("PreçoCaindo <onboarding@resend.dev>"),
+
+  // --- Telegram price-drop digest (jobs/telegram-digest.ts) ---
+  // Sent through Telegram's Bot HTTP API (lib/services/telegram-sender.ts).
+  // Empty TELEGRAM_BOT_TOKEN or TELEGRAM_CHANNEL_ID means "not configured":
+  // the job refuses to send instead of guessing, same convention as the
+  // email digest above. Never commit a real token — production .env only.
+  // TELEGRAM_CHANNEL_ID is the channel's public @username (with the @) or,
+  // for a private channel, its numeric chat id.
+  TELEGRAM_BOT_TOKEN: z.string().default(""),
+  TELEGRAM_CHANNEL_ID: z.string().default(""),
 });
 
 export type Env = z.infer<typeof envSchema>;
