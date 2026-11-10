@@ -294,6 +294,7 @@ model MerchantListing {
   updatedAt DateTime @updatedAt
 
   amazonMatch AmazonMatch?
+  priceAlerts PriceAlert[]
 
   @@unique([merchantId, marketplace, externalId])
   @@index([canonicalProductId])
@@ -815,8 +816,17 @@ model AutomationRun {
 
 model PriceAlert {
   id          String   @id @default(cuid())
-  productId   String
-  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  /// Exactly one of productId (Amazon's legacy Product) or
+  /// merchantListingId (Mercado Livre/Shopee) is set — enforced in
+  /// lib/services/price-alert.ts, not at the DB level, same convention as
+  /// AmazonMatch's single-decision-per-listing rule. Both nullable so one
+  /// alert never needs two FKs satisfied at once; added 2026-11-10 — this
+  /// model originally only covered Product, before ML/Shopee listings
+  /// existed as a distinct alert target.
+  productId   String?
+  product     Product?  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  merchantListingId String?
+  merchantListing   MerchantListing? @relation(fields: [merchantListingId], references: [id], onDelete: Cascade)
   targetPrice Decimal  @db.Decimal(10, 2)
   channel     AlertChannel @default(EMAIL)
   /// The contact itself (e.g. email address). Stored only because a price
@@ -840,6 +850,7 @@ model PriceAlert {
   triggeredAt DateTime?
 
   @@index([productId, active])
+  @@index([merchantListingId, active])
   @@index([contactHash])
 }
 

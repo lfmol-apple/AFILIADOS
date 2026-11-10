@@ -8,11 +8,15 @@ function hashContact(contact: string): string {
     .digest("hex");
 }
 
-export interface CreatePriceAlertInput {
-  productId: string;
+/** Exactly one of productId (Amazon) or merchantListingId (Mercado
+ * Livre/Shopee) — see the model's own doc comment in schema.prisma. */
+export type CreatePriceAlertInput = {
   targetPrice: number;
   contact: string;
-}
+} & ({ productId: string; merchantListingId?: undefined } | {
+  productId?: undefined;
+  merchantListingId: string;
+});
 
 export type PriceAlertValidationResult =
   { ok: true } | { ok: false; message: string };
@@ -49,7 +53,8 @@ export async function createPriceAlert(
   const contactHash = hashContact(input.contact);
   const existing = await prisma.priceAlert.findFirst({
     where: {
-      productId: input.productId,
+      productId: input.productId ?? null,
+      merchantListingId: input.merchantListingId ?? null,
       contactHash,
       targetPrice: input.targetPrice,
       active: true,
@@ -60,7 +65,8 @@ export async function createPriceAlert(
 
   return prisma.priceAlert.create({
     data: {
-      productId: input.productId,
+      productId: input.productId ?? null,
+      merchantListingId: input.merchantListingId ?? null,
       targetPrice: input.targetPrice,
       contact: input.contact,
       contactHash,

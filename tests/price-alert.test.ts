@@ -9,6 +9,7 @@ import {
 } from "@/lib/services/price-alert";
 
 let productId: string;
+let merchantListingId: string;
 
 beforeAll(async () => {
   const category = await prisma.category.upsert({
@@ -27,10 +28,35 @@ beforeAll(async () => {
     update: {},
   });
   productId = product.id;
+
+  const merchant = await prisma.merchant.upsert({
+    where: { code: "SHOPEE" },
+    create: { code: "SHOPEE", name: "Shopee", active: true },
+    update: {},
+  });
+  const listing = await prisma.merchantListing.upsert({
+    where: {
+      merchantId_marketplace_externalId: {
+        merchantId: merchant.id,
+        marketplace: "BR",
+        externalId: "__test-price-alert-listing__",
+      },
+    },
+    create: {
+      merchantId: merchant.id,
+      externalId: "__test-price-alert-listing__",
+      externalIdType: "MERCHANT_PRODUCT_ID",
+      marketplace: "BR",
+      productUrl: "https://shopee.com.br/test-price-alert-listing",
+    },
+    update: {},
+  });
+  merchantListingId = listing.id;
 });
 
 afterEach(async () => {
   await prisma.priceAlert.deleteMany({ where: { productId } });
+  await prisma.priceAlert.deleteMany({ where: { merchantListingId } });
 });
 
 afterAll(async () => {
@@ -39,6 +65,9 @@ afterAll(async () => {
   });
   await prisma.category.deleteMany({
     where: { slug: "__test-price-alert-category__" },
+  });
+  await prisma.merchantListing.deleteMany({
+    where: { externalId: "__test-price-alert-listing__" },
   });
 });
 
@@ -79,6 +108,33 @@ describe("createPriceAlert", () => {
       where: { subjectId: "user@example.com" },
     });
     expect(consent).toBeNull();
+  });
+});
+
+describe("createPriceAlert — Mercado Livre/Shopee (merchantListingId)", () => {
+  it("creates an alert against a MerchantListing, not a Product, with productId left null", async () => {
+    const alert = await createPriceAlert({
+      merchantListingId,
+      targetPrice: 49.9,
+      contact: "ml-shopee-user@example.com",
+    });
+    expect(alert.productId).toBeNull();
+    expect(alert.merchantListingId).toBe(merchantListingId);
+    expect(isConfirmed(alert)).toBe(false);
+  });
+
+  it("dedupes an identical pending alert the same way the Product path does", async () => {
+    const first = await createPriceAlert({
+      merchantListingId,
+      targetPrice: 59.9,
+      contact: "dedupe-listing@example.com",
+    });
+    const second = await createPriceAlert({
+      merchantListingId,
+      targetPrice: 59.9,
+      contact: "dedupe-listing@example.com",
+    });
+    expect(second.id).toBe(first.id);
   });
 });
 

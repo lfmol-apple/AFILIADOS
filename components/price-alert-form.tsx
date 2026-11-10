@@ -5,15 +5,18 @@ import { formatCurrency } from "@/lib/format";
 
 export function PriceAlertForm({
   productId,
+  merchantListingId,
   currentPrice,
   currency,
   enabled,
 }: {
-  productId: string;
   currentPrice: number | null;
   currency: string;
   enabled: boolean;
-}) {
+} & ({ productId: string; merchantListingId?: undefined } | {
+  productId?: undefined;
+  merchantListingId: string;
+})) {
   const suggestedTarget = currentPrice
     ? Math.round(currentPrice * 0.9 * 100) / 100
     : "";
@@ -34,6 +37,7 @@ export function PriceAlertForm({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         productId,
+        merchantListingId,
         targetPrice: Number(targetPrice),
         contact,
       }),

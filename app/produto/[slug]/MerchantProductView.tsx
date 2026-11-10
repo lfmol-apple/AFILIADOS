@@ -3,6 +3,8 @@ import { MerchantCta } from "@/components/merchant-cta";
 import { AffiliateDisclosure } from "@/components/affiliate-disclosure";
 import { ProductImage } from "@/components/product-image";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
+import { PriceAlertForm } from "@/components/price-alert-form";
+import { env } from "@/lib/config/env";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { siteConfig } from "@/lib/config/site";
 import { buildBreadcrumbList, jsonLdScriptPayload } from "@/lib/seo/structured-data";
@@ -145,6 +147,15 @@ export function MerchantProductView({
               <AffiliateDisclosure />
             </div>
           )}
+
+          <div className="mt-6">
+            <PriceAlertForm
+              merchantListingId={data.merchantListingId}
+              currentPrice={data.currentPrice}
+              currency={data.currency}
+              enabled={env.PRICE_ALERTS}
+            />
+          </div>
         </div>
       </div>
 
