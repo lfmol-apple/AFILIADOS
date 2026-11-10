@@ -5,6 +5,7 @@ import { logger } from "@/lib/observability/logger";
 import { runShopeeRefreshJob } from "./shopee-refresh";
 import { runShopeeDemandDrivenJob } from "./shopee-demand-driven";
 import { runProductMatcherShadowJob } from "./product-matcher-shadow";
+import { runMlRefreshLinkedJob } from "./ml-refresh-linked";
 
 /**
  * Automação Operacional V1 (2026-09-08) — the ML/Shopee counterpart of
@@ -44,6 +45,14 @@ export async function runMlShopeeCycle(): Promise<void> {
       // Mercado Livre catalog is now built only from the affiliate panel,
       // category by category, highest commission first (/admin/fila-links).
       // The automated scan had filled the DB with ~41k unlinked listings.
+      //
+      // ML_REFRESH_LINKED added 2026-11-10: NOT a return of that discovery.
+      // It never finds a new product — it only re-enriches the closed set
+      // of ML catalog listings the owner already linked via the panel, so
+      // their price/signal data (and therefore the publication gate's
+      // 30-day staleness check) doesn't go stale once registerPanelPick's
+      // one-time enrichment ages out. See jobs/ml-refresh-linked.ts.
+      { name: "ML_REFRESH_LINKED", run: runMlRefreshLinkedJob },
       { name: "SHOPEE_REFRESH", run: runShopeeRefreshJob },
       { name: "SHOPEE_DEMAND_DRIVEN", run: runShopeeDemandDrivenJob },
       { name: "PRODUCT_MATCHER_SHADOW", run: runProductMatcherShadowJob },
