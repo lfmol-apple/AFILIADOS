@@ -45,6 +45,14 @@ export default async function NewMlProductsPage() {
       <p className="text-foreground/60 mt-2 text-sm">
         {products.length} aguardando link.
       </p>
+      <p className="mt-3">
+        <a
+          href="/admin/produtos-novos-ml/lote"
+          className="bg-brand text-brand-foreground inline-block rounded-lg px-4 py-2 text-sm font-semibold"
+        >
+          Gerar e colar em lote (até 30) →
+        </a>
+      </p>
 
       {products.length === 0 ? (
         <p className="text-foreground/60 mt-8 text-sm">
