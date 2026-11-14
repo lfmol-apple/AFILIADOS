@@ -7,6 +7,7 @@ const runId = Date.now();
 let merchantId: string;
 let categoryId: string;
 let canonicalId: string;
+let canonicalBId: string;
 let listingAId: string;
 let listingBId: string;
 const asin = `B0TEST${runId}`.slice(0, 10).toUpperCase();
@@ -55,10 +56,20 @@ beforeAll(async () => {
     },
   });
 
+  // Its own canonical product, not a sibling of A — otherwise the
+  // Amazon-match queue correctly treats A's ACTIVE link as already
+  // resolving B's real-world product and skips it (lib/queries/
+  // amazon-match-queue.ts's sibling-dedup, 2026-11-14).
+  canonicalBId = (
+    await prisma.canonicalProduct.create({
+      data: { slug: `test-canonical-b-${runId}`, title: `Produto de teste B ${runId}`, categoryId },
+    })
+  ).id;
+
   const listingB = await prisma.merchantListing.create({
     data: {
       merchantId,
-      canonicalProductId: canonicalId,
+      canonicalProductId: canonicalBId,
       externalId: `TEST-AMZMATCH-B-${runId}`,
       externalIdType: "MERCHANT_PRODUCT_ID",
       marketplace: "BR",
@@ -91,6 +102,7 @@ afterAll(async () => {
   });
   await prisma.product.deleteMany({ where: { asin } });
   await prisma.canonicalProduct.delete({ where: { id: canonicalId } });
+  await prisma.canonicalProduct.delete({ where: { id: canonicalBId } });
   await prisma.category.delete({ where: { id: categoryId } });
 });
 
