@@ -26,11 +26,44 @@ export function NewMlProductRow({
 }) {
   const router = useRouter();
   const [url, setUrl] = useState("");
-  const [state, setState] = useState<"idle" | "checking" | "saving" | "done">(
-    "idle",
-  );
+  const [state, setState] = useState<
+    "idle" | "checking" | "saving" | "dismissing" | "done"
+  >("idle");
   const [message, setMessage] = useState("");
   const [check, setCheck] = useState<LinkCheck | null>(null);
+
+  async function dismiss() {
+    if (state !== "idle") return;
+    if (
+      !window.confirm(
+        "Descartar este produto? É pra quando o Linkbuilder diz que ele está pausado ou não cumpre os requisitos do programa. Reversível, mas sai da lista.",
+      )
+    )
+      return;
+    setState("dismissing");
+    setMessage("");
+    try {
+      const response = await fetch("/api/admin/ml-affiliate-links/dismiss", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ merchantListingId }),
+      });
+      if (!response.ok) {
+        const data = (await response.json().catch(() => ({}))) as {
+          error?: string;
+        };
+        setState("idle");
+        setMessage(data.error ?? "Não foi possível descartar.");
+        return;
+      }
+      setState("done");
+      setMessage("Descartado.");
+      router.refresh();
+    } catch {
+      setState("idle");
+      setMessage("Falha de rede. Tente de novo.");
+    }
+  }
 
   async function openTool() {
     try {
@@ -173,6 +206,15 @@ export function NewMlProductRow({
               : state === "saving"
                 ? "Salvando…"
                 : "Conferir e salvar"}
+          </button>
+          <button
+            type="button"
+            onClick={() => void dismiss()}
+            disabled={state !== "idle"}
+            className="min-h-9 rounded-lg px-3 text-xs font-medium text-rose-600 hover:underline disabled:opacity-50"
+            title="Produto pausado ou que não cumpre os requisitos do programa"
+          >
+            {state === "dismissing" ? "Descartando…" : "Descartar"}
           </button>
         </div>
         {check && (
