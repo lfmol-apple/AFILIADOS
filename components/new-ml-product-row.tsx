@@ -6,6 +6,13 @@ import { useRouter } from "next/navigation";
 const LINKBUILDER_URL =
   "https://www.mercadolivre.com.br/afiliados/linkbuilder#hub";
 
+interface LinkCheck {
+  status: "match" | "likely" | "mismatch" | "unknown" | "duplicate" | "invalid";
+  message: string;
+  linkTitle: string | null;
+  profileOk: boolean | null;
+}
+
 export function NewMlProductRow({
   merchantListingId,
   title,
@@ -19,8 +26,11 @@ export function NewMlProductRow({
 }) {
   const router = useRouter();
   const [url, setUrl] = useState("");
-  const [state, setState] = useState<"idle" | "saving" | "done">("idle");
+  const [state, setState] = useState<"idle" | "checking" | "saving" | "done">(
+    "idle",
+  );
   const [message, setMessage] = useState("");
+  const [check, setCheck] = useState<LinkCheck | null>(null);
 
   async function openTool() {
     try {
@@ -32,15 +42,53 @@ export function NewMlProductRow({
     window.open(LINKBUILDER_URL, "_blank", "noopener");
   }
 
-  async function save() {
-    if (!url.trim() || state === "saving") return;
+  async function runCheck(value: string): Promise<LinkCheck | null> {
+    setState("checking");
+    setMessage("");
+    setCheck(null);
+    try {
+      const response = await fetch("/api/admin/new-ml-products/check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ merchantListingId, affiliateUrl: value.trim() }),
+      });
+      const data = (await response.json().catch(() => ({}))) as {
+        error?: string;
+        check?: LinkCheck;
+      };
+      setState("idle");
+      if (!response.ok || !data.check) {
+        setMessage(data.error ?? "Não consegui conferir o link.");
+        return null;
+      }
+      setCheck(data.check);
+      return data.check;
+    } catch {
+      setState("idle");
+      setMessage("Falha de rede ao conferir. Tente de novo.");
+      return null;
+    }
+  }
+
+  async function save(value: string = url, force = false) {
+    if (!value.trim() || state === "saving") return;
+    if (!force) {
+      const result = check ?? (await runCheck(value));
+      if (!result || result.status === "duplicate" || result.status === "invalid") return;
+      if (result.status === "mismatch") {
+        const ok = window.confirm(
+          "O link parece ser de OUTRO produto. Salvar mesmo assim?",
+        );
+        if (!ok) return;
+      }
+    }
     setState("saving");
     setMessage("");
     try {
       const response = await fetch("/api/admin/ml-affiliate-links", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ merchantListingId, affiliateUrl: url.trim() }),
+        body: JSON.stringify({ merchantListingId, affiliateUrl: value.trim() }),
       });
       const data = (await response.json().catch(() => ({}))) as {
         error?: string;
@@ -57,6 +105,11 @@ export function NewMlProductRow({
       setState("idle");
       setMessage("Falha de rede. Tente de novo.");
     }
+  }
+
+  async function checkThenSave(value: string) {
+    const result = await runCheck(value);
+    if (result?.status === "match") await save(value, true);
   }
 
   return (
@@ -94,7 +147,16 @@ export function NewMlProductRow({
             value={url}
             onChange={(e) => {
               setUrl(e.target.value);
+              setCheck(null);
               setMessage("");
+            }}
+            onPaste={(e) => {
+              const pasted = e.clipboardData.getData("text").trim();
+              if (/^https?:\/\//.test(pasted)) {
+                e.preventDefault();
+                setUrl(pasted);
+                void checkThenSave(pasted);
+              }
             }}
             disabled={state !== "idle"}
             placeholder="2. Cole o link gerado aqui"
@@ -102,13 +164,42 @@ export function NewMlProductRow({
           />
           <button
             type="button"
-            onClick={save}
+            onClick={() => void save()}
             disabled={state !== "idle" || !url.trim()}
             className="bg-brand text-brand-foreground min-h-9 rounded-lg px-3 text-xs font-semibold disabled:opacity-50"
           >
-            {state === "saving" ? "Salvando…" : "Salvar"}
+            {state === "checking"
+              ? "Conferindo…"
+              : state === "saving"
+                ? "Salvando…"
+                : "Conferir e salvar"}
           </button>
         </div>
+        {check && (
+          <div
+            className={`mt-2 rounded-lg border p-2 text-xs ${
+              check.status === "match"
+                ? "border-emerald-600/40 bg-emerald-50 dark:bg-emerald-950/30"
+                : check.status === "likely" || check.status === "unknown"
+                  ? "border-amber-500/50 bg-amber-50 dark:bg-amber-950/30"
+                  : "border-rose-600/50 bg-rose-50 dark:bg-rose-950/30"
+            }`}
+          >
+            <p className="font-semibold">
+              {check.status === "match"
+                ? "✅ "
+                : check.status === "likely" || check.status === "unknown"
+                  ? "⚠️ "
+                  : "⛔ "}
+              {check.message}
+            </p>
+            {check.profileOk === false && (
+              <p className="mt-1 text-amber-700 dark:text-amber-400">
+                ⚠️ Não vi a sua tag de afiliado (precocaindo) neste link.
+              </p>
+            )}
+          </div>
+        )}
         {message && (
           <p
             className={`mt-1 text-xs ${state === "done" ? "text-emerald-700 dark:text-emerald-400" : "text-rose-600"}`}
