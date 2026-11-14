@@ -45,7 +45,8 @@ export default async function AmazonMatchPage() {
           <p className="text-foreground/60 mt-1 text-sm">
             Todo anúncio ML/Shopee ativo, com ou sem clique — pra cada um,
             busque na Amazon e confirme se existe o mesmo produto. Nunca
-            pergunta de novo sobre um já revisado.
+            pergunta de novo sobre um já revisado. O próximo lote carrega
+            sozinho quando você termina o atual.
           </p>
         </div>
         <a

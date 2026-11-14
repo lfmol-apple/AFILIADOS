@@ -35,6 +35,7 @@ function RowCard({
   onDone: (merchantListingId: string) => void;
 }) {
   const [asin, setAsin] = useState("");
+  const [asinHint, setAsinHint] = useState<string | null>(null);
   const [title, setTitle] = useState("");
   const [brand, setBrand] = useState("");
   const [categorySlug, setCategorySlug] = useState(row.suggestedCategorySlug);
@@ -104,12 +105,28 @@ function RowCard({
       </div>
 
       <div className="mt-3 grid gap-2 sm:grid-cols-2">
-        <input
-          value={asin}
-          onChange={(e) => setAsin(e.target.value.trim().toUpperCase())}
-          placeholder="ASIN (ex: B0F63SVC3T)"
-          className="border-border-subtle rounded border px-2 py-1.5 text-sm"
-        />
+        <div>
+          <input
+            value={asin}
+            onChange={(e) => setAsin(e.target.value.trim().toUpperCase())}
+            onPaste={(e) => {
+              const pasted = e.clipboardData.getData("text").trim();
+              const match = pasted.match(/\/(?:dp|gp\/product|product)\/([A-Z0-9]{10})(?:[/?]|$)/i);
+              if (match) {
+                e.preventDefault();
+                setAsin(match[1].toUpperCase());
+                setAsinHint("Peguei o ASIN direto do endereço colado.");
+              } else {
+                setAsinHint(null);
+              }
+            }}
+            placeholder="ASIN (ex: B0F63SVC3T) — ou cole o endereço da página do produto"
+            className="border-border-subtle w-full rounded border px-2 py-1.5 text-sm"
+          />
+          {asinHint && (
+            <p className="text-foreground/50 mt-1 text-xs">{asinHint}</p>
+          )}
+        </div>
         <select
           value={categorySlug}
           onChange={(e) => setCategorySlug(e.target.value)}
@@ -182,15 +199,48 @@ export function AmazonMatchQueueClient({
   initialRows: Row[];
 }) {
   const [rows, setRows] = useState(initialRows);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [exhausted, setExhausted] = useState(false);
+
+  async function loadMore() {
+    setLoadingMore(true);
+    try {
+      const res = await fetch("/api/admin/amazon-match");
+      const json = (await res.json().catch(() => ({}))) as {
+        rows?: Row[];
+      };
+      const next = json.rows ?? [];
+      if (next.length === 0) {
+        setExhausted(true);
+      } else {
+        setRows(next);
+      }
+    } catch {
+      // stays empty; the owner can retry via the button below
+    } finally {
+      setLoadingMore(false);
+    }
+  }
 
   function handleDone(merchantListingId: string) {
-    setRows((prev) => prev.filter((r) => r.merchantListingId !== merchantListingId));
+    setRows((prev) => {
+      const next = prev.filter((r) => r.merchantListingId !== merchantListingId);
+      if (next.length === 0) void loadMore();
+      return next;
+    });
   }
 
   if (rows.length === 0) {
+    if (exhausted) {
+      return (
+        <p className="text-foreground/60 mt-6 text-sm">
+          Nada pendente agora — fila vazia.
+        </p>
+      );
+    }
     return (
       <p className="text-foreground/60 mt-6 text-sm">
-        Nada pendente neste lote — recarregue a página pra buscar o próximo.
+        {loadingMore ? "Buscando o próximo lote…" : "Carregando…"}
       </p>
     );
   }

@@ -3,7 +3,39 @@ import { z } from "zod";
 import { cookies } from "next/headers";
 import { ADMIN_SESSION_COOKIE, isAdminRequestAuthorized } from "@/lib/admin/auth";
 import { recordAmazonMatchDecision } from "@/lib/services/amazon-match";
+import {
+  getNextAmazonMatchBatch,
+  countPendingAmazonMatches,
+} from "@/lib/queries/amazon-match-queue";
+import { classifyOffer } from "@/lib/offers/categories";
 import { logger } from "@/lib/observability/logger";
+
+const GET_BATCH_SIZE = 25;
+
+/**
+ * Lets the queue UI pull the next batch in place once the current one is
+ * fully decided, instead of a full page reload (2.5k pending as of
+ * 2026-11-14 — reloading per 25 items is real friction at that volume).
+ */
+export async function GET() {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
+  if (!(await isAdminRequestAuthorized(token))) {
+    return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
+  }
+
+  const [batch, pendingTotal] = await Promise.all([
+    getNextAmazonMatchBatch(GET_BATCH_SIZE),
+    countPendingAmazonMatches(),
+  ]);
+
+  const rows = batch.map((row) => ({
+    ...row,
+    suggestedCategorySlug: classifyOffer({ title: row.title }),
+  }));
+
+  return NextResponse.json({ rows, pendingTotal });
+}
 
 const bodySchema = z.discriminatedUnion("decision", [
   z.object({
