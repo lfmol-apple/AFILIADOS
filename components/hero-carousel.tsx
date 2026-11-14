@@ -196,7 +196,37 @@ function GridArt() {
   );
 }
 
+function PriceTagCheckArt() {
+  return (
+    <svg viewBox="0 0 200 200" fill="none" aria-hidden className="h-full w-full">
+      <circle cx="100" cy="100" r="92" fill="white" fillOpacity="0.08" />
+      <circle cx="100" cy="100" r="64" fill="white" fillOpacity="0.1" />
+      <path
+        d="M58 54h56l50 50a10 10 0 0 1 0 14l-42 42a10 10 0 0 1-14 0L58 110V54Z"
+        fill="white"
+        fillOpacity="0.92"
+      />
+      <circle cx="78" cy="78" r="9" fill="#9f1239" />
+      <path
+        d="m112 128 16 16 28-30"
+        stroke="#16a34a"
+        strokeWidth="10"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 const SLIDES: Slide[] = [
+  {
+    id: "black-friday",
+    title: "Black Friday: é desconto de verdade?",
+    body: "A gente confere o histórico real de preço antes de você comprar — não o desconto que a loja anuncia.",
+    cta: { href: "/black-friday", label: "Conferir antes de comprar" },
+    gradient: "from-rose-800 to-neutral-950",
+    art: <PriceTagCheckArt />,
+  },
   {
     id: "ofertas",
     title: "Descubra o que realmente vale a pena comprar",

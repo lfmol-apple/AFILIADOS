@@ -8,13 +8,13 @@ describe("HeroCarousel (server render, i.e. what works without JavaScript)", () 
   it("is announced as a carousel with one labelled group per slide", () => {
     expect(html).toContain('aria-roledescription="carousel"');
     const slides = html.match(/aria-roledescription="slide"/g) ?? [];
-    expect(slides).toHaveLength(4);
-    expect(html).toContain('aria-label="1 de 4"');
-    expect(html).toContain('aria-label="4 de 4"');
+    expect(slides).toHaveLength(5);
+    expect(html).toContain('aria-label="1 de 5"');
+    expect(html).toContain('aria-label="5 de 5"');
   });
 
   it("links every slide to a real section of the site", () => {
-    for (const href of ["/ofertas", "/achados", "/guias"]) {
+    for (const href of ["/black-friday", "/ofertas", "/achados", "/guias"]) {
       expect(html).toContain(`href="${href}"`);
     }
   });
