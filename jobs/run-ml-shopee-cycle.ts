@@ -6,6 +6,7 @@ import { runShopeeRefreshJob } from "./shopee-refresh";
 import { runShopeeDemandDrivenJob } from "./shopee-demand-driven";
 import { runProductMatcherShadowJob } from "./product-matcher-shadow";
 import { runMlRefreshLinkedJob } from "./ml-refresh-linked";
+import { runMlEnrichBacklogJob } from "./ml-enrich-backlog";
 
 /**
  * Automação Operacional V1 (2026-09-08) — the ML/Shopee counterpart of
@@ -53,6 +54,13 @@ export async function runMlShopeeCycle(): Promise<void> {
       // 30-day staleness check) doesn't go stale once registerPanelPick's
       // one-time enrichment ages out. See jobs/ml-refresh-linked.ts.
       { name: "ML_REFRESH_LINKED", run: runMlRefreshLinkedJob },
+      // ML_ENRICH_BACKLOG added 2026-11-14 (owner's decision): gives the
+      // ~52k pre-2026-09-24 catalog listings real title/brand/image (never
+      // sales/rating — not available via this API) so they can enter the
+      // Amazon-match queue and the owner can later read their own
+      // productUrl for a real Linkbuilder link. Still never generates an
+      // AffiliateLinkRegistry row itself — see jobs/ml-enrich-backlog.ts.
+      { name: "ML_ENRICH_BACKLOG", run: runMlEnrichBacklogJob },
       { name: "SHOPEE_REFRESH", run: runShopeeRefreshJob },
       { name: "SHOPEE_DEMAND_DRIVEN", run: runShopeeDemandDrivenJob },
       { name: "PRODUCT_MATCHER_SHADOW", run: runProductMatcherShadowJob },
