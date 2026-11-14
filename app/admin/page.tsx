@@ -26,8 +26,10 @@ import { AdminLoginForm } from "@/components/admin-login-form";
 import { AdminLogoutButton } from "@/components/admin-logout-button";
 import { MlAffiliateQueueItem } from "@/components/ml-affiliate-queue-item";
 import {
+  buildMlAffiliateQueueShadowComparison,
   getMlAffiliateQueue,
   DEFAULT_QUEUE_DISPLAY_LIMIT,
+  type MlAffiliateQueueShadowMovement,
 } from "@/lib/queries/ml-affiliate-queue";
 import { ProductCandidateItem } from "@/components/product-candidate-item";
 import { ProductCandidateForm } from "@/components/product-candidate-form";
@@ -63,6 +65,57 @@ export const metadata: Metadata = {
   manifest: "/admin/manifest.webmanifest",
 };
 export const dynamic = "force-dynamic";
+
+const REPEATED_EVIDENCE_LABEL: Record<string, string> = {
+  HIGH: "alta",
+  MEDIUM: "média",
+  LOW: "baixa",
+  NONE: "nenhuma",
+  unavailable: "sem dado",
+};
+
+/** "alta: 4 · média: 7 · sem dado: 9" — only the buckets that have items. */
+function formatRepeatedDistribution(
+  distribution: Record<string, number>,
+): string {
+  const parts = Object.keys(REPEATED_EVIDENCE_LABEL)
+    .filter((key) => (distribution[key] ?? 0) > 0)
+    .map((key) => `${REPEATED_EVIDENCE_LABEL[key]}: ${distribution[key]}`);
+  return parts.length > 0 ? parts.join(" · ") : "Sem dados";
+}
+
+function ShadowMovementList({
+  title,
+  items,
+}: {
+  title: string;
+  items: MlAffiliateQueueShadowMovement[];
+}) {
+  return (
+    <div className="border-border-subtle rounded-md border p-3">
+      <p className="text-xs font-semibold">{title}</p>
+      {items.length === 0 ? (
+        <p className="text-foreground/50 mt-2 text-xs">Nenhuma mudança.</p>
+      ) : (
+        <ul className="mt-2 space-y-1.5 text-xs">
+          {items.map((movement) => (
+            <li
+              key={movement.item.merchantListingId}
+              className="flex justify-between gap-3"
+            >
+              <span className="truncate">{movement.item.title}</span>
+              <span className="text-foreground/60 shrink-0 tabular-nums">
+                #{movement.currentPosition} → #{movement.shadowPosition} (
+                {movement.delta > 0 ? "+" : ""}
+                {movement.delta})
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 export default async function AdminPage(props: PagePropsWithSearch) {
   const cookieStore = await cookies();
@@ -128,6 +181,7 @@ export default async function AdminPage(props: PagePropsWithSearch) {
     0,
     DEFAULT_QUEUE_DISPLAY_LIMIT,
   );
+  const mlQueueShadow = buildMlAffiliateQueueShadowComparison(mlAffiliateQueue);
   const brCompliancePass = checkLiveActivationReadiness("BR").every(
     (c) => c.pass,
   );
@@ -157,22 +211,16 @@ export default async function AdminPage(props: PagePropsWithSearch) {
             Fila de links (Mercado Livre) →
           </a>
           <a
-            href="/admin/creators-api"
+            href="/admin/produtos-novos-ml"
             className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
           >
-            Amazon — caminho para a API →
+            Produtos novos ML (backlog) →
           </a>
           <a
             href="/admin/modo-dono"
             className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
           >
             Modo dono (não contar minhas visitas) →
-          </a>
-          <a
-            href="/admin/notificacoes"
-            className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
-          >
-            Notificações (avisar quando o site for acessado) →
           </a>
           {isAdminAuthConfigured() && <AdminLogoutButton />}
         </div>
@@ -323,14 +371,57 @@ export default async function AdminPage(props: PagePropsWithSearch) {
           )}
         </SubSection>
 
+        <SubSection title="Market Demand — comparação da fila ML">
+          <p className="text-foreground/60 mb-3 text-xs">
+            SHADOW — não altera a fila operacional. Compara a ordem atual com
+            uma hipótese baseada em evidência recorrente dos destaques do
+            Mercado Livre.
+          </p>
+          <div className="grid gap-3 text-xs sm:grid-cols-3">
+            <div className="border-border-subtle rounded-md border p-3">
+              <p className="font-semibold">Concordância Top 20</p>
+              <p className="text-foreground/70 mt-1">
+                {mlQueueShadow.currentTop20Retained}/20 permanecem no Top 20
+                shadow.
+              </p>
+            </div>
+            <div className="border-border-subtle rounded-md border p-3">
+              <p className="font-semibold">Top 20 atual</p>
+              <p className="text-foreground/70 mt-1">
+                {formatRepeatedDistribution(
+                  mlQueueShadow.currentTop20RepeatedEvidence,
+                )}
+              </p>
+            </div>
+            <div className="border-border-subtle rounded-md border p-3">
+              <p className="font-semibold">Top 20 shadow</p>
+              <p className="text-foreground/70 mt-1">
+                {formatRepeatedDistribution(
+                  mlQueueShadow.shadowTop20RepeatedEvidence,
+                )}
+              </p>
+            </div>
+          </div>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <ShadowMovementList
+              title="Maiores promoções shadow"
+              items={mlQueueShadow.topPromotions}
+            />
+            <ShadowMovementList
+              title="Maiores rebaixamentos shadow"
+              items={mlQueueShadow.topDemotions}
+            />
+          </div>
+        </SubSection>
+
         {env.MANUAL_PRODUCTS_ENABLED && (
           <SubSection title="Candidatos Amazon">
             <p className="text-foreground/60 mb-3 text-xs">
               Sem API ainda (a Creators API exige 10 vendas qualificadas nos
-              últimos 30 dias — ver Amazon — caminho para a API) — descoberta
-              é manual. Registre um ASIN real que valha a pena
-              avaliar, aprove os que se confirmarem, e promova a produto real
-              (rascunho, ativação continua um passo separado).
+              últimos 30 dias — ver Amazon — caminho para a API) — descoberta é
+              manual. Registre um ASIN real que valha a pena avaliar, aprove os
+              que se confirmarem, e promova a produto real (rascunho, ativação
+              continua um passo separado).
             </p>
             <ProductCandidateForm />
             {productCandidates.length === 0 ? (

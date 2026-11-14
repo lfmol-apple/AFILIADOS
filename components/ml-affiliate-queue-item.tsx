@@ -6,6 +6,7 @@
 // a client component that pulled in AffiliateDisclosure's env-reading
 // import chain crashed hydration in production. Never repeat that here.
 import { useState } from "react";
+import type { MarketDemandEvidence } from "@/lib/services/market-demand-evidence";
 
 // Real URL confirmed by the user (2026-09-08) — the Linkbuilder tool
 // itself takes a real Mercado Livre product URL pasted into it and
@@ -54,6 +55,7 @@ export interface MlAffiliateQueueItemProps {
      * false. */
     permalinkVerified: boolean;
   } | null;
+  marketDemandEvidence: MarketDemandEvidence | null;
 }
 
 export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
@@ -164,6 +166,24 @@ export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
             </span>
           </p>
         </div>
+      </div>
+
+      <div className="border-border-subtle bg-surface mt-3 rounded-md border px-3 py-2">
+        <p className="text-xs font-semibold">Demanda ML</p>
+        {props.marketDemandEvidence ? (
+          <>
+            <p className="text-foreground/70 mt-1 text-xs">
+              {formatDemandEvidenceSummary(props.marketDemandEvidence)}
+            </p>
+            <p className="text-foreground/50 mt-1 text-xs">
+              {props.marketDemandEvidence.explanation}
+            </p>
+          </>
+        ) : (
+          <p className="text-foreground/50 mt-1 text-xs">
+            Evidência indisponível para este item da fila.
+          </p>
+        )}
       </div>
 
       {props.bestOffer ? (
@@ -299,4 +319,24 @@ export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
       )}
     </div>
   );
+}
+
+function formatDemandEvidenceSummary(evidence: MarketDemandEvidence): string {
+  const confidenceLabel = {
+    LOW: "baixa",
+    MEDIUM: "média",
+    HIGH: "alta",
+  }[evidence.confidence];
+  const repeatedLabel = {
+    NONE: "isolada",
+    LOW: "baixa",
+    MEDIUM: "média",
+    HIGH: "alta",
+  }[evidence.repeatedEvidence];
+
+  if (evidence.top3Observations >= 5) {
+    return `Melhor #${evidence.bestObservedRank} · ${evidence.totalBestsellerObservations} observações · Top 3: ${evidence.top3Observations}x · evidência ${repeatedLabel} · confiança ${confidenceLabel}`;
+  }
+
+  return `#${evidence.latestObservedBestsellerRank} · observado ${evidence.totalBestsellerObservations}x · Top 10: ${evidence.top10Observations}x · evidência ${repeatedLabel} · confiança ${confidenceLabel}`;
 }

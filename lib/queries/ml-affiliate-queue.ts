@@ -1,4 +1,9 @@
 import { prisma } from "@/lib/db";
+import {
+  calculateMarketDemandEvidenceBatch,
+  type MarketDemandEvidence,
+  type MarketDemandObservation,
+} from "@/lib/services/market-demand-evidence";
 
 /** Below this MonetizationScore, a Mercado Livre opportunity doesn't reach
  * the admin's attention yet — the whole point of the queue is a human
@@ -62,6 +67,30 @@ export interface MlAffiliateQueueItem {
      * never claim otherwise while this stays false. */
     permalinkVerified: boolean;
   } | null;
+  /** SHADOW only: factual Mercado Livre demand evidence derived from
+   * mercado_livre_highlights. Never participates in eligibility, queue
+   * ordering, link saving, or dismissal. Null means there is no safe
+   * catalog/highlights relationship to hydrate. */
+  marketDemandEvidence: MarketDemandEvidence | null;
+}
+
+export interface MlAffiliateQueueShadowMovement {
+  item: MlAffiliateQueueItem;
+  currentPosition: number;
+  shadowPosition: number;
+  delta: number;
+}
+
+export interface MlAffiliateQueueShadowComparison {
+  currentTop50: MlAffiliateQueueShadowMovement[];
+  shadowTop50: MlAffiliateQueueShadowMovement[];
+  topPromotions: MlAffiliateQueueShadowMovement[];
+  topDemotions: MlAffiliateQueueShadowMovement[];
+  currentTop20Retained: number;
+  enteredTop20: MlAffiliateQueueShadowMovement[];
+  exitedTop20: MlAffiliateQueueShadowMovement[];
+  currentTop20RepeatedEvidence: Record<string, number>;
+  shadowTop20RepeatedEvidence: Record<string, number>;
 }
 
 /**
@@ -136,8 +165,11 @@ export async function getMlAffiliateQueue(
   });
 
   const all = [...listings, ...withInactiveLink];
+  const evidenceByProductKey = await loadMarketDemandEvidenceForQueue(all);
 
-  const items = await Promise.all(all.map((listing) => enrichWithBestOffer(listing)));
+  const items = await Promise.all(
+    all.map((listing) => enrichWithBestOffer(listing, evidenceByProductKey)),
+  );
 
   // Re-sort here (not just via the SQL orderBy above): a listing whose
   // displayed monetizationScore got upgraded to its best real offer's
@@ -165,8 +197,12 @@ type CandidateListing = Awaited<
  * enrichment script), surface the highest-MonetizationScore one. Otherwise
  * falls back to the pre-existing demand-only display, unchanged.
  */
-async function enrichWithBestOffer(listing: CandidateListing): Promise<MlAffiliateQueueItem> {
+async function enrichWithBestOffer(
+  listing: CandidateListing,
+  evidenceByProductKey: Map<string, MarketDemandEvidence>,
+): Promise<MlAffiliateQueueItem> {
   const signal = listing.signals[0];
+  const productKey = listing.canonicalProductId ?? listing.id;
   const base: MlAffiliateQueueItem = {
     merchantListingId: listing.id,
     title: listing.canonicalProduct?.title ?? listing.externalId,
@@ -186,6 +222,7 @@ async function enrichWithBestOffer(listing: CandidateListing): Promise<MlAffilia
         }
       : null,
     bestOffer: null,
+    marketDemandEvidence: evidenceByProductKey.get(productKey) ?? null,
   };
 
   if (!listing.canonicalProductId) return base;
@@ -254,4 +291,177 @@ async function enrichWithBestOffer(listing: CandidateListing): Promise<MlAffilia
         }
       : null,
   };
+}
+
+export function sortMlAffiliateQueueShadow(
+  items: MlAffiliateQueueItem[],
+): MlAffiliateQueueItem[] {
+  const currentPosition = new Map(items.map((item, index) => [item.merchantListingId, index]));
+  return [...items].sort((a, b) => compareShadowQueueItems(a, b, currentPosition));
+}
+
+export function buildMlAffiliateQueueShadowComparison(
+  items: MlAffiliateQueueItem[],
+): MlAffiliateQueueShadowComparison {
+  const shadowItems = sortMlAffiliateQueueShadow(items);
+  const currentPosition = new Map(items.map((item, index) => [item.merchantListingId, index + 1]));
+  const shadowPosition = new Map(shadowItems.map((item, index) => [item.merchantListingId, index + 1]));
+
+  const movements = items.map((item) => {
+    const current = currentPosition.get(item.merchantListingId)!;
+    const shadow = shadowPosition.get(item.merchantListingId)!;
+    return { item, currentPosition: current, shadowPosition: shadow, delta: current - shadow };
+  });
+
+  const byPromotion = [...movements].sort(
+    (a, b) => b.delta - a.delta || a.shadowPosition - b.shadowPosition,
+  );
+  const byDemotion = [...movements].sort(
+    (a, b) => a.delta - b.delta || a.shadowPosition - b.shadowPosition,
+  );
+
+  const currentTop20Ids = new Set(items.slice(0, 20).map((item) => item.merchantListingId));
+  const shadowTop20Ids = new Set(shadowItems.slice(0, 20).map((item) => item.merchantListingId));
+
+  return {
+    currentTop50: items.slice(0, 50).map((item) => toMovement(item, currentPosition, shadowPosition)),
+    shadowTop50: shadowItems.slice(0, 50).map((item) => toMovement(item, currentPosition, shadowPosition)),
+    topPromotions: byPromotion.filter((movement) => movement.delta > 0).slice(0, 10),
+    topDemotions: byDemotion.filter((movement) => movement.delta < 0).slice(0, 10),
+    currentTop20Retained: [...currentTop20Ids].filter((id) => shadowTop20Ids.has(id)).length,
+    enteredTop20: shadowItems
+      .slice(0, 20)
+      .filter((item) => !currentTop20Ids.has(item.merchantListingId))
+      .map((item) => toMovement(item, currentPosition, shadowPosition)),
+    exitedTop20: items
+      .slice(0, 20)
+      .filter((item) => !shadowTop20Ids.has(item.merchantListingId))
+      .map((item) => toMovement(item, currentPosition, shadowPosition)),
+    currentTop20RepeatedEvidence: repeatedEvidenceDistribution(items.slice(0, 20)),
+    shadowTop20RepeatedEvidence: repeatedEvidenceDistribution(shadowItems.slice(0, 20)),
+  };
+}
+
+async function loadMarketDemandEvidenceForQueue(
+  listings: CandidateListing[],
+): Promise<Map<string, MarketDemandEvidence>> {
+  if (listings.length === 0) return new Map();
+
+  const listingIds = listings.map((listing) => listing.id);
+  const canonicalProductIds = listings
+    .map((listing) => listing.canonicalProductId)
+    .filter((id): id is string => id !== null);
+
+  const signals = await prisma.merchantListingSignal.findMany({
+    where: {
+      source: "mercado_livre_highlights",
+      bestsellerRank: { not: null },
+      merchantListing: {
+        merchant: { code: "MERCADO_LIVRE" },
+        OR: [
+          { id: { in: listingIds } },
+          ...(canonicalProductIds.length > 0
+            ? [{ canonicalProductId: { in: canonicalProductIds } }]
+            : []),
+        ],
+      },
+    },
+    select: {
+      bestsellerRank: true,
+      observedAt: true,
+      raw: true,
+      merchantListing: {
+        select: {
+          id: true,
+          externalId: true,
+          canonicalProductId: true,
+          canonicalProduct: { select: { title: true } },
+        },
+      },
+    },
+    orderBy: { observedAt: "asc" },
+  });
+
+  const observations: MarketDemandObservation[] = signals.map((signal) => {
+    const listing = signal.merchantListing;
+    const raw = signal.raw as { categoryId?: string } | null;
+    return {
+      productKey: listing.canonicalProductId ?? listing.id,
+      title: listing.canonicalProduct?.title ?? listing.externalId,
+      bestsellerRank: signal.bestsellerRank,
+      observedAt: signal.observedAt,
+      categoryId: raw?.categoryId ?? null,
+    };
+  });
+
+  return new Map(
+    calculateMarketDemandEvidenceBatch(observations).map((evidence) => [
+      evidence.productKey,
+      evidence,
+    ]),
+  );
+}
+
+function compareShadowQueueItems(
+  a: MlAffiliateQueueItem,
+  b: MlAffiliateQueueItem,
+  currentPosition: Map<string, number>,
+): number {
+  const aEvidence = a.marketDemandEvidence;
+  const bEvidence = b.marketDemandEvidence;
+  return (
+    evidenceRank(bEvidence?.repeatedEvidence) - evidenceRank(aEvidence?.repeatedEvidence) ||
+    confidenceRank(bEvidence?.confidence) - confidenceRank(aEvidence?.confidence) ||
+    (bEvidence?.top10Observations ?? 0) - (aEvidence?.top10Observations ?? 0) ||
+    (bEvidence?.totalBestsellerObservations ?? 0) - (aEvidence?.totalBestsellerObservations ?? 0) ||
+    (aEvidence?.latestObservedBestsellerRank ?? Number.MAX_SAFE_INTEGER) -
+      (bEvidence?.latestObservedBestsellerRank ?? Number.MAX_SAFE_INTEGER) ||
+    (currentPosition.get(a.merchantListingId) ?? Number.MAX_SAFE_INTEGER) -
+      (currentPosition.get(b.merchantListingId) ?? Number.MAX_SAFE_INTEGER)
+  );
+}
+
+function evidenceRank(value: MarketDemandEvidence["repeatedEvidence"] | undefined): number {
+  switch (value) {
+    case "HIGH":
+      return 3;
+    case "MEDIUM":
+      return 2;
+    case "LOW":
+      return 1;
+    case "NONE":
+    default:
+      return 0;
+  }
+}
+
+function confidenceRank(value: MarketDemandEvidence["confidence"] | undefined): number {
+  switch (value) {
+    case "HIGH":
+      return 2;
+    case "MEDIUM":
+      return 1;
+    case "LOW":
+    default:
+      return 0;
+  }
+}
+
+function repeatedEvidenceDistribution(items: MlAffiliateQueueItem[]): Record<string, number> {
+  const distribution: Record<string, number> = { HIGH: 0, MEDIUM: 0, LOW: 0, NONE: 0, unavailable: 0 };
+  for (const item of items) {
+    const key = item.marketDemandEvidence?.repeatedEvidence ?? "unavailable";
+    distribution[key] = (distribution[key] ?? 0) + 1;
+  }
+  return distribution;
+}
+
+function toMovement(
+  item: MlAffiliateQueueItem,
+  currentPosition: Map<string, number>,
+  shadowPosition: Map<string, number>,
+): MlAffiliateQueueShadowMovement {
+  const current = currentPosition.get(item.merchantListingId)!;
+  const shadow = shadowPosition.get(item.merchantListingId)!;
+  return { item, currentPosition: current, shadowPosition: shadow, delta: current - shadow };
 }
