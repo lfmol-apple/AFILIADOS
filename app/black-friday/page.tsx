@@ -6,7 +6,12 @@ import { ProductImage } from "@/components/product-image";
 import { getRealDiscountCandidates } from "@/lib/queries/black-friday";
 import { siteConfig } from "@/lib/config/site";
 
-export const revalidate = 1200;
+// Dynamic, not ISR: the Docker build stage has no reachable database, so a
+// statically-prerendered version of this page fails the build outright
+// (confirmed live, 2026-11-14) — same reason /ofertas is dynamic too. The
+// 20-minute in-memory cache in getRealDiscountCandidates already avoids
+// doing the heavy query on every request.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Black Friday: desconto de verdade ou só subiram antes? | PreçoCaindo",
@@ -23,7 +28,10 @@ const MERCHANT_LABEL: Record<"mercado-livre" | "shopee", string> = {
 };
 
 export default async function BlackFridayPage() {
-  const items = await getRealDiscountCandidates();
+  const items = await getRealDiscountCandidates().catch((error) => {
+    console.error("black_friday.page_load_failed", error);
+    return [];
+  });
   const breadcrumbItems = [
     { label: "Início", href: "/" },
     { label: "Black Friday: desconto de verdade?" },
