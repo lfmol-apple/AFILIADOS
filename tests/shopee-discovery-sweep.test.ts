@@ -75,8 +75,8 @@ describe("selectNewSweepOffers", () => {
 
 describe("planAmsSweep", () => {
   it("asks for a few consecutive pages, wraps inside 1..AMS_MAX_PAGE and is deterministic", () => {
-    expect(planAmsSweep(0)).toEqual([1, 2, 3]);
-    expect(planAmsSweep(1)).toEqual([4, 5, 6]);
+    expect(planAmsSweep(0)).toEqual([1, 2, 3, 4, 5]);
+    expect(planAmsSweep(1)).toEqual([6, 7, 8, 9, 10]);
     expect(planAmsSweep(4)).toEqual(planAmsSweep(4));
     const all = new Set<number>();
     const cyclesPerLap = Math.ceil(AMS_MAX_PAGE / AMS_PAGES_PER_CYCLE) * 2;

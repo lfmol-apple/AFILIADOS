@@ -106,9 +106,14 @@ export function selectNewSweepOffers(
  * rating >= 4.5 and commission >= R$ 10.
  */
 export const AMS_SORT_MOST_SOLD = 2;
-export const AMS_PAGES_PER_CYCLE = 3;
-/** Pages of SWEEP_PAGE_LIMIT offers; a lap ends here and starts over. */
-export const AMS_MAX_PAGE = 20;
+export const AMS_PAGES_PER_CYCLE = 5;
+/** Pages of SWEEP_PAGE_LIMIT offers; a lap ends here and starts over. Raised
+ * from 20 (2026-11-14, owner's decision): the first 20-page lap had already
+ * surfaced its ~37 qualifying offers, so deeper pages are the only way to
+ * find more under the same quality bar (AMS_MIN_SALES/RATING/COMMISSION
+ * unchanged — this widens how much of Shopee's own list gets scanned, not
+ * what counts as worth adding). */
+export const AMS_MAX_PAGE = 40;
 export const AMS_MIN_SALES = 500;
 export const AMS_MIN_RATING = 4.5;
 /** Commission in reais per sale (Shopee's `commission` field). */
