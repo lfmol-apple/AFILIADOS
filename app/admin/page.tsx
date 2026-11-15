@@ -272,6 +272,15 @@ export default async function AdminPage(props: PagePropsWithSearch) {
         </div>
       )}
 
+      {/* Escondido por padrão (owner's call, 2026-11-15): o essencial do
+          dia a dia já está no menu acima (fila-links, produtos-em-alta,
+          amazon-match, desempenho). O painel operacional completo abaixo
+          continua calculado normalmente — só não abre sozinho. */}
+      <details className="mt-6">
+        <summary className="text-foreground/60 hover:text-foreground cursor-pointer text-sm font-medium">
+          Mostrar painel operacional completo →
+        </summary>
+        <div className="mt-4">
       {/* ---------------- CENTRO DE OPERAÇÕES ---------------- */}
       <DashboardGroup
         title="Centro de operações"
@@ -865,6 +874,8 @@ export default async function AdminPage(props: PagePropsWithSearch) {
           Provedor de remarketing ativo: {privacy.remarketingProvider}
         </p>
       </DashboardGroup>
+        </div>
+      </details>
     </div>
   );
 }
