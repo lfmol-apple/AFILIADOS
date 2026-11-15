@@ -70,7 +70,16 @@ export async function connectWhatsApp(timeoutMs = 30_000): Promise<WhatsAppConne
   const sock = makeWASocket({
     auth: state,
     logger: silentLogger,
-    browser: Browsers.ubuntu("PreçoCaindo"),
+    // Second element — not the app name — decides the device's
+    // DeviceProps.PlatformType: `browser[1].toUpperCase()` must match a
+    // real enum member (lib/Utils/validate-connection.js's
+    // getPlatformType) or it silently falls back to CHROME. Found live,
+    // 2026-11-16: "PreçoCaindo" doesn't match anything, so every pairing
+    // attempt was presenting as CHROME — the exact browser platform
+    // WhatsApp has been rejecting QR pairing from since Feb 2026
+    // (confirmed community-documented issue). "Desktop" maps to the real
+    // DESKTOP (7) enum member instead.
+    browser: Browsers.macOS("Desktop"),
     printQRInTerminal: false,
   });
   sock.ev.on("creds.update", saveCreds);

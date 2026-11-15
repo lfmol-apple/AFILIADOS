@@ -44,14 +44,18 @@ async function main() {
   const { default: makeWASocket, useMultiFileAuthState, Browsers } = await import("baileys");
   const { state, saveCreds } = await useMultiFileAuthState(dir);
 
-  // Verbose on purpose, temporarily (owner's phone keeps failing the scan
-  // with a generic "check your connection" error, 2026-11-16, with no
-  // obvious network problem on either side) — "silent" was hiding
-  // whatever baileys itself is actually seeing when a scan attempt fails.
+  // Root cause found live, 2026-11-16: browser[1] (not the OS name) must
+  // match a real DeviceProps.PlatformType member or baileys silently
+  // falls back to CHROME — the exact platform WhatsApp has been
+  // rejecting QR pairing from since Feb 2026 (community-documented
+  // issue). See lib/services/whatsapp-connection.ts's doc comment for
+  // the full trace through baileys' own source. Debug-level logging is
+  // what surfaced the "failed to ack notification" clue that led here;
+  // left on for this first real pairing attempt with the fix applied.
   const sock = makeWASocket({
     auth: state,
     logger: pino({ level: "debug" }),
-    browser: Browsers.ubuntu("PreçoCaindo"),
+    browser: Browsers.macOS("Desktop"),
   });
   sock.ev.on("creds.update", saveCreds);
 
