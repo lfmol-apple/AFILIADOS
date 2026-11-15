@@ -17,7 +17,10 @@ TMP_ENV="$(mktemp)"
 trap 'rm -f "$TMP_ENV"' EXIT
 sed -E 's/^([A-Za-z_][A-Za-z0-9_]*)="(.*)"$/\1=\2/' .env > "$TMP_ENV"
 
-SESSION_DIR="$(grep -E '^WHATSAPP_SESSION_DIR=' .env | sed -E 's/^WHATSAPP_SESSION_DIR="?([^"]*)"?$/\1/')"
+# `grep` with no match exits 1, which would kill the script under
+# `pipefail` before the `:-` default ever gets a chance — found live,
+# 2026-11-15, running this before WHATSAPP_SESSION_DIR existed in .env.
+SESSION_DIR="$(grep -E '^WHATSAPP_SESSION_DIR=' .env | sed -E 's/^WHATSAPP_SESSION_DIR="?([^"]*)"?$/\1/' || true)"
 SESSION_DIR="${SESSION_DIR:-data/whatsapp-session}"
 case "$SESSION_DIR" in
   /*) HOST_SESSION_DIR="$SESSION_DIR" ;;
