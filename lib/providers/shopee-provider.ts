@@ -209,8 +209,19 @@ export class ShopeeProvider implements CommerceProvider {
     const json = (await response.json()) as { data?: T; errors?: unknown[] };
     if (json.errors && json.errors.length > 0) {
       logger.error("shopee.graphql_errors", { errors: json.errors });
+      // Shopee's rate limit (code 10030) comes back as an HTTP 200 with a
+      // GraphQL-level error, never a 429 — found live, 2026-11-15:
+      // LINK_HEALTH_CHECK was hitting it ~310 times/day and every one was
+      // thrown away immediately because lib/jobs/retry.ts's
+      // isRetryableError only recognizes an "HTTP <status>" shaped
+      // message. Reformatting it that way here (rather than teaching
+      // retry.ts a second, GraphQL-specific shape) lets every existing
+      // caller's retry/backoff pick it up for free.
+      const isRateLimited = JSON.stringify(json.errors).includes("10030");
       throw new Error(
-        `ShopeeProvider GraphQL request returned errors: ${JSON.stringify(json.errors)}`,
+        isRateLimited
+          ? "ShopeeProvider GraphQL request rate-limited: HTTP 429"
+          : `ShopeeProvider GraphQL request returned errors: ${JSON.stringify(json.errors)}`,
       );
     }
     if (!json.data) {

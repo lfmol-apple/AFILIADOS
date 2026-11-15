@@ -162,6 +162,28 @@ describe("ShopeeProvider", () => {
     const provider = new ShopeeProvider();
     await expect(provider.getProduct("123456")).rejects.toThrow(/invalid signature|GraphQL/);
   });
+
+  it("reformats the rate-limit GraphQL error (code 10030) as an HTTP 429, so lib/jobs/retry.ts's isRetryableError recognizes it (found live, 2026-11-15: LINK_HEALTH_CHECK was discarding ~310/day of these instead of retrying)", async () => {
+    stubShopeeCredentials();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({
+        ok: true,
+        status: 200,
+        json: async () => ({
+          errors: [
+            {
+              message: "error [10030]: Rate limit exceeded",
+              extensions: { code: 10030, message: "Rate limit exceeded" },
+            },
+          ],
+        }),
+      })),
+    );
+    const { ShopeeProvider } = await import("@/lib/providers/shopee-provider");
+    const provider = new ShopeeProvider();
+    await expect(provider.getProduct("123456")).rejects.toThrow(/HTTP 429/);
+  });
 });
 
 describe("shopeeNumeric", () => {
