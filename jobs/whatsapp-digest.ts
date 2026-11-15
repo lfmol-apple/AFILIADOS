@@ -11,7 +11,7 @@ import {
   type WhatsAppOutgoingPost,
 } from "@/lib/services/whatsapp-sender";
 
-const ITEMS_PER_POST = 6;
+const DEFAULT_ITEMS_PER_POST = 6;
 
 /**
  * Posts today's real "em alta" products (lib/queries/whatsapp-trending-
@@ -22,10 +22,21 @@ const ITEMS_PER_POST = 6;
  * apareçam") — image + caption when the product has a real photo, plain
  * text otherwise, never a placeholder image. dryRun defaults to true,
  * same convention as every other digest job in this codebase.
+ *
+ * `count` defaults to 6 for the daily automated cron (same "menos
+ * volume, mais prova" cadence as the Telegram digest) — the cron never
+ * passes a different value. Higher counts are for a manual, one-off
+ * "launch batch" run (owner's brief, 2026-11-16: "vamos enviar muitas
+ * ofertas boas", channel brand new and nearly empty), never quality: the
+ * same title+image+price requirements apply no matter how many are
+ * asked for.
  */
-export async function runWhatsAppDigestJob(dryRun: boolean): Promise<JobCounters> {
+export async function runWhatsAppDigestJob(
+  dryRun: boolean,
+  count: number = DEFAULT_ITEMS_PER_POST,
+): Promise<JobCounters> {
   return runJob("WHATSAPP_DIGEST", async (ctx) => {
-    const items = await loadWhatsAppTrendingToday(ITEMS_PER_POST);
+    const items = await loadWhatsAppTrendingToday(count);
     ctx.counters.processed = items.length;
 
     if (items.length === 0) {
@@ -69,13 +80,17 @@ export async function runWhatsAppDigestJob(dryRun: boolean): Promise<JobCounters
 const isMainModule = import.meta.url === `file://${process.argv[1]}`;
 if (isMainModule) {
   const { values } = parseArgs({
-    options: { live: { type: "boolean", default: false } },
+    options: {
+      live: { type: "boolean", default: false },
+      count: { type: "string" },
+    },
   });
   const dryRun = !values.live;
+  const count = values.count ? Number(values.count) : DEFAULT_ITEMS_PER_POST;
   if (dryRun) {
     console.log("=== DRY RUN — nada será postado. Passe --live pra enviar. ===");
   }
-  runWhatsAppDigestJob(dryRun)
+  runWhatsAppDigestJob(dryRun, count)
     .then((c) => console.log("WHATSAPP_DIGEST done:", JSON.stringify(c)))
     .catch((err) => {
       console.error("WHATSAPP_DIGEST failed:", err instanceof Error ? err.message : err);
