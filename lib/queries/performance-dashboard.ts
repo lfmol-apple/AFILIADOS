@@ -131,6 +131,7 @@ export interface TopClickedProductMulti {
   /** "/produto/<slug>" when the click's product has a public page, else null
    * — some Shopee listings and every non-catalog Mercado Livre item don't. */
   href: string | null;
+  imageUrl: string | null;
 }
 
 /**
@@ -151,6 +152,7 @@ export async function getTopClickedProductsMulti(
       merchant: ClickMerchantCode | null;
       title: string;
       href: string | null;
+      image_url: string | null;
       clicks_7d: bigint;
       clicks_30d: bigint;
       clicks_all: bigint;
@@ -163,6 +165,7 @@ export async function getTopClickedProductsMulti(
            case when coalesce(cp."publicSlug", p.slug, ml.slug) is not null
                 then '/produto/' || coalesce(cp."publicSlug", p.slug, ml.slug)
                 else null end as href,
+           coalesce(cp."imageUrl", p."imageUrl") as image_url,
            count(*) filter (where ac."createdAt" >= ${since7d}) as clicks_7d,
            count(*) filter (where ac."createdAt" >= ${since30d}) as clicks_30d,
            count(*) as clicks_all,
@@ -174,7 +177,7 @@ export async function getTopClickedProductsMulti(
     left join "Product" p on p.id = ac."productId"
     left join "MerchantListing" ml on ml.id = ac."merchantListingId"
     where ${REAL_VISITOR_CLICKS_SQL}
-    group by 1, 2, 3
+    group by 1, 2, 3, 4
     order by clicks_all desc
     limit ${limit}
   `;
@@ -183,6 +186,7 @@ export async function getTopClickedProductsMulti(
     merchant: (r.merchant ?? "AMAZON") as ClickMerchantCode,
     title: r.title,
     href: r.href,
+    imageUrl: r.image_url,
     clicks7d: Number(r.clicks_7d),
     clicks30d: Number(r.clicks_30d),
     clicksAllTime: Number(r.clicks_all),

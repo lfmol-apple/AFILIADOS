@@ -7,25 +7,23 @@ const MERCHANT_LABEL: Record<WhatsAppTrendingItem["merchant"], string> = {
 };
 
 /**
+ * One caption per product (owner's brief, 2026-11-16: "quero que as
+ * imagens apareçam" — each post is its own image + caption, matching the
+ * real deal-channel pattern the owner pointed at, not one wall-of-text
+ * message for all of today's products).
+ *
  * Unlike lib/services/price-drop-digest.ts's Telegram message (deep-links
  * straight to the merchant on purpose), this links to our OWN product
- * page — owner's brief, 2026-11-15: "como a pessoa vai ver o site". The
- * click lands on PreçoCaindo first (price history, the price-alert
- * signup, other offers) before ever reaching the merchant.
+ * page — owner's brief, 2026-11-15: "como a pessoa vai ver o site".
  */
-export function buildWhatsAppTrendingMessage(
-  items: WhatsAppTrendingItem[],
+export function buildWhatsAppItemCaption(
+  item: WhatsAppTrendingItem,
   siteUrl: string,
 ): string {
-  const lines = [
-    "🔥 *Produtos em alta hoje no PreçoCaindo*",
+  return [
+    `🔥 *${item.title}*`,
     "",
-    ...items.flatMap((item, i) => [
-      `${i + 1}. ${item.title} _(${MERCHANT_LABEL[item.merchant]})_`,
-      `${siteUrl}${item.href}`,
-      "",
-    ]),
-    "Preço, histórico e outras lojas: " + siteUrl,
-  ];
-  return lines.join("\n");
+    `_${MERCHANT_LABEL[item.merchant]}_`,
+    `${siteUrl}${item.href}`,
+  ].join("\n");
 }

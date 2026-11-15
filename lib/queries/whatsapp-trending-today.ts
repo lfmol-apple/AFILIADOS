@@ -8,12 +8,16 @@ export interface WhatsAppTrendingItem {
    * the owner's brief (2026-11-15) is for the click to land on the site
    * itself, not skip straight to the merchant. */
   href: string;
+  /** Owner's brief, 2026-11-16: "quero que as imagens apareçam" — null
+   * when the product genuinely has none (rare), never a placeholder. */
+  imageUrl: string | null;
 }
 
 interface ScoredRow {
   merchant: "MERCADO_LIVRE" | "SHOPEE";
   title: string;
   href: string;
+  imageUrl: string | null;
 }
 
 /**
@@ -30,9 +34,14 @@ interface ScoredRow {
  */
 async function loadScoredCatalogToday(limit: number): Promise<ScoredRow[]> {
   const rows = await prisma.$queryRaw<
-    { merchant: "MERCADO_LIVRE" | "SHOPEE"; title: string | null; slug: string | null }[]
+    {
+      merchant: "MERCADO_LIVRE" | "SHOPEE";
+      title: string | null;
+      slug: string | null;
+      imageUrl: string | null;
+    }[]
   >`
-    SELECT m.code AS merchant, cp.title, cp."publicSlug" AS slug
+    SELECT m.code AS merchant, cp.title, cp."publicSlug" AS slug, cp."imageUrl" AS "imageUrl"
     FROM "MerchantListing" ml
     JOIN "Merchant" m ON m.id = ml."merchantId" AND m.code IN ('SHOPEE', 'MERCADO_LIVRE')
     JOIN "AffiliateLinkRegistry" alr ON alr."merchantListingId" = ml.id AND alr.status = 'ACTIVE'
@@ -49,7 +58,12 @@ async function loadScoredCatalogToday(limit: number): Promise<ScoredRow[]> {
   `;
   return rows
     .filter((r): r is typeof r & { title: string; slug: string } => Boolean(r.title && r.slug))
-    .map((r) => ({ merchant: r.merchant, title: r.title, href: `/produto/${r.slug}` }));
+    .map((r) => ({
+      merchant: r.merchant,
+      title: r.title,
+      href: `/produto/${r.slug}`,
+      imageUrl: r.imageUrl,
+    }));
 }
 
 export async function loadWhatsAppTrendingToday(
@@ -70,7 +84,7 @@ export async function loadWhatsAppTrendingToday(
     if (items.length >= limit) break;
     if (seenHrefs.has(r.href)) continue;
     seenHrefs.add(r.href);
-    items.push({ title: r.title, merchant: r.merchant, href: r.href });
+    items.push({ title: r.title, merchant: r.merchant, href: r.href, imageUrl: r.imageUrl });
   }
 
   if (items.length < limit) {

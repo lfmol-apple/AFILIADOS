@@ -4,8 +4,12 @@ import { env } from "@/lib/config/env";
 import { runJob, type JobCounters } from "@/lib/jobs/automation-run";
 import { logger } from "@/lib/observability/logger";
 import { loadWhatsAppTrendingToday } from "@/lib/queries/whatsapp-trending-today";
-import { buildWhatsAppTrendingMessage } from "@/lib/services/whatsapp-message";
-import { isWhatsAppConfigured, sendWhatsAppMessage } from "@/lib/services/whatsapp-sender";
+import { buildWhatsAppItemCaption } from "@/lib/services/whatsapp-message";
+import {
+  isWhatsAppConfigured,
+  sendWhatsAppMessages,
+  type WhatsAppOutgoingPost,
+} from "@/lib/services/whatsapp-sender";
 
 const ITEMS_PER_POST = 6;
 
@@ -13,9 +17,11 @@ const ITEMS_PER_POST = 6;
  * Posts today's real "em alta" products (lib/queries/whatsapp-trending-
  * today.ts) to the WhatsApp Channel once a day — owner's brief,
  * 2026-11-15: "mostrar os produtos em alta todos os dias", linking back
- * to the site itself rather than straight to the merchant. dryRun
- * defaults to true, same convention as every other digest job in this
- * codebase.
+ * to the site itself rather than straight to the merchant. One message
+ * per product (owner's brief, 2026-11-16: "quero que as imagens
+ * apareçam") — image + caption when the product has a real photo, plain
+ * text otherwise, never a placeholder image. dryRun defaults to true,
+ * same convention as every other digest job in this codebase.
  */
 export async function runWhatsAppDigestJob(dryRun: boolean): Promise<JobCounters> {
   return runJob("WHATSAPP_DIGEST", async (ctx) => {
@@ -27,10 +33,17 @@ export async function runWhatsAppDigestJob(dryRun: boolean): Promise<JobCounters
       return;
     }
 
-    const text = buildWhatsAppTrendingMessage(items, env.NEXT_PUBLIC_SITE_URL);
+    const posts: WhatsAppOutgoingPost[] = items.map((item) => ({
+      text: buildWhatsAppItemCaption(item, env.NEXT_PUBLIC_SITE_URL),
+      imageUrl: item.imageUrl,
+    }));
 
     if (dryRun) {
-      console.log(`--- (dry-run, nada será enviado) ---\n${text}\n`);
+      for (const post of posts) {
+        console.log(
+          `--- (dry-run, nada será enviado)${post.imageUrl ? ` [imagem: ${post.imageUrl}]` : " [sem imagem]"} ---\n${post.text}\n`,
+        );
+      }
       ctx.counters.created = items.length;
       return;
     }
@@ -44,7 +57,7 @@ export async function runWhatsAppDigestJob(dryRun: boolean): Promise<JobCounters
     }
 
     try {
-      await sendWhatsAppMessage(text);
+      await sendWhatsAppMessages(posts);
       ctx.counters.created = items.length;
     } catch (err) {
       ctx.counters.errors += 1;
