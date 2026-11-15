@@ -205,12 +205,34 @@ const envSchema = z.object({
   // --- WhatsApp Channel daily digest (jobs/whatsapp-digest.ts) ---
   // Unofficial (no API Meta grants for this) — lib/services/whatsapp-
   // connection.ts holds a real linked-device session via baileys, paired
-  // once with scripts/whatsapp-pair.ts. Empty WHATSAPP_CHANNEL_JID means
-  // "not configured yet" (set after pairing creates/finds the channel).
-  // WHATSAPP_SESSION_DIR must point at a bind-mounted host directory in
-  // production — session credentials are private keys, never baked into
-  // the image or committed (see .gitignore).
+  // once with scripts/whatsapp-pair.ts. WHATSAPP_SESSION_DIR must point at
+  // a bind-mounted host directory in production — session credentials are
+  // private keys, never baked into the image or committed (see .gitignore).
+  //
+  // WHATSAPP_CHANNEL_JID: the public Channel ("Promoções Preço Caindo").
+  // Confirmed 2026-11-15 (GitHub issue WhiskeySockets/Baileys#2687, and the
+  // same "accepted but never delivered" symptom independently in
+  // whatsapp-web.js/WAHA) that NO automated client can reliably post to a
+  // WhatsApp Channel today — not a config issue here, a protocol-level
+  // block. So this JID is never sent to automatically; it exists only so
+  // jobs/whatsapp-digest.ts can build the day's ready-to-forward DM to
+  // WHATSAPP_OWNER_PERSONAL_JID (owner forwards each message into the
+  // Channel by hand — the one path that actually works, since it's the
+  // real app sending).
+  //
+  // WHATSAPP_GROUP_JID: the actual automated destination — a WhatsApp
+  // Group in "announcement" (only-admin-posts) mode, created 2026-11-15
+  // specifically because group sends use baileys' normal, reliable relay
+  // path (unlike newsletters). Trade-off accepted by the owner: group
+  // members' phone numbers are visible to each other, unlike a Channel's
+  // anonymous followers.
+  //
+  // WHATSAPP_OWNER_PERSONAL_JID: the owner's own personal WhatsApp number
+  // (format "<digits>@s.whatsapp.net"), used only as the target for the
+  // daily forward-ready DM described above. Empty means that DM is skipped.
   WHATSAPP_CHANNEL_JID: z.string().default(""),
+  WHATSAPP_GROUP_JID: z.string().default(""),
+  WHATSAPP_OWNER_PERSONAL_JID: z.string().default(""),
   WHATSAPP_SESSION_DIR: z.string().default("data/whatsapp-session"),
 });
 

@@ -280,13 +280,35 @@ assim que o preço atinge o alvo. Dispara uma única vez por alerta (`triggeredA
   dados recém-atualizados = `30 */4 * * *` UTC): wrapper `scripts/run-price-alert-check-cron.sh`,
   mesma imagem `precocaindo-digest` do item acima.
 
-## WHATSAPP_DIGEST — produtos em alta todo dia no Canal de WhatsApp
+## WHATSAPP_DIGEST — produtos em alta todo dia (Grupo automático + Canal por encaminhamento)
 
 **Integração não-oficial, decisão explícita do dono (2026-11-15):** a Meta não oferece um caminho
 oficial que sirva aqui — a Groups API exige Official Business Account e limita o grupo a 8
 participantes, e Canais (Newsletters) não têm nenhuma API oficial de envio. `baileys` implementa o
 protocolo real do WhatsApp Web (multi-device) — o dono foi avisado do risco real (o número pode ser
 banido) antes de aceitar seguir por este caminho; ver `lib/services/whatsapp-connection.ts`.
+
+**Postar automaticamente em Canal não funciona — confirmado, não é bug nosso (2026-11-15).**
+Issue aberta desde julho/2026 em `WhiskeySockets/Baileys#2687`: envio de mídia e texto pra
+`@newsletter` falha ou é instável, sem correção dos mantenedores até a data desta nota. Confirmado
+ao vivo aqui também: 40+ mensagens enviadas sem erro na API, zero chegaram no Canal. Investigação
+cruzada achou o mesmíssimo sintoma ("API responde sucesso, mensagem nunca chega") em
+`whatsapp-web.js`/WAHA — uma biblioteca completamente diferente (controla o WhatsApp Web real via
+navegador, não reimplementa o protocolo) — e confirmou que a própria API oficial da Meta não
+expõe envio pra Canais de forma alguma. Três caminhos técnicos distintos, mesmo resultado: é bloqueio
+do WhatsApp contra postagem automatizada em Canal, não uma falha que dê pra contornar com mais
+tentativas ou troca de biblioteca.
+
+Solução adotada, os dois ao mesmo tempo (pedido do dono, "os dois?"):
+1. **Grupo de WhatsApp automático** (`WHATSAPP_GROUP_JID`) — criado 2026-11-15, modo "announcement"
+   (só admin posta). Grupos usam o caminho normal de envio do baileys (confiável, testado), não o
+   caminho de newsletter (quebrado). Troca real: o número de quem entra no grupo fica visível pros
+   outros membros — no Canal era anônimo.
+2. **Canal original** (`WHATSAPP_CHANNEL_JID`, "Promoções Preço Caindo") — mantido pelo valor de
+   anonimato do seguidor, mas nunca recebe envio automático. Em vez disso, o job manda uma DM pro
+   número pessoal do dono (`WHATSAPP_OWNER_PERSONAL_JID`) com os mesmos posts, prontos pra
+   **encaminhar** (um toque, "Encaminhar" → Canal) — já que é o app real do WhatsApp fazendo o envio
+   final, esse caminho sempre funciona. Falha nessa parte nunca derruba o job (best-effort).
 
 Ao contrário do Telegram (link direto pro vendedor, de propósito), aqui o link aponta pra própria
 página do produto no site — pedido explícito do dono: "como a pessoa vai ver o site".
@@ -302,16 +324,15 @@ página do produto no site — pedido explícito do dono: "como a pessoa vai ver
   ESM-only) pelo resolvedor CJS e quebrar com `ERR_PACKAGE_PATH_NOT_EXPORTED`. O import dinâmico usa
   o loader ESM de verdade do Node e resolve sem problema.
 - **Pareamento único, manual, com o celular do dono** — `npm run whatsapp:pair`: imprime um QR code
-  no terminal (escanear em WhatsApp > Aparelhos conectados), cria o Canal "Promoções PreçoCaindo" via
-  `sock.newsletterCreate(...)` e imprime o jid pra colar em `WHATSAPP_CHANNEL_JID`. A sessão
-  (chaves privadas, não um token revogável) fica em `WHATSAPP_SESSION_DIR` — nunca commitada, nunca
-  dentro da imagem Docker (ver `.gitignore`), montada por bind mount em produção pra sobreviver a
-  todo rebuild. Depois de parear, `npm run whatsapp:test` manda uma única mensagem de confirmação,
-  sem já postar os produtos reais.
+  no terminal (escanear em WhatsApp > Aparelhos conectados). A sessão (chaves privadas, não um token
+  revogável) fica em `WHATSAPP_SESSION_DIR` — nunca commitada, nunca dentro da imagem Docker (ver
+  `.gitignore`), montada por bind mount em produção pra sobreviver a todo rebuild. Depois de parear,
+  `npm run whatsapp:test` manda uma única mensagem de confirmação pro Grupo.
 - **Dry-run por padrão** (só imprime a mensagem); postar exige `--live`:
   `npm run jobs:run-whatsapp-digest` (dry-run) · `npm run jobs:run-whatsapp-digest -- --live`.
-- Sem sessão pareada ainda, ou sem `WHATSAPP_CHANNEL_JID`, o job registra erro (execução `PARTIAL`)
-  em vez de travar — mesma convenção dos outros digests.
+- Sem sessão pareada ainda, ou sem `WHATSAPP_GROUP_JID`, o job registra erro (execução `PARTIAL`)
+  em vez de travar — mesma convenção dos outros digests. Sem `WHATSAPP_OWNER_PERSONAL_JID`, o pacote
+  de encaminhar pro Canal é simplesmente pulado (best-effort, não conta como falha).
 - Cron (**instalado em 2026-11-15**, 1x/dia, 11h de Brasília = `0 14 * * *` UTC): wrapper
   `scripts/run-whatsapp-digest-cron.sh`, imagem `precocaindo-digest`, com um bind mount adicional
   pra `WHATSAPP_SESSION_DIR` (sem isso, cada execução nasceria sem sessão e falharia em vez de

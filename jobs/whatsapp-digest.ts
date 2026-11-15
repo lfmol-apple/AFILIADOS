@@ -7,6 +7,7 @@ import { loadWhatsAppTrendingToday } from "@/lib/queries/whatsapp-trending-today
 import { buildWhatsAppItemCaption } from "@/lib/services/whatsapp-message";
 import {
   isWhatsAppConfigured,
+  sendWhatsAppForwardPacket,
   sendWhatsAppMessages,
   type WhatsAppOutgoingPost,
 } from "@/lib/services/whatsapp-sender";
@@ -15,21 +16,25 @@ const DEFAULT_ITEMS_PER_POST = 6;
 
 /**
  * Posts today's real "em alta" products (lib/queries/whatsapp-trending-
- * today.ts) to the WhatsApp Channel once a day — owner's brief,
- * 2026-11-15: "mostrar os produtos em alta todos os dias", linking back
- * to the site itself rather than straight to the merchant. One message
- * per product (owner's brief, 2026-11-16: "quero que as imagens
- * apareçam") — image + caption when the product has a real photo, plain
- * text otherwise, never a placeholder image. dryRun defaults to true,
- * same convention as every other digest job in this codebase.
+ * today.ts) once a day, linking back to the site itself rather than
+ * straight to the merchant. One message per product — image + caption
+ * when the product has a real photo, plain text otherwise, never a
+ * placeholder image. dryRun defaults to true, same convention as every
+ * other digest job in this codebase.
+ *
+ * Two destinations, confirmed 2026-11-15 (see WHATSAPP_CHANNEL_JID's
+ * comment in lib/config/env.ts for why both exist):
+ *  1. WHATSAPP_GROUP_JID — the real automated send. Always attempted;
+ *     its result is this job's success/failure.
+ *  2. WHATSAPP_OWNER_PERSONAL_JID — a best-effort DM with the same posts,
+ *     ready for the owner to forward by hand into the Channel. Never
+ *     flips the job to FAILED on its own.
  *
  * `count` defaults to 6 for the daily automated cron (same "menos
  * volume, mais prova" cadence as the Telegram digest) — the cron never
  * passes a different value. Higher counts are for a manual, one-off
- * "launch batch" run (owner's brief, 2026-11-16: "vamos enviar muitas
- * ofertas boas", channel brand new and nearly empty), never quality: the
- * same title+image+price requirements apply no matter how many are
- * asked for.
+ * batch run, never quality: the same title+image+price requirements
+ * apply no matter how many are asked for.
  */
 export async function runWhatsAppDigestJob(
   dryRun: boolean,
@@ -62,7 +67,7 @@ export async function runWhatsAppDigestJob(
     if (!isWhatsAppConfigured()) {
       ctx.counters.errors += 1;
       logger.error("whatsapp_digest.not_configured", {
-        message: "WHATSAPP_CHANNEL_JID must be set.",
+        message: "WHATSAPP_GROUP_JID must be set.",
       });
       return;
     }
@@ -73,6 +78,16 @@ export async function runWhatsAppDigestJob(
     } catch (err) {
       ctx.counters.errors += 1;
       logger.error("whatsapp_digest.send_failed", { message: String(err) });
+    }
+
+    // Best-effort — the Group send above is the job's real success
+    // criterion. The Channel forward-packet is a bonus the owner acts on
+    // by hand, so a failure here (e.g. WHATSAPP_OWNER_PERSONAL_JID not set
+    // yet) must never flip the job to FAILED.
+    try {
+      await sendWhatsAppForwardPacket(posts);
+    } catch (err) {
+      logger.warn("whatsapp_digest.forward_packet_skipped", { message: String(err) });
     }
   });
 }
