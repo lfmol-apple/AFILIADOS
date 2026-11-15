@@ -247,6 +247,10 @@ genéricos de promoção.
 - Variáveis (só no `.env` de produção, nunca no repositório): `TELEGRAM_BOT_TOKEN`,
   `TELEGRAM_CHANNEL_ID`. Sem as duas o job registra erro (execução `PARTIAL`) em vez de adivinhar —
   `lib/services/telegram-sender.ts`'s `isTelegramConfigured()`.
+- Pra achar o `TELEGRAM_CHANNEL_ID` sem depender de um bot de terceiros: com só o
+  `TELEGRAM_BOT_TOKEN` já no `.env` e o bot como admin do canal, poste (ou encaminhe) qualquer
+  mensagem no canal e rode `npm run telegram:chat-id` (`scripts/telegram-get-chat-id.ts`) — lê os
+  updates do próprio bot e imprime o id.
 - Depois de adicionar as duas variáveis, `npm run telegram:test` manda uma única mensagem de
   confirmação (`scripts/telegram-test.ts`) — testa o bot/canal sem já postar produtos reais.
 - Idempotente: cada listagem postada recebe um `MerchantListingSignal` (`source: "telegram_posted"`)
