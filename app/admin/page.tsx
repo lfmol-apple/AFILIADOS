@@ -217,6 +217,12 @@ export default async function AdminPage(props: PagePropsWithSearch) {
             Produtos novos ML (backlog) →
           </a>
           <a
+            href="/admin/termos-em-alta"
+            className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
+          >
+            Termos em alta no ML →
+          </a>
+          <a
             href="/admin/modo-dono"
             className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
           >
