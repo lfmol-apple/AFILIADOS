@@ -3,6 +3,7 @@ import path from "node:path";
 import fs from "node:fs";
 import pino from "pino";
 import qrcodeTerminal from "qrcode-terminal";
+import { Boom } from "@hapi/boom";
 import { env } from "@/lib/config/env";
 
 /**
@@ -24,11 +25,85 @@ import { env } from "@/lib/config/env";
 const CHANNEL_NAME = "PreçoCaindo Ofertas";
 const CHANNEL_DESCRIPTION =
   "Produtos reais em alta no PreçoCaindo, todo dia — preço, histórico e onde comprar.";
+const MAX_RECONNECTS = 5;
 
 function sessionDir(): string {
   return path.isAbsolute(env.WHATSAPP_SESSION_DIR)
     ? env.WHATSAPP_SESSION_DIR
     : path.join(process.cwd(), env.WHATSAPP_SESSION_DIR);
+}
+
+let qrCount = 0;
+
+/**
+ * Confirmed live, 2026-11-16, straight from baileys' own README ("Summary
+ * of Events on First Connection": "When you connect first time,
+ * connection.update will be fired requesting you to restart sock"): the
+ * socket closes ON PURPOSE right after a successful QR scan, and the
+ * caller is expected to open a brand-new socket (reusing the now-updated
+ * auth state saveCreds already wrote to disk) rather than treat that
+ * close as a failure. Recurses until `open`, up to MAX_RECONNECTS times —
+ * a real repeated failure (not the expected one-time restart) must still
+ * surface as an error instead of looping forever.
+ */
+async function connectUntilOpen(
+  dir: string,
+  attempt = 1,
+): Promise<import("baileys").WASocket> {
+  const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, Browsers } =
+    await import("baileys");
+  const { state, saveCreds } = await useMultiFileAuthState(dir);
+
+  // Root cause of the first real failure, found live 2026-11-16:
+  // browser[1] (not the OS name) must match a real DeviceProps.
+  // PlatformType member or baileys silently falls back to CHROME — the
+  // exact platform WhatsApp has been rejecting QR pairing from since Feb
+  // 2026 (community-documented issue). See lib/services/whatsapp-
+  // connection.ts's doc comment for the full trace through baileys' own
+  // source.
+  const sock = makeWASocket({
+    auth: state,
+    logger: pino({ level: "debug" }),
+    browser: Browsers.macOS("Desktop"),
+  });
+  sock.ev.on("creds.update", saveCreds);
+
+  return new Promise((resolve, reject) => {
+    sock.ev.on("connection.update", (update) => {
+      console.log(
+        "\n[connection.update]",
+        JSON.stringify({ ...update, qr: update.qr ? `(len ${update.qr.length})` : undefined }),
+      );
+      // `printQRInTerminal` is a documented-but-deprecated no-op in this
+      // baileys version — it only logs a deprecation warning through the
+      // socket's own logger, so the QR was never drawn at all. Printing
+      // it ourselves from the `qr` field is the fix the deprecation
+      // warning itself asks for.
+      if (update.qr) {
+        qrCount += 1;
+        console.log(`\nQR #${qrCount} — escaneie em WhatsApp > Aparelhos conectados > Conectar um aparelho:\n`);
+        qrcodeTerminal.generate(update.qr, { small: true });
+      }
+      if (update.connection === "open") {
+        resolve(sock);
+        return;
+      }
+      if (update.connection === "close") {
+        const statusCode = (update.lastDisconnect?.error as Boom | undefined)?.output?.statusCode;
+        if (statusCode === DisconnectReason.loggedOut) {
+          reject(new Error("WhatsApp deslogou a sessão — apague a pasta de sessão e pareie de novo."));
+          return;
+        }
+        if (attempt >= MAX_RECONNECTS) {
+          reject(new Error(`Conexão fechada repetidamente (${attempt}x): ${String(update.lastDisconnect?.error)}`));
+          return;
+        }
+        console.log(`\nConexão fechada (esperado logo após escanear) — reconectando (tentativa ${attempt + 1})...\n`);
+        sock.end(undefined);
+        connectUntilOpen(dir, attempt + 1).then(resolve, reject);
+      }
+    });
+  });
 }
 
 async function main() {
@@ -39,49 +114,9 @@ async function main() {
       `Já existe uma sessão em ${dir}. Se quiser parear de novo (número diferente), apague essa pasta primeiro.`,
     );
   }
-
   fs.mkdirSync(dir, { recursive: true });
-  const { default: makeWASocket, useMultiFileAuthState, Browsers } = await import("baileys");
-  const { state, saveCreds } = await useMultiFileAuthState(dir);
 
-  // Root cause found live, 2026-11-16: browser[1] (not the OS name) must
-  // match a real DeviceProps.PlatformType member or baileys silently
-  // falls back to CHROME — the exact platform WhatsApp has been
-  // rejecting QR pairing from since Feb 2026 (community-documented
-  // issue). See lib/services/whatsapp-connection.ts's doc comment for
-  // the full trace through baileys' own source. Debug-level logging is
-  // what surfaced the "failed to ack notification" clue that led here;
-  // left on for this first real pairing attempt with the fix applied.
-  const sock = makeWASocket({
-    auth: state,
-    logger: pino({ level: "debug" }),
-    browser: Browsers.macOS("Desktop"),
-  });
-  sock.ev.on("creds.update", saveCreds);
-
-  let qrCount = 0;
-  // `printQRInTerminal` is a documented-but-deprecated no-op in this
-  // baileys version (confirmed live, 2026-11-15: it only logs a
-  // deprecation warning through the socket's own logger — which this
-  // script sets to silent — so the QR was never drawn at all, and the
-  // owner's first pairing attempt ran out the clock with nothing to scan,
-  // failing with "QR refs attempts ended"). Printing it ourselves from
-  // the `qr` field is the fix the deprecation warning itself asks for.
-  await new Promise<void>((resolve, reject) => {
-    sock.ev.on("connection.update", (update) => {
-      console.log("\n[connection.update]", JSON.stringify({ ...update, qr: update.qr ? `(len ${update.qr.length})` : undefined }));
-      if (update.qr) {
-        qrCount += 1;
-        console.log(`\nQR #${qrCount} — escaneie em WhatsApp > Aparelhos conectados > Conectar um aparelho:\n`);
-        qrcodeTerminal.generate(update.qr, { small: true });
-      }
-      if (update.connection === "open") resolve();
-      if (update.connection === "close" && !update.qr) {
-        reject(new Error(`Conexão fechada: ${String(update.lastDisconnect?.error)}`));
-      }
-    });
-  });
-
+  const sock = await connectUntilOpen(dir);
   console.log(`Conectado como ${sock.user?.id ?? "(desconhecido)"}.`);
 
   if (!env.WHATSAPP_CHANNEL_JID) {
