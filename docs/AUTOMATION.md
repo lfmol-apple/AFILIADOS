@@ -231,3 +231,45 @@ comissão ou venda estimada; vendas reais ficam no painel de cada marketplace.
   404 se a variável não existir, 401 se errado). Wrapper: `scripts/run-seo-maintenance-cron.sh`.
 - Cron (**instalado em 2026-09-20**, a cada 30 min): `*/30 * * * * /opt/precocaindo/app/scripts/run-seo-maintenance-cron.sh >> /var/log/precocaindo-seo-maintenance-cron.log 2>&1`.
   Primeira execução gerou 285 slugs ML + 65 Shopee; sitemap foi de 909 para 1188 URLs.
+
+## TELEGRAM_DIGEST — posts de queda de preço real no canal
+
+Posta no canal do Telegram as melhores quedas de preço reais (nunca o desconto que o próprio
+vendedor afirma) entre o catálogo ML/Shopee já com link ACTIVE, no máximo `MAX_POSTS_PER_RUN = 5`
+por execução — "menos volume, mais prova" é a diferenciação do canal frente aos grandes canais
+genéricos de promoção.
+
+- Código: `jobs/telegram-digest.ts` (job), `lib/services/price-drop-digest.ts` (seleção/texto, função
+  pura, reaproveita `buildTelegramPostCandidate`/`detectPriceDrop` do `/black-friday`) e
+  `lib/services/telegram-sender.ts` (API HTTP do Bot Telegram via `fetch`).
+- **Dry-run por padrão** (só imprime a mensagem); postar exige `--live`:
+  `npm run jobs:run-telegram-digest` (dry-run) · `npm run jobs:run-telegram-digest -- --live`.
+- Variáveis (só no `.env` de produção, nunca no repositório): `TELEGRAM_BOT_TOKEN`,
+  `TELEGRAM_CHANNEL_ID`. Sem as duas o job registra erro (execução `PARTIAL`) em vez de adivinhar —
+  `lib/services/telegram-sender.ts`'s `isTelegramConfigured()`.
+- Idempotente: cada listagem postada recebe um `MerchantListingSignal` (`source: "telegram_posted"`)
+  e nunca é escolhida de novo.
+- Cron (**instalado em 2026-11-15**, 9h de Brasília = `0 12 * * *` UTC): wrapper
+  `scripts/run-telegram-digest-cron.sh`, mesmo padrão do daily-digest (imagem própria
+  `precocaindo-digest`, rede `precocaindo_internal`). Seguro já no ar antes do token existir — o job
+  só registra `PARTIAL` e não derruba nada.
+
+## PRICE_ALERT_CHECK — dispara o alerta de preço do visitante
+
+Confere todo `PriceAlert` ativo, confirmado e ainda não disparado contra o preço real atual (mesmos
+fatos que o portão de publicação e o Telegram digest já confiam, via
+`loadMerchantListingFactsByListingId`) e envia o e-mail de "seu preço chegou" pra quem cadastrou,
+assim que o preço atinge o alvo. Dispara uma única vez por alerta (`triggeredAt`).
+
+- Código: `jobs/price-alert-check.ts` (job), `lib/services/price-alert-email.ts` (texto/HTML) e
+  `lib/services/email-sender.ts` (mesmo remetente Resend do digest diário).
+- **Dry-run por padrão** (só imprime o e-mail); enviar exige `--live`:
+  `npm run jobs:run-price-alert-check` (dry-run) · `npm run jobs:run-price-alert-check -- --live`.
+- Seguro de ligar antes do domínio próprio do Resend ser verificado: `sendEmail()` lança erro em
+  qualquer resposta não-2xx, e o Resend sandbox (`onboarding@resend.dev`) rejeita com o próprio erro
+  (confirmado em produção, 2026-11-15: 422 pra um destinatário que não é o dono da conta) — nunca um
+  200 falso. Um envio que falhar não marca `triggeredAt`, então é automaticamente reprocessado na
+  próxima execução, sem perder ninguém, uma vez que o domínio seja verificado.
+- Cron (**instalado em 2026-11-15**, a cada 4h, 30 min depois do `ML_SHOPEE_CYCLE` pra aproveitar
+  dados recém-atualizados = `30 */4 * * *` UTC): wrapper `scripts/run-price-alert-check-cron.sh`,
+  mesma imagem `precocaindo-digest` do item acima.
