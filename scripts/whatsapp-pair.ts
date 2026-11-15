@@ -2,6 +2,7 @@ import "dotenv/config";
 import path from "node:path";
 import fs from "node:fs";
 import pino from "pino";
+import qrcodeTerminal from "qrcode-terminal";
 import { env } from "@/lib/config/env";
 
 /**
@@ -47,12 +48,22 @@ async function main() {
     auth: state,
     logger: pino({ level: "silent" }),
     browser: Browsers.ubuntu("PreçoCaindo"),
-    printQRInTerminal: true,
   });
   sock.ev.on("creds.update", saveCreds);
 
+  // `printQRInTerminal` is a documented-but-deprecated no-op in this
+  // baileys version (confirmed live, 2026-11-15: it only logs a
+  // deprecation warning through the socket's own logger — which this
+  // script sets to silent — so the QR was never drawn at all, and the
+  // owner's first pairing attempt ran out the clock with nothing to scan,
+  // failing with "QR refs attempts ended"). Printing it ourselves from
+  // the `qr` field is the fix the deprecation warning itself asks for.
   await new Promise<void>((resolve, reject) => {
     sock.ev.on("connection.update", (update) => {
+      if (update.qr) {
+        console.log("\nEscaneie este QR code no WhatsApp (Aparelhos conectados > Conectar um aparelho):\n");
+        qrcodeTerminal.generate(update.qr, { small: true });
+      }
       if (update.connection === "open") resolve();
       if (update.connection === "close" && !update.qr) {
         reject(new Error(`Conexão fechada: ${String(update.lastDisconnect?.error)}`));
