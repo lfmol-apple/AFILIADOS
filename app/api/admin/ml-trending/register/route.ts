@@ -17,12 +17,14 @@ const bodySchema = z.object({
 });
 
 /**
- * One-click registration for the "Termos em alta" page: the owner pastes
- * the affiliate link they just generated in Linkbuilder for a trending
- * keyword, and this creates the product from scratch (title/image come
- * from Mercado Livre itself via registerTrendingPick). No separate
- * "check" step shown first — pasting the link IS the save, by design
- * (owner's brief, 2026-11-15: "só copiar uma vez e colar outra vez").
+ * Registers a brand-new Mercado Livre product from scratch given just a
+ * pasted affiliate link and a fallback title (the real title/image come
+ * from Mercado Livre itself via registerTrendingPick's enrichment — the
+ * "keyword" is only used if that enrichment doesn't resolve a
+ * CanonicalProduct). Shared by both /admin/produtos-em-alta (single-row)
+ * and its /lote batch flow — neither has a pre-existing MerchantListing
+ * row to attach a link to, unlike /admin/produtos-novos-ml's
+ * /api/admin/ml-affiliate-links.
  */
 export async function POST(request: Request) {
   const cookieStore = await cookies();

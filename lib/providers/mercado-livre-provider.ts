@@ -220,33 +220,6 @@ export class MercadoLivreProvider implements CommerceProvider {
     };
   }
 
-  /**
-   * GET /trends/{siteId} — Mercado Livre's own official, public ranking of
-   * the site's most-searched terms right now. Confirmed live (2026-11-15):
-   * returns HTTP 200 with a real bearer token (anonymous requests get
-   * blocked by PolicyAgent, same as every other endpoint on this class).
-   * A genuine external-to-us demand signal — real buyer search behavior
-   * across the whole marketplace, not just the categories the owner
-   * manually browses in the affiliate panel (owner's brief, 2026-11-15:
-   * "pegar carona" on proven demand instead of guessing). Resolving a
-   * keyword to a specific product is deliberately NOT done here: the site
-   * search endpoint (`searchProducts` above) returns 403 even
-   * authenticated, confirmed again live the same day — that step stays
-   * the owner's own search inside Linkbuilder.
-   */
-  async getTrends(): Promise<MercadoLivreTrend[]> {
-    const response = await fetch(`${API_BASE}/trends/${this.siteId}`, {
-      headers: { Authorization: `Bearer ${this.accessToken}` },
-    });
-    if (!response.ok) {
-      logger.error("mercado_livre.fetch_trends_failed", {
-        status: response.status,
-      });
-      throw new Error(`MercadoLivreProvider.getTrends() failed: HTTP ${response.status}`);
-    }
-    return (await response.json()) as MercadoLivreTrend[];
-  }
-
   async getProducts(externalIds: string[]): Promise<NormalizedProduct[]> {
     // GET /items/{id} is the only item-lookup shape confirmed by research;
     // a bulk `/items?ids=...` variant is commonly referenced elsewhere but
@@ -399,10 +372,4 @@ export interface MercadoLivreSellerReputation {
   levelId: string | null;
   powerSellerStatus: string | null;
   transactionsTotal: number | null;
-}
-
-/** Shape confirmed via GET /trends/{siteId} (2026-11-15 research). */
-export interface MercadoLivreTrend {
-  keyword: string;
-  url: string;
 }

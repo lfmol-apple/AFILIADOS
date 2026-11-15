@@ -15,14 +15,14 @@ export interface TrendingRegisterResult {
 }
 
 /**
- * Registers a brand-new product found by searching one of Mercado Livre's
- * own trending terms (lib/queries/ml-trending-terms.ts) inside Linkbuilder —
- * unlike registerPanelPick (ml-panel-register.ts), there is no pre-known
- * candidate title/price/sold here: the owner found this product themselves
- * starting from just a keyword, so this only has the pasted affiliate link
- * to go on. Trimmed copy of registerPanelPick's core (resolve -> upsert ->
+ * Registers a brand-new product from scratch given just a pasted
+ * affiliate link and a fallback title — used by /admin/produtos-em-alta
+ * (lib/queries/ml-highlight-candidates.ts's real Mercado Livre demand
+ * candidates), single-row and batch alike. Unlike registerPanelPick
+ * (ml-panel-register.ts), there is no pre-existing MerchantListing row
+ * here. Trimmed copy of registerPanelPick's core (resolve -> upsert ->
  * enrich -> canonical fallback -> save link), without the panel-pick-only
- * scoring/issue-tracking that doesn't apply to a free-form keyword search.
+ * scoring/issue-tracking that doesn't apply here.
  */
 export async function registerTrendingPick(input: {
   keyword: string;
