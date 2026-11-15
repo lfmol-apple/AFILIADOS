@@ -112,7 +112,21 @@ export class MercadoLivreBestsellerDemandSource implements DemandSource {
         // is simply skipped by resolveTitle below, never a crash.
         .filter((entry) => entry.type === "PRODUCT" || entry.type === "ITEM" || entry.type === "USER_PRODUCT")
         .map(async (entry): Promise<ResolvedHighlight | null> => {
-          const title = await this.resolveTitle(entry.id);
+          // A rejection here must only skip THIS entry, never the whole
+          // Promise.all — found live, 2026-11-15: resolveTitle throwing
+          // (not returning null) on a single real 403 was silently
+          // discarding every OTHER entry in the same category too,
+          // contradicting this file's own "never a crash" doc comment
+          // above. Confirmed live: every "MLBU…" (USER_PRODUCT) id 403s
+          // for this account's current permissions — a real, consistent
+          // gap (same "doesn't own this item" shape as
+          // getCatalogProductItems's own doc comment), not transient.
+          let title: string | null;
+          try {
+            title = await this.resolveTitle(entry.id);
+          } catch {
+            return null;
+          }
           if (!title) return null;
           return { itemId: entry.id, position: entry.position, title };
         }),
