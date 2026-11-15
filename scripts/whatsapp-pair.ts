@@ -44,13 +44,18 @@ async function main() {
   const { default: makeWASocket, useMultiFileAuthState, Browsers } = await import("baileys");
   const { state, saveCreds } = await useMultiFileAuthState(dir);
 
+  // Verbose on purpose, temporarily (owner's phone keeps failing the scan
+  // with a generic "check your connection" error, 2026-11-16, with no
+  // obvious network problem on either side) — "silent" was hiding
+  // whatever baileys itself is actually seeing when a scan attempt fails.
   const sock = makeWASocket({
     auth: state,
-    logger: pino({ level: "silent" }),
+    logger: pino({ level: "debug" }),
     browser: Browsers.ubuntu("PreçoCaindo"),
   });
   sock.ev.on("creds.update", saveCreds);
 
+  let qrCount = 0;
   // `printQRInTerminal` is a documented-but-deprecated no-op in this
   // baileys version (confirmed live, 2026-11-15: it only logs a
   // deprecation warning through the socket's own logger — which this
@@ -60,8 +65,10 @@ async function main() {
   // the `qr` field is the fix the deprecation warning itself asks for.
   await new Promise<void>((resolve, reject) => {
     sock.ev.on("connection.update", (update) => {
+      console.log("\n[connection.update]", JSON.stringify({ ...update, qr: update.qr ? `(len ${update.qr.length})` : undefined }));
       if (update.qr) {
-        console.log("\nEscaneie este QR code no WhatsApp (Aparelhos conectados > Conectar um aparelho):\n");
+        qrCount += 1;
+        console.log(`\nQR #${qrCount} — escaneie em WhatsApp > Aparelhos conectados > Conectar um aparelho:\n`);
         qrcodeTerminal.generate(update.qr, { small: true });
       }
       if (update.connection === "open") resolve();
