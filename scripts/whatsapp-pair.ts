@@ -54,17 +54,24 @@ async function connectUntilOpen(
     await import("baileys");
   const { state, saveCreds } = await useMultiFileAuthState(dir);
 
-  // Root cause of the first real failure, found live 2026-11-16:
-  // browser[1] (not the OS name) must match a real DeviceProps.
-  // PlatformType member or baileys silently falls back to CHROME — the
-  // exact platform WhatsApp has been rejecting QR pairing from since Feb
-  // 2026 (community-documented issue). See lib/services/whatsapp-
-  // connection.ts's doc comment for the full trace through baileys' own
-  // source.
+  // Second real root cause, found live 2026-11-16: `browser[1]` deciding
+  // DeviceProps.PlatformType (DESKTOP vs the CHROME fallback) is a
+  // DIFFERENT field than the one WhatsApp actually rejects — baileys'
+  // own lib/Utils/validate-connection.js's getUserAgent() hardcodes
+  // userAgent.platform to either ANDROID or WEB with NO other option
+  // (`browser[1].includes('android') ? ANDROID : WEB`), and WEB is
+  // exactly what's being rejected (the registration itself failed with
+  // "Connection Terminated" before a QR was even shown, confirmed by the
+  // owner's full debug log). Browsers.android (added to baileys mid-2026
+  // specifically for this) is the only way to reach the ANDROID path —
+  // this also moves DeviceProps.PlatformType to ANDROID_PHONE instead of
+  // DESKTOP (lib/Utils/validate-connection.js's getPlatformType has a
+  // special case for it), which only affects how the linked device shows
+  // up in the phone's own device list, nothing functional.
   const sock = makeWASocket({
     auth: state,
     logger: pino({ level: "debug" }),
-    browser: Browsers.macOS("Desktop"),
+    browser: Browsers.android("PreçoCaindo"),
   });
   sock.ev.on("creds.update", saveCreds);
 
