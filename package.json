@@ -23,6 +23,7 @@
     "jobs:run-daily-digest": "tsx jobs/daily-performance-digest.ts",
     "jobs:run-telegram-digest": "tsx jobs/telegram-digest.ts",
     "jobs:run-price-alert-check": "tsx jobs/price-alert-check.ts",
+    "telegram:test": "tsx scripts/telegram-test.ts",
     "amazon:compliance": "tsx scripts/amazon-compliance.ts",
     "seo:readiness": "tsx scripts/seo-readiness-report.ts",
     "seo:backfill-slugs": "tsx scripts/backfill-public-slugs.ts",

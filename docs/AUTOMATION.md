@@ -247,6 +247,8 @@ genéricos de promoção.
 - Variáveis (só no `.env` de produção, nunca no repositório): `TELEGRAM_BOT_TOKEN`,
   `TELEGRAM_CHANNEL_ID`. Sem as duas o job registra erro (execução `PARTIAL`) em vez de adivinhar —
   `lib/services/telegram-sender.ts`'s `isTelegramConfigured()`.
+- Depois de adicionar as duas variáveis, `npm run telegram:test` manda uma única mensagem de
+  confirmação (`scripts/telegram-test.ts`) — testa o bot/canal sem já postar produtos reais.
 - Idempotente: cada listagem postada recebe um `MerchantListingSignal` (`source: "telegram_posted"`)
   e nunca é escolhida de novo.
 - Cron (**instalado em 2026-11-15**, 9h de Brasília = `0 12 * * *` UTC): wrapper
