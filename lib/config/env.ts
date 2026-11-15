@@ -201,6 +201,17 @@ const envSchema = z.object({
   // for a private channel, its numeric chat id.
   TELEGRAM_BOT_TOKEN: z.string().default(""),
   TELEGRAM_CHANNEL_ID: z.string().default(""),
+
+  // --- WhatsApp Channel daily digest (jobs/whatsapp-digest.ts) ---
+  // Unofficial (no API Meta grants for this) — lib/services/whatsapp-
+  // connection.ts holds a real linked-device session via baileys, paired
+  // once with scripts/whatsapp-pair.ts. Empty WHATSAPP_CHANNEL_JID means
+  // "not configured yet" (set after pairing creates/finds the channel).
+  // WHATSAPP_SESSION_DIR must point at a bind-mounted host directory in
+  // production — session credentials are private keys, never baked into
+  // the image or committed (see .gitignore).
+  WHATSAPP_CHANNEL_JID: z.string().default(""),
+  WHATSAPP_SESSION_DIR: z.string().default("data/whatsapp-session"),
 });
 
 export type Env = z.infer<typeof envSchema>;

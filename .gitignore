@@ -37,6 +37,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# WhatsApp session credentials (private keys — never commit, never deploy
+# via the image; the production directory is bind-mounted instead)
+/data/whatsapp-session/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

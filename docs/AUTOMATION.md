@@ -279,3 +279,40 @@ assim que o preço atinge o alvo. Dispara uma única vez por alerta (`triggeredA
 - Cron (**instalado em 2026-11-15**, a cada 4h, 30 min depois do `ML_SHOPEE_CYCLE` pra aproveitar
   dados recém-atualizados = `30 */4 * * *` UTC): wrapper `scripts/run-price-alert-check-cron.sh`,
   mesma imagem `precocaindo-digest` do item acima.
+
+## WHATSAPP_DIGEST — produtos em alta todo dia no Canal de WhatsApp
+
+**Integração não-oficial, decisão explícita do dono (2026-11-15):** a Meta não oferece um caminho
+oficial que sirva aqui — a Groups API exige Official Business Account e limita o grupo a 8
+participantes, e Canais (Newsletters) não têm nenhuma API oficial de envio. `baileys` implementa o
+protocolo real do WhatsApp Web (multi-device) — o dono foi avisado do risco real (o número pode ser
+banido) antes de aceitar seguir por este caminho; ver `lib/services/whatsapp-connection.ts`.
+
+Ao contrário do Telegram (link direto pro vendedor, de propósito), aqui o link aponta pra própria
+página do produto no site — pedido explícito do dono: "como a pessoa vai ver o site".
+
+- Código: `lib/queries/whatsapp-trending-today.ts` (reaproveita `getTopClickedProductsMulti`,
+  reordenado por cliques dos últimos 7 dias — não cliques de hoje, porque o tráfego do site ainda é
+  pequeno demais pra garantir dado todo dia numa janela de 24h), `lib/services/whatsapp-message.ts`
+  (texto, função pura), `lib/services/whatsapp-sender.ts` + `lib/services/whatsapp-connection.ts`
+  (conexão via `baileys`), `jobs/whatsapp-digest.ts` (job).
+- **`baileys` só pode ser importado com `await import("baileys")` dinâmico, nunca `import` estático
+  no topo do arquivo** — confirmado ao vivo, 2026-11-15: um import estático faz o `tsx` (usado por
+  todo job deste projeto) resolver uma dependência transitiva do baileys (`whatsapp-rust-bridge`,
+  ESM-only) pelo resolvedor CJS e quebrar com `ERR_PACKAGE_PATH_NOT_EXPORTED`. O import dinâmico usa
+  o loader ESM de verdade do Node e resolve sem problema.
+- **Pareamento único, manual, com o celular do dono** — `npm run whatsapp:pair`: imprime um QR code
+  no terminal (escanear em WhatsApp > Aparelhos conectados), cria o Canal "PreçoCaindo Ofertas" via
+  `sock.newsletterCreate(...)` e imprime o jid pra colar em `WHATSAPP_CHANNEL_JID`. A sessão
+  (chaves privadas, não um token revogável) fica em `WHATSAPP_SESSION_DIR` — nunca commitada, nunca
+  dentro da imagem Docker (ver `.gitignore`), montada por bind mount em produção pra sobreviver a
+  todo rebuild. Depois de parear, `npm run whatsapp:test` manda uma única mensagem de confirmação,
+  sem já postar os produtos reais.
+- **Dry-run por padrão** (só imprime a mensagem); postar exige `--live`:
+  `npm run jobs:run-whatsapp-digest` (dry-run) · `npm run jobs:run-whatsapp-digest -- --live`.
+- Sem sessão pareada ainda, ou sem `WHATSAPP_CHANNEL_JID`, o job registra erro (execução `PARTIAL`)
+  em vez de travar — mesma convenção dos outros digests.
+- Cron (**instalado em 2026-11-15**, 1x/dia, 11h de Brasília = `0 14 * * *` UTC): wrapper
+  `scripts/run-whatsapp-digest-cron.sh`, imagem `precocaindo-digest`, com um bind mount adicional
+  pra `WHATSAPP_SESSION_DIR` (sem isso, cada execução nasceria sem sessão e falharia em vez de
+  enviar — ver o próprio comentário do wrapper).
