@@ -16,13 +16,13 @@ import { env } from "@/lib/config/env";
  *
  * It prints a QR code — scan it with WhatsApp on the phone whose number
  * should run the channel (Configurações > Aparelhos conectados > Conectar
- * um aparelho). Once linked, it creates the Channel "PreçoCaindo Ofertas"
+ * um aparelho). Once linked, it creates the Channel "Promoções PreçoCaindo"
  * and prints the jid to put in .env as WHATSAPP_CHANNEL_JID. The session
  * is saved under WHATSAPP_SESSION_DIR — back it up, never commit it, and
  * never delete it (that forces a brand-new QR scan and a brand-new
  * channel next time).
  */
-const CHANNEL_NAME = "PreçoCaindo Ofertas";
+const CHANNEL_NAME = "Promoções PreçoCaindo";
 const CHANNEL_DESCRIPTION =
   "Produtos reais em alta no PreçoCaindo, todo dia — preço, histórico e onde comprar.";
 const MAX_RECONNECTS = 5;

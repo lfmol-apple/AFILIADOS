@@ -302,7 +302,7 @@ página do produto no site — pedido explícito do dono: "como a pessoa vai ver
   ESM-only) pelo resolvedor CJS e quebrar com `ERR_PACKAGE_PATH_NOT_EXPORTED`. O import dinâmico usa
   o loader ESM de verdade do Node e resolve sem problema.
 - **Pareamento único, manual, com o celular do dono** — `npm run whatsapp:pair`: imprime um QR code
-  no terminal (escanear em WhatsApp > Aparelhos conectados), cria o Canal "PreçoCaindo Ofertas" via
+  no terminal (escanear em WhatsApp > Aparelhos conectados), cria o Canal "Promoções PreçoCaindo" via
   `sock.newsletterCreate(...)` e imprime o jid pra colar em `WHATSAPP_CHANNEL_JID`. A sessão
   (chaves privadas, não um token revogável) fica em `WHATSAPP_SESSION_DIR` — nunca commitada, nunca
   dentro da imagem Docker (ver `.gitignore`), montada por bind mount em produção pra sobreviver a
