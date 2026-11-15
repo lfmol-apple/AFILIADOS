@@ -131,6 +131,17 @@ export default async function PerformanceDashboardPage() {
       </DashboardGroup>
 
       <DashboardGroup
+        title="Alertas de preço"
+        description="Visitantes que pediram pra ser avisados quando o preço cair — captura real no banco, mesmo enquanto o e-mail de confirmação ainda não chega (domínio Resend pendente)."
+      >
+        <div className="grid grid-cols-3 gap-3">
+          <StatCard label="Cadastrados" value={data.summary.priceAlertsTotal} />
+          <StatCard label="Confirmados" value={data.summary.priceAlertsConfirmed} />
+          <StatCard label="Preço atingido" value={data.summary.priceAlertsTriggered} />
+        </div>
+      </DashboardGroup>
+
+      <DashboardGroup
         title="Cliques afiliados por dia"
         description={`Mercado Livre vs Shopee, últimos ${TREND_DAYS} dias.`}
       >

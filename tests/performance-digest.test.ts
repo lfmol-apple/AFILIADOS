@@ -15,6 +15,9 @@ const data: PerformanceDashboardData = {
     activeLinksMl: 795,
     activeLinksShopee: 138,
     pendingLinksMl: 0,
+    priceAlertsTotal: 12,
+    priceAlertsConfirmed: 7,
+    priceAlertsTriggered: 2,
   },
   clicksDaily: [
     { day: "2026-09-20", merchant: "MERCADO_LIVRE", clicks: 4 },
@@ -43,6 +46,9 @@ describe("buildPerformanceDigest", () => {
     expect(d.text).toContain("Ontem: 7 cliques, 12 pageviews");
     expect(d.text).toContain("Cliques (7d): 50 (↓ 22% vs 7 dias anteriores)");
     expect(d.text).toContain("Pageviews (7d): 63 (↓ 44% vs 7 dias anteriores)");
+    expect(d.text).toContain(
+      "Alertas de preço: 12 cadastrados · 7 confirmados · 2 com preço atingido",
+    );
     expect(d.subject).toContain("50 cliques em 7d, 7 ontem");
   });
 

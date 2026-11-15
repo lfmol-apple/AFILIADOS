@@ -59,6 +59,7 @@ export function buildPerformanceDigest(
     `Ontem: ${clicksYesterday} cliques, ${pageviewsYesterday} pageviews`,
     `Cliques totais: ${summary.totalClicks}`,
     `Links ativos: ML ${summary.activeLinksMl} · Shopee ${summary.activeLinksShopee} · fila ML pendente ${summary.pendingLinksMl}`,
+    `Alertas de preço: ${summary.priceAlertsTotal} cadastrados · ${summary.priceAlertsConfirmed} confirmados · ${summary.priceAlertsTriggered} com preço atingido`,
     "",
     "Produtos mais clicados (14d):",
     ...(top.length
@@ -95,6 +96,7 @@ export function buildPerformanceDigest(
 <tr><td style="padding:6px 0">Pageviews (7d)</td><td style="text-align:right"><b>${summary.pageviewsLast7d}</b> <span style="color:#666">${esc(pct(summary.pageviewsLast7d, summary.pageviewsPrev7d))}</span></td></tr>
 <tr><td style="padding:6px 0">Ontem</td><td style="text-align:right">${clicksYesterday} cliques · ${pageviewsYesterday} pageviews</td></tr>
 <tr><td style="padding:6px 0">Links ativos</td><td style="text-align:right">ML ${summary.activeLinksMl} · Shopee ${summary.activeLinksShopee} · fila ${summary.pendingLinksMl}</td></tr>
+<tr><td style="padding:6px 0">Alertas de preço</td><td style="text-align:right">${summary.priceAlertsTotal} cadastrados · ${summary.priceAlertsConfirmed} confirmados · ${summary.priceAlertsTriggered} atingidos</td></tr>
 </table>
 <h3 style="margin:20px 0 6px;font-size:14px">Produtos mais clicados (14d)</h3>
 <ol style="margin:0;padding-left:20px;font-size:14px">${

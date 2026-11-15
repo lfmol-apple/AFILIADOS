@@ -264,6 +264,9 @@ export interface PerformanceSummary {
   activeLinksMl: number;
   activeLinksShopee: number;
   pendingLinksMl: number;
+  priceAlertsTotal: number;
+  priceAlertsConfirmed: number;
+  priceAlertsTriggered: number;
 }
 
 export async function getPerformanceSummary(): Promise<PerformanceSummary> {
@@ -283,6 +286,9 @@ export async function getPerformanceSummary(): Promise<PerformanceSummary> {
     activeLinksMl,
     activeLinksShopee,
     pendingLinksMl,
+    priceAlertsTotal,
+    priceAlertsConfirmed,
+    priceAlertsTriggered,
   ] = await Promise.all([
     prisma.affiliateClick.count({
       where: realClicks({ createdAt: { gte: sevenDaysAgo } }),
@@ -307,6 +313,9 @@ export async function getPerformanceSummary(): Promise<PerformanceSummary> {
     prisma.affiliateLinkRegistry.count({
       where: { status: "PENDING", merchant: { code: "MERCADO_LIVRE" } },
     }),
+    prisma.priceAlert.count(),
+    prisma.priceAlert.count({ where: { confirmedAt: { not: null } } }),
+    prisma.priceAlert.count({ where: { triggeredAt: { not: null } } }),
   ]);
 
   return {
@@ -319,6 +328,9 @@ export async function getPerformanceSummary(): Promise<PerformanceSummary> {
     activeLinksMl,
     activeLinksShopee,
     pendingLinksMl,
+    priceAlertsTotal,
+    priceAlertsConfirmed,
+    priceAlertsTriggered,
   };
 }
 
