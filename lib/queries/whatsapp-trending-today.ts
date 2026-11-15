@@ -92,6 +92,13 @@ export async function loadWhatsAppTrendingToday(
 
   const items: WhatsAppTrendingItem[] = [];
   const seenHrefs = new Set<string>();
+  // Different merchant listings (e.g. the same physical product on ML and
+  // on Shopee) can carry near-identical titles that only differ by casing —
+  // confirmed live, 2026-11-15, two "Secador De Cabelos Philco psc3500..."
+  // rows in the same batch. seenHrefs alone doesn't catch this since the
+  // hrefs differ; normalizing the title catches the real duplicate without
+  // needing a fuzzy match.
+  const seenTitles = new Set<string>();
   for (const r of byClicks7d) {
     if (r.clicks7d === 0) break; // only real recent interest counts here
     if (items.length >= limit) break;
@@ -104,7 +111,10 @@ export async function loadWhatsAppTrendingToday(
     // carries both title and image together, so requiring imageUrl here
     // is enough to exclude the fallback case without re-deriving it.
     if (!r.imageUrl) continue;
+    const normalizedTitle = r.title.toLowerCase();
+    if (seenTitles.has(normalizedTitle)) continue;
     seenHrefs.add(r.href);
+    seenTitles.add(normalizedTitle);
     items.push({ title: r.title, merchant: r.merchant, href: r.href, imageUrl: r.imageUrl });
   }
 
@@ -113,7 +123,10 @@ export async function loadWhatsAppTrendingToday(
     for (const r of scored) {
       if (items.length >= limit) break;
       if (seenHrefs.has(r.href)) continue;
+      const normalizedTitle = r.title.toLowerCase();
+      if (seenTitles.has(normalizedTitle)) continue;
       seenHrefs.add(r.href);
+      seenTitles.add(normalizedTitle);
       items.push(r);
     }
   }
