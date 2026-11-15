@@ -21,7 +21,7 @@ export default async function DiscoveryProductsBatchPage() {
   );
   if (!authorized) return <AdminLoginForm />;
 
-  const products = await loadHighlightCandidates(30);
+  const products = await loadHighlightCandidates();
   const addresses = products.map((p) => p.productUrl);
 
   return (

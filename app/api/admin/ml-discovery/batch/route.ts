@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const candidates = await loadHighlightCandidates(30);
+  const candidates = await loadHighlightCandidates();
   const rows = await previewNewMlProductsBatch(
     links,
     candidates.map((c) => ({

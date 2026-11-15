@@ -102,8 +102,16 @@ async function loadActiveCatalogProductIds(ids: string[]): Promise<Set<string>> 
   return new Set(rows.map((r) => r.externalId));
 }
 
+/**
+ * No cap by design (owner's call, 2026-11-15: "aumente para todos em
+ * alta e todo dia eu coloco pra dentro") — the real ceiling is already
+ * the Highlights API itself (13 categories x top 20 each, ~260 max), not
+ * an arbitrary slice. The batch flow still copies 30 addresses at a time
+ * (Linkbuilder's own per-paste limit); this only controls how many are
+ * waiting in the pool behind that.
+ */
 export async function loadHighlightCandidates(
-  limit = 30,
+  limit?: number,
 ): Promise<HighlightCandidate[]> {
   const raw = await loadRawHighlights();
   const sorted = [...raw].sort((a, b) => a.position - b.position);
@@ -120,7 +128,8 @@ export async function loadHighlightCandidates(
   );
   const available = deduped.filter((h) => !activeIds.has(h.catalogProductId));
 
-  return available.slice(0, limit).map((h) => ({
+  const limited = limit === undefined ? available : available.slice(0, limit);
+  return limited.map((h) => ({
     catalogProductId: h.catalogProductId,
     title: h.title,
     productUrl: `https://www.mercadolivre.com.br/p/${h.catalogProductId}`,
