@@ -96,6 +96,14 @@ export async function loadWhatsAppTrendingToday(
     if (r.clicks7d === 0) break; // only real recent interest counts here
     if (items.length >= limit) break;
     if (seenHrefs.has(r.href)) continue;
+    // getTopClickedProductsMulti's own title falls back to ml.slug (a raw
+    // internal slug, never meant to be read as a product name) when the
+    // listing has no linked CanonicalProduct — confirmed live, 2026-11-16:
+    // 5 of 6 real-click items that day were exactly this, posted with a
+    // slug-as-title and no photo. A real CanonicalProduct match always
+    // carries both title and image together, so requiring imageUrl here
+    // is enough to exclude the fallback case without re-deriving it.
+    if (!r.imageUrl) continue;
     seenHrefs.add(r.href);
     items.push({ title: r.title, merchant: r.merchant, href: r.href, imageUrl: r.imageUrl });
   }
