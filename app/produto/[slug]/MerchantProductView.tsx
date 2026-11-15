@@ -132,20 +132,50 @@ export function MerchantProductView({
             </p>
           )}
 
-          <div className="mt-6">
-            <MerchantCta ctaHref={data.ctaHref} />
-          </div>
-
-          {data.amazonMatch && (
-            <div className="mt-4 flex flex-col items-start gap-1.5">
-              <a
-                href={data.amazonMatch.href}
-                className="border-border-subtle hover:border-brand inline-flex items-center justify-center rounded-full border px-6 py-3 text-sm font-semibold transition"
-              >
-                Ver na Amazon →
-              </a>
-              <AffiliateDisclosure />
-            </div>
+          {/* Owner's brief, 2026-11-16: "vender e ganhar comissão" — when
+              this listing has no real price to show yet (the "ainda
+              estamos acompanhando" state above), a confirmed Amazon match
+              is the only option with a real price behind it, so it leads
+              instead of sitting buried as a small secondary link. */}
+          {data.currentPrice === null && data.amazonMatch ? (
+            <>
+              <div className="mt-6 flex flex-col items-start gap-1.5">
+                <a
+                  href={data.amazonMatch.href}
+                  className="bg-brand text-brand-foreground inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold transition hover:opacity-90"
+                >
+                  Ver na Amazon →
+                </a>
+                <AffiliateDisclosure />
+              </div>
+              {data.ctaHref && (
+                <div className="mt-4">
+                  <a
+                    href={data.ctaHref}
+                    className="border-border-subtle hover:border-brand inline-flex items-center justify-center rounded-full border px-6 py-3 text-sm font-semibold transition"
+                  >
+                    Ver {MERCHANT_LABEL[data.source]} →
+                  </a>
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <div className="mt-6">
+                <MerchantCta ctaHref={data.ctaHref} />
+              </div>
+              {data.amazonMatch && (
+                <div className="mt-4 flex flex-col items-start gap-1.5">
+                  <a
+                    href={data.amazonMatch.href}
+                    className="border-border-subtle hover:border-brand inline-flex items-center justify-center rounded-full border px-6 py-3 text-sm font-semibold transition"
+                  >
+                    Ver na Amazon →
+                  </a>
+                  <AffiliateDisclosure />
+                </div>
+              )}
+            </>
           )}
 
           <div className="mt-6">

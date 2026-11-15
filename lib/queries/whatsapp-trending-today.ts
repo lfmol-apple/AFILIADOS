@@ -31,6 +31,12 @@ interface ScoredRow {
  * data, never fabricated) for any slot real clicks don't fill. As the
  * site's own traffic grows, real clicks naturally take over more of the
  * list on their own — nothing here needs to change later.
+ *
+ * Requires a resolvable current price (same raw.priceMin/raw.price fields
+ * lib/services/merchant-listing-facts.ts already reads) — owner's brief,
+ * 2026-11-16: "vender e ganhar comissão". A WhatsApp click landing on
+ * "ainda estamos acompanhando este produto" (no price shown yet) is a
+ * wasted click toward a sale, never worth sending traffic to.
  */
 async function loadScoredCatalogToday(limit: number): Promise<ScoredRow[]> {
   const rows = await prisma.$queryRaw<
@@ -47,8 +53,15 @@ async function loadScoredCatalogToday(limit: number): Promise<ScoredRow[]> {
     JOIN "AffiliateLinkRegistry" alr ON alr."merchantListingId" = ml.id AND alr.status = 'ACTIVE'
     JOIN "MonetizationScore" ms ON ms."merchantListingId" = ml.id
     LEFT JOIN "CanonicalProduct" cp ON cp.id = ml."canonicalProductId"
+    JOIN LATERAL (
+      SELECT s.raw FROM "MerchantListingSignal" s
+      WHERE s."merchantListingId" = ml.id
+      ORDER BY s."observedAt" DESC
+      LIMIT 1
+    ) latest_signal ON true
     WHERE ml.active = true
       AND cp."publicSlug" IS NOT NULL
+      AND coalesce(latest_signal.raw->>'priceMin', latest_signal.raw->>'price') IS NOT NULL
       AND NOT EXISTS (
         SELECT 1 FROM "MerchantListingSignal" s
         WHERE s."merchantListingId" = ml.id AND s.source = 'mercado_livre_catalog_items'
