@@ -52,6 +52,8 @@ async function connectUntilOpen(
 ): Promise<import("baileys").WASocket> {
   const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, Browsers } =
     await import("baileys");
+  // baileys' own auth state loader, not a React hook — the "use" prefix is a naming coincidence.
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { state, saveCreds } = await useMultiFileAuthState(dir);
 
   // Second real root cause, found live 2026-11-16: `browser[1]` deciding

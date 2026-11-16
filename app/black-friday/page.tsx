@@ -105,7 +105,7 @@ export default async function BlackFridayPage() {
         <h2 className="text-foreground/70 text-sm font-semibold">Como conferimos isso</h2>
         <p className="text-foreground/50 mt-2 text-xs leading-relaxed">
           O {siteConfig.name} observa o preço de cada produto ao longo do tempo,
-          de forma automática. "Menor preço já registrado" só aparece quando o
+          de forma automática. &ldquo;Menor preço já registrado&rdquo; só aparece quando o
           preço atual é, de fato, o mais baixo que já vimos — nunca é uma
           estimativa. O resto mostra quedas reais medidas por nós, não o
           desconto anunciado pela loja.
