@@ -88,6 +88,17 @@ beforeAll(async () => {
   await prisma.monetizationScore.create({
     data: { merchantListingId: mlListing.id, score: 80, confidence: 0.6, components: {}, reasons: [], missingSignals: [] },
   });
+  // Every real ML offer signal carries a resolvable price —
+  // getUnifiedMerchantOffers now requires one (2026-11-17 fix: a card
+  // with no price was reaching the vitrine). Without this the fixture
+  // had none, and this listing was silently filtered out by that fix.
+  await prisma.merchantListingSignal.create({
+    data: {
+      merchantListingId: mlListing.id,
+      source: "mercado_livre_catalog_items",
+      raw: { price: 899.9 },
+    },
+  });
   await prisma.affiliateLinkRegistry.create({
     data: {
       merchantListingId: mlListing.id,
