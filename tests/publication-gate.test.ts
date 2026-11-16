@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { evaluatePublicationGate, MAX_OBSERVATION_AGE_MS } from "@/lib/services/publication-gate";
 import type { MerchantListingFacts } from "@/lib/services/merchant-listing-facts";
 
-const NOW = new Date("2026-09-12T12:00:00Z");
+const NOW = new Date();
 const RECENT = new Date(NOW.getTime() - 1000 * 60 * 60); // 1h ago
 const STALE = new Date(NOW.getTime() - MAX_OBSERVATION_AGE_MS - 1000);
 
