@@ -25,7 +25,7 @@ export default async function BatchLinksPage() {
   const addresses = pending
     .map((e) => e.pick.productUrl)
     .filter((u): u is string => !!u)
-    .slice(0, 40);
+    .slice(0, 30);
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
