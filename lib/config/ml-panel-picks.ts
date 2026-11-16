@@ -33,6 +33,7 @@ export interface PanelPick {
 }
 
 import { ML_PANEL_URLS } from "@/lib/config/ml-panel-urls";
+import { ML_PANEL_PICKS_BATCH_2026_11_16 } from "@/lib/config/ml-panel-picks-batch-2026-11-16";
 
 const D = "2026-09-25";
 type Row = [
@@ -25773,7 +25774,7 @@ const FEATURED_TITLES = new Set<string>([
 
 const seenTitles = new Map<string, number>();
 
-export const ML_PANEL_PICKS: readonly PanelPick[] = rows.map(
+const curatedPicks: readonly PanelPick[] = rows.map(
   ([title, pct, extras, price, sold, rating, group, sponsored]) => {
     const n = (seenTitles.get(title) ?? 0) + 1;
     seenTitles.set(title, n);
@@ -25794,3 +25795,13 @@ export const ML_PANEL_PICKS: readonly PanelPick[] = rows.map(
     };
   },
 );
+
+// Second batch (2026-11-16) — see ml-panel-picks-batch-2026-11-16.ts's doc
+// comment: raw panel reads from Sept 2026 that an earlier ad hoc per-category
+// cutoff excluded from curatedPicks above. Appended, never merged into the
+// Row/rows machinery above, to keep that machinery's existing behavior
+// (and git history) untouched.
+export const ML_PANEL_PICKS: readonly PanelPick[] = [
+  ...curatedPicks,
+  ...ML_PANEL_PICKS_BATCH_2026_11_16,
+];
