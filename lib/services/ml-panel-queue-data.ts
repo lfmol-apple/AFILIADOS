@@ -8,6 +8,7 @@ import {
 import { loadRegisteredPanelIds } from "@/lib/services/ml-panel-register";
 import { loadIssuePanelIds } from "@/lib/services/ml-panel-issues";
 import { expectedIdsFromProductUrl } from "@/lib/services/ml-panel-check-logic";
+import { loadOrphanedRecoveryCandidates } from "@/lib/services/ml-panel-recovery";
 
 /** Catalog ids (MLB…) of the Mercado Livre products that already have an active link. */
 export async function loadRegisteredCatalogIds(): Promise<Set<string>> {
@@ -22,6 +23,11 @@ export async function loadRegisteredCatalogIds(): Promise<Set<string>> {
 }
 
 export interface PanelQueueData {
+  /** Of `pending`, how many are historical recoveries (see
+   * lib/services/ml-panel-recovery.ts) rather than a fresh, never-
+   * attempted pick — shown so the owner knows some rows are "redo this
+   * one, the link never saved last time", not new inventory. */
+  recoveredCount: number;
   /** Rows still waiting for a link AND already carrying a generic product
    * address (the owner can click "copy address + open Linkbuilder" right
    * away), in money+reputation score order. Rows without an address are not
@@ -43,11 +49,13 @@ export interface PanelQueueData {
 
 /** The panel products still waiting for the owner's affiliate link. */
 export async function loadPanelQueue(): Promise<PanelQueueData> {
-  const [registered, registeredCatalog, issues] = await Promise.all([
+  const [registered, registeredCatalog, issues, recoverable] = await Promise.all([
     loadRegisteredPanelIds(),
     loadRegisteredCatalogIds(),
     loadIssuePanelIds(),
+    loadOrphanedRecoveryCandidates(),
   ]);
+  const recoverablePickIds = new Set(recoverable.map((c) => c.pick.id));
   // No title-vs-slug guessing: a row that merely LOOKS like a product already
   // on the site is a different product (different catalog id, its own
   // commission) and used to be hidden by mistake — 29 rows, some paying R$ 100+
@@ -58,18 +66,20 @@ export async function loadPanelQueue(): Promise<PanelQueueData> {
     const catalogId = expectedIdsFromProductUrl(e.pick.productUrl).catalogId;
     return !!catalogId && registeredCatalog.has(catalogId);
   };
-  const onSite = toLink.filter(
-    (e) => !registered.has(e.pick.id) && sameProductOnSite(e),
-  );
+  // "Registered" normally means done — but a recoverable row IS registered
+  // (it has a panel_pick signal) with no real link behind it (the
+  // historical incident this queue now undoes, see ml-panel-recovery.ts),
+  // so it's treated as not-registered here, same as any fresh pick.
+  const isRegistered = (e: (typeof toLink)[number]) =>
+    registered.has(e.pick.id) && !recoverablePickIds.has(e.pick.id);
+  const onSite = toLink.filter((e) => !isRegistered(e) && sameProductOnSite(e));
   const notRegistered = toLink.filter(
-    (e) =>
-      !registered.has(e.pick.id) &&
-      !issues.has(e.pick.id) &&
-      !sameProductOnSite(e),
+    (e) => !isRegistered(e) && !issues.has(e.pick.id) && !sameProductOnSite(e),
   );
   const ready = notRegistered.filter((e) => e.pick.productUrl);
   const waiting = notRegistered.filter((e) => !e.pick.productUrl);
   return {
+    recoveredCount: ready.filter((e) => recoverablePickIds.has(e.pick.id)).length,
     pending: catalogFirst(ready),
     readyCount: ready.length,
     withoutAddressCount: waiting.length,

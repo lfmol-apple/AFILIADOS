@@ -33,6 +33,7 @@ export default async function LinkQueuePage() {
     registeredCount,
     onSiteCount,
     issueCount,
+    recoveredCount,
   } = await loadPanelQueue();
   // 675+ rows at once made this page heavy; the batch screen is where the
   // bulk of the work happens, so list only the first ones here.
@@ -62,6 +63,13 @@ export default async function LinkQueuePage() {
           ` · ${withoutAddressCount} ocultos por ainda não terem o link genérico`}
         . ⚡ = campanha temporária (confira a taxa ao gerar).
       </p>
+      {recoveredCount > 0 && (
+        <p className="text-foreground/60 mt-1 text-sm">
+          {recoveredCount} dessas são recuperações — o link não salvou da
+          primeira vez (incidente histórico, já corrigido); vale a pena gerar
+          de novo.
+        </p>
+      )}
       <p className="mt-3">
         <a
           href="/admin/fila-links/lote"
