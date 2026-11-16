@@ -1,6 +1,5 @@
 import { getOfertas } from "@/lib/queries/products";
 import { stripNoindexDetailLinks } from "@/lib/seo/indexable-product-links";
-import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 import {
   getUnifiedMerchantOffers,
   mapAmazonProductToUnifiedCard,
@@ -47,7 +46,6 @@ const POOL_LIMIT = 4000;
 const FEED_POOL_CEILING = 2000;
 /** Plan B if the deep build fails (DB pressure): the previous bounded pool. */
 const FALLBACK_POOL_LIMIT = 400;
-const AMAZON_POOL_SIZE = 96;
 const POOL_TTL_MS = 5 * 60 * 1000;
 
 /** Process-wide singleton on globalThis, not module-level variables: Next
@@ -62,12 +60,18 @@ const g = globalThis as unknown as {
 };
 const state = (g.__offersFeedState ??= { cached: null, inflight: null });
 
+/**
+ * Amazon never contributes its own bare card here — see
+ * UnifiedOfferCard.amazonMatch's doc comment: Amazon only ever rides along
+ * on a ML/Shopee card's own real image+price, as the "Ver preço na Amazon"
+ * button, once a human confirms a match. A bare Amazon Product card has no
+ * image (Amazon forbids caching one without the Creators API) and, as of
+ * 2026-11-16, none of the manually-registered Amazon products had a price
+ * entered either — injecting them here just produced broken-looking cards
+ * in the main feed. Decision: keep Amazon out of this pool entirely.
+ */
 async function buildPool(): Promise<UnifiedOfferCard[]> {
-  const catalogSafe = currentlyVisibleDataSources().length > 0;
-  const [amazonResult, merchantOffers, engagementSignals] = await Promise.all([
-    catalogSafe
-      ? getOfertas({ page: 1, pageSize: AMAZON_POOL_SIZE })
-      : { items: [] },
+  const [merchantOffers, engagementSignals] = await Promise.all([
     getUnifiedMerchantOffers(
       POOL_LIMIT,
       { source: "ofertas" },
@@ -85,11 +89,7 @@ async function buildPool(): Promise<UnifiedOfferCard[]> {
       return { clicksByCardId: new Map(), viewsBySlug: new Map() };
     }),
   ]);
-  const all = [
-    ...amazonResult.items.map(mapAmazonProductToUnifiedCard),
-    ...merchantOffers,
-  ];
-  const boosted = applyEngagementBoost(all, engagementSignals);
+  const boosted = applyEngagementBoost(merchantOffers, engagementSignals);
   return interleaveByMerchant(selectTopUnifiedOffers(boosted, boosted.length));
 }
 
