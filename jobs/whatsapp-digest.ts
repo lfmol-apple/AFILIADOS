@@ -3,7 +3,10 @@ import { prisma } from "@/lib/db";
 import { env } from "@/lib/config/env";
 import { runJob, type JobCounters } from "@/lib/jobs/automation-run";
 import { logger } from "@/lib/observability/logger";
-import { loadWhatsAppTrendingToday } from "@/lib/queries/whatsapp-trending-today";
+import {
+  loadWhatsAppTrendingToday,
+  markWhatsAppPriceDropShown,
+} from "@/lib/queries/whatsapp-trending-today";
 import { buildWhatsAppItemCaption } from "@/lib/services/whatsapp-message";
 import {
   isWhatsAppConfigured,
@@ -75,6 +78,20 @@ export async function runWhatsAppDigestJob(
     try {
       await sendWhatsAppMessages(posts);
       ctx.counters.created = items.length;
+      // Only after a real send — a verified price drop stops being
+      // offered to this digest once it's actually been posted, so the
+      // same drop doesn't repeat every day it's still active.
+      for (const item of items) {
+        if (!item.verifiedDrop || !item.merchantListingId) continue;
+        try {
+          await markWhatsAppPriceDropShown(item.merchantListingId);
+        } catch (err) {
+          logger.warn("whatsapp_digest.mark_shown_failed", {
+            merchantListingId: item.merchantListingId,
+            message: String(err),
+          });
+        }
+      }
     } catch (err) {
       ctx.counters.errors += 1;
       logger.error("whatsapp_digest.send_failed", { message: String(err) });

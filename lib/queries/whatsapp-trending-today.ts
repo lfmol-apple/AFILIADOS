@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/db";
 import { getTopClickedProductsMulti } from "@/lib/queries/performance-dashboard";
+import { loadMerchantListingFactsByListingId } from "@/lib/services/merchant-listing-facts";
+import { buildTelegramPostCandidate } from "@/lib/services/price-drop-digest";
+import { ensurePublicSlugForListing } from "@/lib/queries/public-product";
 
 export interface WhatsAppTrendingItem {
   title: string;
@@ -11,6 +14,20 @@ export interface WhatsAppTrendingItem {
   /** Owner's brief, 2026-11-16: "quero que as imagens apareçam" — null
    * when the product genuinely has none (rare), never a placeholder. */
   imageUrl: string | null;
+  /** Set only for the real, Radar-verified price-drop tier (see
+   * loadVerifiedPriceDropsToday) — undefined everywhere else, never a
+   * fabricated discount. buildWhatsAppItemCaption only ever claims a
+   * discount when this is present. */
+  verifiedDrop?: {
+    previousPrice: number;
+    currentPrice: number;
+    dropPercent: number;
+    isAllTimeLow: boolean;
+  };
+  /** Set only alongside verifiedDrop — lets the caller (jobs/whatsapp-
+   * digest.ts) mark the listing as already shown after a real send, so
+   * the same verified drop isn't repeated every day it's still active. */
+  merchantListingId?: string;
 }
 
 interface ScoredRow {
@@ -79,6 +96,96 @@ async function loadScoredCatalogToday(limit: number): Promise<ScoredRow[]> {
     }));
 }
 
+/** How many ACTIVE-linked candidates to check for a real price drop before
+ * ranking — same pool-not-whole-catalog idea as jobs/telegram-digest.ts's
+ * CANDIDATE_POOL_SIZE, just smaller since this only needs to fill a few
+ * WhatsApp slots, not the Telegram channel's own 5/run. */
+const PRICE_DROP_POOL_SIZE = 150;
+
+interface PriceDropCandidateRow {
+  id: string;
+}
+
+/**
+ * Real, Radar-verified price drops among listings we already link — the
+ * owner's brief (2026-11-17): "não utilizar apenas cliques e
+ * MonetizationScore... aproveitar a inteligência já existente no Radar e
+ * no Telegram". Deliberately mirrors jobs/telegram-digest.ts's own
+ * pool-then-detect shape (never getPublicRadarFeed's bulk collectors,
+ * which only cover ML listings sourced from the old highlights/trends
+ * discovery — not the panel-sourced catalog that's actually linked
+ * today) — same detectPriceDrop, same buildTelegramPostCandidate, so a
+ * drop shown here is a drop the Telegram channel would also recognize as
+ * real. Excludes listings already shown this way (whatsapp_price_drop_
+ * shown signal, set by jobs/whatsapp-digest.ts after a real send) so the
+ * same drop doesn't repeat every day it's still active.
+ */
+async function loadVerifiedPriceDropsToday(
+  limit: number,
+): Promise<WhatsAppTrendingItem[]> {
+  const pool = await prisma.$queryRaw<PriceDropCandidateRow[]>`
+    SELECT ml.id
+    FROM "MerchantListing" ml
+    JOIN "Merchant" m ON m.id = ml."merchantId"
+    JOIN "AffiliateLinkRegistry" alr
+      ON alr."merchantListingId" = ml.id AND alr.status = 'ACTIVE'
+    WHERE ml.active = true
+      AND m.code IN ('MERCADO_LIVRE', 'SHOPEE')
+      AND NOT EXISTS (
+        SELECT 1 FROM "MerchantListingSignal" s
+        WHERE s."merchantListingId" = ml.id AND s.source = 'mercado_livre_catalog_items'
+      )
+      AND NOT EXISTS (
+        SELECT 1 FROM "MerchantListingSignal" s
+        WHERE s."merchantListingId" = ml.id AND s.source = 'whatsapp_price_drop_shown'
+      )
+    ORDER BY ml."updatedAt" DESC
+    LIMIT ${PRICE_DROP_POOL_SIZE}
+  `;
+
+  const items: WhatsAppTrendingItem[] = [];
+  for (const row of pool) {
+    const facts = await loadMerchantListingFactsByListingId(row.id);
+    if (!facts) continue;
+    const candidate = buildTelegramPostCandidate(facts);
+    if (!candidate) continue;
+    const slug = await ensurePublicSlugForListing(row.id);
+    if (!slug) continue;
+    items.push({
+      title: candidate.title,
+      merchant: facts.merchant,
+      href: `/produto/${slug}`,
+      imageUrl: facts.imageUrl,
+      verifiedDrop: {
+        previousPrice: candidate.previousPrice,
+        currentPrice: candidate.currentPrice,
+        dropPercent: candidate.dropPercent,
+        isAllTimeLow: candidate.isAllTimeLow,
+      },
+      merchantListingId: candidate.merchantListingId,
+    });
+  }
+
+  return items
+    .sort((a, b) => (b.verifiedDrop?.dropPercent ?? 0) - (a.verifiedDrop?.dropPercent ?? 0))
+    .slice(0, limit);
+}
+
+/** Marks a verified price drop as already shown on WhatsApp, so
+ * loadVerifiedPriceDropsToday stops offering it — called only after a
+ * real, live send (jobs/whatsapp-digest.ts), never in dry-run. */
+export async function markWhatsAppPriceDropShown(
+  merchantListingId: string,
+): Promise<void> {
+  await prisma.merchantListingSignal.create({
+    data: {
+      merchantListingId,
+      source: "whatsapp_price_drop_shown",
+      raw: { shownAt: new Date().toISOString() },
+    },
+  });
+}
+
 export async function loadWhatsAppTrendingToday(
   limit = 6,
 ): Promise<WhatsAppTrendingItem[]> {
@@ -116,6 +223,19 @@ export async function loadWhatsAppTrendingToday(
     seenHrefs.add(r.href);
     seenTitles.add(normalizedTitle);
     items.push({ title: r.title, merchant: r.merchant, href: r.href, imageUrl: r.imageUrl });
+  }
+
+  if (items.length < limit) {
+    const verifiedDrops = await loadVerifiedPriceDropsToday(limit * 2);
+    for (const r of verifiedDrops) {
+      if (items.length >= limit) break;
+      if (seenHrefs.has(r.href)) continue;
+      const normalizedTitle = r.title.toLowerCase();
+      if (seenTitles.has(normalizedTitle)) continue;
+      seenHrefs.add(r.href);
+      seenTitles.add(normalizedTitle);
+      items.push(r);
+    }
   }
 
   if (items.length < limit) {
