@@ -95,6 +95,18 @@ async function createShopeeListing(opts: {
       status: "ACTIVE",
     },
   });
+  // Every real Shopee listing carries a signal with a real priceMin —
+  // getUnifiedMerchantOffers now requires a resolvable currentPrice
+  // (2026-11-17 fix: a card with no price was reaching the vitrine).
+  // Without this the fixture had no price at all, and this whole test's
+  // listings were silently filtered out by that fix.
+  await prisma.merchantListingSignal.create({
+    data: {
+      merchantListingId: listing.id,
+      source: "shopee_product_offer_v2",
+      raw: { productName: opts.externalId, priceMin: "19.90" },
+    },
+  });
   return listing;
 }
 
