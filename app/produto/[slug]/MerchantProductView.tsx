@@ -4,6 +4,7 @@ import { AffiliateDisclosure } from "@/components/affiliate-disclosure";
 import { ProductImage } from "@/components/product-image";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { PriceAlertForm } from "@/components/price-alert-form";
+import { CanalInviteBlock } from "@/components/canal-invite-block";
 import { env } from "@/lib/config/env";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { siteConfig } from "@/lib/config/site";
@@ -177,6 +178,10 @@ export function MerchantProductView({
               )}
             </>
           )}
+
+          <div className="mt-6">
+            <CanalInviteBlock compact />
+          </div>
 
           <div className="mt-6">
             <PriceAlertForm

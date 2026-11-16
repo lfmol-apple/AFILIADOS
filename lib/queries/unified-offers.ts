@@ -24,8 +24,25 @@ export interface UnifiedOfferCard {
   title: string;
   imageUrl: string | null;
   currentPrice: number | null;
+  /** The store's OWN claimed "original price" (ML/Shopee's own
+   * original_price/priceDiscountRate field) — a real, disclosed number
+   * the merchant reports, never something PreçoCaindo verified with its
+   * own price history. `discountPercent` below is the same claim as a
+   * percentage. Rendered as "na loja", never as a comprovado drop —
+   * owner's instruction, 2026-11-17: "nunca apresente o percentual
+   * anunciado pela loja como desconto verificado por nós". */
   referencePrice: number | null;
   discountPercent: number | null;
+  /** Set ONLY when detectPriceDrop (lib/services/radar.ts) confirmed a
+   * real drop against OUR OWN observed price history for this listing —
+   * the one case a card may honestly claim "queda comprovada". Left
+   * undefined for the general /ofertas grid (checking this for hundreds
+   * of cards would mean loading full price history per listing — not
+   * done here); populated only by callers cheap enough to afford it,
+   * today just the home "Melhores oportunidades agora" block
+   * (lib/queries/home-offers.ts). Never confuse with discountPercent
+   * above. */
+  verifiedDrop?: { dropPercent: number; isAllTimeLow: boolean };
   rating: number | null;
   soldQuantity: number | null;
   /** Real, commission-free signal — never MonetizationScore's blended
@@ -353,7 +370,22 @@ export async function getUnifiedMerchantOffers(
     card.amazonMatch = amazonHrefByListingId.get(card.id) ?? null;
   }
 
+  // Root cause of a real bug (audited 2026-11-17, confirmed live on
+  // /ofertas — a "Papel Higiênico" card rendering with no price at all,
+  // just a dead "Ver preço" button): neither shopeeCards' nor mlCards'
+  // mapping above ever required currentPrice to resolve. For Shopee that
+  // only happens if priceMin is missing/malformed in the latest signal;
+  // for Mercado Livre it's common — bestOfferByCanonicalId picks a
+  // sibling listing by demand/quality score, never by "does this one
+  // actually have a resolvable price", so a canonical product can get
+  // matched to a sibling whose latest signal simply has no price field.
+  // A card with no price shows no real commercial fact, so it never
+  // belongs in the vitrine — same "nunca produto sem preço" rule
+  // offers-feed.ts and the home vitrine both need.
+  const withPrice = (card: UnifiedOfferCard) => card.currentPrice !== null;
+
   return [...shopeeCards, ...mlCards]
+    .filter(withPrice)
     .sort((a, b) => (b.opportunitySignal ?? -1) - (a.opportunitySignal ?? -1))
     .slice(0, limit);
 }
