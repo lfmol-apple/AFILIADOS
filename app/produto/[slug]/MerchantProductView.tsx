@@ -162,6 +162,9 @@ export function MerchantProductView({
                     Economize {formatCurrency(data.referencePrice - data.currentPrice, data.currency)} (preço riscado pela loja)
                   </p>
                 )}
+                {data.soldQuantity !== null && data.soldQuantity > 0 && (
+                  <p className="text-foreground/50 mt-2 text-sm">{data.soldQuantity.toLocaleString("pt-BR")} vendidos</p>
+                )}
               </>
             ) : (
               <p className="text-foreground/60 mt-4 text-sm leading-relaxed">
