@@ -66,6 +66,8 @@ export async function connectWhatsApp(timeoutMs = 30_000): Promise<WhatsAppConne
   const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, Browsers } =
     await import("baileys");
 
+  // baileys' own auth state loader, not a React hook — the "use" prefix is a naming coincidence.
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const { state, saveCreds } = await useMultiFileAuthState(dir);
   const sock = makeWASocket({
     auth: state,

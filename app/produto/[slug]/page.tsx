@@ -15,6 +15,7 @@ import { ProductImage } from "@/components/product-image";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { PetLitterCalculator } from "@/components/pet-litter-calculator";
 import { PriceAlertForm } from "@/components/price-alert-form";
+import { CanalInviteBlock } from "@/components/canal-invite-block";
 import { siteConfig } from "@/lib/config/site";
 import { env } from "@/lib/config/env";
 import { getAmazonMarketplaceConfig } from "@/lib/config/marketplaces";
@@ -492,6 +493,10 @@ export default async function ProductPage(
             >
               Como calculamos?
             </Link>
+          </div>
+
+          <div className="mt-6">
+            <CanalInviteBlock compact />
           </div>
 
           <div className="mt-6">

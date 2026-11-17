@@ -3,13 +3,20 @@ import Link from "next/link";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { HeroCarousel } from "@/components/hero-carousel";
 import { RadarSummary } from "@/components/radar-summary";
+import { UnifiedOfferCard } from "@/components/unified-offer-card";
+import { CanalInviteBlock } from "@/components/canal-invite-block";
 import { getPublicRadarFeed } from "@/lib/queries/radar-events";
+import { loadHomeOffers } from "@/lib/queries/home-offers";
 
-// Home, explanatory version (2026-09): the home's job is to say what
-// PreçoCaindo is, how it works and where to go — it deliberately shows NO
-// product cards (the owner's call). Products live at /ofertas, /achados and
-// /produto/*. The only live data here is the radar's category counts
-// ("3 preços caíram recentemente"), never a per-product list.
+// Home, commercial version (owner's brief, 2026-11-17: "o visitante deve
+// encontrar produtos reais imediatamente após uma apresentação curta").
+// Previously showed NO product cards at all (2026-09 decision) — now
+// shows a small, real, price-filtered set right after the hero+search,
+// reusing the exact same ranked pool and card component /ofertas already
+// uses (loadHomeOffers -> getOffersPool/selectTopUnifiedOffers, never a
+// second ranking system). Everything institutional below still applies
+// — this only moves real product proof earlier, it doesn't remove the
+// trust-building content.
 
 export const dynamic = "force-dynamic";
 
@@ -20,7 +27,7 @@ const STEPS = [
   },
   {
     title: "Veja o que merece atenção",
-    body: "Ordenamos pelo que tem demanda e uma oferta de qualidade de verdade, não pelo que paga mais comissão.",
+    body: "Separamos o que realmente vale a pena olhar primeiro — sem precisar garimpar a loja inteira.",
   },
   {
     title: "Compre na loja",
@@ -29,12 +36,6 @@ const STEPS = [
 ];
 
 const SECTIONS = [
-  {
-    href: "/ofertas",
-    title: "Ofertas",
-    body: "As melhores oportunidades do momento, de várias lojas, com filtro por categoria e rolagem sem fim.",
-    cta: "Ver ofertas",
-  },
   {
     href: "/achados",
     title: "Achados na Amazon",
@@ -136,10 +137,16 @@ const TRUST = [
 ];
 
 export default async function Home() {
-  const radarItems = await getPublicRadarFeed(20).catch((error) => {
-    console.error("home.radar_unavailable", error);
-    return [];
-  });
+  const [radarItems, homeOffers] = await Promise.all([
+    getPublicRadarFeed(20).catch((error) => {
+      console.error("home.radar_unavailable", error);
+      return [];
+    }),
+    loadHomeOffers().catch((error) => {
+      console.error("home.offers_unavailable", error);
+      return [];
+    }),
+  ]);
 
   return (
     <div>
@@ -185,6 +192,37 @@ export default async function Home() {
           </p>
         </div>
       </section>
+
+      {/* ---------------- NOVO: MELHORES OPORTUNIDADES AGORA ---------------- */}
+      {homeOffers.length > 0 && (
+        <section
+          className="mx-auto max-w-6xl px-4 pt-10 pb-4 sm:px-6 sm:pt-14"
+          aria-labelledby="melhores-oportunidades"
+        >
+          <div className="flex items-end justify-between gap-3">
+            <h2
+              id="melhores-oportunidades"
+              className="text-2xl font-semibold tracking-tight"
+            >
+              Melhores oportunidades agora
+            </h2>
+            <Link
+              href="/ofertas"
+              className="text-brand shrink-0 text-sm font-semibold underline underline-offset-2"
+            >
+              Ver todas as ofertas →
+            </Link>
+          </div>
+          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
+            {homeOffers.map((item) => (
+              <UnifiedOfferCard key={`${item.merchant}-${item.id}`} item={item} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ---------------- NOVO: CONVITE AO CANAL ---------------- */}
+      <CanalInviteBlock />
 
       {/* ---------------- 4. CATEGORIAS ---------------- */}
       <section
@@ -255,7 +293,7 @@ export default async function Home() {
           <h2 id="o-que-tem" className="text-2xl font-semibold tracking-tight">
             O que você encontra aqui
           </h2>
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
             {SECTIONS.map((s) => (
               <Link
                 key={s.href}
@@ -319,22 +357,6 @@ export default async function Home() {
 
       {/* ---------------- 6. ACONTECENDO AGORA (só contagens) ---------------- */}
       <RadarSummary items={radarItems} />
-
-      {/* ---------------- 7. CHAMADA FINAL ---------------- */}
-      <section className="mx-auto max-w-3xl px-4 py-12 text-center sm:px-6 sm:py-16">
-        <h2 className="text-2xl font-semibold tracking-tight">
-          Pronto para ver o que está valendo?
-        </h2>
-        <p className="text-foreground/70 mt-2 text-sm">
-          As ofertas são atualizadas automaticamente, várias vezes ao dia.
-        </p>
-        <Link
-          href="/ofertas"
-          className="bg-brand text-brand-foreground mt-6 inline-flex min-h-14 items-center rounded-full px-8 text-base font-semibold hover:opacity-90"
-        >
-          Ver as ofertas de agora
-        </Link>
-      </section>
     </div>
   );
 }

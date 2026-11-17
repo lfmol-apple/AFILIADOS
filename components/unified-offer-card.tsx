@@ -120,10 +120,16 @@ export function UnifiedOfferCard({ item }: { item: UnifiedOfferCardData }) {
             />
           ) : null}
         </a>
-        {discount !== null && (
-          <span className="pointer-events-none absolute top-2.5 left-2.5 rounded-full bg-rose-600 px-2.5 py-1 text-xs leading-none font-bold text-white shadow-md shadow-rose-600/30">
-            −{discount}%
+        {item.verifiedDrop ? (
+          <span className="pointer-events-none absolute top-2.5 left-2.5 rounded-full bg-emerald-600 px-2.5 py-1 text-xs leading-none font-bold text-white shadow-md shadow-emerald-600/30">
+            📉 −{Math.round(item.verifiedDrop.dropPercent * 100)}% comprovado
           </span>
+        ) : (
+          discount !== null && (
+            <span className="pointer-events-none absolute top-2.5 left-2.5 rounded-full bg-rose-600/90 px-2.5 py-1 text-xs leading-none font-bold text-white shadow-md shadow-rose-600/30">
+              −{discount}% na loja
+            </span>
+          )
         )}
         <span className="pointer-events-none absolute top-2.5 right-2.5 flex items-center gap-1.5 rounded-full border border-black/8 bg-white/70 px-2 py-1 text-[11px] leading-none font-semibold text-slate-800 shadow-sm backdrop-blur-md">
           <span
@@ -169,8 +175,15 @@ export function UnifiedOfferCard({ item }: { item: UnifiedOfferCardData }) {
           </div>
           <p className="text-foreground/60 mt-1 min-h-5 text-xs">
             {saving !== null && (
-              <span className="font-semibold text-emerald-700 dark:text-emerald-400">
+              <span
+                className={
+                  item.verifiedDrop
+                    ? "font-semibold text-emerald-700 dark:text-emerald-400"
+                    : "font-medium text-foreground/70"
+                }
+              >
                 Economize {brl(saving)}
+                {!item.verifiedDrop && " (preço riscado pela loja)"}
               </span>
             )}
             {saving !== null && meta.length > 0 && " · "}

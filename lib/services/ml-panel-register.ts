@@ -191,6 +191,33 @@ export async function registerPanelPick(input: {
     });
   }
 
+  // Root cause of a real incident (audited 2026-11-17): this used to write
+  // the panel_pick signal BEFORE saving the link below, with no
+  // transaction tying the two together. When the save threw (a duplicate-
+  // link or domain-validation error — both real, legitimate rejections,
+  // not bugs in themselves), the signal was already committed, leaving a
+  // permanent "registered" row with no real link behind it — confirmed
+  // live: 2,144 of 2,401 historical panel_pick signals had no
+  // AffiliateLinkRegistry row at all, 2,130 of them from the very first
+  // batch session (2026-09-25/26). loadRegisteredPanelIds() treats having
+  // a signal as "already done", so every one of those silently vanished
+  // from the queue forever with no error ever surfacing to the owner.
+  //
+  // Fixed by reordering: the link save now happens FIRST. If it throws,
+  // this function throws too (unchanged behavior — the caller already
+  // handles that and leaves the row in the queue for a retry) and the
+  // signal below is never written, so "has a panel_pick signal" keeps
+  // meaning "has a real link" going forward — no transaction needed
+  // since there's no longer a case where only the first of the two
+  // writes can survive a failure.
+  await saveManualAffiliateLinkFromCategoryQueue({
+    merchantListingId: listing.id,
+    merchantId: merchant.id,
+    merchantCode: "MERCADO_LIVRE",
+    publicUrl: current.productUrl,
+    affiliateUrl: input.affiliateUrl,
+  });
+
   await prisma.merchantListingSignal.create({
     data: {
       merchantListingId: listing.id,
@@ -201,14 +228,6 @@ export async function registerPanelPick(input: {
         price: input.price,
       },
     },
-  });
-
-  await saveManualAffiliateLinkFromCategoryQueue({
-    merchantListingId: listing.id,
-    merchantId: merchant.id,
-    merchantCode: "MERCADO_LIVRE",
-    publicUrl: current.productUrl,
-    affiliateUrl: input.affiliateUrl,
   });
 
   // Where the time of one save goes (ms), to tune the slow part with data.

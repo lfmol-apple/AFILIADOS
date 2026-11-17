@@ -234,6 +234,15 @@ const envSchema = z.object({
   WHATSAPP_GROUP_JID: z.string().default(""),
   WHATSAPP_OWNER_PERSONAL_JID: z.string().default(""),
   WHATSAPP_SESSION_DIR: z.string().default("data/whatsapp-session"),
+
+  // WHATSAPP_CHANNEL_INVITE_URL: the public, clickable "follow this
+  // Channel" link (format https://whatsapp.com/channel/<id>) — a
+  // DIFFERENT thing than WHATSAPP_CHANNEL_JID above (that's the internal
+  // protocol address, never shown to a visitor). Used only by /canal
+  // (app/canal/page.tsx), the Meta Ads landing page for channel growth.
+  // Empty means the page shows "link indisponível" instead of a dead
+  // button — same fail-closed pattern as AmazonShowcaseCard's href.
+  WHATSAPP_CHANNEL_INVITE_URL: z.string().default(""),
 });
 
 export type Env = z.infer<typeof envSchema>;

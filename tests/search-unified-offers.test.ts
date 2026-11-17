@@ -99,6 +99,44 @@ beforeAll(async () => {
       status: "ACTIVE",
     },
   });
+  // getUnifiedMerchantOffers never reads a catalog listing's own signals
+  // for price — it reads the best-scoring OFFER sibling that shares its
+  // canonicalProductId (selectBestOfferIdsPerCanonicalProduct explicitly
+  // excludes the catalog listing itself). Without a separate offer row
+  // here, mlListing's card always resolves currentPrice to null and gets
+  // dropped by the 2026-11-17 no-price filter — confirmed live: adding a
+  // signal to mlListing itself (an earlier, wrong attempt at this fix)
+  // changed nothing, because that signal is never read.
+  const mlOffer = await prisma.merchantListing.create({
+    data: {
+      merchantId: mlMerchantId,
+      externalId: `SEARCH-ML-OFFER-${runId}`,
+      externalIdType: "MERCHANT_PRODUCT_ID",
+      productUrl: "https://produto.mercadolivre.com.br/x-offer",
+      canonicalProductId: canonical.id,
+    },
+  });
+  listingIds.push(mlOffer.id);
+  await prisma.monetizationScore.create({
+    data: {
+      merchantListingId: mlOffer.id,
+      score: 80,
+      confidence: 0.6,
+      components: {
+        demand: { value: 100, quality: "OBSERVED", detail: "test" },
+        offerQuality: { value: 100, quality: "OBSERVED", detail: "test" },
+      },
+      reasons: [],
+      missingSignals: [],
+    },
+  });
+  await prisma.merchantListingSignal.create({
+    data: {
+      merchantListingId: mlOffer.id,
+      source: "mercado_livre_catalog_items",
+      raw: { price: 899.9 },
+    },
+  });
 
   // --- Amazon: real Product, visible (MANUAL_VERIFIED, ambient env has
   // PUBLIC_CATALOG_ENABLED=true + MANUAL_PRODUCTS_ENABLED=true) ---
