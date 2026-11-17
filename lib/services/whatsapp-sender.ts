@@ -93,7 +93,7 @@ export async function sendWhatsAppForwardPacket(posts: WhatsAppOutgoingPost[]): 
   const { sock, close } = await connectWhatsApp();
   try {
     await sock.sendMessage(env.WHATSAPP_OWNER_PERSONAL_JID, {
-      text: `📬 Ofertas de hoje pro Canal — encaminhe cada uma (👆 mantenha pressionado → Encaminhar → Promoções Preço Caindo):`,
+      text: `📬 Ofertas de hoje pro Canal — encaminhe cada uma (👆 mantenha pressionado → Encaminhar → Mercado Livre, Shopee e Amazon):`,
     });
     await sleep(BETWEEN_POSTS_DELAY_MS);
     for (let i = 0; i < posts.length; i++) {

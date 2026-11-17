@@ -7,7 +7,7 @@ import { getPublicRadarFeed } from "@/lib/queries/radar-events";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Canal Promoções Preço Caindo",
+  title: "Canal Mercado Livre, Shopee e Amazon",
   description:
     "Promoções reais, cupons verificados e comparação entre Mercado Livre, Amazon e Shopee — direto no seu WhatsApp.",
   alternates: { canonical: "/canal" },
@@ -66,7 +66,7 @@ export default async function CanalConvitePage() {
         PreçoCaindo
       </p>
       <h1 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
-        Canal Promoções Preço Caindo
+        Canal Mercado Livre, Shopee e Amazon
       </h1>
       <p className="text-foreground/70 mt-3 text-base leading-relaxed">
         Ofertas selecionadas com critério, direto no seu WhatsApp — sem precisar

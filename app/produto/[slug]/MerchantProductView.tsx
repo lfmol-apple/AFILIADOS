@@ -1,6 +1,5 @@
 import { Breadcrumbs } from "@/components/breadcrumbs";
-import { MerchantCta } from "@/components/merchant-cta";
-import { AffiliateDisclosure } from "@/components/affiliate-disclosure";
+import { GenericAffiliateDisclosure } from "@/components/merchant-cta";
 import { ProductImage } from "@/components/product-image";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { PriceAlertForm } from "@/components/price-alert-form";
@@ -19,6 +18,26 @@ import { PRICE_POSITION_TEXT, summarizePriceHistory } from "@/lib/product/price-
 const MERCHANT_LABEL: Record<PublicMerchantProductViewModel["source"], string> = {
   MERCADO_LIVRE: "no Mercado Livre",
   SHOPEE: "na Shopee",
+};
+
+const MERCHANT_PILL_LABEL: Record<PublicMerchantProductViewModel["source"], string> = {
+  MERCADO_LIVRE: "Mercado Livre",
+  SHOPEE: "Shopee",
+};
+
+const MERCHANT_BUTTON_LABEL: Record<PublicMerchantProductViewModel["source"], string> = {
+  MERCADO_LIVRE: "no Mercado Livre",
+  SHOPEE: "na Shopee",
+};
+
+const MERCHANT_DOT: Record<PublicMerchantProductViewModel["source"], string> = {
+  MERCADO_LIVRE: "bg-[#FFE600]",
+  SHOPEE: "bg-[#EE4D2D]",
+};
+
+const MERCHANT_BUTTON_CLASS: Record<PublicMerchantProductViewModel["source"], string> = {
+  MERCADO_LIVRE: "bg-[#FFE600] text-[#1A1A2E]",
+  SHOPEE: "bg-[#EE4D2D] text-white",
 };
 
 // Mercado Livre's own real seller_reputation.level_id scale — same source
@@ -101,12 +120,80 @@ export function MerchantProductView({
       <Breadcrumbs items={breadcrumbItems} />
 
       <div className="mt-4 grid min-w-0 gap-8 sm:grid-cols-2">
-        <div className="bg-surface-muted aspect-square w-full max-w-full overflow-hidden rounded-xl">
-          <ProductImage src={data.imageUrl} alt={data.title} className="h-full w-full object-cover" iconClassName="h-16 w-16" />
+        {/* data-screenshot-card: exact boundary captured for the WhatsApp
+            Group/Canal post (owner's brief, 2026-11-17: "quero exatamente a
+            mesma imagem que está no site precocaindo.com.br sendo postada
+            no grupo") — image, real badges, price, and the merchant/Amazon
+            CTA buttons, nothing from the page below it. */}
+        <div data-screenshot-card className="bg-surface overflow-hidden rounded-3xl border border-border-subtle">
+          <div className="bg-surface-muted relative aspect-square w-full">
+            <ProductImage src={data.imageUrl} alt={data.title} className="h-full w-full object-cover" iconClassName="h-16 w-16" />
+            {data.discountPercent !== null && data.discountPercent > 0 && data.discountPercent < 1 && (
+              <span className="absolute top-4 left-4 rounded-full bg-[#E8336D] px-4 py-2 text-sm font-bold text-white shadow">
+                -{Math.round(data.discountPercent * 100)}% na loja
+              </span>
+            )}
+            <span className="absolute top-4 right-4 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-bold text-[#1A1A2E] shadow">
+              <span className={`h-2.5 w-2.5 rounded-full ${MERCHANT_DOT[data.source]}`} />
+              {MERCHANT_PILL_LABEL[data.source]}
+            </span>
+            {data.amazonMatch && (
+              <span className="absolute bottom-0 left-1/2 inline-flex -translate-x-1/2 translate-y-1/2 items-center rounded-full bg-[#131921] px-6 py-3 text-base font-bold text-white shadow">
+                amazon
+              </span>
+            )}
+          </div>
+
+          <div className="p-6 pt-8">
+            <h1 className="text-xl leading-tight font-bold">{data.title}</h1>
+
+            {data.currentPrice !== null ? (
+              <>
+                <div className="mt-4 flex items-baseline gap-3">
+                  <span className="text-3xl font-extrabold">{formatCurrency(data.currentPrice, data.currency)}</span>
+                  {data.referencePrice !== null && data.referencePrice > data.currentPrice && (
+                    <span className="text-foreground/40 text-lg line-through">
+                      {formatCurrency(data.referencePrice, data.currency)}
+                    </span>
+                  )}
+                </div>
+                {data.referencePrice !== null && data.referencePrice > data.currentPrice && (
+                  <p className="text-foreground/60 mt-1 text-sm">
+                    Economize {formatCurrency(data.referencePrice - data.currentPrice, data.currency)} (preço riscado pela loja)
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="text-foreground/60 mt-4 text-sm leading-relaxed">
+                Ainda estamos acompanhando este produto. Assim que tivermos um preço verificado, ele aparece aqui.
+              </p>
+            )}
+
+            {data.ctaHref && (
+              <a
+                href={data.ctaHref}
+                className={`mt-5 block rounded-full py-4 text-center text-base font-bold ${MERCHANT_BUTTON_CLASS[data.source]}`}
+              >
+                Ver {MERCHANT_BUTTON_LABEL[data.source]} →
+              </a>
+            )}
+            {data.amazonMatch && (
+              <a
+                href={data.amazonMatch.href}
+                className="mt-3 block rounded-full bg-[#131921] py-4 text-center text-base font-bold text-white"
+              >
+                Ver preço na amazon
+              </a>
+            )}
+            {data.ctaHref || data.amazonMatch ? (
+              <div className="mt-3">
+                <GenericAffiliateDisclosure />
+              </div>
+            ) : null}
+          </div>
         </div>
 
         <div className="min-w-0">
-          <h1 className="text-2xl leading-tight font-semibold">{data.title}</h1>
           {data.brand && <p className="text-foreground/60 mt-1 text-sm">{data.brand}</p>}
           <p className="text-foreground/40 mt-1 text-xs">Oferta {MERCHANT_LABEL[data.source]}</p>
           {data.sellerReputationLevel && REPUTATION_LABEL[data.sellerReputationLevel] && (
@@ -114,70 +201,10 @@ export function MerchantProductView({
               {REPUTATION_LABEL[data.sellerReputationLevel].label}
             </p>
           )}
-
-          {data.currentPrice !== null ? (
-            <>
-              <div className="mt-4 flex items-baseline gap-3">
-                <span className="text-3xl font-bold">{formatCurrency(data.currentPrice, data.currency)}</span>
-              </div>
-              {data.lastObservedAt && (
-                <p className="text-foreground/50 mt-1 text-xs">Observado pelo PreçoCaindo em {formatDate(data.lastObservedAt)}</p>
-              )}
-              <p className="mt-3 text-sm font-medium text-emerald-700 dark:text-emerald-400">
-                {data.decisionSummary}
-              </p>
-            </>
-          ) : (
-            <p className="text-foreground/60 mt-4 text-sm leading-relaxed">
-              Ainda estamos acompanhando este produto. Assim que tivermos um preço verificado, ele aparece aqui.
-            </p>
+          {data.lastObservedAt && (
+            <p className="text-foreground/50 mt-1 text-xs">Observado pelo PreçoCaindo em {formatDate(data.lastObservedAt)}</p>
           )}
-
-          {/* Owner's brief, 2026-11-16: "vender e ganhar comissão" — when
-              this listing has no real price to show yet (the "ainda
-              estamos acompanhando" state above), a confirmed Amazon match
-              is the only option with a real price behind it, so it leads
-              instead of sitting buried as a small secondary link. */}
-          {data.currentPrice === null && data.amazonMatch ? (
-            <>
-              <div className="mt-6 flex flex-col items-start gap-1.5">
-                <a
-                  href={data.amazonMatch.href}
-                  className="bg-brand text-brand-foreground inline-flex items-center justify-center rounded-full px-6 py-3 text-sm font-semibold transition hover:opacity-90"
-                >
-                  Ver na Amazon →
-                </a>
-                <AffiliateDisclosure />
-              </div>
-              {data.ctaHref && (
-                <div className="mt-4">
-                  <a
-                    href={data.ctaHref}
-                    className="border-border-subtle hover:border-brand inline-flex items-center justify-center rounded-full border px-6 py-3 text-sm font-semibold transition"
-                  >
-                    Ver {MERCHANT_LABEL[data.source]} →
-                  </a>
-                </div>
-              )}
-            </>
-          ) : (
-            <>
-              <div className="mt-6">
-                <MerchantCta ctaHref={data.ctaHref} />
-              </div>
-              {data.amazonMatch && (
-                <div className="mt-4 flex flex-col items-start gap-1.5">
-                  <a
-                    href={data.amazonMatch.href}
-                    className="border-border-subtle hover:border-brand inline-flex items-center justify-center rounded-full border px-6 py-3 text-sm font-semibold transition"
-                  >
-                    Ver na Amazon →
-                  </a>
-                  <AffiliateDisclosure />
-                </div>
-              )}
-            </>
-          )}
+          <p className="mt-3 text-sm font-medium text-emerald-700 dark:text-emerald-400">{data.decisionSummary}</p>
 
           <div className="mt-6">
             <CanalInviteBlock compact />

@@ -49,6 +49,13 @@ export interface PublicMerchantProductViewModel {
   model: string | null;
   imageUrl: string | null;
   currentPrice: number | null;
+  /** The store's OWN disclosed original price/discount — same field,
+   * same meaning, same non-fabrication rule as MerchantListingFacts
+   * (lib/services/merchant-listing-facts.ts). Never something PreçoCaindo
+   * verified; null for Shopee discounts without a literal original price,
+   * and whenever the merchant discloses nothing. */
+  referencePrice: number | null;
+  discountPercent: number | null;
   currency: "BRL";
   priceHistory: Array<{ price: number; observedAt: Date }>;
   rating: number | null;
@@ -188,6 +195,8 @@ function buildViewModel(facts: MerchantListingFacts, slug: string): PublicMercha
     model: facts.model,
     imageUrl: facts.imageUrl,
     currentPrice: facts.currentPrice,
+    referencePrice: facts.referencePrice,
+    discountPercent: facts.discountPercent,
     currency: "BRL",
     priceHistory: facts.priceHistory,
     rating: facts.rating,
