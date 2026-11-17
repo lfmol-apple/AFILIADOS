@@ -209,7 +209,7 @@ const envSchema = z.object({
   // a bind-mounted host directory in production — session credentials are
   // private keys, never baked into the image or committed (see .gitignore).
   //
-  // WHATSAPP_CHANNEL_JID: the public Channel ("Promoções Preço Caindo").
+  // WHATSAPP_CHANNEL_JID: the public Channel ("Mercado Livre, Shopee e Amazon").
   // Confirmed 2026-11-15 (GitHub issue WhiskeySockets/Baileys#2687, and the
   // same "accepted but never delivered" symptom independently in
   // whatsapp-web.js/WAHA) that NO automated client can reliably post to a

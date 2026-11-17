@@ -42,7 +42,7 @@ export default async function WhatsAppChannelPage({
       <h1 className="text-2xl font-semibold">Canal de WhatsApp — postar na mão</h1>
       <p className="text-foreground/70 mt-2 text-sm leading-relaxed">
         Abra o WhatsApp do número do Canal (celular ou WhatsApp Web), entre no Canal{" "}
-        <strong>Promoções Preço Caindo</strong> e, pra cada item abaixo: toque em{" "}
+        <strong>Mercado Livre, Shopee e Amazon</strong> e, pra cada item abaixo: toque em{" "}
         <strong>Abrir imagem</strong>, salve/compartilhe ela no Canal, toque em{" "}
         <strong>Copiar texto</strong> e cole como legenda.
       </p>
