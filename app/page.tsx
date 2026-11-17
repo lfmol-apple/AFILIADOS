@@ -27,7 +27,7 @@ const STEPS = [
   },
   {
     title: "Veja o que merece atenção",
-    body: "Ordenamos pelo que tem demanda e uma oferta de qualidade de verdade, não pelo que paga mais comissão.",
+    body: "Separamos o que realmente vale a pena olhar primeiro — sem precisar garimpar a loja inteira.",
   },
   {
     title: "Compre na loja",
@@ -36,12 +36,6 @@ const STEPS = [
 ];
 
 const SECTIONS = [
-  {
-    href: "/ofertas",
-    title: "Ofertas",
-    body: "As melhores oportunidades do momento, de várias lojas, com filtro por categoria e rolagem sem fim.",
-    cta: "Ver ofertas",
-  },
   {
     href: "/achados",
     title: "Achados na Amazon",
@@ -299,7 +293,7 @@ export default async function Home() {
           <h2 id="o-que-tem" className="text-2xl font-semibold tracking-tight">
             O que você encontra aqui
           </h2>
-          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+          <div className="mt-6 grid gap-4 sm:grid-cols-2">
             {SECTIONS.map((s) => (
               <Link
                 key={s.href}
@@ -363,22 +357,6 @@ export default async function Home() {
 
       {/* ---------------- 6. ACONTECENDO AGORA (só contagens) ---------------- */}
       <RadarSummary items={radarItems} />
-
-      {/* ---------------- 7. CHAMADA FINAL ---------------- */}
-      <section className="mx-auto max-w-3xl px-4 py-12 text-center sm:px-6 sm:py-16">
-        <h2 className="text-2xl font-semibold tracking-tight">
-          Pronto para ver o que está valendo?
-        </h2>
-        <p className="text-foreground/70 mt-2 text-sm">
-          As ofertas são atualizadas automaticamente, várias vezes ao dia.
-        </p>
-        <Link
-          href="/ofertas"
-          className="bg-brand text-brand-foreground mt-6 inline-flex min-h-14 items-center rounded-full px-8 text-base font-semibold hover:opacity-90"
-        >
-          Ver as ofertas de agora
-        </Link>
-      </section>
     </div>
   );
 }
