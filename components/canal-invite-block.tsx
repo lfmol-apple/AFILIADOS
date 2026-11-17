@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 /**
- * Invite to the "Promoções Preço Caindo" WhatsApp Channel — owner's
+ * Invite to the "Mercado Livre, Shopee e Amazon" WhatsApp Channel — owner's
  * brief, 2026-11-17: visible near the home's top and on product pages,
  * without hurting the offers' visibility, and WITHOUT depending on
  * WhatsApp Business (the owner's channel is on the common WhatsApp app).
@@ -23,7 +23,7 @@ export function CanalInviteBlock({ compact = false }: { compact?: boolean }) {
         </span>
         <span className="min-w-0 flex-1">
           <span className="block text-sm font-semibold">
-            Promoções Preço Caindo no WhatsApp
+            Mercado Livre, Shopee e Amazon no WhatsApp
           </span>
           <span className="text-foreground/60 block text-xs">
             Ofertas selecionadas direto no seu Canal, de graça.
@@ -44,7 +44,7 @@ export function CanalInviteBlock({ compact = false }: { compact?: boolean }) {
       >
         <div>
           <p className="text-base font-semibold">
-            📬 Canal Promoções Preço Caindo no WhatsApp
+            📬 Canal Mercado Livre, Shopee e Amazon no WhatsApp
           </p>
           <p className="text-foreground/70 mt-1 text-sm leading-relaxed">
             Promoções comprovadas e cupons direto no seu WhatsApp comum —
