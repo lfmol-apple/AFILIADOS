@@ -56,6 +56,7 @@ export interface PublicMerchantProductViewModel {
    * and whenever the merchant discloses nothing. */
   referencePrice: number | null;
   discountPercent: number | null;
+  soldQuantity: number | null;
   currency: "BRL";
   priceHistory: Array<{ price: number; observedAt: Date }>;
   rating: number | null;
@@ -197,6 +198,7 @@ function buildViewModel(facts: MerchantListingFacts, slug: string): PublicMercha
     currentPrice: facts.currentPrice,
     referencePrice: facts.referencePrice,
     discountPercent: facts.discountPercent,
+    soldQuantity: facts.soldQuantity,
     currency: "BRL",
     priceHistory: facts.priceHistory,
     rating: facts.rating,
