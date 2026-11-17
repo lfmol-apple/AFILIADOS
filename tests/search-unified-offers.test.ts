@@ -88,17 +88,6 @@ beforeAll(async () => {
   await prisma.monetizationScore.create({
     data: { merchantListingId: mlListing.id, score: 80, confidence: 0.6, components: {}, reasons: [], missingSignals: [] },
   });
-  // Every real ML offer signal carries a resolvable price —
-  // getUnifiedMerchantOffers now requires one (2026-11-17 fix: a card
-  // with no price was reaching the vitrine). Without this the fixture
-  // had none, and this listing was silently filtered out by that fix.
-  await prisma.merchantListingSignal.create({
-    data: {
-      merchantListingId: mlListing.id,
-      source: "mercado_livre_catalog_items",
-      raw: { price: 899.9 },
-    },
-  });
   await prisma.affiliateLinkRegistry.create({
     data: {
       merchantListingId: mlListing.id,
@@ -108,6 +97,44 @@ beforeAll(async () => {
       attributionTag: "precocaindo",
       source: "MANUAL_ADMIN",
       status: "ACTIVE",
+    },
+  });
+  // getUnifiedMerchantOffers never reads a catalog listing's own signals
+  // for price — it reads the best-scoring OFFER sibling that shares its
+  // canonicalProductId (selectBestOfferIdsPerCanonicalProduct explicitly
+  // excludes the catalog listing itself). Without a separate offer row
+  // here, mlListing's card always resolves currentPrice to null and gets
+  // dropped by the 2026-11-17 no-price filter — confirmed live: adding a
+  // signal to mlListing itself (an earlier, wrong attempt at this fix)
+  // changed nothing, because that signal is never read.
+  const mlOffer = await prisma.merchantListing.create({
+    data: {
+      merchantId: mlMerchantId,
+      externalId: `SEARCH-ML-OFFER-${runId}`,
+      externalIdType: "MERCHANT_PRODUCT_ID",
+      productUrl: "https://produto.mercadolivre.com.br/x-offer",
+      canonicalProductId: canonical.id,
+    },
+  });
+  listingIds.push(mlOffer.id);
+  await prisma.monetizationScore.create({
+    data: {
+      merchantListingId: mlOffer.id,
+      score: 80,
+      confidence: 0.6,
+      components: {
+        demand: { value: 100, quality: "OBSERVED", detail: "test" },
+        offerQuality: { value: 100, quality: "OBSERVED", detail: "test" },
+      },
+      reasons: [],
+      missingSignals: [],
+    },
+  });
+  await prisma.merchantListingSignal.create({
+    data: {
+      merchantListingId: mlOffer.id,
+      source: "mercado_livre_catalog_items",
+      raw: { price: 899.9 },
     },
   });
 
