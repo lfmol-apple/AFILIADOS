@@ -18,11 +18,12 @@ const DEFAULT_ITEMS_PER_POST = 6;
 
 /**
  * Posts today's real "em alta" products (lib/queries/whatsapp-trending-
- * today.ts) once a day, linking back to the site itself rather than
- * straight to the merchant. One message per product — image + caption
- * when the product has a real photo, plain text otherwise, never a
- * placeholder image. dryRun defaults to true, same convention as every
- * other digest job in this codebase.
+ * today.ts) once a day, linking straight to the real merchant affiliate
+ * URL (owner's brief, 2026-11-17: no mandatory stop on precocaindo.com.br
+ * for this channel). One message per product — image + caption when the
+ * product has a real photo, plain text otherwise, never a placeholder
+ * image. dryRun defaults to true, same convention as every other digest
+ * job in this codebase.
  *
  * Two destinations, confirmed 2026-11-15 (see WHATSAPP_CHANNEL_JID's
  * comment in lib/config/env.ts for why both exist):
