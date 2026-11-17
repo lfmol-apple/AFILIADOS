@@ -29,6 +29,17 @@ export interface MerchantListingFacts {
   model: string | null;
   currentPrice: number | null;
   priceHistory: Array<{ price: number; observedAt: Date }>;
+  /** The store's OWN claimed "original price" (ML's own original_price
+   * field) — a real, disclosed number the merchant reports, never
+   * something PreçoCaindo verified with its own price history. Same
+   * field/meaning as UnifiedOfferCard.referencePrice
+   * (lib/queries/unified-offers.ts) — null for Shopee, which only
+   * discloses a discount rate, never a literal original price. */
+  referencePrice: number | null;
+  /** The store's own disclosed discount, as a 0-1 ratio — same
+   * convention/meaning as UnifiedOfferCard.discountPercent. Never a
+   * verified-drop claim; see referencePrice above. */
+  discountPercent: number | null;
   rating: number | null;
   reviewCount: number | null;
   soldQuantity: number | null;
@@ -111,6 +122,9 @@ export function extractShopeeListingFacts(input: ShopeeFactsInput): MerchantList
     model: null,
     currentPrice: priceHistory.length > 0 ? priceHistory[priceHistory.length - 1]!.price : null,
     priceHistory,
+    referencePrice: null, // Shopee's API gives a discount rate, not a literal original price.
+    discountPercent:
+      typeof latestRaw?.priceDiscountRate === "number" ? latestRaw.priceDiscountRate / 100 : null,
     rating: latest?.rating ?? latestRaw?.rating ?? null,
     reviewCount: latest?.reviewCount ?? null,
     soldQuantity: latestRaw?.sales ?? null,
@@ -202,6 +216,8 @@ export function extractMercadoLivreListingFacts(input: MercadoLivreFactsInput): 
     model: input.canonicalProduct?.model ?? null,
     currentPrice: priceHistory.length > 0 ? priceHistory[priceHistory.length - 1]!.price : null,
     priceHistory,
+    referencePrice: latestOfferRaw?.original_price ?? null,
+    discountPercent: latestOfferRaw?.discountPercent ?? null,
     rating: null, // UNKNOWN for Mercado Livre — see docs/MONETIZATION_SCORE.md.
     reviewCount: null,
     soldQuantity: null,

@@ -11,36 +11,56 @@ function formatBRL(value: number): string {
 }
 
 /**
- * One caption per product (owner's brief, 2026-11-16: "quero que as
- * imagens apareçam" — each post is its own image + caption, matching the
- * real deal-channel pattern the owner pointed at, not one wall-of-text
- * message for all of today's products).
+ * Extremely commercial, visual, instant-to-grasp caption (owner's brief,
+ * 2026-11-17: "o usuário precisa perceber a vantagem simplesmente ao
+ * olhar para a mensagem"). WhatsApp's own native formatting —
+ * `~riscado~` / `*negrito*` — not an image overlay or anything
+ * client-side. Always links straight to the real merchant affiliate link
+ * (item.affiliateUrl), never our own site: no mandatory stop on
+ * precocaindo.com.br for this channel.
  *
- * Unlike lib/services/price-drop-digest.ts's Telegram message (deep-links
- * straight to the merchant on purpose), this links to our OWN product
- * page — owner's brief, 2026-11-15: "como a pessoa vai ver o site".
- *
- * The discount line only appears when `item.verifiedDrop` is set (owner's
- * brief, 2026-11-17: "desconto comprovado, quando houver") — never a
- * fabricated or estimated number for the items that reach this caption
- * through the click- or demand-based tiers instead.
+ * The two "before/after" cases are never blended: verified_drop may
+ * honestly claim a real queda comprovada pelo histórico do PreçoCaindo;
+ * store_discount only ever presents the loja's own disclosed discount,
+ * explicitly never as something we verified. price_only (no reliable
+ * reference) shows just the current price — never a fabricated "antes".
  */
-export function buildWhatsAppItemCaption(
-  item: WhatsAppTrendingItem,
-  siteUrl: string,
-): string {
-  const lines = [`🔥 *${item.title}*`, "", `_${MERCHANT_LABEL[item.merchant]}_`];
+export function buildWhatsAppItemCaption(item: WhatsAppTrendingItem): string {
+  const lines = [`🔥 *${item.title}*`, `_${MERCHANT_LABEL[item.merchant]}_`, ""];
 
-  if (item.verifiedDrop) {
-    const { currentPrice, previousPrice, dropPercent, isAllTimeLow } = item.verifiedDrop;
-    lines.push(`💰 ${formatBRL(currentPrice)}`);
-    lines.push(
-      isAllTimeLow
-        ? `📉 Nunca esteve tão barato por aqui — menor preço já registrado`
-        : `📉 Caiu ${Math.round(dropPercent * 100)}% — estava em ${formatBRL(previousPrice)}`,
-    );
+  switch (item.price.kind) {
+    case "verified_drop": {
+      const { previousPrice, currentPrice, dropPercent, isAllTimeLow } = item.price;
+      lines.push(`~${formatBRL(previousPrice)}~`);
+      lines.push(`*${formatBRL(currentPrice)}*`);
+      lines.push(
+        isAllTimeLow
+          ? `📉 Nunca esteve tão barato — menor preço já registrado pelo PreçoCaindo`
+          : `📉 Caiu ${Math.round(dropPercent * 100)}% — queda comprovada pelo histórico do PreçoCaindo`,
+      );
+      lines.push(`💸 Economia de ${formatBRL(previousPrice - currentPrice)}`);
+      break;
+    }
+    case "store_discount": {
+      const { originalPrice, currentPrice, discountPercent } = item.price;
+      lines.push(`~${formatBRL(originalPrice)}~`);
+      lines.push(`*${formatBRL(currentPrice)}*`);
+      lines.push(`🏷️ ${Math.round(discountPercent * 100)}% OFF — desconto anunciado pela loja`);
+      lines.push(`💸 Economia de ${formatBRL(originalPrice - currentPrice)}`);
+      break;
+    }
+    case "price_only": {
+      lines.push(`*${formatBRL(item.price.currentPrice)}*`);
+      break;
+    }
   }
 
-  lines.push(`${siteUrl}${item.href}`);
+  lines.push("");
+  lines.push(item.affiliateUrl);
+  lines.push("");
+  lines.push(
+    "⚠️ Preço pode mudar a qualquer momento. Link de afiliado — podemos ganhar comissão, sem custo extra pra você.",
+  );
+
   return lines.join("\n");
 }

@@ -1,6 +1,5 @@
 import { parseArgs } from "node:util";
 import { prisma } from "@/lib/db";
-import { env } from "@/lib/config/env";
 import { runJob, type JobCounters } from "@/lib/jobs/automation-run";
 import { logger } from "@/lib/observability/logger";
 import {
@@ -53,7 +52,7 @@ export async function runWhatsAppDigestJob(
     }
 
     const posts: WhatsAppOutgoingPost[] = items.map((item) => ({
-      text: buildWhatsAppItemCaption(item, env.NEXT_PUBLIC_SITE_URL),
+      text: buildWhatsAppItemCaption(item),
       imageUrl: item.imageUrl,
     }));
 
@@ -82,7 +81,7 @@ export async function runWhatsAppDigestJob(
       // offered to this digest once it's actually been posted, so the
       // same drop doesn't repeat every day it's still active.
       for (const item of items) {
-        if (!item.verifiedDrop || !item.merchantListingId) continue;
+        if (item.price.kind !== "verified_drop" || !item.merchantListingId) continue;
         try {
           await markWhatsAppPriceDropShown(item.merchantListingId);
         } catch (err) {
