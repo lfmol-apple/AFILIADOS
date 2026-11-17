@@ -3,7 +3,6 @@ import { cookies } from "next/headers";
 import { ADMIN_SESSION_COOKIE, isAdminRequestAuthorized } from "@/lib/admin/auth";
 import { AdminLoginForm } from "@/components/admin-login-form";
 import { WhatsAppCaptionCard } from "@/components/whatsapp-caption-card";
-import { env } from "@/lib/config/env";
 import { loadWhatsAppTrendingToday } from "@/lib/queries/whatsapp-trending-today";
 import { buildWhatsAppItemCaption } from "@/lib/services/whatsapp-message";
 
@@ -58,11 +57,11 @@ export default async function WhatsAppChannelPage({
       <ul className="mt-6 space-y-4">
         {items.map((item, i) => (
           <WhatsAppCaptionCard
-            key={item.href}
+            key={`${item.merchant}-${item.affiliateUrl}`}
             position={i + 1}
             title={item.title}
             imageUrl={item.imageUrl}
-            caption={buildWhatsAppItemCaption(item, env.NEXT_PUBLIC_SITE_URL)}
+            caption={buildWhatsAppItemCaption(item)}
           />
         ))}
       </ul>

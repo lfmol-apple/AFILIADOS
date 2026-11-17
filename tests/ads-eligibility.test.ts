@@ -18,6 +18,8 @@ function baseFacts(overrides: Partial<MerchantListingFacts> = {}): MerchantListi
     model: null,
     currentPrice: 49.9,
     priceHistory: [],
+    referencePrice: null,
+    discountPercent: null,
     rating: null,
     reviewCount: null,
     soldQuantity: null,
