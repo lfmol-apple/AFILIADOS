@@ -3,7 +3,7 @@
  * Associates Program's specific mandated wording ("Como associado da
  * Amazon..."). Reusing that here would be a false claim on a Mercado
  * Livre/Shopee page. */
-function GenericAffiliateDisclosure() {
+export function GenericAffiliateDisclosure() {
   return (
     <p className="text-foreground/60 text-xs">
       <span className="text-foreground/70 font-medium">
