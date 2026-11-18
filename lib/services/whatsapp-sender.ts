@@ -1,7 +1,10 @@
+import type { proto } from "baileys";
 import { env } from "@/lib/config/env";
 import { connectWhatsApp, WhatsAppNotConfiguredError } from "@/lib/services/whatsapp-connection";
 
 export { WhatsAppNotConfiguredError };
+
+export type WhatsAppMessageKey = proto.IMessageKey;
 
 export function isWhatsAppConfigured(): boolean {
   return env.WHATSAPP_GROUP_JID.length > 0;
@@ -50,25 +53,52 @@ export async function sendWhatsAppMessage(text: string): Promise<void> {
  * Channel (WHATSAPP_CHANNEL_JID), see that var's comment in
  * lib/config/env.ts.
  */
-export async function sendWhatsAppMessages(posts: WhatsAppOutgoingPost[]): Promise<void> {
+export async function sendWhatsAppMessages(posts: WhatsAppOutgoingPost[]): Promise<WhatsAppMessageKey[]> {
   if (!isWhatsAppConfigured()) {
     throw new WhatsAppNotConfiguredError("WHATSAPP_GROUP_JID is not set.");
   }
-  if (posts.length === 0) return;
+  if (posts.length === 0) return [];
 
+  const keys: WhatsAppMessageKey[] = [];
   const { sock, close } = await connectWhatsApp();
   try {
     for (let i = 0; i < posts.length; i++) {
       const post = posts[i]!;
-      if (post.imageUrl) {
-        await sock.sendMessage(env.WHATSAPP_GROUP_JID, {
-          image: { url: post.imageUrl },
-          caption: post.text,
-        });
-      } else {
-        await sock.sendMessage(env.WHATSAPP_GROUP_JID, { text: post.text });
-      }
+      const sent = post.imageUrl
+        ? await sock.sendMessage(env.WHATSAPP_GROUP_JID, {
+            image: { url: post.imageUrl },
+            caption: post.text,
+          })
+        : await sock.sendMessage(env.WHATSAPP_GROUP_JID, { text: post.text });
+      if (sent?.key) keys.push(sent.key);
       if (i < posts.length - 1) await sleep(BETWEEN_POSTS_DELAY_MS);
+    }
+  } finally {
+    await close();
+  }
+  return keys;
+}
+
+/**
+ * Revokes ("apagar para todos") messages the bot account itself sent to
+ * the Group — owner's brief, 2026-11-18: delete yesterday's batch right
+ * before posting today's, so the Group never shows two days of offers
+ * (some already stale) at once. Never used on the Channel-forward
+ * packet: those messages are forwarded from the owner's own phone, not
+ * sent by this account, so Baileys has no key/permission to revoke them
+ * — only the owner can remove those, by hand.
+ */
+export async function deleteWhatsAppMessages(keys: WhatsAppMessageKey[]): Promise<void> {
+  if (keys.length === 0) return;
+  const { sock, close } = await connectWhatsApp();
+  try {
+    for (const key of keys) {
+      try {
+        await sock.sendMessage(env.WHATSAPP_GROUP_JID, { delete: key });
+      } catch {
+        // Best-effort — a message already deleted/too old to revoke
+        // never blocks today's new batch from going out.
+      }
     }
   } finally {
     await close();

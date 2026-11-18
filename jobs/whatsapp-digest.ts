@@ -11,10 +11,12 @@ import {
   isWhatsAppConfigured,
   sendWhatsAppForwardPacket,
   sendWhatsAppMessages,
+  deleteWhatsAppMessages,
   type WhatsAppOutgoingPost,
 } from "@/lib/services/whatsapp-sender";
+import { loadLastGroupBatchKeys, saveLastGroupBatchKeys } from "@/lib/services/whatsapp-group-batch-store";
 
-const DEFAULT_ITEMS_PER_POST = 6;
+const DEFAULT_ITEMS_PER_POST = 10;
 
 /**
  * Posts today's real "em alta" products (lib/queries/whatsapp-trending-
@@ -33,11 +35,19 @@ const DEFAULT_ITEMS_PER_POST = 6;
  *     ready for the owner to forward by hand into the Channel. Never
  *     flips the job to FAILED on its own.
  *
- * `count` defaults to 6 for the daily automated cron (same "menos
- * volume, mais prova" cadence as the Telegram digest) — the cron never
- * passes a different value. Higher counts are for a manual, one-off
- * batch run, never quality: the same title+image+price requirements
- * apply no matter how many are asked for.
+ * `count` defaults to 10 (owner's brief, 2026-11-18) for the daily
+ * automated cron — the cron never passes a different value. Higher
+ * counts are for a manual, one-off batch run, never quality: the same
+ * title+image+price requirements apply no matter how many are asked for.
+ *
+ * Before posting the new batch, revokes every message this same job
+ * posted to the Group last time (owner's brief, 2026-11-18: "não posso
+ * ficar com propaganda de preço desatualizado" — the Group should only
+ * ever show one day's offers, not an accumulating pile of stale ones).
+ * Only the Group: the Channel-forward DM is never touched here, since
+ * those messages get forwarded from the owner's own phone and this
+ * account has no key/permission to revoke them — see
+ * lib/services/whatsapp-sender.ts's deleteWhatsAppMessages doc comment.
  */
 export async function runWhatsAppDigestJob(
   dryRun: boolean,
@@ -76,7 +86,16 @@ export async function runWhatsAppDigestJob(
     }
 
     try {
-      await sendWhatsAppMessages(posts);
+      const previousKeys = loadLastGroupBatchKeys();
+      if (previousKeys.length > 0) {
+        try {
+          await deleteWhatsAppMessages(previousKeys);
+        } catch (err) {
+          logger.warn("whatsapp_digest.delete_previous_batch_failed", { message: String(err) });
+        }
+      }
+      const newKeys = await sendWhatsAppMessages(posts);
+      saveLastGroupBatchKeys(newKeys);
       ctx.counters.created = items.length;
       // Only after a real send — a verified price drop stops being
       // offered to this digest once it's actually been posted, so the
