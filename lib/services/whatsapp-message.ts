@@ -58,9 +58,7 @@ export function buildWhatsAppItemCaption(item: WhatsAppTrendingItem): string {
   lines.push("");
   lines.push(item.affiliateUrl);
   lines.push("");
-  lines.push(
-    "⚠️ Preço pode mudar a qualquer momento. Link de afiliado — podemos ganhar comissão, sem custo extra pra você.",
-  );
+  lines.push("⚠️ Preço pode ser variável a qualquer momento, a depender da promoção da loja.");
 
   return lines.join("\n");
 }

@@ -18,7 +18,7 @@ describe("buildWhatsAppItemCaption", () => {
     expect(text).not.toMatch(/~/); // no strikethrough — no "before" price exists
     expect(text).not.toMatch(/Caiu|OFF|Economia/i);
     expect(text).toContain("https://mercadolivre.com/afiliado/abc123");
-    expect(text).toMatch(/Link de afiliado/);
+    expect(text).toMatch(/Preço pode ser variável/);
   });
 
   it("verified_drop: strikes the previous price, claims a real drop comprovado pelo histórico", () => {
