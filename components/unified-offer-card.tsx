@@ -213,14 +213,6 @@ export function UnifiedOfferCard({ item }: { item: UnifiedOfferCardData }) {
           Ver preço na <AmazonMark />
         </a>
       )}
-      {item.detailHref && (
-        <a
-          href={item.detailHref}
-          className="text-brand border-border-subtle/60 hover:bg-brand/8 border-t px-4 py-2.5 text-center text-xs font-medium"
-        >
-          Ver detalhes →
-        </a>
-      )}
     </div>
   );
 }
