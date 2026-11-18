@@ -14,10 +14,8 @@ import { ProductCard } from "@/components/product-card";
 import { ProductImage } from "@/components/product-image";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { PetLitterCalculator } from "@/components/pet-litter-calculator";
-import { PriceAlertForm } from "@/components/price-alert-form";
 import { CanalInviteBlock } from "@/components/canal-invite-block";
 import { siteConfig } from "@/lib/config/site";
-import { env } from "@/lib/config/env";
 import { getAmazonMarketplaceConfig } from "@/lib/config/marketplaces";
 import type { RouteParams } from "@/lib/next-route-types";
 import {
@@ -499,14 +497,6 @@ export default async function ProductPage(
             <CanalInviteBlock compact />
           </div>
 
-          <div className="mt-6">
-            <PriceAlertForm
-              productId={product.id}
-              currentPrice={offer ? Number(offer.price) : null}
-              currency={offer?.currency ?? "BRL"}
-              enabled={env.PRICE_ALERTS}
-            />
-          </div>
 
           <AmazonCta
             asin={product.asin}
