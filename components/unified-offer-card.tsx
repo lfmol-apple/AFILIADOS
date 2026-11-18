@@ -105,7 +105,9 @@ export function UnifiedOfferCard({ item }: { item: UnifiedOfferCardData }) {
       : "sponsored nofollow noopener noreferrer";
 
   return (
-    <div className="group border-border-subtle bg-background hover:border-brand/40 relative flex h-full flex-col overflow-hidden rounded-3xl border shadow-[0_1px_2px_rgb(0_0_0/0.04)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_20px_40px_-20px_rgb(15_118_110/0.5)]">
+    <div
+      data-screenshot-card
+      className="group border-border-subtle bg-background hover:border-brand/40 relative flex h-full flex-col overflow-hidden rounded-3xl border shadow-[0_1px_2px_rgb(0_0_0/0.04)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_20px_40px_-20px_rgb(15_118_110/0.5)]">
       {/* Image box: the merchant link covers just the photo here (not an
           ancestor of the Amazon badge below), so the two never nest. */}
       <div className="relative aspect-square w-full overflow-hidden bg-white">
