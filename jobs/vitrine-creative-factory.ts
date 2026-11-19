@@ -166,7 +166,7 @@ export async function runVitrineCreativeFactoryJob() {
         generation = await generateCreativeBase({ productPhoto: photoBuffer, productPhotoContentType: photoContentType, prompt: promptText });
       } catch (err) {
         if (err instanceof OpenAiImageNotConfiguredError) {
-          ctx.metadata.skipped = "openai_not_configured";
+          ctx.metadata.stoppedReason = "openai_not_configured";
           break; // the whole feature is off — no point looping further
         }
         logger.error("vitrine_creative_factory.generation_failed", { merchantListingId: selection.merchantListingId, message: String(err) });
