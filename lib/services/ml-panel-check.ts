@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { extractCatalogProductId } from "@/lib/services/ml-panel-register";
 import {
   carriesOwnerProfile,
+  carriesVitrineProfile,
   decideVerdict,
   expectedIdsFromProductUrl,
   pageTitleFromHtml,
@@ -37,19 +38,29 @@ export interface OpenedLink {
  */
 export async function openAffiliateLink(
   affiliateUrl: string,
+  profileCheck: (text: string) => boolean = carriesOwnerProfile,
 ): Promise<OpenedLink> {
-  const cached = openedCache.get(affiliateUrl);
+  const cacheKey = profileCheck === carriesOwnerProfile ? affiliateUrl : `vitrine:${affiliateUrl}`;
+  const cached = openedCache.get(cacheKey);
   if (cached && Date.now() - cached.at < OPENED_TTL_MS) return cached.value;
-  const value = await fetchOpenedLink(affiliateUrl);
+  const value = await fetchOpenedLink(affiliateUrl, profileCheck);
   // Only remember a link that was really read: an unreadable one may work next time.
   if (value.title || value.catalogId) {
     if (openedCache.size >= OPENED_MAX) {
       const oldest = openedCache.keys().next().value;
       if (oldest !== undefined) openedCache.delete(oldest);
     }
-    openedCache.set(affiliateUrl, { at: Date.now(), value });
+    openedCache.set(cacheKey, { at: Date.now(), value });
   }
   return value;
+}
+
+/** Vitrine Inteligente variant: same link-opening logic, checks for the
+ * "vitrinedinamica" tag instead of "precocaindo". */
+export async function openVitrineAffiliateLink(
+  affiliateUrl: string,
+): Promise<OpenedLink> {
+  return openAffiliateLink(affiliateUrl, carriesVitrineProfile);
 }
 
 /**
@@ -61,7 +72,10 @@ const OPENED_TTL_MS = 10 * 60 * 1000;
 const OPENED_MAX = 300;
 const openedCache = new Map<string, { at: number; value: OpenedLink }>();
 
-async function fetchOpenedLink(affiliateUrl: string): Promise<OpenedLink> {
+async function fetchOpenedLink(
+  affiliateUrl: string,
+  profileCheck: (text: string) => boolean,
+): Promise<OpenedLink> {
   let finalUrl = affiliateUrl;
   let html = "";
   try {
@@ -84,7 +98,7 @@ async function fetchOpenedLink(affiliateUrl: string): Promise<OpenedLink> {
     // Only judge the profile when the link was really opened (redirected or read).
     profileOk:
       html || finalUrl !== affiliateUrl
-        ? carriesOwnerProfile(`${finalUrl} ${html}`)
+        ? profileCheck(`${finalUrl} ${html}`)
         : null,
   };
 }
@@ -156,6 +170,91 @@ export async function checkPanelLink(input: {
   }
 
   const opened = await openAffiliateLink(input.affiliateUrl);
+  const linkTitle = opened.title;
+  const expected = expectedIdsFromProductUrl(input.productUrl);
+  const similarity = linkTitle
+    ? titleSimilarity(input.panelTitle, linkTitle)
+    : null;
+  const status = decideVerdict({
+    expectedCatalogId: expected.catalogId,
+    resolvedCatalogId: opened.catalogId,
+    similarity,
+    exactTitle:
+      !!linkTitle &&
+      titleJaccard(input.panelTitle, linkTitle) >= EXACT_TITLE_JACCARD,
+  });
+  const profileOk = opened.profileOk;
+
+  const messages: Record<LinkCheckVerdict, string> = {
+    match: "Confere: o link leva ao mesmo produto desta linha.",
+    likely:
+      "Provavelmente é o mesmo produto (o título bate). Compare os dois nomes abaixo antes de salvar.",
+    mismatch:
+      "ATENÇÃO: o link leva a OUTRO produto. Não salve; gere o link de novo pelo endereço desta linha.",
+    unknown:
+      "Não consegui ler o produto do link. Compare com o Mercado Livre antes de salvar.",
+  };
+  return {
+    ...base,
+    status,
+    message: messages[status],
+    linkTitle,
+    profileOk,
+  };
+}
+
+/**
+ * Same as checkPanelLink, for the Vitrine Inteligente queue: checks
+ * duplicates against VitrineLink (not AffiliateLinkRegistry) and the
+ * "vitrinedinamica" tag (not "precocaindo").
+ */
+export async function checkVitrineLink(input: {
+  panelTitle: string;
+  productUrl?: string;
+  affiliateUrl: string;
+}): Promise<PanelLinkCheck> {
+  const base = {
+    panelTitle: input.panelTitle,
+    linkTitle: null,
+    profileOk: null,
+    duplicateOf: null,
+  } as const;
+
+  let url: URL;
+  try {
+    url = new URL(input.affiliateUrl);
+  } catch {
+    return { ...base, status: "invalid", message: "Isso não parece um link." };
+  }
+  if (!MELI_HOSTS.test(url.hostname)) {
+    return {
+      ...base,
+      status: "invalid",
+      message:
+        "Esse link não é do Mercado Livre. Cole o link gerado no Linkbuilder (meli.la/… ou mercadolivre.com/sec/…).",
+    };
+  }
+
+  const taken = await prisma.vitrineLink.findFirst({
+    where: { affiliateUrl: input.affiliateUrl, status: "ACTIVE" },
+    select: {
+      merchantListing: {
+        select: { canonicalProduct: { select: { title: true } } },
+      },
+    },
+  });
+  if (taken) {
+    const title =
+      taken.merchantListing?.canonicalProduct?.title ?? "outro produto";
+    return {
+      ...base,
+      status: "duplicate",
+      duplicateOf: title,
+      message: `Esse link já está salvo em outro produto da Vitrine: ${title}. Gere o link deste produto no Linkbuilder.`,
+    };
+  }
+
+  const opened = await openVitrineAffiliateLink(input.affiliateUrl);
   const linkTitle = opened.title;
   const expected = expectedIdsFromProductUrl(input.productUrl);
   const similarity = linkTitle

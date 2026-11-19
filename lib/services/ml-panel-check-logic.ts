@@ -138,6 +138,26 @@ export function carriesOwnerProfile(finalUrlAndHtml: string): boolean {
   return AFFILIATE_PROFILE_MARKERS.some((m) => text.includes(m));
 }
 
+/** Same owner profile/tool, but generated with the "vitrinedinamica" word
+ * instead of "precocaindo" — the Vitrine Inteligente's own etiqueta in the
+ * Linkbuilder. Same account (matt_tool/social markers unchanged). */
+export const VITRINE_PROFILE_MARKERS = [
+  "matt_word=vitrinedinamica",
+  "matt_tool=85497435",
+  "matt_tool_id=85497435",
+  "/social/mohe4109227",
+] as const;
+
+export function carriesVitrineProfile(finalUrlAndHtml: string): boolean {
+  let text = finalUrlAndHtml;
+  try {
+    text = decodeURIComponent(finalUrlAndHtml);
+  } catch {
+    // keep raw
+  }
+  return VITRINE_PROFILE_MARKERS.some((m) => text.includes(m));
+}
+
 export interface MatchablePick {
   id: string;
   title: string;

@@ -9,6 +9,7 @@ import {
 } from "@/lib/merchants/config";
 import type {
   AffiliateLinkRegistry,
+  VitrineLink,
   MerchantCode as PrismaMerchantCode,
 } from "@prisma/client";
 
@@ -168,4 +169,90 @@ export async function saveApiGeneratedAffiliateLink(
   input: SaveAffiliateLinkInput,
 ): Promise<AffiliateLinkRegistry> {
   return saveAffiliateLink(input, "API");
+}
+
+/** Read-only lookup for the Vitrine Inteligente's own link table — separate
+ * from getAffiliateLink/AffiliateLinkRegistry on purpose, see VitrineLink's
+ * schema comment. */
+export async function getVitrineLink(
+  merchantListingId: string,
+): Promise<VitrineLink | null> {
+  return prisma.vitrineLink.findUnique({ where: { merchantListingId } });
+}
+
+/**
+ * The Vitrine Inteligente flow: same human-assisted Mercado Livre paste-in
+ * as saveManualAffiliateLinkFromCategoryQueue, but persisted to the
+ * dedicated VitrineLink table with the "vitrinedinamica" tag instead of
+ * "precocaindo" — the two tags must never collide or overwrite each other,
+ * which is exactly why this is a different table, not a second row in
+ * AffiliateLinkRegistry (that one is @unique per listing).
+ */
+export async function saveVitrineLink(
+  input: Omit<SaveAffiliateLinkInput, "attributionTag">,
+): Promise<VitrineLink> {
+  const routingCode = toRoutingMerchantCode(input.merchantCode);
+  if (!routingCode) {
+    throw new AffiliateLinkValidationError(
+      `Unknown merchant code: ${input.merchantCode}`,
+    );
+  }
+
+  try {
+    assertAllowedMerchantDestination(input.affiliateUrl, routingCode);
+  } catch (err) {
+    if (err instanceof MerchantRoutingError) {
+      throw new AffiliateLinkValidationError(err.message);
+    }
+    throw err;
+  }
+
+  // Same duplicate-link guard as the precocaindo flow: one pasted link must
+  // belong to exactly one product, inside this table too.
+  const taken = await prisma.vitrineLink.findFirst({
+    where: {
+      affiliateUrl: input.affiliateUrl,
+      status: "ACTIVE",
+      merchantListingId: { not: input.merchantListingId },
+    },
+    select: { merchantListingId: true },
+  });
+  if (taken) {
+    throw new AffiliateLinkValidationError(
+      "Esse link já está cadastrado em outro produto da Vitrine. Cada produto precisa do seu próprio link, gerado no painel para ele.",
+    );
+  }
+
+  const saved = await prisma.vitrineLink.upsert({
+    where: { merchantListingId: input.merchantListingId },
+    create: {
+      merchantListingId: input.merchantListingId,
+      merchantId: input.merchantId,
+      publicUrl: input.publicUrl,
+      affiliateUrl: input.affiliateUrl,
+      attributionTag: "vitrinedinamica",
+      source: "MANUAL_ADMIN_CATEGORY",
+      status: "ACTIVE",
+      lastValidatedAt: new Date(),
+    },
+    update: {
+      publicUrl: input.publicUrl,
+      affiliateUrl: input.affiliateUrl,
+      attributionTag: "vitrinedinamica",
+      source: "MANUAL_ADMIN_CATEGORY",
+      status: "ACTIVE",
+      lastValidatedAt: new Date(),
+    },
+  });
+
+  try {
+    await ensurePublicSlugForListing(input.merchantListingId);
+  } catch (error) {
+    logger.warn("vitrine_link.public_slug_failed", {
+      merchantListingId: input.merchantListingId,
+      message: String(error),
+    });
+  }
+
+  return saved;
 }

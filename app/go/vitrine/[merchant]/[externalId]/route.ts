@@ -1,0 +1,33 @@
+import { NextResponse } from "next/server";
+import { resolveVitrineRedirect } from "@/lib/services/vitrine-redirect";
+import { isOwnerRequest } from "@/lib/admin/owner-traffic";
+import { isPrefetchRequest } from "@/lib/http/is-prefetch-request";
+import { isKnownBotRequest } from "@/lib/http/is-bot-request";
+import { isBurstRequest } from "@/lib/http/is-burst-request";
+
+export async function GET(
+  request: Request,
+  context: { params: Promise<{ merchant: string; externalId: string }> },
+) {
+  const { merchant, externalId } = await context.params;
+  const url = new URL(request.url);
+  const result = await resolveVitrineRedirect({
+    merchant,
+    externalId,
+    searchParams: url.searchParams,
+    isOwner: await isOwnerRequest(request),
+    isPrefetch:
+      isPrefetchRequest(request.headers, url.searchParams) ||
+      isKnownBotRequest(request.headers) ||
+      isBurstRequest(request.headers),
+  });
+
+  if (result.status === "error") {
+    return NextResponse.json(
+      { error: result.errorMessage },
+      { status: result.errorStatus },
+    );
+  }
+
+  return NextResponse.redirect(result.destination, { status: 302 });
+}

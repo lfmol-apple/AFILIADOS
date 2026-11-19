@@ -17,6 +17,13 @@ export interface PanelPickRowProps {
   recommended: boolean;
   /** Product page address from the panel card; enables the one-click Linkbuilder flow. */
   productUrl?: string;
+  /** Which queue's API this row saves to — defaults to the "precocaindo" ML
+   * panel queue. The Vitrine Inteligente queue passes "/api/admin/vitrine-links"
+   * so the exact same row/check/save flow saves to its own link table instead. */
+  apiBase?: string;
+  /** The affiliate tag this row expects to see in the pasted link — defaults
+   * to "precocaindo"; the Vitrine queue passes "vitrinedinamica". */
+  tagLabel?: string;
 }
 
 interface LinkCheck {
@@ -36,6 +43,8 @@ const LINKBUILDER_URL =
 
 export function PanelPickRow(props: PanelPickRowProps) {
   const router = useRouter();
+  const apiBase = props.apiBase ?? "/api/admin/ml-panel-links";
+  const tagLabel = props.tagLabel ?? "precocaindo";
   const [url, setUrl] = useState("");
   const [state, setState] = useState<"idle" | "checking" | "saving" | "done">(
     "idle",
@@ -66,7 +75,7 @@ export function PanelPickRow(props: PanelPickRowProps) {
     setMessage("");
     setCheck(null);
     try {
-      const response = await fetch("/api/admin/ml-panel-links/check", {
+      const response = await fetch(`${apiBase}/check`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: props.id, affiliateUrl: value.trim() }),
@@ -95,7 +104,7 @@ export function PanelPickRow(props: PanelPickRowProps) {
     setState("saving");
     setMessage("");
     try {
-      const response = await fetch("/api/admin/ml-panel-links", {
+      const response = await fetch(apiBase, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -279,13 +288,13 @@ export function PanelPickRow(props: PanelPickRowProps) {
           )}
           {check.profileOk === true && (
             <p className="mt-1 text-emerald-700 dark:text-emerald-400">
-              ✅ É do seu perfil de afiliado (tag precocaindo).
+              ✅ É do seu perfil de afiliado (tag {tagLabel}).
             </p>
           )}
           {check.profileOk === false && (
             <p className="mt-1 text-amber-700 dark:text-amber-400">
-              ⚠️ Não vi a sua tag de afiliado (precocaindo) neste link. Confirme
-              que ele foi gerado no seu Linkbuilder.
+              ⚠️ Não vi a sua tag de afiliado ({tagLabel}) neste link. Confirme
+              que ele foi gerado no seu Linkbuilder com essa etiqueta.
             </p>
           )}
         </div>

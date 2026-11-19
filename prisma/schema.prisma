@@ -257,6 +257,7 @@ model Merchant {
   listings MerchantListing[]
   affiliateClicks AffiliateClick[]
   affiliateLinks  AffiliateLinkRegistry[]
+  vitrineLinks    VitrineLink[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -289,6 +290,8 @@ model MerchantListing {
   matchEvidenceAsA ProductMatchEvidence[] @relation("MatchListingA")
   matchEvidenceAsB ProductMatchEvidence[] @relation("MatchListingB")
   affiliateLink    AffiliateLinkRegistry?
+  vitrineLink      VitrineLink?
+  vitrineSelection VitrineSelection?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -470,6 +473,68 @@ model AffiliateLinkRegistry {
 
   @@index([merchantId, status])
   @@index([status])
+}
+
+/// The Vitrine Inteligente's OWN commercial link for a listing — deliberately
+/// a separate table from AffiliateLinkRegistry, not a second row in it:
+/// AffiliateLinkRegistry is @unique per MerchantListing (the "precocaindo"
+/// site tag) and every existing reader (merchant-redirect.ts, ml-panel-*)
+/// assumes exactly one row per listing. Adding a second tag there would mean
+/// touching every one of those call sites; a dedicated table is zero-risk to
+/// the existing tag and queue. Carries the "vitrinedinamica" tag only — see
+/// docs/AFFILIATE_LINK_REGISTRY.md for the attributionTag convention this
+/// mirrors.
+model VitrineLink {
+  id                String          @id @default(cuid())
+  merchantListingId String          @unique
+  merchantListing   MerchantListing @relation(fields: [merchantListingId], references: [id], onDelete: Cascade)
+  merchantId        String
+  merchant          Merchant        @relation(fields: [merchantId], references: [id])
+
+  publicUrl String
+
+  /// Null while status=PENDING, same convention as AffiliateLinkRegistry.
+  affiliateUrl String?
+
+  attributionTag String @default("vitrinedinamica")
+
+  source AffiliateLinkSource
+  status AffiliateLinkStatus @default(PENDING)
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  lastValidatedAt DateTime?
+
+  @@index([merchantId, status])
+  @@index([status])
+}
+
+/// Which listings the Vitrine Inteligente module currently shows (ACTIVE),
+/// keeps as backup candidates (RESERVE), or has dropped (RETIRED) — separate
+/// from the public /ofertas ranking (MonetizationScore), since the Vitrine's
+/// selection criteria (seasonal weight, daily replacement limits, group
+/// balance) are its own and must never affect the public site's ranking.
+model VitrineSelection {
+  id                String          @id @default(cuid())
+  merchantListingId String          @unique
+  merchantListing   MerchantListing @relation(fields: [merchantListingId], references: [id], onDelete: Cascade)
+
+  /// "sazonal" | "recorrente" | "emergente" — see lib/services/vitrine-selection.ts.
+  groupType String
+  /// "ACTIVE" | "RESERVE" | "RETIRED"
+  status String
+
+  score         Float
+  scoreBreakdown Json
+  reason         String
+
+  activatedAt DateTime?
+  retiredAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, groupType])
 }
 
 /// A Product is a listing within ONE marketplace — the BR listing and a

@@ -223,6 +223,12 @@ export default async function AdminPage(props: PagePropsWithSearch) {
             Produtos em alta no ML →
           </a>
           <a
+            href="/admin/vitrine-inteligente"
+            className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
+          >
+            Vitrine Inteligente →
+          </a>
+          <a
             href="/admin/modo-dono"
             className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
           >

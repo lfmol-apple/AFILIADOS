@@ -27,7 +27,9 @@ import { isProductPageIndexable } from "@/lib/seo/indexability";
 import Link from "next/link";
 import { loadPublicMerchantProduct, getRelatedMerchantProducts } from "@/lib/queries/public-product";
 import { getSimilarOffers } from "@/lib/queries/similar-offers";
+import { getVitrineCtaHref } from "@/lib/services/vitrine-cta";
 import { MerchantProductView } from "./MerchantProductView";
+import type { PagePropsWithParams } from "@/lib/next-route-types";
 
 export const revalidate = 900;
 
@@ -256,7 +258,7 @@ export async function generateMetadata(
 }
 
 export default async function ProductPage(
-  props: RouteParams<{ slug: string }>,
+  props: PagePropsWithParams<{ slug: string }>,
 ) {
   const { slug } = await props.params;
   const data = await loadProduct(slug);
@@ -272,9 +274,23 @@ export default async function ProductPage(
       slug: merchantData.slug,
       title: merchantData.title,
     }).catch(() => ({ categorySlug: "outros", items: [] }));
+
+    // Only when opened from the Vitrine Inteligente's Meta catalog — the
+    // "Ver no Mercado Livre" button must then use the vitrinedinamica link
+    // instead of the site's own precocaindo one. See lib/services/vitrine-cta.ts.
+    const searchParams = await props.searchParams;
+    const vitrineCtaHref =
+      searchParams.src === "vitrine"
+        ? await getVitrineCtaHref({
+            merchantListingId: merchantData.merchantListingId,
+            externalId: merchantData.externalId,
+            slug: merchantData.slug,
+          })
+        : null;
+
     return (
       <MerchantProductView
-        data={merchantData}
+        data={vitrineCtaHref ? { ...merchantData, ctaHref: vitrineCtaHref } : merchantData}
         related={related}
         similar={similar}
       />
