@@ -56,6 +56,11 @@ services:
       # named volume: both containers need the identical host directory,
       # same reasoning as WHATSAPP_SESSION_DIR's bind mount.
       - ./data/product-images:/app/data/product-images
+      # Same reasoning — jobs/vitrine-creative-factory.ts (own cron
+      # container, scripts/run-vitrine-cron.sh) and this app service both
+      # need the identical host directory for VITRINE_CREATIVE_DIR, so a
+      # rebuild never loses an image real money was spent generating.
+      - ./data/vitrine-creatives:/app/data/vitrine-creatives
     # The production VPS's actual reverse proxy is a host-level nginx site
     # (/etc/nginx/sites-available/precocaindo), not the `caddy` service
     # below — nginx's upstream is hardcoded to 127.0.0.1:3100. Without

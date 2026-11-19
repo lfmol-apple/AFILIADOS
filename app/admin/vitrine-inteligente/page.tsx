@@ -242,6 +242,12 @@ export default async function VitrineInteligentePage() {
         >
           Laboratório de Inteligência Comercial →
         </a>
+        <a
+          href="/admin/vitrine-criativos"
+          className="border-border-subtle hover:border-brand inline-block rounded-lg border px-4 py-2 text-sm font-semibold"
+        >
+          Fábrica de Criativos →
+        </a>
       </p>
 
       <p className="mt-3 text-sm">

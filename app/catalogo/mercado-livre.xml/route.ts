@@ -29,15 +29,20 @@ export const dynamic = "force-dynamic";
  * retire it on its next pass if it stays ineligible).
  *
  * Creative decision (owner's follow-up, 2026-11-19, researched before
- * deciding): the branded image lib/services/vitrine-creative.tsx generates
- * is NOT used as g:image_link here. Meta has its OWN native, policy-safe
- * way to show branding and a real discount on a catalog ad — a "Frame"
- * (logo/border image configured once in Ads Manager, wraps every ad in
- * the set) plus a "Percentage Off"/"Strikethrough Price" dynamic overlay
- * that reads g:price/g:sale_price directly. That's why both fields are
- * set below whenever a real discount exists — it's what feeds Meta's own
- * overlay, not decoration. Henrique configures the Frame once when he
- * sets up the campaign in Ads Manager (one-time UI step, not code).
+ * deciding): the OLDER branded image lib/services/vitrine-creative.tsx
+ * generates was never used as g:image_link, for the same reason the NEW
+ * AI-generated one below still isn't allowed to carry price/text baked
+ * in for this field — Meta has its OWN native, policy-safe way to show
+ * price on a catalog ad (Advantage+ "Add Dynamic Overlays", confirmed
+ * via Meta's developer docs the same day) that reads g:price/g:sale_price
+ * directly. What DOES change here (owner's authorization, "Fábrica
+ * Inteligente de Criativos"): g:image_link now prefers the Fábrica's own
+ * "catalog_clean" render (AI-composed environment, zero text/price baked
+ * in — confirmed via Meta's own docs that a custom image for the
+ * cover-media/catalog position is explicitly supported) over the plain
+ * marketplace photo, falling back to the real photo whenever no approved
+ * creative exists yet for that product. Henrique still configures the
+ * Frame/Dynamic Overlay once in Ads Manager (one-time UI step, not code).
  */
 export async function GET() {
   const selections = await prisma.vitrineSelection.findMany({
@@ -67,6 +72,13 @@ export async function GET() {
       });
       continue;
     }
+
+    const creative = await prisma.vitrineCreative.findFirst({
+      where: { merchantListingId: selection.merchantListingId, kind: "catalog_clean", publishedAt: { not: null } },
+      orderBy: { version: "desc" },
+      select: { finalImageUrl: true },
+    });
+    const imageUrl = creative?.finalImageUrl ?? product.imageUrl;
 
     // VITRINE_CATALOG_LINK_MODE ("redirect" default): points straight at
     // the redirector — zero extra clicks, no intermediate page — but
@@ -103,7 +115,7 @@ export async function GET() {
         `<title>${escapeXml(product.title)}</title>` +
         `<description>${escapeXml(product.title)}</description>` +
         `<link>${escapeXml(link)}</link>` +
-        `<g:image_link>${escapeXml(product.imageUrl)}</g:image_link>` +
+        `<g:image_link>${escapeXml(imageUrl)}</g:image_link>` +
         priceTags +
         `<g:availability>in stock</g:availability>` +
         `<g:brand>${escapeXml(product.brand ?? "Genérica")}</g:brand>` +

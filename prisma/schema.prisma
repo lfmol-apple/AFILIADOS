@@ -294,6 +294,7 @@ model MerchantListing {
   vitrineSelection VitrineSelection?
   trend            MerchantListingTrend?
   commercialCandidateRegistryRows CommercialCandidateRegistry[]
+  vitrineCreatives VitrineCreative[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -549,6 +550,91 @@ model AffiliateLinkRegistry {
 /// the existing tag and queue. Carries the "vitrinedinamica" tag only — see
 /// docs/AFFILIATE_LINK_REGISTRY.md for the attributionTag convention this
 /// mirrors.
+/// Fábrica Inteligente de Criativos (owner's authorization, 2026-11-19,
+/// "Prioridade imediata — Fábrica Inteligente de Criativos
+/// Publicitários"). Append-only, versioned: a new row per generation,
+/// never an overwrite — "implemente armazenamento permanente, cache e
+/// versionamento." `kind` distinguishes the two renders the hybrid
+/// architecture produces from the SAME AI base composition: the catalog
+/// field needs a clean image (Meta's own Advantage+ "Add Dynamic
+/// Overlays" feature draws price on top, confirmed via Meta's developer
+/// docs, 2026-11-19 — a custom image for the catalog's cover-media
+/// position is explicitly supported); a manual/non-catalog ad needs the
+/// price/CTA baked in, since no automatic overlay exists there.
+model VitrineCreative {
+  id                String   @id @default(cuid())
+  merchantListingId String
+  merchantListing   MerchantListing @relation(fields: [merchantListingId], references: [id], onDelete: Cascade)
+
+  /// "catalog_clean" (no price/text — Meta's own dynamic overlay adds
+  /// price) | "ad_overlay" (price/CTA/logo baked in by this project's own
+  /// programmatic layer — for manual/Collection ads with no native
+  /// overlay).
+  kind    String
+  version Int
+
+  /// The real, unmodified product photo this generation started from —
+  /// kept so a reviewed/rejected AI composition can always fall back to
+  /// it, and so re-generation never loses the original source.
+  originalPhotoUrl String
+  /// The AI-generated base composition (gpt-image-2/Sunburst/Flare
+  /// "edit" output), before this row's own programmatic overlay (if
+  /// kind="ad_overlay") is applied on top.
+  aiBaseImageUrl String?
+  /// The final, served image for this kind/version.
+  finalImageUrl String
+
+  /// Real inputs this generation's prompt was built from — owner's
+  /// explicit rule: "nunca invente preços, avaliações, benefícios,
+  /// descontos ou quantidades vendidas." Every field here must trace to
+  /// a real, already-verified source (VitrineScoreResult, MerchantListingFacts),
+  /// never fabricated for the prompt's sake.
+  promptInputs Json
+  /// The literal prompt text sent to the model — kept for audit/debug,
+  /// never regenerated from promptInputs at read time (a prompt-builder
+  /// code change must never silently rewrite history).
+  promptText String?
+  model      String
+
+  /// Real, metered cost for the API call(s) that produced this row —
+  /// never estimated after the fact. Null only if this row predates cost
+  /// tracking (should not happen for any row created from 2026-11-19 on).
+  costUsd Decimal? @db.Decimal(8, 4)
+
+  /// "pending" | "approved" | "rejected" — owner's explicit rule:
+  /// "criativos reprovados não deverão ser publicados automaticamente."
+  qualityStatus String @default("pending")
+  qualityNotes  String?
+
+  /// Null until this exact row is the one actually served by the XML
+  /// catalog / admin preview — never two rows "published" for the same
+  /// (merchantListingId, kind) at once (enforced in code, not a DB
+  /// constraint, since "approved but not yet promoted" is a valid state).
+  publishedAt DateTime?
+
+  generatedAt DateTime @default(now())
+
+  @@index([merchantListingId, kind, version])
+  @@index([qualityStatus])
+}
+
+/// Real, metered OpenAI image-API spend — owner's explicit rule:
+/// "não comprometa despesas com geração de imagens sem minha autorização
+/// financeira" + "implemente limites configuráveis de gasto." A separate
+/// ledger from VitrineCreative.costUsd (which is per-row) so a budget
+/// check is one cheap aggregate query, never a join across every
+/// creative ever generated.
+model VitrineCreativeSpend {
+  id        String   @id @default(cuid())
+  spentOn   DateTime
+  amountUsd Decimal  @db.Decimal(8, 4)
+  creativeId String?
+  note      String?
+  recordedAt DateTime @default(now())
+
+  @@index([spentOn])
+}
+
 model VitrineLink {
   id                String          @id @default(cuid())
   merchantListingId String          @unique

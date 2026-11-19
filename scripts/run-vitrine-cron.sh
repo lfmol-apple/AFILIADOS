@@ -40,6 +40,7 @@ run() {
 run jobs/vitrine-discovery.ts
 run jobs/ml-trend-rollup.ts
 run jobs/vitrine-renew.ts
+run jobs/vitrine-creative-factory.ts
 run jobs/commercial-lab-run.ts
 run jobs/commercial-lab-checkpoints.ts
 run jobs/vitrine-meta-spend-sync.ts

@@ -288,6 +288,31 @@ const envSchema = z.object({
   /// exists — without it, the sync would need to be pointed at a
   /// specific campaign manually before enabling.
   META_VITRINE_CAMPAIGN_ID: z.string().default(""),
+
+  // Fábrica Inteligente de Criativos (owner's authorization, 2026-11-19)
+  // — reuses the SAME OPENAI_API_KEY already declared above for content
+  // generation (one OpenAI account/billing covers both chat and image
+  // APIs; never a second, duplicate key field). Real per-image cost
+  // confirmed via OpenAI's own docs, 2026-11-19 (gpt-image-2,
+  // 1024x1536/1536x1024): low $0.005, medium $0.041-0.053, high
+  // $0.165-0.211.
+  OPENAI_IMAGE_MODEL: z.string().default("gpt-image-2"),
+  /// "low" | "medium" | "high" | "auto" — owner's explicit rule: never
+  /// regenerate at a higher tier than configured without a human
+  /// decision. "medium" is the default production tier (real cost
+  /// ~$0.04-0.05/image) — a deliberate choice, not the API's own default
+  /// ("auto"), so cost stays predictable.
+  VITRINE_CREATIVE_QUALITY: z.enum(["low", "medium", "high", "auto"]).default("medium"),
+  /// Hard ceilings — owner's explicit rule: "não comprometa despesas...
+  /// sem minha autorização financeira" + "implemente limites
+  /// configuráveis de gasto." The job REFUSES to call the API once
+  /// either is reached for the current day/month (real spend, from
+  /// VitrineCreativeSpend — never estimated).
+  VITRINE_CREATIVE_DAILY_BUDGET_USD: z.coerce.number().positive().default(2),
+  VITRINE_CREATIVE_MONTHLY_BUDGET_USD: z.coerce.number().positive().default(20),
+  /// Same bind-mount pattern as PRODUCT_IMAGE_DIR above — a rebuild must
+  /// never lose a generated creative (real money was spent on it).
+  VITRINE_CREATIVE_DIR: z.string().default("data/vitrine-creatives"),
 });
 
 export type Env = z.infer<typeof envSchema>;
