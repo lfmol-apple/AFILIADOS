@@ -81,12 +81,18 @@ export default async function VitrineInteligentePage() {
           : "ainda não rodou"}
       </p>
 
-      <p className="mt-4">
+      <p className="mt-4 flex flex-wrap gap-2">
         <a
           href="/admin/vitrine-links"
           className="bg-brand text-brand-foreground inline-block rounded-lg px-4 py-2 text-sm font-semibold"
         >
           Gerar links pendentes ({pendingLink}) →
+        </a>
+        <a
+          href="/admin/vitrine-financeiro"
+          className="border-border-subtle hover:border-brand inline-block rounded-lg border px-4 py-2 text-sm font-semibold"
+        >
+          Financeiro →
         </a>
       </p>
 
@@ -103,22 +109,40 @@ export default async function VitrineInteligentePage() {
       </p>
 
       <h2 className="mt-8 text-lg font-semibold">Produtos ativos</h2>
+      <p className="text-foreground/60 mt-6 text-xs">
+        Prévia da arte publicitária gerada automaticamente (modelo fixo,
+        sem IA generativa — foto real + preço atual + desconto só quando
+        comprovado pelo próprio Mercado Livre). Atualiza sozinha a cada
+        acesso, nunca precisa ser regerada manualmente.
+      </p>
       <ul className="mt-3 space-y-2">
         {active.map((row) => (
           <li
             key={row.id}
-            className="border-border-subtle rounded-lg border p-3 text-sm"
+            className="border-border-subtle flex gap-3 rounded-lg border p-3 text-sm"
           >
-            <p className="font-medium">
-              {row.merchantListing.canonicalProduct?.title ?? "(sem título)"}
-            </p>
-            <p className="text-foreground/60 mt-1 text-xs">
-              {GROUP_LABEL[row.groupType] ?? row.groupType} · score{" "}
-              {Math.round(row.score)} · {row.reason}
-              {row.merchantListing.vitrineLink?.status === "ACTIVE"
-                ? " · link ok"
-                : " · sem link ainda"}
-            </p>
+            {row.merchantListing.vitrineLink?.status === "ACTIVE" && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={`/api/vitrine/creative/${row.merchantListingId}`}
+                alt=""
+                width={72}
+                height={72}
+                className="h-18 w-18 shrink-0 rounded-md border border-border-subtle object-cover"
+              />
+            )}
+            <div>
+              <p className="font-medium">
+                {row.merchantListing.canonicalProduct?.title ?? "(sem título)"}
+              </p>
+              <p className="text-foreground/60 mt-1 text-xs">
+                {GROUP_LABEL[row.groupType] ?? row.groupType} · score{" "}
+                {Math.round(row.score)} · {row.reason}
+                {row.merchantListing.vitrineLink?.status === "ACTIVE"
+                  ? " · link ok"
+                  : " · sem link ainda"}
+              </p>
+            </div>
           </li>
         ))}
       </ul>

@@ -1,73 +1,59 @@
 import { prisma } from "@/lib/db";
+import type { MonetizationScoreComponents } from "@/types/monetization";
+import {
+  getActiveCommercialEvents,
+  strongestEventForCategory,
+} from "@/lib/services/commercial-calendar-engine";
+import { calculateVitrineScore, type VitrineScoreResult } from "@/lib/services/vitrine-score";
+import type { TrendDirection } from "@/lib/services/listing-trend";
 
 /**
- * Score v1 — reuses MonetizationScore exactly as the real ML/Shopee jobs
- * already compute it (lib/services/monetization-score.ts), no new scoring
- * model yet. A real weighted/seasonal score (lib/services/vitrine-score.ts)
- * is Fase 2 work, once the commercial calendar and trend-rollup jobs exist
- * — see docs for this module's plan. Never invent a signal that isn't
- * already in the database.
+ * Score v2 (Fase 2, owner's explicit correction 2026-11-19): combines the
+ * real MonetizationScore the ML/Shopee discovery jobs already compute with
+ * two NEW real dimensions — commercial-calendar seasonality and
+ * MerchantListingTrend's rank trend — through lib/services/vitrine-
+ * score.ts's configurable weights. The MonetizationScore reuse is a
+ * foundation, not the conclusion, per the owner's instruction.
  */
 
 export type VitrineGroupType = "sazonal" | "recorrente" | "emergente";
 
-/** No seasonal-calendar engine exists yet (Fase 2) — "sazonal" is always 0
- * for now, documented here rather than silently dropped, so the admin panel
- * can say so instead of implying it's working. */
+function classifyGroup(
+  hasSeasonalMatch: boolean,
+  trendDirection: TrendDirection | null,
+): VitrineGroupType {
+  if (hasSeasonalMatch) return "sazonal";
+  if (trendDirection === "rising" || trendDirection === "new") return "emergente";
+  return "recorrente";
+}
+
 const GROUP_TARGETS: Record<VitrineGroupType, number> = {
-  sazonal: 0,
-  recorrente: 18,
-  emergente: 12,
+  sazonal: 12,
+  recorrente: 12,
+  emergente: 6,
 };
 
-interface EligibleListing {
+export interface VitrineCandidate {
   merchantListingId: string;
   score: number;
   group: VitrineGroupType;
   reason: string;
+  scoreBreakdown: VitrineScoreResult;
 }
 
 /**
- * Classifies a listing by which discovery signal produced it — the closest
- * thing to "recorrente vs emergente" available without a seasonal engine.
- * mercado_livre_highlights (bestseller rank) = a listing that's already
- * selling well = recorrente. mercado_livre_trends (search-rank only, no
- * confirmed sales) = emergente (a newer, less-proven signal).
+ * Selects up to `limit` Mercado Livre listings for the Vitrine Inteligente.
+ * Candidates come from EVERY MerchantListing already discovered by the
+ * regular ML_DEMAND/ML_ENRICHMENT rotation AND jobs/vitrine-discovery.ts's
+ * seasonal-category sweep (brief section 3: the universe is not limited
+ * to what the site has published) — this function only ranks what's
+ * already in the database; widening what gets INTO the database is
+ * vitrine-discovery.ts's job, run on a schedule, not something this
+ * selection step triggers synchronously.
  */
-function classifyGroup(latestSignalSource: string | null): {
-  group: VitrineGroupType;
-  reason: string;
-} {
-  if (latestSignalSource === "mercado_livre_highlights") {
-    return {
-      group: "recorrente",
-      reason: "no ranking de mais vendidos da categoria no Mercado Livre",
-    };
-  }
-  if (latestSignalSource === "mercado_livre_trends") {
-    return {
-      group: "emergente",
-      reason: "em alta nas pesquisas do Mercado Livre, venda ainda não confirmada",
-    };
-  }
-  return {
-    group: "recorrente",
-    reason: "pontuação de monetização calculada pelo ciclo de descoberta",
-  };
-}
+export async function selectVitrineCandidates(limit = 30): Promise<VitrineCandidate[]> {
+  const activeEvents = getActiveCommercialEvents();
 
-/**
- * Selects up to `limit` Mercado Livre listings for the Vitrine Inteligente,
- * balancing recorrente/emergente by MonetizationScore — reuses the score
- * the real discovery jobs (ml-demand.ts, ml-enrichment.ts) already
- * calculated, never recomputes or invents anything. Only Mercado Livre
- * listings: the Vitrine Inteligente's whole purpose (per the project brief)
- * is ML-affiliate traffic, same as the existing public /ofertas scope for
- * ML, so this reuses that same universe rather than inventing a new one.
- */
-export async function selectVitrineCandidates(
-  limit = 30,
-): Promise<EligibleListing[]> {
   const listings = await prisma.merchantListing.findMany({
     where: {
       active: true,
@@ -78,37 +64,62 @@ export async function selectVitrineCandidates(
     },
     select: {
       id: true,
-      monetizationScore: { select: { score: true } },
-      signals: {
-        orderBy: { observedAt: "desc" },
-        take: 1,
-        select: { source: true },
-      },
+      monetizationScore: { select: { components: true } },
+      canonicalProduct: { select: { categoryId: true } },
+      trend: { select: { direction: true } },
     },
     orderBy: { monetizationScore: { score: "desc" } },
-    take: limit * 4, // oversample so group quotas have enough to choose from
+    take: limit * 6, // oversample — group quotas + renormalized scoring need headroom
   });
 
-  const byGroup: Record<VitrineGroupType, EligibleListing[]> = {
+  const clickCounts = await prisma.affiliateClick.groupBy({
+    by: ["merchantListingId"],
+    where: { campaign: "vitrine_dinamica", merchantListingId: { in: listings.map((l) => l.id) } },
+    _count: { _all: true },
+  });
+  const clicksByListing = new Map(clickCounts.map((c) => [c.merchantListingId, c._count._all]));
+
+  const byGroup: Record<VitrineGroupType, VitrineCandidate[]> = {
     sazonal: [],
     recorrente: [],
     emergente: [],
   };
 
   for (const listing of listings) {
-    const score = listing.monetizationScore?.score;
-    if (score == null) continue;
-    const { group, reason } = classifyGroup(listing.signals[0]?.source ?? null);
-    byGroup[group].push({ merchantListingId: listing.id, score, group, reason });
+    const categoryId = listing.canonicalProduct?.categoryId ?? null;
+    const seasonalMatch = strongestEventForCategory(categoryId, activeEvents);
+    const trendDirection = (listing.trend?.direction as TrendDirection | undefined) ?? null;
+    const group = classifyGroup(seasonalMatch !== null, trendDirection);
+
+    const breakdown = calculateVitrineScore({
+      monetization: (listing.monetizationScore?.components as MonetizationScoreComponents | undefined) ?? null,
+      seasonalEvent: seasonalMatch,
+      trendDirection,
+      vitrineClickCount: clicksByListing.get(listing.id) ?? 0,
+    });
+
+    const reason =
+      breakdown.reasons[0] ??
+      "pontuação de monetização calculada pelo ciclo de descoberta";
+
+    byGroup[group].push({
+      merchantListingId: listing.id,
+      score: breakdown.score,
+      group,
+      reason,
+      scoreBreakdown: breakdown,
+    });
   }
 
-  const selected: EligibleListing[] = [];
+  for (const group of Object.keys(byGroup) as VitrineGroupType[]) {
+    byGroup[group].sort((a, b) => b.score - a.score);
+  }
+
+  const selected: VitrineCandidate[] = [];
   for (const group of Object.keys(GROUP_TARGETS) as VitrineGroupType[]) {
     selected.push(...byGroup[group].slice(0, GROUP_TARGETS[group]));
   }
 
-  // Fill any remaining slots (quotas not fully met) with the next
-  // best-scoring candidates overall, regardless of group.
   if (selected.length < limit) {
     const chosenIds = new Set(selected.map((s) => s.merchantListingId));
     const leftovers = Object.values(byGroup)

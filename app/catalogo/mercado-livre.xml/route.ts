@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { loadPublicMerchantProduct } from "@/lib/queries/public-product";
 import { siteConfig } from "@/lib/config/site";
+import { env } from "@/lib/config/env";
 import { logger } from "@/lib/observability/logger";
 
 export const dynamic = "force-dynamic";
@@ -8,14 +9,18 @@ export const dynamic = "force-dynamic";
 /**
  * Meta Commerce Manager catalog feed for the Vitrine Inteligente — fixed
  * address (project brief section 14), content regenerated on every fetch
- * from VitrineSelection{status:ACTIVE}. Per the architecture decision
- * (2026-11-19): `g:link` points at PreçoCaindo's OWN product page
- * (domain-verified), never straight at mercadolivre.com.br — Meta's catalog
- * feed spec requires the link to be hosted on the advertiser's own verified
- * domain (confirmed via Meta's official Commerce Platform catalog-fields
- * docs). The product page then redirects to the real, vitrinedinamica-
- * tagged Mercado Livre link via /go/vitrine/mercado-livre/[externalId]
- * (see lib/services/vitrine-cta.ts, app/go/vitrine/...).
+ * from VitrineSelection{status:ACTIVE}. `g:link` points at
+ * precocaindo.com.br/go/vitrine/... (app/go/vitrine/[merchant]/
+ * [externalId]/route.ts), never straight at mercadolivre.com.br: Meta's
+ * catalog feed spec requires the link to be hosted on the advertiser's own
+ * verified domain (confirmed via Meta's official Commerce Platform
+ * catalog-fields docs). That route is a plain 302 redirect with no
+ * intermediate page — the consumer reaches the real Mercado Livre product
+ * with one click and zero extra navigation (owner's explicit requirement,
+ * 2026-11-19), the same mechanism already used for every other merchant
+ * click on this site. The product page itself (?src=vitrine override in
+ * lib/services/vitrine-cta.ts) stays available for any future ad format
+ * that does land on it, but the catalog feed no longer uses it.
  *
  * Only ever includes a product that has a real title, image, price AND an
  * ACTIVE vitrine link — never a partial/placeholder entry. If a product
@@ -52,7 +57,17 @@ export async function GET() {
       continue;
     }
 
-    const link = `${siteConfig.url}/produto/${slug}?src=vitrine`;
+    // VITRINE_CATALOG_LINK_MODE ("redirect" default): points straight at
+    // the redirector — zero extra clicks, no intermediate page — but
+    // whether Meta's catalog crawler accepts a redirect off its verified
+    // domain is genuinely unconfirmed (see env.ts's doc comment on this
+    // var). Switch to "product_page" the moment Commerce Manager's
+    // Diagnostics tab flags an item for it; that mode lands on the exact
+    // domain Meta crawled, at the cost of one extra click.
+    const link =
+      env.VITRINE_CATALOG_LINK_MODE === "product_page"
+        ? `${siteConfig.url}/produto/${slug}?src=vitrine`
+        : `${siteConfig.url}/go/vitrine/mercado-livre/${encodeURIComponent(listing.externalId)}?pageType=catalog&source=meta_catalog`;
     items.push(
       `<item>` +
         `<g:id>${escapeXml(selection.merchantListingId)}</g:id>` +

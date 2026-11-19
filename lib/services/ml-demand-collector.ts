@@ -43,7 +43,7 @@ export async function persistHighlightSignal(input: {
    * the manual script (scripts/ml-demand-e2e-check.ts) keeps working
    * unchanged when it doesn't have this context. */
   categoryId?: string;
-  discoverySource?: "ML_GENERAL" | "ML_DEMAND";
+  discoverySource?: "ML_GENERAL" | "ML_DEMAND" | "VITRINE_SEASONAL";
 }) {
   const listing = await prisma.merchantListing.upsert({
     where: {

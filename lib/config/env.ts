@@ -243,6 +243,36 @@ const envSchema = z.object({
   // Empty means the page shows "link indisponível" instead of a dead
   // button — same fail-closed pattern as AmazonShowcaseCard's href.
   WHATSAPP_CHANNEL_INVITE_URL: z.string().default(""),
+
+  // PRODUCT_IMAGE_DIR: where lib/services/product-image-store.ts saves a
+  // real, directly-observed product photo (WhatsApp's own link-preview
+  // thumbnail — see that file's doc comment) when no marketplace-hosted
+  // image URL exists to hotlink, e.g. a manually-registered Amazon
+  // product (lib/services/manual-product-registration.ts deliberately
+  // has no image input, same no-fabrication rule). Bind-mounted in
+  // production (docker-compose.prod.yml) so it survives every rebuild,
+  // same pattern as WHATSAPP_SESSION_DIR above.
+  PRODUCT_IMAGE_DIR: z.string().default("data/product-images"),
+
+  // Vitrine Inteligente (see app/catalogo/mercado-livre.xml/route.ts and
+  // docs/VITRINE_INTELIGENTE.md). VITRINE_CAPACITY / _MAX_DAILY_REPLACEMENTS
+  // are read directly via process.env in jobs/vitrine-renew.ts (no
+  // validation needed for a plain optional integer knob), listed here only
+  // so every Vitrine env var is discoverable in one place.
+  //
+  // VITRINE_CATALOG_LINK_MODE: "redirect" (default) makes the Meta catalog
+  // feed's `link` point straight at /go/vitrine/... — one click, zero
+  // intermediate page, but genuinely unconfirmed whether Meta's catalog
+  // crawler accepts a redirect off its verified domain (checked via web
+  // research 2026-11-19: Meta's own docs don't say either way; Google
+  // Merchant Center, the closest documented analog, explicitly rejects
+  // this pattern). Henrique can flip this to "product_page" with NO code
+  // change the moment Commerce Manager's Diagnostics tab flags an item —
+  // that mode is unambiguously compliant (crawled and landed domain are
+  // identical) at the cost of one extra click through /produto/[slug].
+  VITRINE_CATALOG_LINK_MODE: z
+    .enum(["redirect", "product_page"])
+    .default("redirect"),
 });
 
 export type Env = z.infer<typeof envSchema>;

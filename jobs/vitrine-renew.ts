@@ -33,7 +33,12 @@ export async function runVitrineRenewJob() {
       const fresh = candidates.find((c) => c.merchantListingId === row.merchantListingId)!;
       await prisma.vitrineSelection.update({
         where: { id: row.id },
-        data: { score: fresh.score, groupType: fresh.group, reason: fresh.reason },
+        data: {
+          score: fresh.score,
+          groupType: fresh.group,
+          reason: fresh.reason,
+          scoreBreakdown: fresh.scoreBreakdown as unknown as object,
+        },
       });
       ctx.counters.updated += 1;
     }
@@ -64,7 +69,7 @@ export async function runVitrineRenewJob() {
           groupType: candidate.group,
           status: "ACTIVE",
           score: candidate.score,
-          scoreBreakdown: { score: candidate.score, group: candidate.group },
+          scoreBreakdown: candidate.scoreBreakdown as unknown as object,
           reason: candidate.reason,
           activatedAt: new Date(),
         },
@@ -72,6 +77,7 @@ export async function runVitrineRenewJob() {
           status: "ACTIVE",
           groupType: candidate.group,
           score: candidate.score,
+          scoreBreakdown: candidate.scoreBreakdown as unknown as object,
           reason: candidate.reason,
           activatedAt: new Date(),
           retiredAt: null,
@@ -97,12 +103,13 @@ export async function runVitrineRenewJob() {
           groupType: candidate.group,
           status: "RESERVE",
           score: candidate.score,
-          scoreBreakdown: { score: candidate.score, group: candidate.group },
+          scoreBreakdown: candidate.scoreBreakdown as unknown as object,
           reason: candidate.reason,
         },
         update: {
           score: candidate.score,
           groupType: candidate.group,
+          scoreBreakdown: candidate.scoreBreakdown as unknown as object,
           reason: candidate.reason,
         },
       });

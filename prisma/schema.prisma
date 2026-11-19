@@ -292,6 +292,7 @@ model MerchantListing {
   affiliateLink    AffiliateLinkRegistry?
   vitrineLink      VitrineLink?
   vitrineSelection VitrineSelection?
+  trend            MerchantListingTrend?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -395,6 +396,34 @@ model MerchantListingSignal {
 
   @@index([merchantListingId, observedAt])
   @@index([source, observedAt])
+}
+
+/// Vitrine Inteligente Fase 2 — closes the gap the audit found: no 24h/7d/
+/// 30d/90d rank-trend rollup existed for ML/Shopee (unlike Amazon's
+/// PriceStats, computed by jobs/calculate-price-stats.ts from PriceHistory
+/// — this is the same idea applied to MerchantListingSignal.bestsellerRank
+/// instead of price). jobs/ml-trend-rollup.ts is the only writer. Scoped to
+/// the Vitrine's own scoring (lib/services/vitrine-score.ts) — deliberately
+/// NOT fed into the shared MonetizationScore the public /ofertas ranking
+/// uses, to keep that ranking's existing, already-tested behavior
+/// untouched.
+model MerchantListingTrend {
+  id                String          @id @default(cuid())
+  merchantListingId String          @unique
+  merchantListing   MerchantListing @relation(fields: [merchantListingId], references: [id], onDelete: Cascade)
+
+  rankLatest Int?
+  rank7dAgo  Int?
+  rank30dAgo Int?
+  rank90dAgo Int?
+
+  /// "rising" | "falling" | "stable" | "new" | "unknown" — "new" means no
+  /// sample old enough to compare against yet (never guessed as "stable").
+  direction String
+
+  computedAt DateTime @default(now())
+
+  @@index([direction])
 }
 
 /// "Vale a pena investirmos tráfego/conteúdo neste listing?" — for
@@ -535,6 +564,61 @@ model VitrineSelection {
   updatedAt DateTime @updatedAt
 
   @@index([status, groupType])
+}
+
+/// Vitrine Inteligente Fase 3 — real ad spend has no automated source (no
+/// Meta Ads API integration exists in this codebase); Henrique records
+/// what he actually spent, same trusted-human-input pattern as
+/// recordManualPriceObservation elsewhere in this project. Never estimated
+/// or defaulted — lib/services/vitrine-financials.ts treats a period with
+/// no entry as "no spend recorded", never as zero spend.
+model VitrineAdSpend {
+  id        String   @id @default(cuid())
+  spentOn   DateTime
+  amountBrl Decimal  @db.Decimal(10, 2)
+  note      String?
+  recordedAt DateTime @default(now())
+
+  @@index([spentOn])
+}
+
+/// Real commission data has no automated source either (confirmed gap,
+/// see docs/AFFILIATE_LINK_REGISTRY.md and this module's own audit): no ML
+/// reconciliation API, and Shopee's conversionReport is documented but
+/// never implemented. Henrique periodically reads the real numbers off
+/// Mercado Livre's own affiliate panel (which DOES separate direct from
+/// indirect commission, per the project brief's own attribution rules) and
+/// records them here — direct/indirect kept as separate fields because
+/// that split is real data from the panel, never estimated by this code.
+model VitrineCommissionReport {
+  id                String   @id @default(cuid())
+  periodStart       DateTime
+  periodEnd         DateTime
+  directAmountBrl   Decimal  @db.Decimal(10, 2)
+  indirectAmountBrl Decimal  @db.Decimal(10, 2)
+  /// "PENDING" | "APPROVED" — Mercado Livre's own 60-day validation window
+  /// (confirmed via the Meta/ML compliance research, 2026-11-19) means a
+  /// figure read off the panel today may still move; never treated as
+  /// final money until the owner marks it APPROVED.
+  status            String
+  source            String   @default("manual_ml_panel")
+  note              String?
+  recordedAt        DateTime @default(now())
+
+  @@index([periodStart, periodEnd])
+}
+
+/// Audit trail for any change to VITRINE_SCORE_WEIGHTS (lib/config/
+/// vitrine-score-weights.ts) — project brief section 19: "manter histórico
+/// das alterações de metodologia, permitindo reversão caso uma nova
+/// estratégia apresente desempenho inferior." Written only by
+/// lib/services/vitrine-weight-learning.ts, and only above its minimum-
+/// evidence threshold — most of the time there is nothing to write yet.
+model VitrineWeightHistory {
+  id        String   @id @default(cuid())
+  weights   Json
+  reason    String
+  changedAt DateTime @default(now())
 }
 
 /// A Product is a listing within ONE marketplace — the BR listing and a
