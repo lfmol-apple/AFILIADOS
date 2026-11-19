@@ -105,7 +105,7 @@ function buildPriceInfo(
 
 /** ML/Shopee: real current price + ACTIVE affiliate link + real photo, or
  * excluded entirely — never a post with a dead/missing piece. */
-function buildItemFromMerchantFacts(
+export function buildItemFromMerchantFacts(
   facts: MerchantListingFacts,
   verifiedDrop?: { previousPrice: number; dropPercent: number; isAllTimeLow: boolean },
 ): WhatsAppTrendingItem | null {

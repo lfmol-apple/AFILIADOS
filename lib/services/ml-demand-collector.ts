@@ -43,7 +43,14 @@ export async function persistHighlightSignal(input: {
    * the manual script (scripts/ml-demand-e2e-check.ts) keeps working
    * unchanged when it doesn't have this context. */
   categoryId?: string;
-  discoverySource?: "ML_GENERAL" | "ML_DEMAND" | "VITRINE_SEASONAL";
+  discoverySource?: "ML_GENERAL" | "ML_DEMAND" | "VITRINE_SEASONAL" | "VITRINE_TRENDING";
+  /** Which commercial-calendar event and search keyword actually found
+   * this item (jobs/vitrine-discovery.ts's keyword-driven seasonal sweep)
+   * — real evidence of event relevance, kept separate from categoryId
+   * (which only says "this category is associated with some event," not
+   * that THIS item was found because of it). */
+  matchedEventId?: string;
+  matchedKeyword?: string;
 }) {
   const listing = await prisma.merchantListing.upsert({
     where: {
@@ -70,8 +77,13 @@ export async function persistHighlightSignal(input: {
       source: "mercado_livre_highlights",
       bestsellerRank: input.position,
       raw:
-        input.categoryId || input.discoverySource
-          ? { categoryId: input.categoryId, discoverySource: input.discoverySource }
+        input.categoryId || input.discoverySource || input.matchedEventId || input.matchedKeyword
+          ? {
+              categoryId: input.categoryId,
+              discoverySource: input.discoverySource,
+              matchedEventId: input.matchedEventId,
+              matchedKeyword: input.matchedKeyword,
+            }
           : undefined,
     },
   });

@@ -27,8 +27,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Data inválida." }, { status: 400 });
   }
 
-  const row = await prisma.vitrineAdSpend.create({
-    data: { spentOn, amountBrl: parsed.data.amountBrl, note: parsed.data.note },
+  const row = await prisma.vitrineAdSpend.upsert({
+    where: { spentOn_source: { spentOn, source: "manual" } },
+    create: { spentOn, amountBrl: parsed.data.amountBrl, note: parsed.data.note, source: "manual" },
+    update: { amountBrl: parsed.data.amountBrl, note: parsed.data.note },
   });
   return NextResponse.json({ ok: true, id: row.id });
 }

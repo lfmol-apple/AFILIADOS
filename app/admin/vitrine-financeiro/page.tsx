@@ -54,14 +54,22 @@ export default async function VitrineFinanceiroPage() {
         <Stat label="Resultado após publicidade" value={brl(summary.resultAfterAdSpendBrl)} />
         <Stat label="ROI" value={summary.roiPercent === null ? "sem dado" : `${summary.roiPercent}%`} />
         <Stat label="Comissão por clique" value={brl(summary.commissionPerClickBrl)} />
+        <Stat label="Comissão cancelada" value={brl(summary.cancelledCommissionBrl)} />
+        <Stat label="CPC real" value={brl(summary.cpcBrl)} />
+        <Stat label="CTR real" value={summary.ctrPercent === null ? "sem impressões importadas" : `${summary.ctrPercent}%`} />
+        <Stat label="CPC máximo p/ equilíbrio" value={brl(summary.breakEvenCpcBrl)} />
       </div>
+      <p className="text-foreground/50 mt-2 text-xs">
+        Etiqueta: {summary.campaign}. CTR só aparece quando o Meta Insights importou impressões reais para o período — nunca estimado.
+      </p>
 
       <h2 className="mt-8 text-lg font-semibold">Registrar investimento (Meta Ads)</h2>
       <VitrineAdSpendForm />
       <ul className="mt-2 space-y-1 text-xs text-foreground/60">
         {adSpends.map((row) => (
           <li key={row.id}>
-            {row.spentOn.toLocaleDateString("pt-BR")} — {brl(row.amountBrl.toNumber())}
+            {row.spentOn.toLocaleDateString("pt-BR")} — {brl(row.amountBrl.toNumber())} —{" "}
+            {row.source === "meta_api" ? "automático (Meta)" : "manual"}
             {row.note ? ` — ${row.note}` : ""}
           </li>
         ))}

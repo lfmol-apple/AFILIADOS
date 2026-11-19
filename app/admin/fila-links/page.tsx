@@ -7,6 +7,10 @@ import {
 import { AdminLoginForm } from "@/components/admin-login-form";
 import { PanelPickRow } from "@/components/panel-pick-row";
 import { loadPanelQueue } from "@/lib/services/ml-panel-queue-data";
+import {
+  loadWhatsAppMlCandidates,
+  WHATSAPP_CANDIDATE_ID_PREFIX,
+} from "@/lib/queries/whatsapp-ml-candidates";
 
 export const metadata: Metadata = {
   title: "Fila de links — Admin",
@@ -38,6 +42,7 @@ export default async function LinkQueuePage() {
   // 675+ rows at once made this page heavy; the batch screen is where the
   // bulk of the work happens, so list only the first ones here.
   const shown = pending.slice(0, MAX_LISTED);
+  const groupFinds = await loadWhatsAppMlCandidates(50);
 
   return (
     <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6">
@@ -69,6 +74,38 @@ export default async function LinkQueuePage() {
           primeira vez (incidente histórico, já corrigido); vale a pena gerar
           de novo.
         </p>
+      )}
+      {groupFinds.length > 0 && (
+        <div className="border-brand/40 bg-brand/5 mt-6 rounded-xl border p-4">
+          <h2 className="text-lg font-semibold">
+            Achados em grupos do WhatsApp ({groupFinds.length})
+          </h2>
+          <p className="text-foreground/70 mt-1 text-sm">
+            Produtos vistos num grupo de promoção agora mesmo — sem comissão/
+            vendas do painel pra mostrar ainda (um achado de grupo não traz
+            esse dado), mas é sinal fresco, não o estoque de setembro abaixo.
+            Mesmo passo: copiar endereço, gerar no Linkbuilder, colar.
+          </p>
+          <ul className="mt-4 space-y-3">
+            {groupFinds.map((c, i) => (
+              <PanelPickRow
+                key={c.catalogId}
+                position={i + 1}
+                id={`${WHATSAPP_CANDIDATE_ID_PREFIX}${c.catalogId}`}
+                title={c.title}
+                repeated={false}
+                rateLabel="comissão a confirmar"
+                extras={false}
+                earningLabel="—"
+                soldLabel="achado em grupo"
+                priceLabel={c.price !== null ? brl(c.price) : "preço a confirmar"}
+                notes={[]}
+                recommended
+                productUrl={c.productUrl}
+              />
+            ))}
+          </ul>
+        </div>
       )}
       <p className="mt-3">
         <a

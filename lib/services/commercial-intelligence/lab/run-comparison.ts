@@ -1,0 +1,142 @@
+import { prisma } from "@/lib/db";
+import { buildCommercialCandidatePool, selectVitrineCandidates } from "@/lib/services/vitrine-selection";
+import {
+  rankByOfficialRankOnly,
+  rankByPanelRecommended,
+  rankByCommissionOnly,
+  rankByCurrentCommissionOnly,
+  rankByLegacyV2,
+  rankByMultifactorV3,
+  ALGORITHM_VERSIONS,
+  type LabMethodology,
+  type LabRankedItem,
+} from "@/lib/services/commercial-intelligence/lab/methodologies";
+
+const CHECKPOINT_DAYS = [7, 15, 30, 60, 90] as const;
+const LIMIT = 30;
+
+export interface LabComparisonSummary {
+  referenceDate: Date;
+  candidateUniverseSize: number;
+  snapshots: Array<{
+    snapshotId: string;
+    methodology: LabMethodology;
+    algorithmVersion: string;
+    itemCount: number;
+    discoveredNewCandidates: number | null;
+    topItems: LabRankedItem[];
+  }>;
+}
+
+/**
+ * Runs all four methodologies against the SAME real candidate pool and
+ * reference date, persists a permanent CommercialSelectionSnapshot (+
+ * items + prospective checkpoints) for each — owner's authorization,
+ * 2026-11-19: "registre permanentemente cada seleção... realize testes
+ * retrospectivos... quando não houver histórico suficiente, inicie um
+ * acompanhamento prospectivo."
+ *
+ * Never uses the algorithm's own score as proof of anything here — this
+ * function only RECORDS what each methodology would have selected; the
+ * actual comparison of outcomes happens independently, later, when
+ * checkpoints resolve against real observed data (runDueCheckpoints).
+ */
+export async function runCommercialIntelligenceLab(): Promise<LabComparisonSummary> {
+  const referenceDate = new Date();
+  const { pool } = await buildCommercialCandidatePool();
+
+  // multifactor_v3 needs its OWN group-aware selection (quotas), so its
+  // ranking criterion is "would this candidate's merchantListingId be
+  // selected, and at what rankingScore" — reuse the real selection.
+  const v3Result = await selectVitrineCandidates(LIMIT);
+  const v3ScoreByListingId = new Map(v3Result.candidates.map((c) => [c.merchantListingId, c.rankingScore]));
+
+  const rankings: Record<LabMethodology, LabRankedItem[]> = {
+    official_rank_only: rankByOfficialRankOnly(pool, LIMIT),
+    panel_recommended: rankByPanelRecommended(pool, LIMIT),
+    commission_only: rankByCommissionOnly(pool, LIMIT),
+    commission_current_only: rankByCurrentCommissionOnly(pool, LIMIT),
+    legacy_v2: rankByLegacyV2(pool, LIMIT),
+    multifactor_v3: rankByMultifactorV3(pool, LIMIT, v3ScoreByListingId),
+  };
+
+  // Discovery-capability axis (owner's requirement, evaluated separately
+  // from ranking): how much of each methodology's OWN top-30 leans on
+  // genuinely NEW finds from today's broadened discovery sweep
+  // (VITRINE_SEASONAL/VITRINE_TRENDING) vs. the pre-existing baseline
+  // pool (ML_GENERAL/ML_DEMAND/panel_pick/null). commission_only has no
+  // discovery mechanism of its own — reported as null, never forced.
+  const newDiscoverySources = new Set(["VITRINE_SEASONAL", "VITRINE_TRENDING"]);
+  function countNewDiscoveries(items: LabRankedItem[]): number {
+    return items.filter((i) => i.discoverySource && newDiscoverySources.has(i.discoverySource)).length;
+  }
+  const discoveredNewCandidates: Record<LabMethodology, number | null> = {
+    official_rank_only: countNewDiscoveries(rankings.official_rank_only),
+    panel_recommended: countNewDiscoveries(rankings.panel_recommended),
+    commission_only: null,
+    commission_current_only: null,
+    legacy_v2: countNewDiscoveries(rankings.legacy_v2),
+    multifactor_v3: countNewDiscoveries(rankings.multifactor_v3),
+  };
+
+  const summary: LabComparisonSummary = {
+    referenceDate,
+    candidateUniverseSize: pool.length,
+    snapshots: [],
+  };
+
+  for (const methodology of Object.keys(rankings) as LabMethodology[]) {
+    const items = rankings[methodology];
+    const snapshot = await prisma.commercialSelectionSnapshot.create({
+      data: {
+        methodology,
+        algorithmVersion: ALGORITHM_VERSIONS[methodology],
+        referenceDate,
+        candidateUniverseSize: pool.length,
+        discoveredNewCandidates: discoveredNewCandidates[methodology],
+        notes:
+          methodology === "legacy_v2"
+            ? "Metodologia re-aplicada sobre o pool já filtrado hoje — não é uma consulta independente como a execução histórica real (ver doc comment de rankByLegacyV2)."
+            : methodology === "commission_only"
+              ? "Critério puro de ranking (inclui comissão histórica/desatualizada) — baseline anterior, preservado para comparação histórica. Ver 'commission_current_only' para o critério vigente."
+              : methodology === "commission_current_only"
+                ? "Exclui comissão histórica/de categoria — só observação individual fresca (<=45 dias) ou campanha de ganhos extras ativa."
+                : methodology === "panel_recommended"
+                  ? "Produtos que o próprio painel de afiliados do Mercado Livre apresentou como destaque (mais vendido/recomendado/ganhos extras), lido ao vivo — ver data/ml-panel-reads/."
+                  : null,
+      },
+    });
+
+    if (items.length > 0) {
+      await prisma.commercialSelectionItem.createMany({
+        data: items.map((item) => ({
+          snapshotId: snapshot.id,
+          merchantListingId: item.merchantListingId,
+          title: item.title,
+          rank: item.rank,
+          scoreAtSelection: item.criterionValue,
+          evidenceSnapshot: item.evidenceSnapshot as object,
+        })),
+      });
+
+      await prisma.commercialSelectionCheckpoint.createMany({
+        data: CHECKPOINT_DAYS.map((days) => ({
+          snapshotId: snapshot.id,
+          checkpointDays: days,
+          dueAt: new Date(referenceDate.getTime() + days * 86_400_000),
+        })),
+      });
+    }
+
+    summary.snapshots.push({
+      snapshotId: snapshot.id,
+      methodology,
+      algorithmVersion: ALGORITHM_VERSIONS[methodology],
+      itemCount: items.length,
+      discoveredNewCandidates: discoveredNewCandidates[methodology],
+      topItems: items.slice(0, 10),
+    });
+  }
+
+  return summary;
+}

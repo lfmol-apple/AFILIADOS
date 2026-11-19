@@ -14,16 +14,37 @@ describe("getActiveCommercialEvents", () => {
     expect(blackFriday?.stage).toBe("pico");
   });
 
-  it("marks Black Friday as 'antecipacao' 50 days before", () => {
-    const events = getActiveCommercialEvents(new Date("2026-10-08T12:00:00Z"));
-    const blackFriday = events.find((e) => e.event.id === "black-friday");
-    expect(blackFriday?.stage).toBe("antecipacao");
+  it("marks Natal as 'antecipacao' 50 days before (leadDays=60)", () => {
+    const events = getActiveCommercialEvents(new Date("2026-11-05T12:00:00Z"));
+    const natal = events.find((e) => e.event.id === "natal" && e.year === 2026);
+    expect(natal?.stage).toBe("antecipacao");
   });
 
-  it("does not show an event more than 60 days before its peak", () => {
+  it("does not show Black Friday more than its own leadDays (25) before peak", () => {
     const events = getActiveCommercialEvents(new Date("2026-08-01T12:00:00Z"));
     const blackFriday = events.find((e) => e.event.id === "black-friday");
     expect(blackFriday).toBeUndefined();
+  });
+
+  it("owner's correction, 2026-11-19: a short-tail event (Halloween, tailDays=2) is OFF 19 days after its peak, not lingering in a generic wind-down", () => {
+    // Halloween 2026 peak = Oct 31; Nov 19 is 19 days after.
+    const events = getActiveCommercialEvents(new Date("2026-11-19T12:00:00Z"));
+    const halloween = events.find((e) => e.event.id === "halloween" && e.year === 2026);
+    expect(halloween).toBeUndefined();
+  });
+
+  it("a short-tail event is still (barely) active just past its own tailDays boundary", () => {
+    // Halloween tailDays=2 -> still inside window ~5 days after peak
+    // (pico ends at +3, decline/encerramento extend a couple more days).
+    const events = getActiveCommercialEvents(new Date("2026-11-04T12:00:00Z"));
+    const halloween = events.find((e) => e.event.id === "halloween" && e.year === 2026);
+    expect(halloween).toBeDefined();
+  });
+
+  it("a long-tail thematic event (Natal, tailDays=10) stays active well past its peak", () => {
+    const events = getActiveCommercialEvents(new Date("2027-01-02T12:00:00Z"));
+    const natal = events.find((e) => e.event.id === "natal" && e.year === 2026);
+    expect(natal).toBeDefined();
   });
 
   it("overlaps transitioning events — Natal declining while Verão is in antecipação (brief section 4: never wait for one to end)", () => {
@@ -46,10 +67,10 @@ describe("seasonalWeight", () => {
   });
 
   it("ramps up as the peak approaches during antecipação", () => {
-    const far = getActiveCommercialEvents(new Date("2026-09-28T12:00:00Z")).find(
+    const far = getActiveCommercialEvents(new Date("2026-11-03T12:00:00Z")).find(
       (e) => e.event.id === "black-friday",
     )!;
-    const near = getActiveCommercialEvents(new Date("2026-10-20T12:00:00Z")).find(
+    const near = getActiveCommercialEvents(new Date("2026-11-20T12:00:00Z")).find(
       (e) => e.event.id === "black-friday",
     )!;
     expect(seasonalWeight(near)).toBeGreaterThan(seasonalWeight(far));

@@ -1,4 +1,4 @@
-import type { proto } from "baileys";
+import type { proto, WASocket } from "baileys";
 import { env } from "@/lib/config/env";
 import { connectWhatsApp, WhatsAppNotConfiguredError } from "@/lib/services/whatsapp-connection";
 
@@ -25,20 +25,37 @@ function sleep(ms: number): Promise<void> {
 }
 
 /**
+ * Runs `fn` against a WhatsApp socket — reuses `existingSock` as-is when
+ * given (jobs/whatsapp-service.ts's one long-lived connection, so a daily
+ * scheduled send never opens a second socket on top of the same session;
+ * see that file's own doc comment on why two concurrent sockets on one
+ * session is a real corruption risk, not just a style choice), or opens
+ * and closes a fresh one otherwise — unchanged one-shot behavior for
+ * anything still calling these functions outside that service.
+ */
+async function withSocket<T>(
+  existingSock: WASocket | undefined,
+  fn: (sock: WASocket) => Promise<T>,
+): Promise<T> {
+  if (existingSock) return fn(existingSock);
+  const { sock, close } = await connectWhatsApp();
+  try {
+    return await fn(sock);
+  } finally {
+    await close();
+  }
+}
+
+/**
  * Posts one text message to the configured WhatsApp Group. Connects,
  * sends, disconnects — same one-shot-per-call shape as
  * lib/services/telegram-sender.ts, not a long-lived bot process.
  */
-export async function sendWhatsAppMessage(text: string): Promise<void> {
+export async function sendWhatsAppMessage(text: string, sockOverride?: WASocket): Promise<void> {
   if (!isWhatsAppConfigured()) {
     throw new WhatsAppNotConfiguredError("WHATSAPP_GROUP_JID is not set.");
   }
-  const { sock, close } = await connectWhatsApp();
-  try {
-    await sock.sendMessage(env.WHATSAPP_GROUP_JID, { text });
-  } finally {
-    await close();
-  }
+  await withSocket(sockOverride, (sock) => sock.sendMessage(env.WHATSAPP_GROUP_JID, { text }));
 }
 
 /**
@@ -53,15 +70,17 @@ export async function sendWhatsAppMessage(text: string): Promise<void> {
  * Channel (WHATSAPP_CHANNEL_JID), see that var's comment in
  * lib/config/env.ts.
  */
-export async function sendWhatsAppMessages(posts: WhatsAppOutgoingPost[]): Promise<WhatsAppMessageKey[]> {
+export async function sendWhatsAppMessages(
+  posts: WhatsAppOutgoingPost[],
+  sockOverride?: WASocket,
+): Promise<WhatsAppMessageKey[]> {
   if (!isWhatsAppConfigured()) {
     throw new WhatsAppNotConfiguredError("WHATSAPP_GROUP_JID is not set.");
   }
   if (posts.length === 0) return [];
 
-  const keys: WhatsAppMessageKey[] = [];
-  const { sock, close } = await connectWhatsApp();
-  try {
+  return withSocket(sockOverride, async (sock) => {
+    const keys: WhatsAppMessageKey[] = [];
     for (let i = 0; i < posts.length; i++) {
       const post = posts[i]!;
       const sent = post.imageUrl
@@ -73,10 +92,8 @@ export async function sendWhatsAppMessages(posts: WhatsAppOutgoingPost[]): Promi
       if (sent?.key) keys.push(sent.key);
       if (i < posts.length - 1) await sleep(BETWEEN_POSTS_DELAY_MS);
     }
-  } finally {
-    await close();
-  }
-  return keys;
+    return keys;
+  });
 }
 
 /**
@@ -88,10 +105,12 @@ export async function sendWhatsAppMessages(posts: WhatsAppOutgoingPost[]): Promi
  * sent by this account, so Baileys has no key/permission to revoke them
  * — only the owner can remove those, by hand.
  */
-export async function deleteWhatsAppMessages(keys: WhatsAppMessageKey[]): Promise<void> {
+export async function deleteWhatsAppMessages(
+  keys: WhatsAppMessageKey[],
+  sockOverride?: WASocket,
+): Promise<void> {
   if (keys.length === 0) return;
-  const { sock, close } = await connectWhatsApp();
-  try {
+  await withSocket(sockOverride, async (sock) => {
     for (const key of keys) {
       try {
         await sock.sendMessage(env.WHATSAPP_GROUP_JID, { delete: key });
@@ -100,9 +119,7 @@ export async function deleteWhatsAppMessages(keys: WhatsAppMessageKey[]): Promis
         // never blocks today's new batch from going out.
       }
     }
-  } finally {
-    await close();
-  }
+  });
 }
 
 /**
@@ -114,14 +131,16 @@ export async function deleteWhatsAppMessages(keys: WhatsAppMessageKey[]): Promis
  * (WHATSAPP_OWNER_PERSONAL_JID, a DM) and the one-time intro line are
  * different.
  */
-export async function sendWhatsAppForwardPacket(posts: WhatsAppOutgoingPost[]): Promise<void> {
+export async function sendWhatsAppForwardPacket(
+  posts: WhatsAppOutgoingPost[],
+  sockOverride?: WASocket,
+): Promise<void> {
   if (env.WHATSAPP_OWNER_PERSONAL_JID.length === 0) {
     throw new WhatsAppNotConfiguredError("WHATSAPP_OWNER_PERSONAL_JID is not set.");
   }
   if (posts.length === 0) return;
 
-  const { sock, close } = await connectWhatsApp();
-  try {
+  await withSocket(sockOverride, async (sock) => {
     await sock.sendMessage(env.WHATSAPP_OWNER_PERSONAL_JID, {
       text: `📬 Ofertas de hoje pro Canal — encaminhe cada uma (👆 mantenha pressionado → Encaminhar → Mercado Livre, Shopee e Amazon):`,
     });
@@ -138,7 +157,5 @@ export async function sendWhatsAppForwardPacket(posts: WhatsAppOutgoingPost[]): 
       }
       if (i < posts.length - 1) await sleep(BETWEEN_POSTS_DELAY_MS);
     }
-  } finally {
-    await close();
-  }
+  });
 }

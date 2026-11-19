@@ -21,6 +21,18 @@ export interface TrendRollupResult {
   rank30dAgo: number | null;
   rank90dAgo: number | null;
   direction: TrendDirection;
+  /** Owner's authorization, 2026-11-19, section 1: "construa históricos
+   * que permitam identificar produtos consistentemente bem posicionados."
+   * Computed only from this listing's own real observation history — a
+   * listing seen just once reports daysInRanking=0, never backfilled. A
+   * true EXIT (confirmed absent from a category scan that DID run) needs
+   * the scan's own context, not just this history, so it's tracked
+   * separately by the caller (jobs/ml-trend-rollup.ts), not here. */
+  firstSeenInRankingAt: Date | null;
+  lastSeenInRankingAt: Date | null;
+  daysInRanking: number | null;
+  bestRankEver: number | null;
+  worstRankEver: number | null;
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -63,15 +75,26 @@ export function calculateTrendRollup(
   const rank30dAgo = sampleNear(sorted, now, 30, 7);
   const rank90dAgo = sampleNear(sorted, now, 90, 14);
 
+  const firstSeenInRankingAt = sorted.length > 0 ? sorted[0]!.observedAt : null;
+  const lastSeenInRankingAt = sorted.length > 0 ? sorted[sorted.length - 1]!.observedAt : null;
+  const daysInRanking =
+    firstSeenInRankingAt && lastSeenInRankingAt
+      ? Math.round((lastSeenInRankingAt.getTime() - firstSeenInRankingAt.getTime()) / DAY_MS)
+      : null;
+  const ranks = sorted.map((p) => p.rank);
+  const bestRankEver = ranks.length > 0 ? Math.min(...ranks) : null;
+  const worstRankEver = ranks.length > 0 ? Math.max(...ranks) : null;
+  const base = { rank7dAgo, rank30dAgo, rank90dAgo, firstSeenInRankingAt, lastSeenInRankingAt, daysInRanking, bestRankEver, worstRankEver };
+
   if (rankLatest === null) {
-    return { rankLatest, rank7dAgo, rank30dAgo, rank90dAgo, direction: "unknown" };
+    return { ...base, rankLatest, direction: "unknown" };
   }
 
   // Prefer the longest real comparison available (90d > 30d > 7d) — a
   // listing trending up over 90 days matters more than week-to-week noise.
   const reference = rank90dAgo ?? rank30dAgo ?? rank7dAgo;
   if (reference === null) {
-    return { rankLatest, rank7dAgo, rank30dAgo, rank90dAgo, direction: "new" };
+    return { ...base, rankLatest, direction: "new" };
   }
 
   const delta = reference - rankLatest; // positive = rank NUMBER went down = IMPROVED
@@ -82,5 +105,5 @@ export function calculateTrendRollup(
         ? "falling"
         : "stable";
 
-  return { rankLatest, rank7dAgo, rank30dAgo, rank90dAgo, direction };
+  return { ...base, rankLatest, direction };
 }

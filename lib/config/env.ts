@@ -273,6 +273,21 @@ const envSchema = z.object({
   VITRINE_CATALOG_LINK_MODE: z
     .enum(["redirect", "product_page"])
     .default("redirect"),
+
+  // Meta Marketing API — real ad-spend import (jobs/vitrine-meta-spend-
+  // sync.ts), confirmed feasible via research 2026-11-19: a System User
+  // long-lived token scoped to Henrique's OWN ad account needs only
+  // Standard access (ads_read) — no App Review, since this never acts on
+  // another business's account. Empty = feature disabled, falls back to
+  // the manual form (app/admin/vitrine-financeiro). Never a secret
+  // default — Henrique must actually provide these once the ad account
+  // exists.
+  META_ACCESS_TOKEN: z.string().default(""),
+  META_AD_ACCOUNT_ID: z.string().default(""),
+  /// Scopes the Insights pull to just the Vitrine's own campaign, once it
+  /// exists — without it, the sync would need to be pointed at a
+  /// specific campaign manually before enabling.
+  META_VITRINE_CAMPAIGN_ID: z.string().default(""),
 });
 
 export type Env = z.infer<typeof envSchema>;

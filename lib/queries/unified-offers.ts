@@ -1,6 +1,12 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
-import { getOfertas, type ProductListItem } from "@/lib/queries/products";
+import {
+  getOfertas,
+  visibleDataSourceFilter,
+  PRODUCT_LIST_INCLUDE,
+  type ProductListItem,
+} from "@/lib/queries/products";
+import { PRIMARY_PUBLIC_MARKETPLACE } from "@/lib/config/marketplaces";
 import {
   selectCandidateListingIds,
   selectBestOfferIdsPerCanonicalProduct,
@@ -111,10 +117,26 @@ function nonCommissionSignal(components: unknown): number | null {
   return Math.round(values.reduce((a, b) => a + b, 0) / values.length);
 }
 
+/**
+ * Owner's brief, 2026-11-18: "coloque amazon igual aos demais passando
+ * pelo preço caindo rapidamente mas abrindo o link monetizado dentro da
+ * amazon mesmo" — href is now the same /go/{merchant}/{id} redirect
+ * pattern Shopee/ML cards already use (tracked click, then straight to
+ * the real, monetized amazon.com.br page), not a stop on our own
+ * /produto page first. That page is still reachable via detailHref,
+ * exactly like Shopee/ML's own secondary link.
+ */
 export function mapAmazonProductToUnifiedCard(
   product: ProductListItem,
+  linkParams?: Record<string, string>,
 ): UnifiedOfferCard {
   const offer = product.offers[0];
+  const params = new URLSearchParams({
+    pageType: "ofertas",
+    pageSlug: "ofertas",
+    source: "unified_offers",
+    ...linkParams,
+  }).toString();
   return {
     id: product.id,
     merchant: "AMAZON",
@@ -129,7 +151,8 @@ export function mapAmazonProductToUnifiedCard(
     rating: null, // not modeled on Product/Offer today — never guessed.
     soldQuantity: null,
     opportunitySignal: product.opportunityScore?.score ?? null,
-    href: `/produto/${product.slug}`,
+    href: `/go/amazon/${product.asin}?${params}`,
+    detailHref: `/produto/${product.slug}`,
     categorySlug: classifyOffer({ title: product.title }),
   };
 }
@@ -209,7 +232,25 @@ export async function getUnifiedMerchantOffers(
     ),
   ]);
 
-  const [shopeeListings, mlCatalogListings] = await Promise.all([
+  // Amazon joins the default vitrine too now (owner's brief, 2026-11-18
+  // — previously Amazon only ever reached /ofertas through its own
+  // separate search merge in lib/queries/offers-feed.ts's searchOffers,
+  // never this default grid). Same pool-not-whole-catalog discipline as
+  // Shopee/ML above: ranked by OpportunityScore (already commission-free
+  // by design — it's Amazon's own consumer-facing score, no commission
+  // input exists to exclude), bounded to poolSize.
+  const amazonProductsPromise = prisma.product.findMany({
+    where: {
+      active: true,
+      marketplace: PRIMARY_PUBLIC_MARKETPLACE,
+      ...visibleDataSourceFilter(),
+    },
+    include: PRODUCT_LIST_INCLUDE,
+    orderBy: [{ opportunityScore: { score: "desc" } }, { createdAt: "desc" }],
+    take: poolSize,
+  });
+
+  const [shopeeListings, mlCatalogListings, amazonProducts] = await Promise.all([
     prisma.merchantListing.findMany({
       where: { id: { in: shopeeIds } },
       include: {
@@ -231,6 +272,7 @@ export async function getUnifiedMerchantOffers(
         monetizationScore: true,
       },
     }),
+    amazonProductsPromise,
   ]);
 
   const params = new URLSearchParams({
@@ -383,8 +425,9 @@ export async function getUnifiedMerchantOffers(
   // belongs in the vitrine — same "nunca produto sem preço" rule
   // offers-feed.ts and the home vitrine both need.
   const withPrice = (card: UnifiedOfferCard) => card.currentPrice !== null;
+  const amazonCards = amazonProducts.map((p) => mapAmazonProductToUnifiedCard(p, linkParams));
 
-  return [...shopeeCards, ...mlCards]
+  return [...shopeeCards, ...mlCards, ...amazonCards]
     .filter(withPrice)
     .sort((a, b) => (b.opportunitySignal ?? -1) - (a.opportunitySignal ?? -1))
     .slice(0, limit);
@@ -448,7 +491,7 @@ export async function searchUnifiedOffers(input: {
   const pageSize = input.pageSize ?? 24;
 
   const amazonResult = await getOfertas({ query: input.query, page, pageSize });
-  const amazonCards = amazonResult.items.map(mapAmazonProductToUnifiedCard);
+  const amazonCards = amazonResult.items.map((p) => mapAmazonProductToUnifiedCard(p));
 
   let merchantCards: UnifiedOfferCard[] = [];
   if (page === 1) {

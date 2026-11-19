@@ -17,7 +17,7 @@ const PUBLIC_MARKETPLACE = PRIMARY_PUBLIC_MARKETPLACE;
  * rows only appear once MANUAL_PRODUCTS_ENABLED is turned on. An empty
  * array (both gates closed) correctly returns zero rows, not an error —
  * Prisma's `{ in: [] }` never matches anything. */
-function visibleDataSourceFilter() {
+export function visibleDataSourceFilter() {
   return { dataSource: { in: currentlyVisibleDataSources() } };
 }
 
@@ -25,7 +25,7 @@ function localDraftProductPreviewEnabled() {
   return process.env.NODE_ENV === "development";
 }
 
-const PRODUCT_LIST_INCLUDE = {
+export const PRODUCT_LIST_INCLUDE = {
   category: true,
   offers: { orderBy: { observedAt: "desc" as const }, take: 1 },
   priceStats: true,

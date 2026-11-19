@@ -53,8 +53,22 @@ export interface WhatsAppConnection {
  * Throws WhatsAppNotConfiguredError if no session exists yet — never
  * silently starts a fresh pairing from unattended job code (that would
  * print a QR code nobody is watching and hang).
+ *
+ * `onSocketReady`, when given, runs on `sock` the instant it exists —
+ * BEFORE this function awaits the handshake/"open" event. Found live,
+ * 2026-11-18, debugging jobs/whatsapp-harvest.ts: a caller that waits for
+ * connectWhatsApp() to return and only THEN calls `sock.ev.on("messages.
+ * upsert", ...)` misses everything — baileys delivers/emits the queued
+ * offline-message backlog during the handshake itself, not after. Five
+ * consecutive real tests (fresh messages the owner sent seconds earlier)
+ * all came back with zero events until this was fixed. Any caller that
+ * needs to see incoming messages MUST register through this hook, never
+ * by attaching to the returned `sock` afterward.
  */
-export async function connectWhatsApp(timeoutMs = 30_000): Promise<WhatsAppConnection> {
+export async function connectWhatsApp(
+  timeoutMs = 30_000,
+  onSocketReady?: (sock: WASocket) => void,
+): Promise<WhatsAppConnection> {
   const fs = await import("node:fs");
   const dir = sessionDir();
   if (!fs.existsSync(path.join(dir, "creds.json"))) {
@@ -83,6 +97,7 @@ export async function connectWhatsApp(timeoutMs = 30_000): Promise<WhatsAppConne
     printQRInTerminal: false,
   });
   sock.ev.on("creds.update", saveCreds);
+  onSocketReady?.(sock);
 
   await new Promise<void>((resolve, reject) => {
     const timer = setTimeout(() => {

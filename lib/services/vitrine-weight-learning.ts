@@ -36,9 +36,15 @@ export interface WeightReviewStatus {
   reason: string;
 }
 
-export async function reviewVitrineLearningReadiness(): Promise<WeightReviewStatus> {
+/** Owner's authorization, 2026-11-19 ("Autorizo a construção integral
+ * dessa camada agora", section 4/7): generalized to accept any
+ * attribution tag, never hardcoded to "vitrine_dinamica" — so
+ * "combo_inteligente" (once that module exists) reuses this exact
+ * readiness gate instead of a parallel copy, and the two tags' real
+ * evidence volumes are never mixed together. */
+export async function reviewVitrineLearningReadiness(campaign = "vitrine_dinamica"): Promise<WeightReviewStatus> {
   const [vitrineClickCount, approvedReportCount] = await Promise.all([
-    prisma.affiliateClick.count({ where: { campaign: "vitrine_dinamica" } }),
+    prisma.affiliateClick.count({ where: { campaign } }),
     prisma.vitrineCommissionReport.count({ where: { status: "APPROVED" } }),
   ]);
 

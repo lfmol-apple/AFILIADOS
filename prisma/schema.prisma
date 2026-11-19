@@ -293,6 +293,7 @@ model MerchantListing {
   vitrineLink      VitrineLink?
   vitrineSelection VitrineSelection?
   trend            MerchantListingTrend?
+  commercialCandidateRegistryRows CommercialCandidateRegistry[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -421,9 +422,44 @@ model MerchantListingTrend {
   /// sample old enough to compare against yet (never guessed as "stable").
   direction String
 
+  /// Commercial-intelligence engine (owner's authorization, 2026-11-19,
+  /// section 1): real entry/exit/permanence tracking from the official
+  /// bestseller ranking, never confused with units-sold evolution (ML's
+  /// API never discloses units sold or sales growth — see
+  /// MercadoLivreProvider.getCatalogProductItems's own doc comment,
+  /// GET /items/{id} confirmed 403 for other sellers' items, re-verified
+  /// live 2026-11-19).
+  firstSeenInRankingAt DateTime?
+  /// Null while still appearing in the latest scan; set the first time a
+  /// listing that WAS ranked no longer appears for its category.
+  lastSeenInRankingAt  DateTime?
+  daysInRanking        Int?
+  bestRankEver         Int?
+  worstRankEver        Int?
+
   computedAt DateTime @default(now())
 
   @@index([direction])
+}
+
+/// Real GET /trends/{site} observations, persisted over time — previously
+/// "collected for observability only, never persisted" (see
+/// mercado-livre-trends-demand-source.ts's own doc comment, a real signal
+/// going to waste). Builds PreçoCaindo's own trending-keyword history, so
+/// lib/services/commercial-intelligence/trends-history.ts can classify a
+/// term as rising/falling/stable/new ONCE enough real observations exist
+/// — on day 1 of this table there's only ever one data point per keyword,
+/// by construction, never backfilled or guessed.
+model TrendKeywordObservation {
+  id         String   @id @default(cuid())
+  keyword    String
+  /// Mercado Livre's own rank position in that week's trends list (1 =
+  /// most searched) — real, never inverted/rescaled here.
+  rank       Int
+  categoryId String?
+  observedAt DateTime @default(now())
+
+  @@index([keyword, observedAt])
 }
 
 /// "Vale a pena investirmos tráfego/conteúdo neste listing?" — for
@@ -576,9 +612,25 @@ model VitrineAdSpend {
   id        String   @id @default(cuid())
   spentOn   DateTime
   amountBrl Decimal  @db.Decimal(10, 2)
+  /// "manual" (Henrique typed it) | "meta_api" (jobs/vitrine-meta-spend-
+  /// sync.ts, Meta Marketing API's own Insights endpoint — real spend for
+  /// Henrique's own ad account, no estimate). Kept apart so a day with
+  /// both an API pull AND a manual correction is never silently summed
+  /// twice — lib/services/vitrine-financials.ts always upserts by
+  /// (spentOn, source), never blind-inserts.
+  source    String   @default("manual")
   note      String?
   recordedAt DateTime @default(now())
 
+  /// Real daily impressions/clicks from Meta's own Insights API (owner's
+  /// authorization, 2026-11-19, "Indicadores de rentabilidade": CTR/CPC
+  /// need real impressions, which only Meta has). Null for manual rows
+  /// (Henrique never types these) and for any day Meta's API genuinely
+  /// returns nothing — never defaulted to 0.
+  impressions Int?
+  metaClicks  Int?
+
+  @@unique([spentOn, source])
   @@index([spentOn])
 }
 
@@ -596,10 +648,15 @@ model VitrineCommissionReport {
   periodEnd         DateTime
   directAmountBrl   Decimal  @db.Decimal(10, 2)
   indirectAmountBrl Decimal  @db.Decimal(10, 2)
-  /// "PENDING" | "APPROVED" — Mercado Livre's own 60-day validation window
-  /// (confirmed via the Meta/ML compliance research, 2026-11-19) means a
-  /// figure read off the panel today may still move; never treated as
-  /// final money until the owner marks it APPROVED.
+  /// "PENDING" | "APPROVED" | "CANCELLED" — Mercado Livre's own 60-day
+  /// validation window (confirmed via the Meta/ML compliance research,
+  /// 2026-11-19) means a figure read off the panel today may still move;
+  /// never treated as final money until the owner marks it APPROVED.
+  /// CANCELLED added 2026-11-19 (owner's authorization, "Integração
+  /// financeira": "diferencie comissões pendentes, aprovadas e
+  /// canceladas") — a reversed/returned sale, real money that was never
+  /// actually earned, kept as its own row (never deleted) so the
+  /// cancellation itself stays auditable.
   status            String
   source            String   @default("manual_ml_panel")
   note              String?
@@ -619,6 +676,57 @@ model VitrineWeightHistory {
   weights   Json
   reason    String
   changedAt DateTime @default(now())
+}
+
+/// Motor Central de Inteligência Comercial — unified, source-agnostic entry
+/// point for every commercial opportunity any source discovers (owner's
+/// authorization, 2026-11-19, "Aprovação condicionada — Motor Central de
+/// Inteligência Comercial", section 2: "cada fonte de inteligência deverá
+/// possuir autonomia para introduzir oportunidades no universo de
+/// candidatos"). Append-only: each row is one source's one observation of
+/// one external product, never overwritten. Cross-source corroboration is
+/// computed by counting DISTINCT sourceType per externalId, never by row
+/// count — the owner's explicit rule: "não contabilize informações
+/// provenientes da mesma fonte original como evidências independentes."
+/// Deliberately allows merchantListingId to be null — an id a source finds
+/// but this catalog can never resolve into a title (e.g. a real
+/// USER_PRODUCT/MLBU id owned by another seller — confirmed live,
+/// 2026-11-19, via GET /user-products/{id}: "caller is not allowed to
+/// access this user product", a permission restriction by design, not a
+/// bug) is still recorded here with unresolvedReason set, never silently
+/// dropped (owner's explicit rule, section 5).
+model CommercialCandidateRegistry {
+  id String @id @default(cuid())
+
+  externalId  String
+  marketplace Marketplace @default(BR)
+
+  merchantListingId String?
+  merchantListing   MerchantListing? @relation(fields: [merchantListingId], references: [id], onDelete: SetNull)
+
+  /// One of CandidateSourceType (lib/services/commercial-intelligence/
+  /// candidate-registry.ts) as a plain string, same convention already
+  /// used by VitrineSelection.groupType/status — kept as a string (not a
+  /// Prisma enum) so a new source never needs a migration to add. Each
+  /// distinct value is one INDEPENDENT source for corroboration — never
+  /// split the same underlying API/page into two source strings just to
+  /// inflate the corroboration count.
+  sourceType   String
+  sourceDetail Json
+
+  categoryId String?
+
+  /// Set only when this exact external id could not be resolved into a
+  /// real title/MerchantListing — e.g. "user_product_private_catalog",
+  /// "catalog_name_fetch_failed". Null means fully resolved.
+  unresolvedReason String?
+
+  discoveredAt DateTime @default(now())
+
+  @@index([externalId, marketplace])
+  @@index([merchantListingId])
+  @@index([sourceType, discoveredAt])
+  @@index([categoryId])
 }
 
 /// A Product is a listing within ONE marketplace — the BR listing and a
@@ -1141,4 +1249,71 @@ model MlPanelPickIssue {
   reason    String
   detail    String?
   createdAt DateTime @default(now())
+}
+
+/// Commercial Intelligence Lab (owner's authorization, 2026-11-19) — a
+/// permanent, methodology-tagged record of every comparative selection
+/// run, shared infrastructure for the Vitrine Inteligente and (later) the
+/// Combo Inteligente. Never overwritten: each run creates a NEW snapshot,
+/// so the lab can compare today's multifactor_v3 against both historical
+/// runs of itself (after a future weight change) and the other three
+/// methodologies, permanently.
+model CommercialSelectionSnapshot {
+  id                      String   @id @default(cuid())
+  /// "official_rank_only" | "commission_only" | "legacy_v2" | "multifactor_v3"
+  methodology             String
+  algorithmVersion        String
+  referenceDate           DateTime
+  candidateUniverseSize   Int
+  /// How many of this run's own items came from a discovery mechanism
+  /// unique to this methodology (e.g. the keyword/category-broadened
+  /// sweep) — null when the methodology has no discovery mechanism of
+  /// its own (commission_only: a pure ranking criterion over whatever
+  /// universe already exists, never a discovery method by itself).
+  discoveredNewCandidates Int?
+  notes                   String?
+  createdAt               DateTime @default(now())
+
+  items       CommercialSelectionItem[]
+  checkpoints CommercialSelectionCheckpoint[]
+
+  @@index([methodology, referenceDate])
+}
+
+model CommercialSelectionItem {
+  id                String                       @id @default(cuid())
+  snapshotId        String
+  snapshot          CommercialSelectionSnapshot  @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  merchantListingId String
+  title             String
+  rank              Int
+  scoreAtSelection  Float?
+  /// Frozen copy of whatever real evidence existed AT SELECTION TIME —
+  /// never re-derived later, so a retrospective check never leaks
+  /// hindsight/future data into what "was known" on referenceDate.
+  evidenceSnapshot  Json
+
+  @@index([snapshotId])
+  @@index([merchantListingId])
+}
+
+/// Prospective observation point for a snapshot (owner's requirement:
+/// 7/15/30/60/90 days after selection). Created up front with dueAt set
+/// and completedAt null; a scheduled job fills `results` once dueAt has
+/// passed and never before — this file's own job must never backfill a
+/// checkpoint with data from a date other than when it actually ran.
+model CommercialSelectionCheckpoint {
+  id           String                      @id @default(cuid())
+  snapshotId   String
+  snapshot     CommercialSelectionSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  checkpointDays Int
+  dueAt        DateTime
+  completedAt  DateTime?
+  /// { officialRankEvolution, stillInOfficialRanking, priceCompetitiveness,
+  ///   availability, commissionEvidence, notes } — only ever written once,
+  /// at or after dueAt.
+  results      Json?
+
+  @@index([snapshotId, checkpointDays])
+  @@index([dueAt, completedAt])
 }

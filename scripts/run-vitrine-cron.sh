@@ -5,9 +5,14 @@
 # services or Caipira da Gema's own containers/network.
 #
 # Runs, in order, every job the daily Vitrine renewal depends on:
-#   ML_TREND_ROLLUP    — rolls up rank history into 7d/30d/90d trend
 #   VITRINE_DISCOVERY  — scans categories tied to active commercial events,
-#                        even outside the regular ML_DEMAND rotation
+#                        even outside the regular ML_DEMAND rotation, and
+#                        enriches each find (real title/photo/price/
+#                        category) — MUST run before ML_TREND_ROLLUP: a
+#                        listing found just now has no rank history of its
+#                        own yet, but today's run is what gives tomorrow's
+#                        rollup something to roll up.
+#   ML_TREND_ROLLUP    — rolls up rank history into 7d/30d/90d trend
 #   VITRINE_RENEW      — re-selects/promotes/retires the showcase itself
 # Each step is a separate runJob() call (its own AutomationRun row,
 # locking, PARTIAL/FAILED on its own) — one step failing does not skip the
@@ -32,6 +37,9 @@ run() {
     npx tsx "$1"
 }
 
-run jobs/ml-trend-rollup.ts
 run jobs/vitrine-discovery.ts
+run jobs/ml-trend-rollup.ts
 run jobs/vitrine-renew.ts
+run jobs/commercial-lab-run.ts
+run jobs/commercial-lab-checkpoints.ts
+run jobs/vitrine-meta-spend-sync.ts

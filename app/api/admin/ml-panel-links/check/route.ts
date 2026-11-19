@@ -5,8 +5,9 @@ import {
   ADMIN_SESSION_COOKIE,
   isAdminRequestAuthorized,
 } from "@/lib/admin/auth";
-import { ML_PANEL_PICKS } from "@/lib/config/ml-panel-picks";
+import { ML_PANEL_PICKS, type PanelPick } from "@/lib/config/ml-panel-picks";
 import { checkPanelLink } from "@/lib/services/ml-panel-check";
+import { loadWhatsAppMlCandidates, WHATSAPP_CANDIDATE_ID_PREFIX } from "@/lib/queries/whatsapp-ml-candidates";
 
 const bodySchema = z.object({
   id: z.string().min(1),
@@ -33,7 +34,15 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
-  const pick = ML_PANEL_PICKS.find((p) => p.id === parsed.data.id);
+  let pick: Pick<PanelPick, "title" | "productUrl"> | undefined = ML_PANEL_PICKS.find(
+    (p) => p.id === parsed.data.id,
+  );
+  if (!pick && parsed.data.id.startsWith(WHATSAPP_CANDIDATE_ID_PREFIX)) {
+    const catalogId = parsed.data.id.slice(WHATSAPP_CANDIDATE_ID_PREFIX.length);
+    const candidates = await loadWhatsAppMlCandidates(500);
+    const candidate = candidates.find((c) => c.catalogId === catalogId);
+    if (candidate) pick = { title: candidate.title, productUrl: candidate.productUrl };
+  }
   if (!pick)
     return NextResponse.json(
       { error: "Produto da lista não encontrado." },

@@ -27,6 +27,17 @@ export const dynamic = "force-dynamic";
  * loses any of those between selection and this fetch, it's silently
  * skipped this round rather than published broken (VITRINE_RENEW will
  * retire it on its next pass if it stays ineligible).
+ *
+ * Creative decision (owner's follow-up, 2026-11-19, researched before
+ * deciding): the branded image lib/services/vitrine-creative.tsx generates
+ * is NOT used as g:image_link here. Meta has its OWN native, policy-safe
+ * way to show branding and a real discount on a catalog ad — a "Frame"
+ * (logo/border image configured once in Ads Manager, wraps every ad in
+ * the set) plus a "Percentage Off"/"Strikethrough Price" dynamic overlay
+ * that reads g:price/g:sale_price directly. That's why both fields are
+ * set below whenever a real discount exists — it's what feeds Meta's own
+ * overlay, not decoration. Henrique configures the Frame once when he
+ * sets up the campaign in Ads Manager (one-time UI step, not code).
  */
 export async function GET() {
   const selections = await prisma.vitrineSelection.findMany({
@@ -68,6 +79,24 @@ export async function GET() {
       env.VITRINE_CATALOG_LINK_MODE === "product_page"
         ? `${siteConfig.url}/produto/${slug}?src=vitrine`
         : `${siteConfig.url}/go/vitrine/mercado-livre/${encodeURIComponent(listing.externalId)}?pageType=catalog&source=meta_catalog`;
+
+    // Real, merchant-disclosed discount only (same fields as
+    // MerchantListingFacts.referencePrice/discountPercent — never a
+    // computed/guessed one). When present, g:price is the ORIGINAL price
+    // and g:sale_price is the current one, per Meta's own field spec —
+    // this is what drives its native price-overlay feature, not g:price
+    // alone, which is why price/sale_price get swapped here rather than
+    // always just reporting currentPrice as "the" price.
+    const hasRealDiscount =
+      product.discountPercent !== null &&
+      product.discountPercent > 0 &&
+      product.referencePrice !== null &&
+      product.referencePrice > product.currentPrice;
+    const priceTags = hasRealDiscount
+      ? `<g:price>${product.referencePrice!.toFixed(2)} BRL</g:price>` +
+        `<g:sale_price>${product.currentPrice.toFixed(2)} BRL</g:sale_price>`
+      : `<g:price>${product.currentPrice.toFixed(2)} BRL</g:price>`;
+
     items.push(
       `<item>` +
         `<g:id>${escapeXml(selection.merchantListingId)}</g:id>` +
@@ -75,7 +104,7 @@ export async function GET() {
         `<description>${escapeXml(product.title)}</description>` +
         `<link>${escapeXml(link)}</link>` +
         `<g:image_link>${escapeXml(product.imageUrl)}</g:image_link>` +
-        `<g:price>${product.currentPrice.toFixed(2)} BRL</g:price>` +
+        priceTags +
         `<g:availability>in stock</g:availability>` +
         `<g:brand>${escapeXml(product.brand ?? "Genérica")}</g:brand>` +
         `<g:condition>new</g:condition>` +

@@ -491,7 +491,7 @@ export async function searchOffers(input: {
     getOfertas({ query: input.query, page: 1, pageSize: AMAZON_SEARCH_LIMIT }),
     getOffersPool(),
   ]);
-  const amazon = amazonResult.items.map(mapAmazonProductToUnifiedCard);
+  const amazon = amazonResult.items.map((p) => mapAmazonProductToUnifiedCard(p));
   let all = rankForSearch(
     [...amazon, ...searchPoolCards(pool, input.query)],
     input.query,

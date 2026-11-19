@@ -10,6 +10,17 @@ export interface ResolvedHighlight {
   title: string;
 }
 
+export interface UnresolvedHighlight {
+  itemId: string;
+  position: number;
+  type: string;
+  /** Owner's authorization, 2026-11-19, section 5: "registre todos os
+   * produtos identificados nos rankings oficiais, inclusive os
+   * identificadores que não puderem ser resolvidos" — real, specific
+   * reasons, never a generic catch-all. */
+  reason: "user_product_private_catalog" | "name_resolution_failed";
+}
+
 /**
  * GET /highlights/{site_id}/category/{category_id} — path/shape confirmed
  * via developers.mercadolibre.com research (2026-09-07), corrected against
@@ -71,6 +82,19 @@ export class MercadoLivreBestsellerDemandSource implements DemandSource {
   }
 
   async collectRaw(): Promise<ResolvedHighlight[]> {
+    return (await this.collectRawWithUnresolved()).resolved;
+  }
+
+  /** Same real API call as collectRaw(), but also surfaces every entry
+   * that could NOT be resolved into a title, with a real, specific
+   * reason — never silently dropped (owner's authorization, 2026-11-19,
+   * section 5). USER_PRODUCT ids are identified by `type` alone, before
+   * even attempting resolution — confirmed live the same day that
+   * `GET /user-products/{id}` (the officially correct endpoint for this
+   * id type, not `/products/{id}`) returns "caller is not allowed to
+   * access this user product": a private-catalog restriction by design,
+   * not a bug, and not something more scope/permission would fix. */
+  async collectRawWithUnresolved(): Promise<{ resolved: ResolvedHighlight[]; unresolved: UnresolvedHighlight[] }> {
     if (!env.MERCADO_LIVRE_ENABLED || !env.MERCADO_LIVRE_API_ENABLED) {
       throw new Error(
         "MercadoLivreBestsellerDemandSource requires MERCADO_LIVRE_ENABLED and MERCADO_LIVRE_API_ENABLED. " +
@@ -103,35 +127,54 @@ export class MercadoLivreBestsellerDemandSource implements DemandSource {
       content: Array<{ id: string; position: number; type: string }>;
     };
 
-    const resolved = await Promise.all(
+    const outcomes = await Promise.all(
       body.content
         // "USER_PRODUCT" confirmed real (General Market Scanner V1,
         // 2026-09-08 — live in the Beleza e Cuidado Pessoal category,
         // MLB1246) alongside "PRODUCT" — same GET /products/{id}
         // resolution attempt applies; an id that doesn't resolve there
-        // is simply skipped by resolveTitle below, never a crash.
+        // is reported as unresolved below, never a crash.
         .filter((entry) => entry.type === "PRODUCT" || entry.type === "ITEM" || entry.type === "USER_PRODUCT")
-        .map(async (entry): Promise<ResolvedHighlight | null> => {
+        .map(async (entry): Promise<{ resolved?: ResolvedHighlight; unresolved?: UnresolvedHighlight }> => {
+          // USER_PRODUCT ids are known-unresolvable by design (confirmed
+          // live, 2026-11-19, via the officially correct endpoint
+          // GET /user-products/{id}: "caller is not allowed to access
+          // this user product") — reported immediately, never even
+          // attempting the wrong endpoint.
+          if (entry.type === "USER_PRODUCT") {
+            return {
+              unresolved: {
+                itemId: entry.id,
+                position: entry.position,
+                type: entry.type,
+                reason: "user_product_private_catalog",
+              },
+            };
+          }
           // A rejection here must only skip THIS entry, never the whole
           // Promise.all — found live, 2026-11-15: resolveTitle throwing
           // (not returning null) on a single real 403 was silently
           // discarding every OTHER entry in the same category too,
           // contradicting this file's own "never a crash" doc comment
-          // above. Confirmed live: every "MLBU…" (USER_PRODUCT) id 403s
-          // for this account's current permissions — a real, consistent
-          // gap (same "doesn't own this item" shape as
-          // getCatalogProductItems's own doc comment), not transient.
+          // above.
           let title: string | null;
           try {
             title = await this.resolveTitle(entry.id);
           } catch {
-            return null;
+            title = null;
           }
-          if (!title) return null;
-          return { itemId: entry.id, position: entry.position, title };
+          if (!title) {
+            return {
+              unresolved: { itemId: entry.id, position: entry.position, type: entry.type, reason: "name_resolution_failed" },
+            };
+          }
+          return { resolved: { itemId: entry.id, position: entry.position, title } };
         }),
     );
 
-    return resolved.filter((h): h is ResolvedHighlight => h !== null);
+    return {
+      resolved: outcomes.map((o) => o.resolved).filter((h): h is ResolvedHighlight => h !== undefined),
+      unresolved: outcomes.map((o) => o.unresolved).filter((h): h is UnresolvedHighlight => h !== undefined),
+    };
   }
 }

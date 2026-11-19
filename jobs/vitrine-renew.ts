@@ -1,7 +1,50 @@
 import { prisma } from "@/lib/db";
 import { runJob } from "@/lib/jobs/automation-run";
-import { selectVitrineCandidates } from "@/lib/services/vitrine-selection";
+import { selectVitrineCandidates, type VitrineCandidate } from "@/lib/services/vitrine-selection";
+import { registerCandidate } from "@/lib/services/commercial-intelligence/candidate-registry";
 import { logger } from "@/lib/observability/logger";
+
+/** The site's own /ofertas monetizationScore, registered as ONE MORE
+ * informational CommercialCandidateRegistry source (owner's
+ * authorization, 2026-11-19, section 1: "poderá servir como uma
+ * informação complementar, mas jamais como filtro eliminatório
+ * obrigatório") — never the pool's gate anymore (see
+ * vitrine-selection.ts's buildCommercialCandidatePool doc comment), just
+ * one independent signal among the others for corroboration purposes. */
+async function registerLegacyMonetizationScoreCandidates(limit = 500) {
+  const top = await prisma.monetizationScore.findMany({
+    where: { score: { not: null } },
+    orderBy: { score: "desc" },
+    take: limit,
+    select: { merchantListingId: true, score: true, merchantListing: { select: { externalId: true } } },
+  });
+  for (const row of top) {
+    await registerCandidate({
+      externalId: row.merchantListing.externalId,
+      merchantListingId: row.merchantListingId,
+      sourceType: "monetization_score_legacy",
+      sourceDetail: { score: row.score },
+    });
+  }
+  return top.length;
+}
+
+/** Attaches the real search evidence (which event/keyword found this
+ * product, when applicable) onto the stored breakdown — so the admin
+ * panel can show it per product (owner's request: "explique por que cada
+ * produto foi considerado sazonal, indicando o evento correspondente"),
+ * without a schema change (VitrineSelection.scoreBreakdown is already a
+ * free-form Json column). */
+function breakdownWithEvidence(candidate: VitrineCandidate): object {
+  return {
+    ...candidate.scoreBreakdown,
+    matchedEventName: candidate.matchedEventName,
+    matchedKeyword: candidate.matchedKeyword,
+    commissionEvidence: candidate.commissionEvidence,
+    priceCompetitiveness: candidate.priceCompetitiveness,
+    adPotentialHypothesis: candidate.adPotentialHypothesis,
+  };
+}
 
 /**
  * Daily renewal for the Vitrine Inteligente (project brief section 10):
@@ -19,7 +62,9 @@ const VITRINE_MAX_DAILY_REPLACEMENTS = Number(
 
 export async function runVitrineRenewJob() {
   return runJob("VITRINE_RENEW", async (ctx) => {
-    const candidates = await selectVitrineCandidates(VITRINE_CAPACITY);
+    ctx.metadata.legacyMonetizationScoreCandidatesRegistered = await registerLegacyMonetizationScoreCandidates();
+    const { candidates, groupReport, discarded, funnel, activeEvents } =
+      await selectVitrineCandidates(VITRINE_CAPACITY);
     const candidateIds = new Set(candidates.map((c) => c.merchantListingId));
 
     const current = await prisma.vitrineSelection.findMany({
@@ -37,17 +82,22 @@ export async function runVitrineRenewJob() {
           score: fresh.score,
           groupType: fresh.group,
           reason: fresh.reason,
-          scoreBreakdown: fresh.scoreBreakdown as unknown as object,
+          scoreBreakdown: breakdownWithEvidence(fresh),
         },
       });
       ctx.counters.updated += 1;
     }
 
-    // Candidates not already active, best-scoring first, capped by the
-    // daily replacement limit — never swap the whole showcase at once.
+    // Candidates not already active, best-scoring first. The daily
+    // replacement cap only protects an ALREADY-POPULATED showcase from
+    // churning too fast — it must not apply to the very first run (found
+    // live in the isolated-environment test, 2026-11-19: with
+    // current.length === 0, the cap silently limited the brand-new
+    // Vitrine to 4 products instead of filling it to capacity).
+    const newcomerLimit = current.length === 0 ? candidates.length : VITRINE_MAX_DAILY_REPLACEMENTS;
     const newcomers = candidates
       .filter((c) => !currentIds.has(c.merchantListingId))
-      .slice(0, VITRINE_MAX_DAILY_REPLACEMENTS);
+      .slice(0, newcomerLimit);
 
     const toRetire = current
       .filter((c) => !candidateIds.has(c.merchantListingId))
@@ -69,7 +119,7 @@ export async function runVitrineRenewJob() {
           groupType: candidate.group,
           status: "ACTIVE",
           score: candidate.score,
-          scoreBreakdown: candidate.scoreBreakdown as unknown as object,
+          scoreBreakdown: breakdownWithEvidence(candidate),
           reason: candidate.reason,
           activatedAt: new Date(),
         },
@@ -77,7 +127,7 @@ export async function runVitrineRenewJob() {
           status: "ACTIVE",
           groupType: candidate.group,
           score: candidate.score,
-          scoreBreakdown: candidate.scoreBreakdown as unknown as object,
+          scoreBreakdown: breakdownWithEvidence(candidate),
           reason: candidate.reason,
           activatedAt: new Date(),
           retiredAt: null,
@@ -103,13 +153,13 @@ export async function runVitrineRenewJob() {
           groupType: candidate.group,
           status: "RESERVE",
           score: candidate.score,
-          scoreBreakdown: candidate.scoreBreakdown as unknown as object,
+          scoreBreakdown: breakdownWithEvidence(candidate),
           reason: candidate.reason,
         },
         update: {
           score: candidate.score,
           groupType: candidate.group,
-          scoreBreakdown: candidate.scoreBreakdown as unknown as object,
+          scoreBreakdown: breakdownWithEvidence(candidate),
           reason: candidate.reason,
         },
       });
@@ -120,6 +170,15 @@ export async function runVitrineRenewJob() {
     ctx.metadata.retired = toRetire.length;
     ctx.metadata.newcomers = newcomers.length;
     ctx.metadata.reserve = reserve.length;
+    // Owner's explicit request, 2026-11-19: when a group falls short of
+    // its target, say why — never silently backfilled without a trace.
+    // Full funnel (found -> deduped -> discarded -> evaluated -> selected)
+    // and the discard list itself, so a reviewer can see exactly what was
+    // excluded and why, not just the final 30.
+    ctx.metadata.groupReport = groupReport;
+    ctx.metadata.funnel = funnel;
+    ctx.metadata.discarded = discarded.slice(0, 50);
+    ctx.metadata.activeEvents = activeEvents;
     logger.info("vitrine_renew.done", ctx.metadata);
   });
 }
