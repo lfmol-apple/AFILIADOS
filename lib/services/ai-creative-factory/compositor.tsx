@@ -42,6 +42,15 @@ const FINAL_WIDTH = 1080;
 const FINAL_HEIGHT = 1350;
 const BRAND_RED = "#dc2626";
 const BRAND_DARK_BLUE = "#1e293b";
+// Owner's requirement, 2026-11-20 ("Fábrica de Criativos integrada ao
+// XML"): "paleta comercial com amarelo, azul-escuro, branco e vermelho
+// QUANDO ADEQUADO" — never forced on every product. The one real,
+// defensible trigger for yellow here is a genuine, already-confirmed
+// price drop (the same `hasRealDrop` gate that controls the crossed-out
+// price): a yellow discount badge is a real, recognizable e-commerce
+// convention for "this is a real deal", never decoration for its own
+// sake, and never shown without a real percentage behind it.
+const BRAND_YELLOW = "#facc15";
 
 export interface CompositeInput {
   /** The AI base image, as a data URI (base64) — ImageResponse/Satori
@@ -83,6 +92,10 @@ export function renderCatalogClean(input: { aiBaseImageDataUri: string }) {
 export function renderAdOverlay(input: CompositeInput) {
   const logo = priceCaindoLogoDataUri();
   const hasRealDrop = input.hasConfirmedDiscount && input.referencePrice !== null && input.referencePrice > input.currentPrice;
+  // Real percentage, computed from the same two real prices already
+  // driving the crossed-out tag below — never a separate, possibly
+  // stale source, never rounded up for effect.
+  const realDiscountPercent = hasRealDrop ? Math.round((1 - input.currentPrice / input.referencePrice!) * 100) : null;
 
   return new ImageResponse(
     (
@@ -95,6 +108,24 @@ export function renderAdOverlay(input: CompositeInput) {
           height={FINAL_HEIGHT}
           style={{ width: FINAL_WIDTH, height: FINAL_HEIGHT, objectFit: "cover", position: "absolute" }}
         />
+        {realDiscountPercent !== null && (
+          <div
+            style={{
+              position: "absolute",
+              top: 36,
+              left: 36,
+              display: "flex",
+              background: BRAND_YELLOW,
+              color: BRAND_DARK_BLUE,
+              fontSize: 30,
+              fontWeight: 800,
+              padding: "10px 22px",
+              borderRadius: 10,
+            }}
+          >
+            {`-${realDiscountPercent}%`}
+          </div>
+        )}
         {/* Bottom gradient panel for legibility over any background */}
         <div
           style={{
