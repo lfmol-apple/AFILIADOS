@@ -25,6 +25,7 @@ async function main() {
       renderAdOverlay({
         aiBaseImageDataUri: dataUri,
         title: product.title,
+        brand: product.brand,
         currentPrice: product.currentPrice!,
         referencePrice: product.referencePrice,
         hasConfirmedDiscount: product.discountPercent !== null && product.discountPercent > 0,

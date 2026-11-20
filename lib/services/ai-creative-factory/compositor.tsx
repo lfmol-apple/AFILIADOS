@@ -1,6 +1,4 @@
 import { ImageResponse } from "next/og";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 
 /**
  * Programmatic precision layer (owner's authorization, 2026-11-19,
@@ -26,21 +24,8 @@ import { join } from "node:path";
  * flagged explicitly rather than guessed.
  */
 
-let cachedLogo: string | null | undefined;
-function priceCaindoLogoDataUri(): string | null {
-  if (cachedLogo !== undefined) return cachedLogo;
-  try {
-    const bytes = readFileSync(join(process.cwd(), "public", "logo-icon.png"));
-    cachedLogo = `data:image/png;base64,${bytes.toString("base64")}`;
-  } catch {
-    cachedLogo = null;
-  }
-  return cachedLogo;
-}
-
 const FINAL_WIDTH = 1080;
 const FINAL_HEIGHT = 1350;
-const BRAND_RED = "#dc2626";
 const BRAND_DARK_BLUE = "#1e293b";
 // Owner's requirement, 2026-11-20 ("Fábrica de Criativos integrada ao
 // XML"): "paleta comercial com amarelo, azul-escuro, branco e vermelho
@@ -51,12 +36,21 @@ const BRAND_DARK_BLUE = "#1e293b";
 // convention for "this is a real deal", never decoration for its own
 // sake, and never shown without a real percentage behind it.
 const BRAND_YELLOW = "#facc15";
+// Owner's finding, 2026-11-20 ("padrão Hidrabene, referência real"): the
+// reference creative's accent color for its badge and benefit icons is
+// a magenta/pink, not present anywhere in the palette before. Only used
+// on the badge/icon accents below, never as a base color — real,
+// recognizable e-commerce "highlight" convention, same category as the
+// yellow discount badge.
+const BRAND_MAGENTA = "#db2777";
+const LEFT_PANEL_BG = "#fffafb";
 
 export interface CompositeInput {
   /** The AI base image, as a data URI (base64) — ImageResponse/Satori
    * needs a URL or data URI for <img>, never a raw Buffer directly. */
   aiBaseImageDataUri: string;
   title: string;
+  brand: string | null;
   currentPrice: number;
   referencePrice: number | null;
   hasConfirmedDiscount: boolean;
@@ -92,115 +86,158 @@ export function renderCatalogClean(input: { aiBaseImageDataUri: string }) {
   );
 }
 
-/** The ad-ready render — same base image, with this project's own
- * price/name/CTA baked in with exact placement, for manual ads with no
- * native Meta overlay. */
+const BOTTOM_BANNER_HEIGHT = 110;
+const LEFT_COLUMN_WIDTH = 460;
+
+/** Owner's finding, 2026-11-20 ("padrão Hidrabene, referência real"):
+ * the previous version ("foto cheia + painel escuro embaixo") does not
+ * reproduce the reference's REASONING — a two-column layout where the
+ * left panel carries brand/benefits/price and the right column is the
+ * product photo, closing in a full-width yellow CTA banner. Rebuilt
+ * from scratch against that exact structure (verified against the real
+ * Hidrabene FPS 70 reference image the owner supplied): serif brand
+ * name, magenta benefit icons/badge, angled red price card with a
+ * yellow number, yellow bottom banner. The real Mercado Livre logo
+ * graphic is still NOT used (unverified brand-usage rights, same
+ * caveat as before) — the banner uses text only, in the same position
+ * and color the reference's real logo would occupy. */
 export function renderAdOverlay(input: CompositeInput) {
-  const logo = priceCaindoLogoDataUri();
   const hasRealDrop = input.hasConfirmedDiscount && input.referencePrice !== null && input.referencePrice > input.currentPrice;
   // Real percentage, computed from the same two real prices already
   // driving the crossed-out tag below — never a separate, possibly
   // stale source, never rounded up for effect.
   const realDiscountPercent = hasRealDrop ? Math.round((1 - input.currentPrice / input.referencePrice!) * 100) : null;
+  const benefits = (input.benefits ?? []).slice(0, 4);
+  const shortTitle = input.title.length > 60 ? `${input.title.slice(0, 60)}…` : input.title;
 
   return new ImageResponse(
     (
-      <div style={{ width: FINAL_WIDTH, height: FINAL_HEIGHT, display: "flex", position: "relative", fontFamily: "sans-serif" }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={input.aiBaseImageDataUri}
-          alt=""
-          width={FINAL_WIDTH}
-          height={FINAL_HEIGHT}
-          style={{ width: FINAL_WIDTH, height: FINAL_HEIGHT, objectFit: "cover", position: "absolute" }}
-        />
-        {realDiscountPercent !== null && (
+      <div style={{ width: FINAL_WIDTH, height: FINAL_HEIGHT, display: "flex", flexDirection: "column", fontFamily: "sans-serif" }}>
+        {/* Main two-column area */}
+        <div style={{ display: "flex", flex: 1, width: FINAL_WIDTH, height: FINAL_HEIGHT - BOTTOM_BANNER_HEIGHT, position: "relative" }}>
+          {/* LEFT column — brand, benefits, price */}
           <div
             style={{
-              position: "absolute",
-              top: 36,
-              left: 36,
               display: "flex",
-              background: BRAND_YELLOW,
-              color: BRAND_DARK_BLUE,
-              fontSize: 30,
-              fontWeight: 800,
-              padding: "10px 22px",
-              borderRadius: 10,
+              flexDirection: "column",
+              width: LEFT_COLUMN_WIDTH,
+              height: "100%",
+              background: LEFT_PANEL_BG,
+              padding: "48px 36px",
+              position: "relative",
             }}
           >
-            {`-${realDiscountPercent}%`}
-          </div>
-        )}
-        {/* Bottom gradient panel for legibility over any background */}
-        <div
-          style={{
-            position: "absolute",
-            left: 0,
-            right: 0,
-            bottom: 0,
-            display: "flex",
-            flexDirection: "column",
-            padding: "40px 48px 44px 48px",
-            // Owner's finding, 2026-11-20 ("Fábrica de Criativos
-            // integrada ao XML"): verified live on a real generated
-            // creative (Cicaplast Baume B5+, light/white packaging) —
-            // the title text sat near the TOP of this panel, where the
-            // old gradient (55% opacity at the 60% stop, fading to 0%
-            // at the very top) was already too transparent, making
-            // white text unreadable over a light product background.
-            // Keeps strong, near-opaque darkness across the WHOLE text
-            // block regardless of what color is behind it; only the
-            // last few pixels at the very top edge fade out, so the
-            // panel still blends into the photo above it.
-            background: "linear-gradient(to top, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.88) 85%, rgba(15,23,42,0) 100%)",
-          }}
-        >
-          <div style={{ display: "flex", fontSize: 34, fontWeight: 700, color: "#ffffff", lineHeight: 1.15, marginBottom: 14 }}>
-            {input.title.length > 70 ? `${input.title.slice(0, 70)}…` : input.title}
-          </div>
-          {input.benefits && input.benefits.length > 0 && (
-            <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 16 }}>
-              {input.benefits.slice(0, 4).map((benefit, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 24, color: "#f1f5f9" }}>
-                  <div style={{ display: "flex", width: 8, height: 8, borderRadius: 999, background: BRAND_YELLOW }} />
-                  <div style={{ display: "flex" }}>{benefit}</div>
-                </div>
-              ))}
+            <div style={{ display: "flex", fontSize: 44, fontWeight: 700, fontFamily: "serif", color: BRAND_DARK_BLUE, lineHeight: 1.1 }}>
+              {input.brand ?? "PreçoCaindo"}
             </div>
-          )}
-          <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginBottom: 18 }}>
-            {hasRealDrop && (
-              <div style={{ display: "flex", fontSize: 28, color: "#cbd5e1", textDecoration: "line-through" }}>
-                {priceTag(input.referencePrice!)}
+            <div style={{ display: "flex", fontSize: 22, fontWeight: 600, color: "#475569", marginTop: 8, marginBottom: 20 }}>
+              {shortTitle}
+            </div>
+            {realDiscountPercent !== null && (
+              <div
+                style={{
+                  display: "flex",
+                  alignSelf: "flex-start",
+                  background: BRAND_MAGENTA,
+                  color: "#ffffff",
+                  fontSize: 22,
+                  fontWeight: 800,
+                  padding: "8px 20px",
+                  borderRadius: 999,
+                  marginBottom: 24,
+                }}
+              >
+                {`-${realDiscountPercent}% OFF`}
               </div>
             )}
-            <div style={{ display: "flex", fontSize: 64, fontWeight: 800, color: "#ffffff" }}>
-              {priceTag(input.currentPrice)}
+            {benefits.length > 0 && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 18, marginBottom: 24 }}>
+                {benefits.map((benefit, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        width: 36,
+                        height: 36,
+                        minWidth: 36,
+                        borderRadius: 999,
+                        border: `3px solid ${BRAND_MAGENTA}`,
+                        background: "#ffffff",
+                      }}
+                    />
+                    <div style={{ display: "flex", fontSize: 20, fontWeight: 600, color: "#1f2937", lineHeight: 1.25 }}>{benefit}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {/* Angled price card — bottom of the left column */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                position: "absolute",
+                left: 30,
+                bottom: 36,
+                background: "linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%)",
+                borderRadius: 18,
+                padding: "16px 26px",
+                transform: "rotate(-3deg)",
+              }}
+            >
+              <div style={{ display: "flex", fontSize: 18, fontWeight: 600, color: "#fecaca" }}>Por apenas</div>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+                <div style={{ display: "flex", fontSize: 26, fontWeight: 700, color: BRAND_YELLOW }}>R$</div>
+                <div style={{ display: "flex", fontSize: 58, fontWeight: 800, color: BRAND_YELLOW }}>
+                  {priceTag(input.currentPrice).replace("R$", "").trim()}
+                </div>
+              </div>
+              {hasRealDrop && (
+                <div style={{ display: "flex", fontSize: 16, color: "#fecaca", textDecoration: "line-through" }}>
+                  de {priceTag(input.referencePrice!)}
+                </div>
+              )}
             </div>
+          </div>
+          {/* RIGHT column — the real product photo */}
+          <div style={{ display: "flex", width: FINAL_WIDTH - LEFT_COLUMN_WIDTH, height: "100%", position: "relative" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={input.aiBaseImageDataUri}
+              alt=""
+              width={FINAL_WIDTH - LEFT_COLUMN_WIDTH}
+              height={FINAL_HEIGHT - BOTTOM_BANNER_HEIGHT}
+              style={{ width: FINAL_WIDTH - LEFT_COLUMN_WIDTH, height: FINAL_HEIGHT - BOTTOM_BANNER_HEIGHT, objectFit: "cover" }}
+            />
+          </div>
+        </div>
+        {/* Bottom full-width banner — same position the reference uses for the real ML logo + CTA */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            width: FINAL_WIDTH,
+            height: BOTTOM_BANNER_HEIGHT,
+            background: BRAND_YELLOW,
+            padding: "0 32px",
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <div style={{ display: "flex", fontSize: 24, fontWeight: 800, color: BRAND_DARK_BLUE }}>PreçoCaindo</div>
+            <div style={{ display: "flex", fontSize: 16, fontWeight: 600, color: BRAND_DARK_BLUE }}>Disponível no Mercado Livre</div>
           </div>
           <div
             style={{
               display: "flex",
-              alignSelf: "flex-start",
-              background: BRAND_RED,
+              background: BRAND_DARK_BLUE,
               color: "#ffffff",
-              fontSize: 28,
+              fontSize: 22,
               fontWeight: 700,
-              padding: "14px 32px",
+              padding: "14px 28px",
               borderRadius: 999,
-              marginBottom: 20,
             }}
           >
             Compre agora no Mercado Livre
-          </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            {logo && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={logo} width={28} height={28} alt="" style={{ borderRadius: 6 }} />
-            )}
-            <div style={{ display: "flex", fontSize: 20, color: "#e2e8f0", fontWeight: 600 }}>PreçoCaindo</div>
-            <div style={{ display: "flex", fontSize: 18, color: "#94a3b8" }}>· Disponível no Mercado Livre</div>
           </div>
         </div>
       </div>
