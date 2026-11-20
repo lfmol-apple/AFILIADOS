@@ -55,6 +55,14 @@ export async function generateCreativeBase(input: {
   productPhoto: Buffer;
   productPhotoContentType: string;
   prompt: string;
+  /** Owner's directive, 2026-11-20 ("Calibração Visual da Fábrica de
+   * Criativos com as Artes do Henrique"): a real, approved creative he
+   * already produced, sent as a SECOND reference image so the model
+   * matches its real visual style directly — never a style guess typed
+   * out by us in prose. Optional: most calls still send only the
+   * product photo. */
+  styleReferencePhoto?: Buffer;
+  styleReferencePhotoContentType?: string;
 }): Promise<GenerateCreativeResult> {
   assertOpenAiConfigured();
 
@@ -72,6 +80,13 @@ export async function generateCreativeBase(input: {
     new Blob([new Uint8Array(input.productPhoto)], { type: input.productPhotoContentType }),
     "product.jpg",
   );
+  if (input.styleReferencePhoto) {
+    form.append(
+      "image[]",
+      new Blob([new Uint8Array(input.styleReferencePhoto)], { type: input.styleReferencePhotoContentType ?? "image/png" }),
+      "style-reference.png",
+    );
+  }
 
   const response = await fetch("https://api.openai.com/v1/images/edits", {
     method: "POST",
