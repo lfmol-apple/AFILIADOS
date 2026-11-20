@@ -2,6 +2,8 @@ import { prisma } from "@/lib/db";
 import { runJob } from "@/lib/jobs/automation-run";
 import { selectVitrineCandidates, type VitrineCandidate } from "@/lib/services/vitrine-selection";
 import { registerCandidate } from "@/lib/services/commercial-intelligence/candidate-registry";
+import { auditCandidate, type AuditInput } from "@/lib/services/commercial-intelligence/commercial-audit";
+import type { VitrineScoreResult } from "@/lib/services/vitrine-score";
 import { logger } from "@/lib/observability/logger";
 
 /** The site's own /ofertas monetizationScore, registered as ONE MORE
@@ -36,6 +38,22 @@ async function registerLegacyMonetizationScoreCandidates(limit = 500) {
  * without a schema change (VitrineSelection.scoreBreakdown is already a
  * free-form Json column). */
 function breakdownWithEvidence(candidate: VitrineCandidate): object {
+  // Owner's requirement, 2026-11-20 ("Auditoria Contínua", section 7):
+  // an independent verdict, computed from the SAME raw evidence but by
+  // its own, separate, more conservative criteria — never derived from
+  // (or storing) the selection score itself. A candidate just selected
+  // this cycle is, by construction, never "descricao_inadequada" (that's
+  // a rejection gate in vitrine-selection.ts) and never stale (it was
+  // just recomputed) — those two reprovação paths only ever fire for the
+  // protected/stale rows handled separately below.
+  const audit = auditCandidate({
+    breakdown: candidate.scoreBreakdown,
+    group: candidate.group,
+    descriptionQuality: "adequada",
+    priceCompetitivenessSampleSize: candidate.priceCompetitiveness.siblingOfferCount,
+    commissionType: candidate.commissionEvidence.type as AuditInput["commissionType"],
+    staleNotRecomputedThisCycle: false,
+  });
   return {
     ...candidate.scoreBreakdown,
     matchedEventName: candidate.matchedEventName,
@@ -43,6 +61,7 @@ function breakdownWithEvidence(candidate: VitrineCandidate): object {
     commissionEvidence: candidate.commissionEvidence,
     priceCompetitiveness: candidate.priceCompetitiveness,
     adPotentialHypothesis: candidate.adPotentialHypothesis,
+    commercialAudit: audit,
   };
 }
 
@@ -84,19 +103,31 @@ const DISQUALIFYING_DISCARD_REASONS = new Set(["sem_preco_confirmado", "inelegiv
 export async function runVitrineRenewJob() {
   return runJob("VITRINE_RENEW", async (ctx) => {
     ctx.metadata.legacyMonetizationScoreCandidatesRegistered = await registerLegacyMonetizationScoreCandidates();
-    const { candidates, groupReport, discarded, funnel, activeEvents } =
+    const { candidates, allScored, groupReport, discarded, funnel, activeEvents } =
       await selectVitrineCandidates(VITRINE_CAPACITY);
     const candidateIds = new Set(candidates.map((c) => c.merchantListingId));
+    const scoredById = new Map(allScored.map((c) => [c.merchantListingId, c]));
 
     const current = await prisma.vitrineSelection.findMany({
       where: { status: "ACTIVE" },
     });
     const currentIds = new Set(current.map((c) => c.merchantListingId));
 
-    // Winners that still qualify: just refresh score/reason, never retire.
-    const staying = current.filter((c) => candidateIds.has(c.merchantListingId));
-    for (const row of staying) {
-      const fresh = candidates.find((c) => c.merchantListingId === row.merchantListingId)!;
+    // Owner's finding, 2026-11-20 ("Auditoria Contínua", section 4): this
+    // used to refresh ONLY products still in the top-30 `candidates` —
+    // meaning a product shielded from retirement by the rotation
+    // protection below also had its score/evidence FROZEN, silently,
+    // for as long as it stayed shielded. Confirmed live: Bicicleta
+    // Ergométrica and Taza Termica kept showing their OLD, undiscounted
+    // commission score for a full day after the stale-commission fix
+    // shipped, because both had fallen out of the top 30 the same cycle
+    // and never got touched again. Every product still found anywhere
+    // in the broader, evidence-sufficient pool (`allScored`, not just
+    // the top 30) gets fresh data every cycle — protection shields the
+    // RETIREMENT decision only, never the evidence shown.
+    const stillScored = current.filter((c) => scoredById.has(c.merchantListingId));
+    for (const row of stillScored) {
+      const fresh = scoredById.get(row.merchantListingId)!;
       await prisma.vitrineSelection.update({
         where: { id: row.id },
         data: {
@@ -153,6 +184,44 @@ export async function runVitrineRenewJob() {
     const outrankedDeferredByBudget = outrankedEligible.slice(rotationBudget);
 
     const toRetire = [...invalidNow, ...outrankedToRetire];
+
+    // Same finding as above, the other half of it: a dropped product
+    // that isn't even in the broader sufficiency-passing pool anymore
+    // (evidência ficou insuficiente, não só "superado por outro") has no
+    // fresh score to show at all — but it's about to STAY active
+    // (protected/deferred), so its REASON text must say so honestly
+    // instead of leaving yesterday's "why it was picked" standing as if
+    // still true. Skipped for rows about to be retired this cycle —
+    // they get status+retiredAt updated below instead.
+    const toRetireIds = new Set(toRetire.map((r) => r.id));
+    for (const row of droppedFromCandidates) {
+      if (scoredById.has(row.merchantListingId) || toRetireIds.has(row.id)) continue;
+      const d = discardedByListingId.get(row.merchantListingId);
+      if (!d) continue;
+      const oldBreakdown = row.scoreBreakdown as Record<string, unknown>;
+      await prisma.vitrineSelection.update({
+        where: { id: row.id },
+        data: {
+          reason: `Nesta rodada, sem evidência suficiente para recalcular a nota — mantido ativo só por proteção de observação mínima: ${d.detail}`,
+          scoreBreakdown: ({
+            ...oldBreakdown,
+            // Owner's requirement, section 7: the audit must flag this as
+            // REPROVADO on its own — stale evidence that no longer clears
+            // the real selection gate is never silently left looking
+            // current just because it survived on protection.
+            commercialAudit: auditCandidate({
+              breakdown: oldBreakdown as unknown as VitrineScoreResult,
+              group: row.groupType as VitrineCandidate["group"],
+              descriptionQuality: "adequada",
+              priceCompetitivenessSampleSize: 0,
+              commissionType: "unknown",
+              staleNotRecomputedThisCycle: true,
+            }),
+          } satisfies object) as object,
+        },
+      });
+      ctx.counters.updated += 1;
+    }
 
     // Newcomers fill: any genuine capacity headroom, plus exactly the
     // slots just freed above — never more. The very first run (current

@@ -20,6 +20,8 @@ import { evaluateCommercialEligibility } from "@/lib/services/commercial-intelli
 import { listRegisteredMerchantListingIds, computeCorroborationBatch, registerCandidate } from "@/lib/services/commercial-intelligence/candidate-registry";
 import { classifySufficiency } from "@/lib/services/commercial-intelligence/evidence-sufficiency";
 import { evaluateAdPotentialHypothesis, type AdPotentialHypothesis } from "@/lib/services/commercial-intelligence/ad-potential-hypothesis";
+import { evaluateDescriptionQuality } from "@/lib/services/commercial-intelligence/description-quality";
+import { applyCategoryConcentrationCap } from "@/lib/services/commercial-intelligence/category-concentration";
 
 /**
  * Vitrine Inteligente selection v3 (owner's authorization, 2026-11-19).
@@ -58,7 +60,13 @@ export interface DiscardedCandidate {
    * share a title). */
   merchantListingId: string | null;
   title: string;
-  reason: "sem_preco_confirmado" | "inelegivel_para_anuncio" | "duplicado_familia" | "preco_nao_confiavel" | "evidencia_insuficiente";
+  reason:
+    | "sem_preco_confirmado"
+    | "inelegivel_para_anuncio"
+    | "duplicado_familia"
+    | "preco_nao_confiavel"
+    | "evidencia_insuficiente"
+    | "descricao_inadequada";
   detail: string;
 }
 
@@ -94,6 +102,13 @@ export interface PooledCandidate {
    * rule, 2026-11-19: "não contabilize informações provenientes da mesma
    * fonte original como evidências independentes"). */
   corroboration: { sources: string[]; count: number };
+  /** Real Mercado Livre category id (MLB1051 etc.), when known — owner's
+   * requirement, 2026-11-20 ("Auditoria Contínua", section 4): used only
+   * to cap how many candidates from the SAME category can occupy
+   * adjacent slots within a group (two kettlebell kits, two nativity
+   * sets competing for the same purchase intent), never to penalize a
+   * product on its own. Null is a real, reported state — never guessed. */
+  categoryId: string | null;
 }
 
 export interface CandidatePoolResult {
@@ -313,6 +328,27 @@ export async function buildCommercialCandidatePool(poolSize = 3000): Promise<Can
       continue;
     }
 
+    // Owner's finding, 2026-11-20 ("Auditoria Contínua", section 1/4):
+    // real titles in Spanish ("Taza Termica... Vaca Lechera") and in
+    // English ("Warm Snow Boots And Cotton Shoes For Women...") reached
+    // the Vitrine — a real risk for ads aimed at a Brazilian audience,
+    // never checked before this. A real rejection gate, same pattern as
+    // the price-anomaly check above: only fires on >=2 distinct strong
+    // non-Portuguese markers (see description-quality.ts's own doc
+    // comment for why each word was chosen), never on a single
+    // ambiguous/borrowed word.
+    const descriptionQuality = evaluateDescriptionQuality(title);
+    if (descriptionQuality.quality === "inadequada") {
+      discarded.push({
+        merchantListingId: listing.id,
+        title,
+        reason: "descricao_inadequada",
+        detail: `Título com marcadores fortes de ${descriptionQuality.language === "es" ? "espanhol" : "inglês"} (${descriptionQuality.matchedMarkers.join(", ")}) — risco de confundir o comprador brasileiro e de parecer um anúncio de revenda/dropship.`,
+      });
+      discardedIneligible += 1;
+      continue;
+    }
+
     const priceCompetitiveness = evaluatePriceCompetitiveness({
       merchantListingId: listing.id,
       siblingOffers,
@@ -401,6 +437,7 @@ export async function buildCommercialCandidatePool(poolSize = 3000): Promise<Can
       trendDirection,
       vitrineClickCount: clicksByListing.get(listing.id) ?? 0,
       corroboration: corroborationByExternalId.get(listing.externalId) ?? { sources: [], count: 0 },
+      categoryId: representative?.mlCategoryId ?? raw?.categoryId ?? null,
     });
   }
 
@@ -449,6 +486,7 @@ export interface VitrineCandidate {
   commissionEvidence: { type: string; rate: number | null; estimatedValueBrl: number | null; stale: boolean };
   priceCompetitiveness: { score: number | null; siblingOfferCount: number; hasConfirmedPriceDrop: boolean };
   adPotentialHypothesis: AdPotentialHypothesis;
+  categoryId: string | null;
 }
 
 export interface GroupFillReport {
@@ -461,6 +499,20 @@ export interface GroupFillReport {
 
 export interface VitrineSelectionResult {
   candidates: VitrineCandidate[];
+  /** Owner's correction, 2026-11-20 ("Auditoria Contínua", section 4):
+   * every candidate that passed the evidence-sufficiency gate, BEFORE
+   * the top-30 cut — not just the winners. jobs/vitrine-renew.ts needs
+   * this to refresh an ALREADY-ACTIVE product's score/evidence every
+   * cycle even when it no longer makes the top 30, so the minimum-
+   * observation/rotation-budget protection shields the product from
+   * being RETIRED without ever shielding stale, pre-correction evidence
+   * from being shown as if it were still current. Found live: a product
+   * that fell out of the top 30 right when the stale-commission-discount
+   * fix shipped kept displaying its OLD, undiscounted score indefinitely
+   * — the protection had accidentally frozen the evidence itself, not
+   * just the removal decision.
+   */
+  allScored: VitrineCandidate[];
   groupReport: GroupFillReport[];
   discarded: DiscardedCandidate[];
   funnel: CandidatePoolFunnel & { selected: number };
@@ -558,6 +610,7 @@ export async function selectVitrineCandidates(limit = 30): Promise<VitrineSelect
         currentPrice: c.currentPrice,
         hasConfirmedPriceDrop: c.priceCompetitiveness.hasConfirmedPriceDrop,
       }),
+      categoryId: c.categoryId,
     });
   }
 
@@ -565,14 +618,34 @@ export async function selectVitrineCandidates(limit = 30): Promise<VitrineSelect
     byGroup[group].sort((a, b) => b.rankingScore - a.rankingScore);
   }
 
+  // Owner's finding, 2026-11-20 ("Auditoria Contínua", section 4): "dois
+  // kits de halteres e dois presépios ocupam vagas próximas, apesar de
+  // disputarem intenções de compra semelhantes" — brand+model dedup
+  // never catches this (different brands/models, same real category).
+  // See category-concentration.ts for the real, generic, tested cap.
+  const MAX_PER_CATEGORY_PER_GROUP = 2;
+
   const activeEventNames = activeEvents.map((a) => a.name).join(", ") || "nenhum";
   const selected: VitrineCandidate[] = [];
   const groupReport: GroupFillReport[] = [];
   for (const group of Object.keys(GROUP_TARGETS) as VitrineGroupType[]) {
     const target = GROUP_TARGETS[group];
     const eligible = byGroup[group];
-    const filled = Math.min(target, eligible.length);
-    selected.push(...eligible.slice(0, target));
+
+    // Owner's finding, confirmed live in isolated testing, 2026-11-20: a
+    // keyword-discovered seasonal find ("decoração natalina" →
+    // Presépio Sagrada Família, Presépio 13 Peças, Kit Decoração
+    // Natalina — 3 real products, all found by the identical search
+    // term) never carries a real ML categoryId, so the cap above never
+    // reached it. These compete for the exact same purchase intent by
+    // construction — falling back to the matched keyword as the
+    // concentration key when the category is genuinely unknown catches
+    // this without inventing a category that was never observed.
+    const concentrationKey = (c: VitrineCandidate) => c.categoryId ?? (c.matchedKeyword ? `kw:${c.matchedKeyword}` : null);
+    const { picked } = applyCategoryConcentrationCap(eligible, target, MAX_PER_CATEGORY_PER_GROUP, concentrationKey);
+
+    const filled = Math.min(target, picked.length);
+    selected.push(...picked);
     groupReport.push({
       group,
       target,
@@ -589,10 +662,11 @@ export async function selectVitrineCandidates(limit = 30): Promise<VitrineSelect
     });
   }
 
+  const allScored = Object.values(byGroup).flat();
+
   if (selected.length < limit) {
     const chosenIds = new Set(selected.map((s) => s.merchantListingId));
-    const leftovers = Object.values(byGroup)
-      .flat()
+    const leftovers = allScored
       .filter((c) => !chosenIds.has(c.merchantListingId))
       .sort((a, b) => b.rankingScore - a.rankingScore);
     selected.push(...leftovers.slice(0, limit - selected.length));
@@ -600,6 +674,7 @@ export async function selectVitrineCandidates(limit = 30): Promise<VitrineSelect
 
   return {
     candidates: selected.sort((a, b) => b.rankingScore - a.rankingScore).slice(0, limit),
+    allScored,
     groupReport,
     discarded,
     funnel: { ...funnel, selected: Math.min(selected.length, limit) },
