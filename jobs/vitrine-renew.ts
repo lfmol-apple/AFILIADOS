@@ -98,7 +98,21 @@ const VITRINE_MAX_WEEKLY_REPLACEMENTS = Number(
  * never protected by this: removing a broken offer is immediate, always.
  */
 const VITRINE_MIN_OBSERVATION_DAYS = Number(process.env.VITRINE_MIN_OBSERVATION_DAYS ?? 3);
-const DISQUALIFYING_DISCARD_REASONS = new Set(["sem_preco_confirmado", "inelegivel_para_anuncio", "preco_nao_confiavel"]);
+// Owner's finding, 2026-11-20 ("Auditoria Contínua"): a title that turns
+// out to carry strong foreign-language markers is not "merely
+// outranked" — it's the same kind of structural invalidity as an
+// ineligible or untrustworthy price, and the independent audit
+// (commercial-audit.ts) already reprova it outright. Confirmed live:
+// without this, "Taza Termica... Vaca Lechera" and "Warm Snow Boots..."
+// sat PROTECTED by minimum-observation-time despite being correctly
+// flagged "reprovado" — removing a genuinely invalid offer must never
+// wait out a protection window meant for ranking noise, not for this.
+const DISQUALIFYING_DISCARD_REASONS = new Set([
+  "sem_preco_confirmado",
+  "inelegivel_para_anuncio",
+  "preco_nao_confiavel",
+  "descricao_inadequada",
+]);
 
 export async function runVitrineRenewJob() {
   return runJob("VITRINE_RENEW", async (ctx) => {
