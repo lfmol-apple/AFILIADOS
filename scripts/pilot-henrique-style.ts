@@ -10,23 +10,35 @@ import { renderCatalogClean, toBuffer } from "../lib/services/ai-creative-factor
 // estilo literal — não uma composição programática por cima de uma
 // foto gerada sem direção visual real. Uma chamada paga só, autorizada.
 
-const PRODUCT_PHOTO_URL = "https://http2.mlstatic.com/D_NQ_NP_774257-MLA99966448927_112025-F.jpg";
+const PRODUCT_PHOTO_URL = "https://http2.mlstatic.com/D_NQ_NP_679906-MLA114988818772_082026-F.jpg";
 const STYLE_REFERENCE_PATH =
-  process.env.HENRIQUE_STYLE_REFERENCE_PATH ?? "/Users/leonardomol/Downloads/henrique-refs/Imagem do ChatGPT 20 de nov. de 2026, 16_20_49.png";
+  process.env.HENRIQUE_STYLE_REFERENCE_PATH ?? "/Users/leonardomol/Downloads/henrique-refs/Imagem do ChatGPT 20 de nov. de 2026, 16_21_43.png";
 
-const PROMPT = `Crie um anúncio publicitário comercial vertical para Instagram/Facebook, seguindo EXATAMENTE o padrão visual, cores, tipografia, ícones e composição da segunda imagem fornecida (uma arte real já aprovada, de uma lavadora de alta pressão Electrolux).
+// Owner's correction, 2026-11-20: the first pilot pick (pressure
+// washer) coincided with the exact category of two of Henrique's own
+// references — that proves nothing about generalization. This pilot
+// uses a fitness/weights kit instead, a category with NO match among
+// the 15 real references, and reuses the Philips OneBlade reference
+// only as a loose structural anchor (its "5 em 1" pill badge + bare-
+// line icon list, since this product also advertises a multi-function
+// "6 em 1" claim) — adapted per henrique-visual-profile.ts's own rule
+// that layout/icon choices follow what's real about THIS product, not
+// a same-category copy.
+const PROMPT = `Crie um anúncio publicitário comercial vertical para Instagram/Facebook. Use a segunda imagem fornecida (uma arte real já aprovada, de um aparador Philips OneBlade) apenas como referência ESTRUTURAL solta: tipografia bold em destaque, um selo/pílula colorida grande para uma característica "N em 1", e uma lista de ícones de linha coloridos sem fundo, cada um ao lado de um rótulo curto. Não copie o produto, a marca, as cores específicas ou o layout exato dessa referência — ela só mostra o PADRÃO DE QUALIDADE esperado.
 
-Troque o conteúdo pelo produto real da PRIMEIRA imagem fornecida: "Lavadora de Alta Pressão Electrolux 1850PSI 1500W Potência com Canhão de Espuma PowerWash EWS1850P Preta". Preserve o produto exatamente como aparece na foto — mesma embalagem, cor, proporções e logotipo Electrolux. Não redesenhe nem alt ere o produto.
+O produto real está na PRIMEIRA imagem fornecida: "Kit Halteres 6 Em 1 Peso Musculação Até 40kg Ajustável Halter, Kettlebell, Anilha Cor Preto-Vermelho", marca Ahead Sports. Preserve o produto exatamente como aparece na foto — mesma cor, formato e proporções. Não redesenhe nem altere o produto.
 
-Mantenha a MESMA estrutura da referência: logotipo real "Electrolux" no topo, título em duas linhas usando duas cores (seguindo a paleta azul/amarelo do produto), de 2 a 4 ícones de benefício reais à esquerda — cada um desenhando literalmente o benefício (alta pressão/1850 PSI, economia de água, limpeza automotiva eficiente), nunca um círculo vazio. Produto grande e centralizado à direita, com os acessórios reais do produto dispostos ao redor, como na referência.
+Escolha uma paleta de cores e ambientação adequadas a equipamento de musculação/academia (tons escuros, vermelho e preto, sensação de energia e força — igual à cor real do produto). Inclua:
+- Título do produto em destaque, bold, duas linhas, duas cores.
+- Um selo/pílula grande destacando "6 EM 1" (fato real do próprio anúncio).
+- De 2 a 3 ícones de linha coloridos (sem fundo em círculo), cada um desenhando literalmente um benefício real: peso ajustável até 40kg, versatilidade (halter + kettlebell + anilha em um produto só). Rótulo curto de 2-4 palavras ao lado de cada ícone.
+- Produto grande e centralizado, ocupando a maior parte da composição.
+- Selo de preço vermelho e amarelo bem legível: "Por apenas" + preço real "R$ 367,53", e menor e riscado o preço anterior real "R$ 1.048,90".
+- No rodapé, uma faixa amarela horizontal com o logotipo real do Mercado Livre (ícone de aperto de mãos) e um botão azul-marinho arredondado "Compre agora no Mercado Livre".
 
-Inclua um selo de preço vermelho e amarelo bem legível, com o texto "Por apenas" seguido do preço real "R$ 450,53" e, menor e riscado, o preço anterior real "R$ 698,57".
+Não invente avaliação, quantidade vendida ou certificação — não há dado real disponível para isso, então NÃO inclua nenhuma menção a nota ou vendas. Não use "últimas unidades" ou qualquer urgência artificial.
 
-No rodapé, uma faixa amarela horizontal com o logotipo real do Mercado Livre (ícone de aperto de mãos) e um botão azul-marinho arredondado "Compre agora no Mercado Livre", exatamente como na referência.
-
-Não invente avaliação, quantidade vendida ou certificação. Não use "últimas unidades" ou qualquer urgência artificial — só os fatos reais acima.
-
-IMPORTANTE sobre enquadramento: esta imagem será cortada posteriormente para a proporção 4:5. Mantenha todos os elementos críticos (preço, banner, logotipo, título) dentro dos 80% centrais da altura da imagem — evite colocar qualquer elemento importante nos 10% superiores ou inferiores.`;
+IMPORTANTE sobre enquadramento: esta imagem será cortada posteriormente para a proporção 4:5. Mantenha todos os elementos críticos (preço, banner, título, selo) dentro dos 80% centrais da altura da imagem — evite colocar qualquer elemento importante nos 10% superiores ou inferiores.`;
 
 async function main() {
   const budget = await checkCreativeBudget();
@@ -58,7 +70,7 @@ async function main() {
     styleReferencePhoto: styleRes.buffer,
     styleReferencePhotoContentType: styleRes.contentType,
   });
-  await recordCreativeSpend({ amountUsd: generation.costUsd, note: "PILOTO — calibração visual Henrique — Lavadora Electrolux" });
+  await recordCreativeSpend({ amountUsd: generation.costUsd, note: "PILOTO — calibração visual Henrique — Kit Halteres 6 em 1" });
   console.log("Custo real desta geração:", generation.costUsd, "USD");
 
   writeFileSync(".scratch-pilot-raw.png", generation.imageBuffer);
