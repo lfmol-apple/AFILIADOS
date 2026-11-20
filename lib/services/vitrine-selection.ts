@@ -510,13 +510,26 @@ export async function selectVitrineCandidates(limit = 30): Promise<VitrineSelect
       continue;
     }
 
+    // Owner's correction, 2026-11-20 ("Ordem de Execução", priority 5): the
+    // score already discounts a stale commission and evidence-sufficiency
+    // already excludes it from the real-dimension count — but the
+    // DISPLAYED reason could still pick it as reasons[0] purely because
+    // of the components object's key order, whenever salesEvidence was
+    // null. Found live: most "recorrente" entries read "comissão
+    // desatualizada" as their headline reason, which a human reading it
+    // reasonably takes as "that's the foundation" — never the intent. A
+    // non-degraded reason is always preferred when one exists; the
+    // degraded one is only shown when it's genuinely all there is.
+    const nonDegradedReasons = breakdown.reasons.filter(
+      (r) => !breakdown.degradedDimensions.some((d) => r.startsWith(`${d}:`)),
+    );
     const reason = c.matchedEvent
       ? c.matchedEvent.event.eventType === "tematico"
         ? `Encontrado buscando "${c.matchedKeyword}" para ${c.matchedEvent.event.name} (${c.matchedEvent.stage}, pico em ${c.matchedEvent.daysUntilPeak}d).`
         : `Oportunidade de ${c.matchedEvent.event.name}: ${c.priceCompetitiveness.priceDropHeadline} (categoria bestseller real, não por palavra-chave no título).`
       : group === "emergente"
         ? `Achado via palavra-chave em alta no próprio Mercado Livre: "${c.matchedKeyword}".`
-        : breakdown.reasons[0] ?? "Pontuação multifatorial calculada.";
+        : nonDegradedReasons[0] ?? breakdown.reasons[0] ?? "Pontuação multifatorial calculada.";
 
     byGroup[group].push({
       merchantListingId: c.merchantListingId,
