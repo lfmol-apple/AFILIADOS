@@ -41,6 +41,9 @@ export async function resolveMerchantRedirect(input: {
    * acts on this today; resolveAmazonRedirect is deliberately untouched,
    * see its own comment. */
   isPrefetch?: boolean;
+  /** True only for a verified real click on a product page
+   * (lib/http/classify-site-click.ts). Default false: never notify. */
+  notifyOwner?: boolean;
 }): Promise<MerchantRedirectResult> {
   if (!isMerchantCode(input.merchant)) {
     return {
@@ -154,6 +157,7 @@ async function resolveGenericMerchantRedirect(input: {
   /** Prefetch or known bot/crawler — see the field's doc on
    * resolveMerchantRedirect's input above. */
   isPrefetch?: boolean;
+  notifyOwner?: boolean;
 }): Promise<MerchantRedirectResult> {
   const provider = MERCHANT_TO_PROVIDER[input.merchant];
   if (!provider) {
@@ -211,7 +215,7 @@ async function resolveGenericMerchantRedirect(input: {
         },
       });
 
-      if (!input.isOwner) {
+      if (!input.isOwner && input.notifyOwner) {
         const productLabel =
           listing.canonicalProduct?.title ??
           input.searchParams.get("pageSlug") ??

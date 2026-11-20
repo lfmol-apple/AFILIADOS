@@ -4,6 +4,7 @@ import { isOwnerRequest } from "@/lib/admin/owner-traffic";
 import { isPrefetchRequest } from "@/lib/http/is-prefetch-request";
 import { isKnownBotRequest } from "@/lib/http/is-bot-request";
 import { isBurstRequest } from "@/lib/http/is-burst-request";
+import { classifySiteClick } from "@/lib/http/classify-site-click";
 
 export async function GET(
   request: Request,
@@ -11,6 +12,7 @@ export async function GET(
 ) {
   const { merchant, externalId } = await context.params;
   const url = new URL(request.url);
+  const verdict = classifySiteClick(request.headers, url.searchParams);
   const result = await resolveMerchantRedirect({
     merchant,
     externalId,
@@ -19,7 +21,9 @@ export async function GET(
     isPrefetch:
       isPrefetchRequest(request.headers, url.searchParams) ||
       isKnownBotRequest(request.headers) ||
-      isBurstRequest(request.headers),
+      isBurstRequest(request.headers) ||
+      !verdict.record,
+    notifyOwner: verdict.notify,
   });
 
   if (result.status === "error") {

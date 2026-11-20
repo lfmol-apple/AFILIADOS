@@ -52,6 +52,9 @@ export async function handleGoAmazonRequest(
    * issuing plain GETs straight at /go/ URLs doesn't carry a prefetch
    * signal at all, so it needed the separate bot check. */
   isPrefetch = false,
+  /** True only for a verified real click on a product page
+   * (lib/http/classify-site-click.ts) — never notify otherwise. */
+  notifyOwner = false,
 ): Promise<GoAmazonResult> {
   const product = await prisma.product.findUnique({
     where: {
@@ -113,7 +116,7 @@ export async function handleGoAmazonRequest(
         campaign: searchParams.get("campaign") ?? undefined,
       },
     });
-    if (!isOwner) {
+    if (!isOwner && notifyOwner) {
       void sendPushToOwner(
         describeAffiliateClickForOwner("amazon", product.title),
       ).catch((error) =>

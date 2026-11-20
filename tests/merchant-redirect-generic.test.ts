@@ -84,6 +84,7 @@ describe("resolveMerchantRedirect — generic (non-Amazon) merchants", () => {
         pageType: "ofertas",
         source: "test",
       }),
+      notifyOwner: true,
     });
 
     expect(result.status).toBe("redirect");

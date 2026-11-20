@@ -69,6 +69,9 @@ describe("handleGoAmazonRequest", () => {
       "BR",
       ASIN,
       new URLSearchParams(),
+      false,
+      false,
+      true,
     );
     expect(result.status).toBe("redirect");
     if (result.status === "redirect") {
@@ -83,6 +86,16 @@ describe("handleGoAmazonRequest", () => {
       body: "Test Product for go/amazon",
       url: "/admin/desempenho",
     });
+  });
+
+  it("records but never notifies when the click wasn't verified as a real product click (notifyOwner defaults to false)", async () => {
+    const result = await handleGoAmazonRequest(
+      "BR",
+      ASIN,
+      new URLSearchParams(),
+    );
+    expect(result.status).toBe("redirect");
+    expect(sendPushToOwner).not.toHaveBeenCalled();
   });
 
   it("never notifies the owner for their own click (isOwner: true)", async () => {

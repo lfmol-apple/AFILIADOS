@@ -31,36 +31,22 @@ afterEach(async () => {
   sendPushToOwner.mockClear();
 });
 
-describe("POST /api/analytics/pageview — owner notification", () => {
-  it("notifies on the first pageview of a brand-new session", async () => {
+describe("POST /api/analytics/pageview — never notifies the owner", () => {
+  it.each([
+    ["home", "home"],
+    ["ofertas", "ofertas"],
+    ["product", "escova-secadora-xyz"],
+  ])("stores the %s pageview but sends no push", async (pageType, pageSlug) => {
     const { POST } = await load();
-    const res = await POST(post(base));
+    const res = await POST(post({ ...base, pageType, pageSlug }));
     expect(res.status).toBe(200);
-    expect(sendPushToOwner).toHaveBeenCalledTimes(1);
-    expect(sendPushToOwner).toHaveBeenCalledWith(
-      expect.objectContaining({ title: "🔔 Novo visitante no PreçoCaindo" }),
-    );
-  });
-
-  it("does not notify again for a second pageview of the same session, same day", async () => {
-    const { POST } = await load();
-    await POST(post(base));
-    sendPushToOwner.mockClear();
-    await POST(
-      post({ ...base, pageType: "product", pageSlug: "outro-produto" }),
-    );
     expect(sendPushToOwner).not.toHaveBeenCalled();
+    expect(
+      await prisma.pageView.count({ where: { sessionId: "sess-1" } }),
+    ).toBe(1);
   });
 
-  it("notifies again for a different session the same day", async () => {
-    const { POST } = await load();
-    await POST(post(base));
-    sendPushToOwner.mockClear();
-    await POST(post({ ...base, sessionId: "sess-2" }));
-    expect(sendPushToOwner).toHaveBeenCalledTimes(1);
-  });
-
-  it("never notifies for the owner's own request (valid admin session)", async () => {
+  it("the owner's own request is still not stored", async () => {
     const { token } = await createAdminSession();
     const { POST } = await load();
     const res = await POST(post(base, `${ADMIN_SESSION_COOKIE}=${token}`));
@@ -69,25 +55,5 @@ describe("POST /api/analytics/pageview — owner notification", () => {
     expect(
       await prisma.pageView.count({ where: { sessionId: "sess-1" } }),
     ).toBe(0);
-  });
-
-  it("carries the right label/url through to the push payload", async () => {
-    const { POST } = await load();
-    await POST(
-      post({ ...base, pageType: "product", pageSlug: "escova-secadora-xyz" }),
-    );
-    expect(sendPushToOwner).toHaveBeenCalledWith({
-      title: "🔔 Novo visitante no PreçoCaindo",
-      body: "Produto: escova-secadora-xyz",
-      url: "/produto/escova-secadora-xyz",
-    });
-  });
-
-  it("a push failure never breaks the pageview response", async () => {
-    sendPushToOwner.mockRejectedValueOnce(new Error("push down"));
-    const { POST } = await load();
-    const res = await POST(post(base));
-    expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ ok: true });
   });
 });
