@@ -170,7 +170,13 @@ export function renderAdOverlay(input: CompositeInput) {
                 ))}
               </div>
             )}
-            {/* Angled price card — bottom of the left column */}
+            {/* Price card — bottom of the left column. Owner's finding,
+                2026-11-20: a slight rotation (matching the reference's
+                angled badge) silently failed to render via Satori/
+                next-og in a live test — dropped rather than shipping an
+                effect that may or may not apply depending on renderer
+                quirks; the card still reads as a clear, recognizable
+                price callout without it. */}
             <div
               style={{
                 display: "flex",
@@ -181,7 +187,6 @@ export function renderAdOverlay(input: CompositeInput) {
                 background: "linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%)",
                 borderRadius: 18,
                 padding: "16px 26px",
-                transform: "rotate(-3deg)",
               }}
             >
               <div style={{ display: "flex", fontSize: 18, fontWeight: 600, color: "#fecaca" }}>Por apenas</div>
