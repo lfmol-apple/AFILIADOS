@@ -24,6 +24,29 @@ export interface MlTopLevelCategory {
   name: string;
 }
 
+/**
+ * Real root cause, 2026-11-20 (owner's directive, "Etapa 1 — Discovery"):
+ * 4 of the 9 VITRINE_DISCOVERY errors (reproduced live, isolated
+ * environment) were HTTP 404 on GET /highlights for these exact 4 real,
+ * valid top-level categories — confirmed via a direct GET
+ * /categories/{id}: Carros, Motos e Outros (MLB1743), Imóveis (MLB1459),
+ * Ingressos (MLB218519), Serviços (MLB1540). Each has
+ * `buying_allowed:false` or `listing_allowed:false` in its real
+ * `settings` — classified-ad/service categories, not a physical-product
+ * retail catalog, so Mercado Livre's own highlights/bestseller endpoint
+ * structurally doesn't exist for them. Not a config typo to fix — these
+ * are also commercially irrelevant to a catalog-ad business (you can't
+ * run a dynamic product-catalog ad for a car listing or a service), so
+ * excluding them is correct on both grounds, not just to silence the
+ * error.
+ */
+const NON_PHYSICAL_PRODUCT_CATEGORY_IDS = new Set([
+  "MLB1743", // Carros, Motos e Outros
+  "MLB1459", // Imóveis
+  "MLB218519", // Ingressos
+  "MLB1540", // Serviços
+]);
+
 let cachedCategories: { at: number; value: MlTopLevelCategory[] } | null = null;
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
@@ -41,7 +64,9 @@ export async function fetchTopLevelCategories(
     throw new Error(`fetchTopLevelCategories failed: HTTP ${response.status}`);
   }
   const body = (await response.json()) as Array<{ id: string; name: string }>;
-  const value = body.map((c) => ({ id: c.id, name: c.name }));
+  const value = body
+    .filter((c) => !NON_PHYSICAL_PRODUCT_CATEGORY_IDS.has(c.id))
+    .map((c) => ({ id: c.id, name: c.name }));
   cachedCategories = { at: Date.now(), value };
   return value;
 }

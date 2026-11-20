@@ -149,9 +149,15 @@ export async function runVitrineDiscoveryJob() {
 
         for (const keyword of active.event.keywords) {
           try {
+            // Real root cause, 2026-11-20 ("Etapa 1 — Discovery"): the
+            // default retry budget (3 attempts, ~1.5s total backoff) was
+            // exhausted by real HTTP 429s from Mercado Livre's search API
+            // — reproduced live in an isolated run. These calls fire
+            // back-to-back with no inter-request pacing, so a tighter
+            // retry budget is the real fix, not a cosmetic one.
             const results = await withRetry(
               () => searchMercadoLivreByKeyword(keyword, getAccessToken, RESULTS_PER_KEYWORD),
-              { label: `vitrine_discovery.event.${active.event.id}.${keyword}` },
+              { label: `vitrine_discovery.event.${active.event.id}.${keyword}`, attempts: 5, baseDelayMs: 1000 },
             );
             report.resultsFound += results.length;
 
@@ -251,9 +257,11 @@ export async function runVitrineDiscoveryJob() {
                 (id) => provider.getCatalogProductName(id),
                 getAccessToken,
               );
+              // Same real-429-exhaustion root cause as the keyword search
+              // above — wider retry budget for the same reason.
               const { resolved: highlights, unresolved } = await withRetry(
                 () => source.collectRawWithUnresolved(),
-                { label: `vitrine_discovery.promo.${active.event.id}.${categoryId}` },
+                { label: `vitrine_discovery.promo.${active.event.id}.${categoryId}`, attempts: 5, baseDelayMs: 1000 },
               );
               report.resultsFound += highlights.length;
 
