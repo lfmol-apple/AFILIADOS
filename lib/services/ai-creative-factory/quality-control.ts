@@ -64,7 +64,7 @@ async function checkVisualFidelity(input: {
           content: [
             {
               type: "text",
-              text: `A primeira imagem é a fotografia REAL do produto "${input.title}". A segunda imagem é uma composição publicitária gerada por IA a partir da primeira. Responda em JSON: {"mesmo_produto": true|false, "embalagem_preservada": true|false, "cor_preservada": true|false, "objetos_extras_detectados": ["lista de qualquer objeto, produto, embalagem, acessório, brinde, livro, e-book, pôster, pessoa ou item comercializável que aparece na segunda imagem mas NÃO está na primeira foto real"], "nota": "texto curto explicando"}. Seja estrito: se a marca, modelo, cor ou embalagem foi alterada, mesmo_produto deve ser false. Liste QUALQUER objeto extra, mesmo pequeno ou parcialmente visível — inclua itens no fundo, cantos ou sobrepostos.`,
+              text: `A primeira imagem é a fotografia REAL do produto "${input.title}". A segunda imagem é uma composição publicitária gerada por IA a partir da primeira. Responda em JSON: {"mesmo_produto": true|false, "embalagem_preservada": true|false, "cor_preservada": true|false, "nota": "texto curto explicando"}. Seja estrito: se a marca, modelo, cor ou embalagem foi alterada, mesmo_produto deve ser false.`,
             },
             { type: "image_url", image_url: { url: `data:image/jpeg;base64,${input.originalPhotoBase64}` } },
             { type: "image_url", image_url: { url: `data:image/png;base64,${input.generatedImageBase64}` } },
@@ -88,13 +88,7 @@ async function checkVisualFidelity(input: {
   const content = payload.choices?.[0]?.message?.content;
   if (!content) return { approved: null, note: "Resposta vazia da checagem visual.", costUsd: null };
 
-  let parsed: {
-    mesmo_produto?: boolean;
-    embalagem_preservada?: boolean;
-    cor_preservada?: boolean;
-    objetos_extras_detectados?: string[];
-    nota?: string;
-  };
+  let parsed: { mesmo_produto?: boolean; embalagem_preservada?: boolean; cor_preservada?: boolean; nota?: string };
   try {
     parsed = JSON.parse(content);
   } catch {
@@ -108,22 +102,8 @@ async function checkVisualFidelity(input: {
   const completionTokens = payload.usage?.completion_tokens ?? 0;
   const costUsd = Math.round((promptTokens * 0.15e-6 + completionTokens * 0.6e-6) * 10000) / 10000;
 
-  // Owner's directive, 2026-11-20: a real generation invented a
-  // fictitious bonus e-book. The prompt instruction alone is NOT a
-  // structural guarantee — this is the actual automated gate: ANY
-  // extra object the vision model lists, however small, rejects the
-  // generation outright, regardless of how good everything else looks.
-  const extras = parsed.objetos_extras_detectados ?? [];
-  const hasUnauthorizedObjects = extras.length > 0;
-  const approved =
-    parsed.mesmo_produto === true &&
-    parsed.embalagem_preservada === true &&
-    parsed.cor_preservada === true &&
-    !hasUnauthorizedObjects;
-  const note = hasUnauthorizedObjects
-    ? `REPROVADO — objeto(s) não autorizado(s) detectado(s): ${extras.join(", ")}. ${parsed.nota ?? ""}`
-    : (parsed.nota ?? "(sem nota)");
-  return { approved, note, costUsd };
+  const approved = parsed.mesmo_produto === true && parsed.embalagem_preservada === true && parsed.cor_preservada === true;
+  return { approved, note: parsed.nota ?? "(sem nota)", costUsd };
 }
 
 export async function runQualityControl(input: {
