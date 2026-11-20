@@ -91,11 +91,19 @@ const LABEL: Record<Status, { icon: string; text: string; tone: string }> = {
   },
 };
 
-/** Generate many links in the Linkbuilder at once, paste them all, save the ones that check out. */
+/** Generate many links in the Linkbuilder at once, paste them all, save the ones that check out.
+ * `checkEndpoint`/`saveEndpoint` default to the original precocaindo queue's
+ * routes — passed explicitly by the Vitrine Inteligente batch page
+ * (owner's requirement, 2026-11-20) to hit /api/admin/vitrine-links/*
+ * instead, so the two tags' queues never share a save path. */
 export function PanelBatch(props: {
   addresses: string[];
   pendingCount: number;
+  checkEndpoint?: string;
+  saveEndpoint?: string;
 }) {
+  const checkEndpoint = props.checkEndpoint ?? "/api/admin/ml-panel-links/batch";
+  const saveEndpoint = props.saveEndpoint ?? "/api/admin/ml-panel-links";
   const router = useRouter();
   const [count, setCount] = useState(Math.min(30, props.addresses.length));
   const [text, setText] = useState("");
@@ -126,7 +134,7 @@ export function PanelBatch(props: {
     setMessage("");
     setSaved({});
     try {
-      const response = await fetch("/api/admin/ml-panel-links/batch", {
+      const response = await fetch(checkEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text }),
@@ -150,7 +158,7 @@ export function PanelBatch(props: {
   async function saveOne(row: Row): Promise<boolean> {
     if (!row.pickId) return false;
     try {
-      const response = await fetch("/api/admin/ml-panel-links", {
+      const response = await fetch(saveEndpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: row.pickId, affiliateUrl: row.link }),

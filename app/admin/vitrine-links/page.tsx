@@ -50,6 +50,16 @@ export default async function VitrineLinksPage() {
         {pending.length} aguardando link vitrinedinamica · {linkedCount} de{" "}
         {activeCount} produtos ativos já têm link.
       </p>
+      {pending.length > 0 && (
+        <p className="mt-3">
+          <a
+            href="/admin/vitrine-links/lote"
+            className="bg-brand text-brand-foreground inline-block rounded-lg px-4 py-2 text-sm font-semibold"
+          >
+            Gerar e colar em lote →
+          </a>
+        </p>
+      )}
       <ul className="mt-6 space-y-3">
         {pending.map((row, i) => (
           <PanelPickRow
