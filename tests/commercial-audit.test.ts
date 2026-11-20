@@ -116,6 +116,108 @@ describe("auditCandidate — owner's requirement, 2026-11-20 (Auditoria Contínu
     ).not.toThrow();
   });
 
+  it("owner's recalibration, 2026-11-20 ('Auditoria dos 29 produtos'): 2 solid non-commission dimensions (price position + quality) approve the candidate even when the ONLY commission known is stale — never treating it as zero, never letting it override independent evidence", () => {
+    const breakdown = calculateVitrineScore({
+      salesEvidence: null,
+      commissionEvidence: evaluateCommissionEvidence({ individualRate: 0.25, individualCapturedAt: new Date(Date.now() - 55 * 86_400_000), mlCategoryId: null, currentPrice: 300 }),
+      priceCompetitiveness: evaluatePriceCompetitiveness({
+        merchantListingId: "x",
+        siblingOffers: Array.from({ length: 26 }, (_, i) => ({ price: 100 + i, condition: "new" as const, sellerReputationLevel: "5_green" as const, mlCategoryId: null })),
+        thisPrice: 100,
+        priceHistory: [],
+      }),
+      qualitySignal: { value: 96, quality: "OBSERVED", detail: "q" },
+      seasonalEvent: null,
+      trendDirection: null,
+      vitrineClickCount: 0,
+    });
+    const result = auditCandidate({
+      breakdown,
+      group: "recorrente",
+      descriptionQuality: "adequada",
+      priceCompetitivenessSampleSize: 26,
+      commissionType: "historical",
+      staleNotRecomputedThisCycle: false,
+    });
+    expect(result.verdict).toBe("aprovado_para_teste");
+    // disclosed, never hidden, even on approval
+    expect(result.risks.some((r) => r.includes("histórica"))).toBe(true);
+  });
+
+  it("owner's recalibration: unknown commission is disclosed as an informational gap, never as a blocker, when 2 other real dimensions hold up", () => {
+    const breakdown = calculateVitrineScore({
+      salesEvidence: officialRankEvidence(5),
+      commissionEvidence: null,
+      priceCompetitiveness: evaluatePriceCompetitiveness({
+        merchantListingId: "x",
+        siblingOffers: [{ price: 150, condition: "new", sellerReputationLevel: "5_green", mlCategoryId: null }],
+        thisPrice: 100,
+        priceHistory: [],
+      }),
+      qualitySignal: null,
+      seasonalEvent: null,
+      trendDirection: null,
+      vitrineClickCount: 0,
+    });
+    const result = auditCandidate({
+      breakdown,
+      group: "recorrente",
+      descriptionQuality: "adequada",
+      priceCompetitivenessSampleSize: 1,
+      commissionType: "unknown",
+      staleNotRecomputedThisCycle: false,
+    });
+    expect(result.verdict).toBe("aprovado_para_teste");
+    expect(result.risks.some((r) => r.includes("Incerteza informacional") && r.includes("comissão desconhecida"))).toBe(true);
+  });
+
+  it("owner's recalibration: exactly ONE non-commission dimension is still only 'revisão necessária', even with a big fresh commission attached — a single independent signal is never enough on its own", () => {
+    const breakdown = calculateVitrineScore({
+      salesEvidence: null,
+      commissionEvidence: evaluateCommissionEvidence({ individualRate: 0.3, individualCapturedAt: new Date(), mlCategoryId: null, currentPrice: 500 }),
+      priceCompetitiveness: evaluatePriceCompetitiveness({
+        merchantListingId: "x",
+        siblingOffers: [{ price: 150, condition: "new", sellerReputationLevel: "5_green", mlCategoryId: null }],
+        thisPrice: 100,
+        priceHistory: [],
+      }),
+      qualitySignal: null,
+      seasonalEvent: null,
+      trendDirection: null,
+      vitrineClickCount: 0,
+    });
+    const result = auditCandidate({
+      breakdown,
+      group: "recorrente",
+      descriptionQuality: "adequada",
+      priceCompetitivenessSampleSize: 1,
+      commissionType: "confirmed_individual",
+      staleNotRecomputedThisCycle: false,
+    });
+    expect(result.verdict).toBe("revisao_necessaria");
+  });
+
+  it("owner's recalibration: zero non-commission dimensions is still outright REPROVADO even with a confirmed, fresh, high commission — the exact original 'campeão recorrente só por comissão' bug", () => {
+    const breakdown = calculateVitrineScore({
+      salesEvidence: null,
+      commissionEvidence: evaluateCommissionEvidence({ individualRate: 0.4, individualCapturedAt: new Date(), mlCategoryId: null, currentPrice: 1000 }),
+      priceCompetitiveness: null,
+      qualitySignal: null,
+      seasonalEvent: null,
+      trendDirection: null,
+      vitrineClickCount: 0,
+    });
+    const result = auditCandidate({
+      breakdown,
+      group: "recorrente",
+      descriptionQuality: "adequada",
+      priceCompetitivenessSampleSize: 0,
+      commissionType: "confirmed_individual",
+      staleNotRecomputedThisCycle: false,
+    });
+    expect(result.verdict).toBe("reprovado");
+  });
+
   it("approves a genuinely well-supported candidate: 4 real dimensions, multi-competitor price check, fresh commission, no risks", () => {
     const breakdown = calculateVitrineScore({
       salesEvidence: officialRankEvidence(2),

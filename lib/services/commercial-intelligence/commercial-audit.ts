@@ -4,16 +4,35 @@
  * comercial... Evite que o algoritmo seja simultaneamente o candidato e
  * o juiz de sua própria qualidade." This module NEVER reads
  * VitrineScoreResult.score or .rankingScore as evidence — it re-derives
- * its verdict from the same raw components, but under its OWN, more
- * conservative criteria, explicitly named in section 7:
- *   - Consistência das evidências
- *   - Atualidade dos dados
- *   - Confiabilidade das fontes
- *   - Coerência comercial
- *   - Adequação à publicidade paga
- *   - Riscos de informação incorreta
- * ("Qualidade das alternativas rejeitadas" is handled separately, by
- * comparing against the discarded pool — see jobs/commercial-lab-*.)
+ * its verdict from the same raw components, but under its OWN criteria.
+ *
+ * Recalibrated, 2026-11-20 ("Auditoria dos 29 produtos"): the first
+ * version triple-penalized commission uncertainty — once in the score
+ * (already correct: a stale commission scores at half value), a second
+ * time by stripping it out of "effective dimension count", and a THIRD
+ * time via a blanket `risks.length === 0` requirement for approval that
+ * re-flagged the exact same stale/unknown commission (and a thin price
+ * sample) as an automatic blocker. Investigated against the real
+ * current 30 products: 29 of 30 "revisão necessária" turned out to
+ * share one pattern — 2-3 solid, INDEPENDENT real dimensions (official
+ * rank, price position vs. real siblings, quality/rating, seasonality)
+ * plus ONE commission figure that's either stale or unknown. Under the
+ * owner's own explicit framing (section 2 of "Auditoria dos 29
+ * produtos"): "não trate comissão desconhecida como zero nem comissão
+ * histórica como vigente" — the fix is not to pretend the commission
+ * uncertainty doesn't exist (it's still disclosed below), but to stop
+ * letting it override otherwise-solid, INDEPENDENT commercial evidence.
+ *
+ * coreDimensions always excludes commissionValue, by construction, in
+ * every case — never just when it happens to be degraded. Approval now
+ * turns on how many genuinely independent, non-commission signals
+ * support the pick; commission freshness and a thin competitor sample
+ * become disclosed caveats (never hidden) rather than automatic
+ * blockers. This is NOT lowered rigor: the original emergente bug this
+ * whole audit exists to catch — a product backed by a SINGLE weak
+ * signal and nothing else — still never clears "aprovado" (coreDimensions
+ * must be >= 2), and a product with ZERO independent commercial signal
+ * besides a commission guess is still outright reprovado.
  */
 import type { VitrineScoreResult } from "@/lib/services/vitrine-score";
 import type { VitrineGroupType } from "@/lib/services/vitrine-selection";
@@ -23,6 +42,10 @@ export type AuditVerdict = "aprovado_para_teste" | "revisao_necessaria" | "repro
 export interface AuditResult {
   verdict: AuditVerdict;
   reasons: string[];
+  /** Always populated when something is worth disclosing, on EVERY
+   * verdict including aprovado_para_teste — "transparência sobre
+   * incertezas" is required regardless of whether the caveat ends up
+   * blocking approval. */
   risks: string[];
 }
 
@@ -34,62 +57,72 @@ export interface AuditInput {
   commissionType: "confirmed_individual" | "category_tier" | "promotional_temporary" | "historical" | "unknown";
   /** True when this product's score/evidence was NOT recomputed this
    * cycle (held over by the minimum-observation/rotation-budget
-   * protection) — see jobs/vitrine-renew.ts. The audit treats this as a
-   * real "atualidade dos dados" risk on its own, regardless of how good
-   * the frozen numbers look. */
+   * protection) — see jobs/vitrine-renew.ts. Still a hard block: unlike
+   * commission/price caveats, this means we genuinely don't know if
+   * TODAY's numbers are even right. */
   staleNotRecomputedThisCycle: boolean;
 }
+
+const NON_COMMISSION_COMPONENT_KEYS = [
+  "salesEvidence",
+  "priceCompetitiveness",
+  "quality",
+  "seasonality",
+  "trend",
+  "adPerformance",
+] as const;
 
 export function auditCandidate(input: AuditInput): AuditResult {
   const reasons: string[] = [];
   const risks: string[] = [];
 
-  // Owner's finding, 2026-11-20 ("Auditoria Contínua"): a row whose
-  // evidence hasn't been recomputed since before `degradedDimensions`
-  // existed (any VitrineSelection written before today's stale-
-  // commission fix) stores a scoreBreakdown with no such field at all —
-  // real legacy data, read via an `unknown` cast for the
-  // staleNotRecomputedThisCycle path, never assume the newer shape.
-  const realDimensions = Object.values(input.breakdown.components).filter((c) => c.value !== null).length;
-  const effectiveDimensions = realDimensions - (input.breakdown.degradedDimensions ?? []).length;
-
-  if (input.staleNotRecomputedThisCycle) {
-    risks.push("Atualidade dos dados: evidência NÃO recalculada nesta rodada — protegida contra retirada, mas o que está exibido pode já estar desatualizado.");
-  }
-
-  if (input.descriptionQuality === "inadequada") {
-    risks.push("Coerência comercial: título com marcadores fortes de idioma não compatível com o mercado brasileiro.");
-  }
-
-  if (input.priceCompetitivenessSampleSize === 1) {
-    risks.push("Confiabilidade das fontes: competitividade de preço comparada a apenas 1 concorrente — amostra pequena para confiança alta.");
-  } else if (input.priceCompetitivenessSampleSize === 0) {
-    risks.push("Confiabilidade das fontes: nenhuma oferta real de comparação de preço disponível.");
-  }
-
-  if (input.commissionType === "historical") {
-    risks.push("Atualidade dos dados: comissão conhecida é histórica (fora da janela de 45 dias) — não presumir vigente.");
-  } else if (input.commissionType === "unknown") {
-    risks.push("Confiabilidade das fontes: comissão desconhecida — a API de descoberta do Mercado Livre não a divulga.");
-  } else if (input.commissionType === "promotional_temporary") {
-    risks.push("Adequação à publicidade paga: comissão é uma campanha temporária de ganhos extras — pode expirar sem aviso durante a campanha publicitária.");
-  }
-
-  // Consistência das evidências: quantos pilares reais e NÃO degradados
-  // sustentam esta escolha — nunca o score final, que já pondera tudo
-  // junto e pode esconder que só um ou dois pilares estão realmente de
-  // pé.
   if (input.staleNotRecomputedThisCycle || input.descriptionQuality === "inadequada") {
-    return { verdict: "reprovado", reasons: ["Dados não atuais ou descrição inadequada — não recomendável para teste publicitário nesta rodada."], risks };
+    return {
+      verdict: "reprovado",
+      reasons: ["Dados não atuais ou descrição inadequada — não recomendável para teste publicitário nesta rodada."],
+      risks: input.staleNotRecomputedThisCycle
+        ? ["Atualidade dos dados: evidência NÃO recalculada nesta rodada — o que está exibido pode já estar desatualizado."]
+        : ["Coerência comercial: título com marcadores fortes de idioma não compatível com o mercado brasileiro."],
+    };
   }
 
-  if (effectiveDimensions >= 3 && input.priceCompetitivenessSampleSize !== 1 && risks.length === 0) {
-    reasons.push(`${effectiveDimensions} dimensões reais e não degradadas sustentam a seleção, sem riscos identificados.`);
+  // Owner's correction: measured WITHOUT commissionValue, always — never
+  // "real minus degraded", which silently double-counted the exact same
+  // uncertainty disclosed below as a risk. Optional-chained: a legacy
+  // breakdown predating one of these component keys is read as "not
+  // present" rather than crashing (see the legacy-shape test below).
+  const coreDimensions = NON_COMMISSION_COMPONENT_KEYS.filter((k) => input.breakdown.components[k]?.value != null).length;
+
+  // Disclosed on every verdict, never hidden on approval — "risco
+  // comercial relevante" (comissão desatualizada) and "incerteza
+  // informacional" (comissão desconhecida) are reported with different
+  // wording per the owner's own split, but neither alone blocks
+  // approval anymore when independent evidence already clears the bar.
+  if (input.commissionType === "historical") {
+    risks.push("Risco comercial relevante: comissão conhecida é histórica (fora da janela de 45 dias) — não presumir vigente.");
+  } else if (input.commissionType === "unknown") {
+    risks.push("Incerteza informacional: comissão desconhecida — a API de descoberta do Mercado Livre não a divulga para itens de terceiros. Ausência de dado, não evidência de problema.");
+  } else if (input.commissionType === "promotional_temporary") {
+    risks.push("Risco comercial relevante: comissão é uma campanha temporária de ganhos extras — pode expirar sem aviso durante a campanha publicitária.");
+  }
+  if (input.priceCompetitivenessSampleSize === 1) {
+    risks.push("Incerteza informacional: competitividade de preço comparada a apenas 1 concorrente real — amostra pequena, nunca tratada como prova forte isolada.");
+  } else if (input.priceCompetitivenessSampleSize === 0) {
+    risks.push("Incerteza informacional: nenhuma oferta real de comparação de preço disponível.");
+  }
+
+  if (coreDimensions === 0) {
+    reasons.push("Nenhuma evidência comercial independente da comissão sustenta este produto — exatamente o padrão que não deve ser aprovado, mesmo com comissão alta.");
+    return { verdict: "reprovado", reasons, risks };
+  }
+
+  if (coreDimensions >= 2) {
+    reasons.push(
+      `${coreDimensions} dimensão(ões) comercial(is) independente(s) da comissão (ranking/preço/qualidade/sazonalidade/tendência) sustentam a seleção${risks.length > 0 ? `, com ${risks.length} ressalva(s) divulgada(s) abaixo — nenhuma delas isolada ou dominante` : ", sem ressalvas"}.`,
+    );
     return { verdict: "aprovado_para_teste", reasons, risks };
   }
 
-  reasons.push(
-    `${effectiveDimensions} dimensão(ões) real(is) não degradada(s)${risks.length > 0 ? ", com " + risks.length + " risco(s) identificado(s)" : ""} — defensável, mas não livre de ressalvas.`,
-  );
+  reasons.push("Só 1 dimensão comercial independente da comissão — sozinha, não é base suficiente; recomenda-se checagem humana pontual antes de investir mídia paga.");
   return { verdict: "revisao_necessaria", reasons, risks };
 }
