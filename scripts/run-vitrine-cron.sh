@@ -19,6 +19,18 @@
 # next, same "falha parcial não derruba o ciclo inteiro" rule as the main
 # ML/Shopee cycle (jobs/run-ml-shopee-cycle.ts).
 #
+# Critical fix, 2026-11-20 ("Ordem de Execução", priority 1): the `run()`
+# helper never mounted data/vitrine-creatives into the one-off container —
+# jobs/vitrine-creative-factory.ts wrote every generated image to that
+# throwaway container's own layer, destroyed by --rm the moment the job
+# finished. Confirmed live: the day's first 19 real, PAID creatives
+# (US$1.52 spent) were marked "approved" in the DB with a public URL that
+# 404'd the moment it was fetched externally — the bytes never reached
+# the host volume the `app` service actually serves from. Every run
+# through this script now mounts the same host path docker-compose.prod.yml
+# gives the `app` service, so a generated file survives the container
+# exiting and is still there next cycle.
+#
 # NOT installed in crontab yet — see docs/VITRINE_INTELIGENTE.md for the
 # safety review this needs before its first production run.
 set -uo pipefail
@@ -33,6 +45,7 @@ run() {
     --network precocaindo_internal \
     --env-file "$TMP_ENV" \
     -w /app \
+    -v "$(pwd)/data/vitrine-creatives:/app/data/vitrine-creatives" \
     precocaindo-digest:latest \
     npx tsx "$1"
 }
