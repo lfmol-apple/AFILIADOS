@@ -136,7 +136,18 @@ export function renderAdOverlay(input: CompositeInput) {
             display: "flex",
             flexDirection: "column",
             padding: "40px 48px 44px 48px",
-            background: "linear-gradient(to top, rgba(15,23,42,0.92) 0%, rgba(15,23,42,0.55) 60%, rgba(15,23,42,0) 100%)",
+            // Owner's finding, 2026-11-20 ("Fábrica de Criativos
+            // integrada ao XML"): verified live on a real generated
+            // creative (Cicaplast Baume B5+, light/white packaging) —
+            // the title text sat near the TOP of this panel, where the
+            // old gradient (55% opacity at the 60% stop, fading to 0%
+            // at the very top) was already too transparent, making
+            // white text unreadable over a light product background.
+            // Keeps strong, near-opaque darkness across the WHOLE text
+            // block regardless of what color is behind it; only the
+            // last few pixels at the very top edge fade out, so the
+            // panel still blends into the photo above it.
+            background: "linear-gradient(to top, rgba(15,23,42,0.95) 0%, rgba(15,23,42,0.88) 85%, rgba(15,23,42,0) 100%)",
           }}
         >
           <div style={{ display: "flex", fontSize: 34, fontWeight: 700, color: "#ffffff", lineHeight: 1.15, marginBottom: 14 }}>
