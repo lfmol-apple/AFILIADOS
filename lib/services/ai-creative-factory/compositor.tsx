@@ -60,6 +60,12 @@ export interface CompositeInput {
   currentPrice: number;
   referencePrice: number | null;
   hasConfirmedDiscount: boolean;
+  /** Owner's requirement, 2026-11-20 ("Evolução da Fábrica de
+   * Criativos"): real, traceable benefit lines from
+   * product-interpretation.ts's CreativeProfile — never invented copy.
+   * 0-4 items; the section simply doesn't render when empty (a product
+   * with nothing real to say gets a simpler piece, never a padded one). */
+  benefits?: string[];
 }
 
 function priceTag(price: number): string {
@@ -153,6 +159,16 @@ export function renderAdOverlay(input: CompositeInput) {
           <div style={{ display: "flex", fontSize: 34, fontWeight: 700, color: "#ffffff", lineHeight: 1.15, marginBottom: 14 }}>
             {input.title.length > 70 ? `${input.title.slice(0, 70)}…` : input.title}
           </div>
+          {input.benefits && input.benefits.length > 0 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 16 }}>
+              {input.benefits.slice(0, 4).map((benefit, i) => (
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 24, color: "#f1f5f9" }}>
+                  <div style={{ display: "flex", width: 8, height: 8, borderRadius: 999, background: BRAND_YELLOW }} />
+                  <div style={{ display: "flex" }}>{benefit}</div>
+                </div>
+              ))}
+            </div>
+          )}
           <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginBottom: 18 }}>
             {hasRealDrop && (
               <div style={{ display: "flex", fontSize: 28, color: "#cbd5e1", textDecoration: "line-through" }}>

@@ -26,6 +26,15 @@ export interface CreativePromptInputs {
   soldQuantityLabel: string | null; // real bucket label (e.g. "+1000 vendidos"), never invented
   impulseFit: "alto" | "moderado" | "baixo" | "indeterminado";
   isSeasonalEvent: string | null; // real matched event name, e.g. "Natal" — null otherwise
+  /** Owner's requirement, 2026-11-20 ("Evolução da Fábrica de
+   * Criativos"): real, traceable benefits from
+   * product-interpretation.ts's CreativeProfile (confirmed discount,
+   * real rating, or a spec the seller already wrote in the title) —
+   * never invented. Told to the AI only as real context for lighting/
+   * mood, same as rating/soldQuantity below — the actual benefit TEXT
+   * on the final image is drawn programmatically by compositor.tsx,
+   * never painted by the AI itself. */
+  benefits?: string[];
 }
 
 /** Real, auditable category → environment/mood mapping (owner's
@@ -73,6 +82,9 @@ export function buildCreativePrompt(input: CreativePromptInputs): string {
   if (input.brand) realFactsLines.push(`Marca real: ${input.brand}.`);
   if (input.rating !== null) realFactsLines.push(`Avaliação real do produto: ${input.rating.toFixed(1)}/5 — pode ser sugerida apenas como elemento visual discreto (estrelas), nunca inventada.`);
   if (input.soldQuantityLabel) realFactsLines.push(`Popularidade real: ${input.soldQuantityLabel}.`);
+  if (input.benefits && input.benefits.length > 0) {
+    realFactsLines.push(`Argumentos de venda reais e já comprovados deste produto específico (apenas para orientar o clima/contexto da composição, NUNCA para desenhar como texto): ${input.benefits.join("; ")}.`);
+  }
 
   return [
     `Fotografia publicitária profissional do produto real fornecido na imagem de entrada: "${input.title}".`,

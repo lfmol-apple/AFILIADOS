@@ -9,6 +9,7 @@ import { runQualityControl } from "@/lib/services/ai-creative-factory/quality-co
 import { renderCatalogClean, renderAdOverlay, toBuffer } from "@/lib/services/ai-creative-factory/compositor";
 import type { ImpulseFitHypothesis } from "@/lib/services/commercial-intelligence/ad-potential-hypothesis";
 import { saveAiBase, readAiBase, saveFinalRender } from "@/lib/services/ai-creative-factory/creative-image-store";
+import { interpretProduct } from "@/lib/services/ai-creative-factory/product-interpretation";
 
 /**
  * Fábrica Inteligente de Criativos — orchestration job (owner's
@@ -65,6 +66,27 @@ export async function runVitrineCreativeFactoryJob() {
         adPotentialHypothesis?: { impulseFit?: string };
       } | null;
 
+      // Owner's requirement, 2026-11-20 ("Evolução da Fábrica de
+      // Criativos" / "Automação Integral"): a mandatory, deterministic
+      // interpretation pass BEFORE any generation or re-render — real,
+      // traceable benefits only (confirmed discount, real rating, or a
+      // spec the seller already wrote in the real title), never
+      // invented. Free (no API call), computed every cycle so BOTH the
+      // zero-cost price-only path and the full-generation path below
+      // show the same real benefits.
+      const creativeProfile = interpretProduct({
+        title: product.title,
+        brand: product.brand,
+        categoryHint: selection.merchantListing.canonicalProduct?.categoryId ?? null,
+        currentPrice: product.currentPrice,
+        referencePrice: product.referencePrice,
+        hasConfirmedDiscount: product.discountPercent !== null && product.discountPercent > 0,
+        rating: product.rating,
+        reviewCount: product.reviewCount,
+        isSeasonalEvent: breakdown?.matchedEventName ?? null,
+      });
+      const realBenefitTexts = creativeProfile.benefits.map((b) => b.text);
+
       const latestAiBase = await prisma.vitrineCreative.findFirst({
         where: { merchantListingId: selection.merchantListingId, kind: "ad_overlay" },
         orderBy: { version: "desc" },
@@ -103,6 +125,7 @@ export async function runVitrineCreativeFactoryJob() {
               currentPrice: product.currentPrice,
               referencePrice: product.referencePrice,
               hasConfirmedDiscount: product.discountPercent !== null && product.discountPercent > 0,
+              benefits: realBenefitTexts,
             }),
           );
           const finalUrl = saveFinalRender(selection.merchantListingId, "ad_overlay", nextVersion, overlayPng);
@@ -158,6 +181,7 @@ export async function runVitrineCreativeFactoryJob() {
         soldQuantityLabel: null, // real bucket label plumbing lives in sales-evidence.ts; not yet threaded through MerchantListingFacts — left null rather than guessed
         impulseFit: (breakdown?.adPotentialHypothesis?.impulseFit ?? "indeterminado") as ImpulseFitHypothesis,
         isSeasonalEvent: breakdown?.matchedEventName ?? null,
+        benefits: realBenefitTexts,
       };
       const promptText = buildCreativePrompt(promptInputs);
 
@@ -222,6 +246,7 @@ export async function runVitrineCreativeFactoryJob() {
             currentPrice: product.currentPrice,
             referencePrice: product.referencePrice,
             hasConfirmedDiscount: promptInputs.hasConfirmedDiscount,
+            benefits: realBenefitTexts,
           }),
         ),
       ]);
