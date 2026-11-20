@@ -303,6 +303,34 @@ const envSchema = z.object({
   /// ~$0.04-0.05/image) — a deliberate choice, not the API's own default
   /// ("auto"), so cost stays predictable.
   VITRINE_CREATIVE_QUALITY: z.enum(["low", "medium", "high", "auto"]).default("medium"),
+  /// Real incident, 2026-11-20: a "isolated environment" test ran the
+  /// full Vitrine cycle against an empty test database, whose spend
+  /// ledger naturally read "$0 spent today" and silently let the SAME
+  /// real OpenAI key make US$1.45 of real, uncontrolled paid calls — a
+  /// DB-only budget check can never be a real safety boundary, because
+  /// the key itself is shared with production regardless of which
+  /// database answers `checkCreativeBudget()`. This is now a SEPARATE,
+  /// mandatory gate enforced inside generateCreativeBase() itself (the
+  /// one real place that calls the paid endpoint — never only in a
+  /// caller, cron wrapper, or job), so no script can ever bypass it by
+  /// pointing at a different database:
+  ///   "teste" (the default when the var is unset — an explicitly set
+  ///     value outside this enum fails env validation at startup
+  ///     instead, which is fail-closed too, just differently): BLOCKS
+  ///     every paid call unconditionally, before any network request is
+  ///     built. This is the only safe default for any non-production
+  ///     environment.
+  ///   "piloto_autorizado": allows real calls, but hard-capped by
+  ///     VITRINE_CREATIVE_PILOT_MAX_CALLS for this process's lifetime —
+  ///     for a human-authorized, explicitly bounded single test.
+  ///   "producao": the real, continuous operation — generateCreativeBase
+  ///     itself also re-checks the real DB budget (checkCreativeBudget)
+  ///     as defense-in-depth, even though callers already check it too.
+  VITRINE_CREATIVE_MODE: z.enum(["teste", "piloto_autorizado", "producao"]).default("teste"),
+  /// Required (and enforced) only in "piloto_autorizado" mode — see
+  /// above. Defaults to 0, i.e. a missing value blocks every call just
+  /// like "teste" mode would, rather than silently defaulting open.
+  VITRINE_CREATIVE_PILOT_MAX_CALLS: z.coerce.number().int().nonnegative().default(0),
   /// Hard ceilings — owner's explicit rule: "não comprometa despesas...
   /// sem minha autorização financeira" + "implemente limites
   /// configuráveis de gasto." The job REFUSES to call the API once

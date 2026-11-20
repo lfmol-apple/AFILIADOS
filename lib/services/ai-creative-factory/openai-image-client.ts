@@ -1,7 +1,53 @@
 import { env } from "@/lib/config/env";
 import { logger } from "@/lib/observability/logger";
+import { checkCreativeBudget } from "@/lib/services/ai-creative-factory/budget";
 
 export class OpenAiImageNotConfiguredError extends Error {}
+
+/** Real incident, 2026-11-20: an "isolated" pipeline test, pointed at an
+ * empty test database, silently made US$1.45 of real OpenAI calls —
+ * the real API key is shared with production no matter which database
+ * answers `checkCreativeBudget()`, so a DB-only check was never a real
+ * boundary. This error (and the mode gate below) is the real one: it
+ * throws before any network request is built, regardless of what any
+ * caller already checked. */
+export class CreativeGenerationBlockedError extends Error {}
+
+/** Per-process call counter for "piloto_autorizado" mode — intentionally
+ * NOT persisted anywhere: it only needs to survive one process's
+ * lifetime (one script run, one job invocation), and a fresh process
+ * starting back at 0 is the safe direction for a counter whose whole
+ * job is capping spend, never the dangerous one. */
+let pilotCallsMadeThisProcess = 0;
+
+async function assertCreativeGenerationAllowed(): Promise<void> {
+  const mode = env.VITRINE_CREATIVE_MODE;
+  if (mode === "teste") {
+    throw new CreativeGenerationBlockedError(
+      "VITRINE_CREATIVE_MODE=teste (ou não definido) — nenhuma chamada paga à OpenAI é permitida neste processo. " +
+        "Defina VITRINE_CREATIVE_MODE=piloto_autorizado (com VITRINE_CREATIVE_PILOT_MAX_CALLS) ou =producao para gerar de verdade.",
+    );
+  }
+  if (mode === "piloto_autorizado") {
+    const max = env.VITRINE_CREATIVE_PILOT_MAX_CALLS;
+    if (pilotCallsMadeThisProcess >= max) {
+      throw new CreativeGenerationBlockedError(
+        `Modo piloto_autorizado: limite de ${max} chamada(s) para este processo já atingido (${pilotCallsMadeThisProcess} feita(s)). ` +
+          "Aumente VITRINE_CREATIVE_PILOT_MAX_CALLS apenas com nova autorização explícita.",
+      );
+    }
+    pilotCallsMadeThisProcess += 1;
+    return;
+  }
+  // mode === "producao": defense-in-depth — re-checked here even though
+  // every real caller (jobs/vitrine-creative-factory.ts, the test/pilot
+  // scripts) already calls checkCreativeBudget() itself. This function,
+  // not any caller, is the one place that can never be skipped.
+  const budget = await checkCreativeBudget();
+  if (!budget.allowed) {
+    throw new CreativeGenerationBlockedError(`Orçamento real excedido (checagem interna): ${budget.reason}`);
+  }
+}
 
 /**
  * Real OpenAI Images API client (owner's authorization, 2026-11-19:
@@ -64,6 +110,7 @@ export async function generateCreativeBase(input: {
   styleReferencePhoto?: Buffer;
   styleReferencePhotoContentType?: string;
 }): Promise<GenerateCreativeResult> {
+  await assertCreativeGenerationAllowed();
   assertOpenAiConfigured();
 
   const quality = env.VITRINE_CREATIVE_QUALITY === "auto" ? "medium" : env.VITRINE_CREATIVE_QUALITY;
