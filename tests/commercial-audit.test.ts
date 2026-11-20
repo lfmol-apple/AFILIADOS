@@ -4,6 +4,13 @@ import { calculateVitrineScore } from "@/lib/services/vitrine-score";
 import { officialRankEvidence } from "@/lib/services/commercial-intelligence/sales-evidence";
 import { evaluateCommissionEvidence } from "@/lib/services/commercial-intelligence/commission-evidence";
 import { evaluatePriceCompetitiveness } from "@/lib/services/commercial-intelligence/price-competitiveness";
+import type { ActiveCommercialEvent } from "@/lib/services/commercial-calendar-engine";
+
+const NATAL_EVENT = {
+  event: { id: "natal", name: "Natal", eventType: "tematico", peakDate: () => new Date(), categoryIds: [], keywords: [] },
+  stage: "antecipacao",
+  daysUntilPeak: 35,
+} as unknown as ActiveCommercialEvent;
 
 describe("auditCandidate — owner's requirement, 2026-11-20 (Auditoria Contínua, section 7): never reuses the score as proof", () => {
   it("never reads .score or .rankingScore — a high-scoring but single-signal, single-competitor case is still flagged", () => {
@@ -27,6 +34,7 @@ describe("auditCandidate — owner's requirement, 2026-11-20 (Auditoria Contínu
       group: "emergente",
       descriptionQuality: "adequada",
       priceCompetitivenessSampleSize: 1,
+      hasConfirmedPriceDrop: false,
       commissionType: "unknown",
       staleNotRecomputedThisCycle: false,
     });
@@ -57,6 +65,7 @@ describe("auditCandidate — owner's requirement, 2026-11-20 (Auditoria Contínu
       group: "recorrente",
       descriptionQuality: "adequada",
       priceCompetitivenessSampleSize: 2,
+      hasConfirmedPriceDrop: false,
       commissionType: "confirmed_individual",
       staleNotRecomputedThisCycle: true,
     });
@@ -86,6 +95,7 @@ describe("auditCandidate — owner's requirement, 2026-11-20 (Auditoria Contínu
       group: "recorrente",
       descriptionQuality: "inadequada",
       priceCompetitivenessSampleSize: 2,
+      hasConfirmedPriceDrop: false,
       commissionType: "confirmed_individual",
       staleNotRecomputedThisCycle: false,
     });
@@ -110,6 +120,7 @@ describe("auditCandidate — owner's requirement, 2026-11-20 (Auditoria Contínu
         group: "recorrente",
         descriptionQuality: "adequada",
         priceCompetitivenessSampleSize: 0,
+        hasConfirmedPriceDrop: false,
         commissionType: "unknown",
         staleNotRecomputedThisCycle: true,
       }),
@@ -136,6 +147,7 @@ describe("auditCandidate — owner's requirement, 2026-11-20 (Auditoria Contínu
       group: "recorrente",
       descriptionQuality: "adequada",
       priceCompetitivenessSampleSize: 26,
+      hasConfirmedPriceDrop: false,
       commissionType: "historical",
       staleNotRecomputedThisCycle: false,
     });
@@ -144,13 +156,16 @@ describe("auditCandidate — owner's requirement, 2026-11-20 (Auditoria Contínu
     expect(result.risks.some((r) => r.includes("histórica"))).toBe(true);
   });
 
-  it("owner's recalibration: unknown commission is disclosed as an informational gap, never as a blocker, when 2 other real dimensions hold up", () => {
+  it("owner's recalibration: unknown commission is disclosed as an informational gap, never as a blocker, when 2 other SOLID real dimensions hold up (official rank + a multi-competitor price check)", () => {
     const breakdown = calculateVitrineScore({
       salesEvidence: officialRankEvidence(5),
       commissionEvidence: null,
       priceCompetitiveness: evaluatePriceCompetitiveness({
         merchantListingId: "x",
-        siblingOffers: [{ price: 150, condition: "new", sellerReputationLevel: "5_green", mlCategoryId: null }],
+        siblingOffers: [
+          { price: 150, condition: "new", sellerReputationLevel: "5_green", mlCategoryId: null },
+          { price: 160, condition: "new", sellerReputationLevel: "5_green", mlCategoryId: null },
+        ],
         thisPrice: 100,
         priceHistory: [],
       }),
@@ -163,7 +178,8 @@ describe("auditCandidate — owner's requirement, 2026-11-20 (Auditoria Contínu
       breakdown,
       group: "recorrente",
       descriptionQuality: "adequada",
-      priceCompetitivenessSampleSize: 1,
+      priceCompetitivenessSampleSize: 2,
+      hasConfirmedPriceDrop: false,
       commissionType: "unknown",
       staleNotRecomputedThisCycle: false,
     });
@@ -171,30 +187,80 @@ describe("auditCandidate — owner's requirement, 2026-11-20 (Auditoria Contínu
     expect(result.risks.some((r) => r.includes("Incerteza informacional") && r.includes("comissão desconhecida"))).toBe(true);
   });
 
-  it("owner's recalibration: exactly ONE non-commission dimension is still only 'revisão necessária', even with a big fresh commission attached — a single independent signal is never enough on its own", () => {
+  it("owner's recalibration: exactly ONE solid non-commission dimension (seasonality alone, no price data at all) is still only 'revisão necessária' — never enough on its own", () => {
     const breakdown = calculateVitrineScore({
       salesEvidence: null,
       commissionEvidence: evaluateCommissionEvidence({ individualRate: 0.3, individualCapturedAt: new Date(), mlCategoryId: null, currentPrice: 500 }),
-      priceCompetitiveness: evaluatePriceCompetitiveness({
-        merchantListingId: "x",
-        siblingOffers: [{ price: 150, condition: "new", sellerReputationLevel: "5_green", mlCategoryId: null }],
-        thisPrice: 100,
-        priceHistory: [],
-      }),
+      priceCompetitiveness: null,
       qualitySignal: null,
-      seasonalEvent: null,
+      seasonalEvent: NATAL_EVENT,
       trendDirection: null,
       vitrineClickCount: 0,
     });
     const result = auditCandidate({
       breakdown,
-      group: "recorrente",
+      group: "sazonal",
       descriptionQuality: "adequada",
-      priceCompetitivenessSampleSize: 1,
+      priceCompetitivenessSampleSize: 0,
+      hasConfirmedPriceDrop: false,
       commissionType: "confirmed_individual",
       staleNotRecomputedThisCycle: false,
     });
     expect(result.verdict).toBe("revisao_necessaria");
+  });
+
+  it("owner's finding, 2026-11-20 ('Primeiro teste real da Vitrine'): the real R$474,05 'Guirlanda Natal' pattern — a price backed by exactly 1 sibling with NO confirmed discount, plus a bare seasonal-keyword match and nothing else — is REPROVADO, not approved. Neither dimension was actually solid on its own.", () => {
+    const breakdown = calculateVitrineScore({
+      salesEvidence: null, // search-relevance-only, never real demand evidence
+      commissionEvidence: null,
+      priceCompetitiveness: evaluatePriceCompetitiveness({
+        merchantListingId: "x",
+        siblingOffers: [{ price: 499.01, condition: "new", sellerReputationLevel: "5_green", mlCategoryId: null }],
+        thisPrice: 474.05,
+        priceHistory: [],
+      }),
+      qualitySignal: null,
+      seasonalEvent: NATAL_EVENT,
+      trendDirection: null,
+      vitrineClickCount: 0,
+    });
+    const result = auditCandidate({
+      breakdown,
+      group: "sazonal",
+      descriptionQuality: "adequada",
+      priceCompetitivenessSampleSize: 1,
+      hasConfirmedPriceDrop: false,
+      commissionType: "unknown",
+      staleNotRecomputedThisCycle: false,
+    });
+    expect(result.verdict).toBe("reprovado");
+  });
+
+  it("the SAME price-only-one-sibling case is approved once there's a real, confirmed discount backing it — a thin sample is not disqualifying when independently corroborated", () => {
+    const breakdown = calculateVitrineScore({
+      salesEvidence: null,
+      commissionEvidence: null,
+      priceCompetitiveness: evaluatePriceCompetitiveness({
+        merchantListingId: "x",
+        siblingOffers: [{ price: 499.01, condition: "new", sellerReputationLevel: "5_green", mlCategoryId: null }],
+        thisPrice: 474.05,
+        priceHistory: [],
+      }),
+      qualitySignal: null,
+      seasonalEvent: NATAL_EVENT,
+      trendDirection: null,
+      vitrineClickCount: 0,
+    });
+    const result = auditCandidate({
+      breakdown,
+      group: "sazonal",
+      descriptionQuality: "adequada",
+      priceCompetitivenessSampleSize: 1,
+      hasConfirmedPriceDrop: true,
+      commissionType: "unknown",
+      staleNotRecomputedThisCycle: false,
+    });
+    expect(result.verdict).toBe("aprovado_para_teste");
   });
 
   it("owner's recalibration: zero non-commission dimensions is still outright REPROVADO even with a confirmed, fresh, high commission — the exact original 'campeão recorrente só por comissão' bug", () => {
@@ -212,6 +278,7 @@ describe("auditCandidate — owner's requirement, 2026-11-20 (Auditoria Contínu
       group: "recorrente",
       descriptionQuality: "adequada",
       priceCompetitivenessSampleSize: 0,
+      hasConfirmedPriceDrop: false,
       commissionType: "confirmed_individual",
       staleNotRecomputedThisCycle: false,
     });
@@ -242,6 +309,7 @@ describe("auditCandidate — owner's requirement, 2026-11-20 (Auditoria Contínu
       group: "recorrente",
       descriptionQuality: "adequada",
       priceCompetitivenessSampleSize: 3,
+      hasConfirmedPriceDrop: false,
       commissionType: "confirmed_individual",
       staleNotRecomputedThisCycle: false,
     });

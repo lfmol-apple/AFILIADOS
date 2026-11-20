@@ -49,6 +49,7 @@ export async function GET() {
     where: { status: "ACTIVE" },
     select: {
       merchantListingId: true,
+      scoreBreakdown: true,
       merchantListing: {
         select: {
           externalId: true,
@@ -64,6 +65,21 @@ export async function GET() {
     const listing = selection.merchantListing;
     const slug = listing.canonicalProduct?.publicSlug;
     if (listing.vitrineLink?.status !== "ACTIVE" || !slug) continue;
+
+    // Owner's requirement, 2026-11-20 ("Primeiro teste real da
+    // Vitrine", item 3): "confirme que produtos reprovados pela
+    // auditoria não podem ser exportados para o XML, mesmo que
+    // permaneçam registrados no banco." selectVitrineCandidates already
+    // keeps a reprovado candidate out of ACTIVE status from the next
+    // cycle on — this is defense-in-depth for the narrow window inside
+    // a single cycle (and for any row a future code path might leave
+    // ACTIVE without going through that gate), read directly from the
+    // stored audit verdict, never re-derived here.
+    const audit = (selection.scoreBreakdown as { commercialAudit?: { verdict?: string } } | null)?.commercialAudit;
+    if (audit?.verdict === "reprovado") {
+      logger.warn("vitrine_catalog.skipped_reprovado_auditoria", { merchantListingId: selection.merchantListingId });
+      continue;
+    }
 
     const product = await loadPublicMerchantProduct(slug).catch(() => null);
     if (!product || !product.imageUrl || product.currentPrice === null) {

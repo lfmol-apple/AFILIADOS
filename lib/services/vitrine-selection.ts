@@ -22,6 +22,7 @@ import { classifySufficiency } from "@/lib/services/commercial-intelligence/evid
 import { evaluateAdPotentialHypothesis, type AdPotentialHypothesis } from "@/lib/services/commercial-intelligence/ad-potential-hypothesis";
 import { evaluateDescriptionQuality } from "@/lib/services/commercial-intelligence/description-quality";
 import { applyCategoryConcentrationCap } from "@/lib/services/commercial-intelligence/category-concentration";
+import { auditCandidate, type AuditResult } from "@/lib/services/commercial-intelligence/commercial-audit";
 
 /**
  * Vitrine Inteligente selection v3 (owner's authorization, 2026-11-19).
@@ -66,7 +67,8 @@ export interface DiscardedCandidate {
     | "duplicado_familia"
     | "preco_nao_confiavel"
     | "evidencia_insuficiente"
-    | "descricao_inadequada";
+    | "descricao_inadequada"
+    | "reprovado_auditoria";
   detail: string;
 }
 
@@ -487,6 +489,7 @@ export interface VitrineCandidate {
   priceCompetitiveness: { score: number | null; siblingOfferCount: number; hasConfirmedPriceDrop: boolean };
   adPotentialHypothesis: AdPotentialHypothesis;
   categoryId: string | null;
+  commercialAudit: AuditResult;
 }
 
 export interface GroupFillReport {
@@ -575,6 +578,34 @@ export async function selectVitrineCandidates(limit = 30): Promise<VitrineSelect
     const nonDegradedReasons = breakdown.reasons.filter(
       (r) => !breakdown.degradedDimensions.some((d) => r.startsWith(`${d}:`)),
     );
+
+    // Owner's requirement, 2026-11-20 ("Primeiro teste real da
+    // Vitrine", item 1): "remova automaticamente... não dependa de
+    // remoção manual." The independent audit now runs INSIDE selection,
+    // not after — a candidate it reprova is discarded here, the same
+    // way an ineligible or anomalous-priced one already is, so a
+    // reprovado product never occupies a slot in the first place and
+    // the next best real candidate (or the group's honest fill report,
+    // never a forced vaga) takes its place automatically next cycle.
+    const commercialAudit = auditCandidate({
+      breakdown,
+      group,
+      descriptionQuality: "adequada", // already gated above — descricao_inadequada never reaches this point
+      priceCompetitivenessSampleSize: c.priceCompetitiveness.siblingOfferCount,
+      hasConfirmedPriceDrop: c.priceCompetitiveness.hasConfirmedPriceDrop,
+      commissionType: c.commissionEvidence.type,
+      staleNotRecomputedThisCycle: false,
+    });
+    if (commercialAudit.verdict === "reprovado") {
+      discarded.push({
+        merchantListingId: c.merchantListingId,
+        title: c.title,
+        reason: "reprovado_auditoria",
+        detail: commercialAudit.reasons.join(" "),
+      });
+      continue;
+    }
+
     const reason = c.matchedEvent
       ? c.matchedEvent.event.eventType === "tematico"
         ? `Encontrado buscando "${c.matchedKeyword}" para ${c.matchedEvent.event.name} (${c.matchedEvent.stage}, pico em ${c.matchedEvent.daysUntilPeak}d).`
@@ -611,6 +642,7 @@ export async function selectVitrineCandidates(limit = 30): Promise<VitrineSelect
         hasConfirmedPriceDrop: c.priceCompetitiveness.hasConfirmedPriceDrop,
       }),
       categoryId: c.categoryId,
+      commercialAudit,
     });
   }
 

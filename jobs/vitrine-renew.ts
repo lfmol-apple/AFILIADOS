@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import { runJob } from "@/lib/jobs/automation-run";
 import { selectVitrineCandidates, type VitrineCandidate } from "@/lib/services/vitrine-selection";
 import { registerCandidate } from "@/lib/services/commercial-intelligence/candidate-registry";
-import { auditCandidate, type AuditInput } from "@/lib/services/commercial-intelligence/commercial-audit";
+import { auditCandidate } from "@/lib/services/commercial-intelligence/commercial-audit";
 import type { VitrineScoreResult } from "@/lib/services/vitrine-score";
 import { logger } from "@/lib/observability/logger";
 
@@ -38,22 +38,12 @@ async function registerLegacyMonetizationScoreCandidates(limit = 500) {
  * without a schema change (VitrineSelection.scoreBreakdown is already a
  * free-form Json column). */
 function breakdownWithEvidence(candidate: VitrineCandidate): object {
-  // Owner's requirement, 2026-11-20 ("Auditoria Contínua", section 7):
-  // an independent verdict, computed from the SAME raw evidence but by
-  // its own, separate, more conservative criteria — never derived from
-  // (or storing) the selection score itself. A candidate just selected
-  // this cycle is, by construction, never "descricao_inadequada" (that's
-  // a rejection gate in vitrine-selection.ts) and never stale (it was
-  // just recomputed) — those two reprovação paths only ever fire for the
-  // protected/stale rows handled separately below.
-  const audit = auditCandidate({
-    breakdown: candidate.scoreBreakdown,
-    group: candidate.group,
-    descriptionQuality: "adequada",
-    priceCompetitivenessSampleSize: candidate.priceCompetitiveness.siblingOfferCount,
-    commissionType: candidate.commissionEvidence.type as AuditInput["commissionType"],
-    staleNotRecomputedThisCycle: false,
-  });
+  // Owner's requirement, 2026-11-20 ("Primeiro teste real da Vitrine",
+  // item 1): the audit now runs INSIDE selectVitrineCandidates itself —
+  // a candidate it reprova is discarded there and never reaches this
+  // function at all, so `candidate.commercialAudit` here is always a
+  // real, already-computed, non-reprovado verdict. Recomputing it again
+  // here would just be redundant (same inputs, same function).
   return {
     ...candidate.scoreBreakdown,
     matchedEventName: candidate.matchedEventName,
@@ -61,7 +51,7 @@ function breakdownWithEvidence(candidate: VitrineCandidate): object {
     commissionEvidence: candidate.commissionEvidence,
     priceCompetitiveness: candidate.priceCompetitiveness,
     adPotentialHypothesis: candidate.adPotentialHypothesis,
-    commercialAudit: audit,
+    commercialAudit: candidate.commercialAudit,
   };
 }
 
@@ -112,6 +102,14 @@ const DISQUALIFYING_DISCARD_REASONS = new Set([
   "inelegivel_para_anuncio",
   "preco_nao_confiavel",
   "descricao_inadequada",
+  // Owner's requirement, 2026-11-20 ("Primeiro teste real da Vitrine",
+  // item 1): "remova automaticamente... não dependa de remoção manual."
+  // A product the independent commercial audit reproves (see
+  // commercial-audit.ts, now evaluated INSIDE selectVitrineCandidates)
+  // is a real commercial-quality failure, never mere ranking noise —
+  // removing it is immediate, same as an ineligible or untrustworthy
+  // price, never shielded by the minimum-observation-time protection.
+  "reprovado_auditoria",
 ]);
 
 export async function runVitrineRenewJob() {
@@ -228,6 +226,7 @@ export async function runVitrineRenewJob() {
               group: row.groupType as VitrineCandidate["group"],
               descriptionQuality: "adequada",
               priceCompetitivenessSampleSize: 0,
+              hasConfirmedPriceDrop: false,
               commissionType: "unknown",
               staleNotRecomputedThisCycle: true,
             }),

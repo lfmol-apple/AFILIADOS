@@ -54,6 +54,18 @@ export interface AuditInput {
   group: VitrineGroupType;
   descriptionQuality: "adequada" | "inadequada";
   priceCompetitivenessSampleSize: number;
+  /** Owner's finding, 2026-11-20 ("Primeiro teste real da Vitrine"):
+   * a price checked against exactly 1 real sibling, with no
+   * independently-confirmed discount either, is not solid evidence —
+   * it's a single, uncorroborated number. Investigated live: the
+   * R$474,05 "Guirlanda Natal G" cleared the previous calibration only
+   * because priceCompetitiveness(1 sibling) + seasonality(bare keyword
+   * match) counted as "2 independent dimensions" — neither one was
+   * actually solid on its own, and the ad-potential hypothesis module
+   * independently flagged it as a poor fit for cold social traffic.
+   * Required so a thin price sample can still count as real evidence
+   * when it DOES carry independent confirmation (a genuine discount). */
+  hasConfirmedPriceDrop: boolean;
   commissionType: "confirmed_individual" | "category_tier" | "promotional_temporary" | "historical" | "unknown";
   /** True when this product's score/evidence was NOT recomputed this
    * cycle (held over by the minimum-observation/rotation-budget
@@ -91,7 +103,18 @@ export function auditCandidate(input: AuditInput): AuditResult {
   // uncertainty disclosed below as a risk. Optional-chained: a legacy
   // breakdown predating one of these component keys is read as "not
   // present" rather than crashing (see the legacy-shape test below).
-  const coreDimensions = NON_COMMISSION_COMPONENT_KEYS.filter((k) => input.breakdown.components[k]?.value != null).length;
+  const priceIsSolid = input.priceCompetitivenessSampleSize >= 2 || input.hasConfirmedPriceDrop;
+  const priceWeakButPresent = input.breakdown.components.priceCompetitiveness?.value != null && !priceIsSolid;
+  const solidDimensions = NON_COMMISSION_COMPONENT_KEYS.filter((k) => {
+    if (input.breakdown.components[k]?.value == null) return false;
+    // A price checked against exactly one real sibling, with no
+    // independently-confirmed discount, is a single uncorroborated
+    // number — real data, but not solid enough to count as an
+    // independent dimension on its own (still disclosed as a risk below).
+    if (k === "priceCompetitiveness" && !priceIsSolid) return false;
+    return true;
+  });
+  const coreDimensions = solidDimensions.length;
 
   // Disclosed on every verdict, never hidden on approval — "risco
   // comercial relevante" (comissão desatualizada) and "incerteza
@@ -113,6 +136,27 @@ export function auditCandidate(input: AuditInput): AuditResult {
 
   if (coreDimensions === 0) {
     reasons.push("Nenhuma evidência comercial independente da comissão sustenta este produto — exatamente o padrão que não deve ser aprovado, mesmo com comissão alta.");
+    return { verdict: "reprovado", reasons, risks };
+  }
+
+  // Owner's finding, 2026-11-20 ("Primeiro teste real da Vitrine"):
+  // confirmed live — the real R$474,05 "Guirlanda Natal G" cleared
+  // approval with exactly this shape: a specific, unconfirmed price
+  // number (1 sibling, no discount) propping up a bare thematic-
+  // keyword seasonality match, with nothing else. Seasonality alone
+  // measures the EVENT's timing, never the product — when it's the
+  // only thing left standing precisely because a concrete, possibly
+  // wrong price had to be discounted out, that's a real risk (a
+  // specific number that may display wrong), not just "thin data" (the
+  // benign case: seasonality alone with NO price claim at all stays
+  // "revisão", see the test suite). Quality and official-rank evidence
+  // are genuine product-level signals and are never demoted by this —
+  // only the bare-keyword-seasonality-propped-by-a-doubtful-price
+  // combination is.
+  if (coreDimensions === 1 && priceWeakButPresent && solidDimensions[0] === "seasonality") {
+    reasons.push(
+      "Única evidência restante (sazonalidade) mede apenas o calendário do evento, nunca o produto — e só sobrou sozinha porque o preço exibido depende de uma única oferta real, sem desconto confirmado. Risco concreto de preço exibido incorreto, não apenas dado insuficiente.",
+    );
     return { verdict: "reprovado", reasons, risks };
   }
 
