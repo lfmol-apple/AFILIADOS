@@ -38,7 +38,7 @@ Escolha uma paleta de cores e ambientação adequadas a equipamento de musculaç
 
 Não invente avaliação, quantidade vendida ou certificação — não há dado real disponível para isso, então NÃO inclua nenhuma menção a nota ou vendas. Não use "últimas unidades" ou qualquer urgência artificial.
 
-IMPORTANTE sobre enquadramento: esta imagem será cortada posteriormente para a proporção 4:5. Mantenha todos os elementos críticos (preço, banner, título, selo) dentro dos 80% centrais da altura da imagem — evite colocar qualquer elemento importante nos 10% superiores ou inferiores.`;
+IMPORTANTE sobre enquadramento: esta imagem será cortada posteriormente para a proporção 4:5 (a borda superior e a borda inferior serão removidas). Deixe uma margem vazia, neutra, SEM NENHUM elemento (sem logotipo, sem texto, sem o banner) ocupando os 18% superiores e os 18% inferiores da altura total da imagem. Todo elemento crítico — título, logotipo, selo de preço, banner do Mercado Livre — deve estar inteiramente dentro dos 64% centrais da altura.`;
 
 async function main() {
   const budget = await checkCreativeBudget();
