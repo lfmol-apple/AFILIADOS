@@ -127,6 +127,21 @@ describe("calculateVitrineScore", () => {
     expect(partial.rankingScore).toBe(Math.round(partial.score * partial.confidence));
   });
 
+  it("owner's correction, 2026-11-19 (Ordem de Execução, seção 4): a stale commission counts for HALF the score value of an identical fresh one, and is marked degraded — never the main foundation for a 'campeão recorrente' classification", () => {
+    const old = new Date(Date.now() - 60 * 86_400_000);
+    const stale = evaluateCommissionEvidence({ individualRate: 0.2, individualCapturedAt: old, mlCategoryId: null, currentPrice: 300 });
+    const fresh = evaluateCommissionEvidence({ individualRate: 0.2, individualCapturedAt: new Date(), mlCategoryId: null, currentPrice: 300 });
+    expect(stale.estimatedValueBrl).toBe(fresh.estimatedValueBrl); // same raw evidence...
+
+    const scoreStale = calculateVitrineScore({ salesEvidence: null, commissionEvidence: stale, priceCompetitiveness: null, qualitySignal: null, seasonalEvent: null, trendDirection: null, vitrineClickCount: 0 });
+    const scoreFresh = calculateVitrineScore({ salesEvidence: null, commissionEvidence: fresh, priceCompetitiveness: null, qualitySignal: null, seasonalEvent: null, trendDirection: null, vitrineClickCount: 0 });
+
+    expect(scoreStale.components.commissionValue.value!).toBeLessThan(scoreFresh.components.commissionValue.value!);
+    expect(scoreStale.components.commissionValue.value).toBe(Math.round(scoreFresh.components.commissionValue.value! * 0.5));
+    expect(scoreStale.degradedDimensions).toContain("commissionValue");
+    expect(scoreFresh.degradedDimensions).not.toContain("commissionValue");
+  });
+
   it("flags a missing commission signal explicitly in reasons, never silently", () => {
     const result = calculateVitrineScore({
       salesEvidence: officialRankEvidence(1),

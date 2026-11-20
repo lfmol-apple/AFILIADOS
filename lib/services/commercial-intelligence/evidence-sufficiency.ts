@@ -17,7 +17,14 @@ import type { VitrineScoreResult } from "@/lib/services/vitrine-score";
 export type EvidenceSufficiency = "insufficient" | "partial" | "adequate";
 
 export function classifySufficiency(result: VitrineScoreResult): EvidenceSufficiency {
-  const realDimensions = Object.values(result.components).filter((c) => c.value !== null).length;
+  // Owner's authorization, 2026-11-19 ("Ordem de Execução", section 4):
+  // a degraded dimension (today: a stale/historical commission — see
+  // vitrine-score.ts) still has a non-null value, but never gets to count
+  // toward "we have enough real signal" — otherwise a product with only
+  // an old commission figure and nothing else could still clear the
+  // "partial" bar on that single degraded number.
+  const realDimensions =
+    Object.values(result.components).filter((c) => c.value !== null).length - result.degradedDimensions.length;
   if (realDimensions <= 1) return "insufficient";
   if (realDimensions <= 3) return "partial";
   return "adequate";

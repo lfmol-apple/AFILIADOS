@@ -55,6 +55,15 @@ export interface VitrineScoreResult {
     VitrineScoreComponent
   >;
   reasons: string[];
+  /** Component names whose value exists but rests on degraded evidence
+   * (today: only a stale/historical commission observation — owner's
+   * repeated requirement, "não classifique um produto como campeão
+   * recorrente apenas porque possuía comissão elevada em setembro"). A
+   * degraded dimension still shows up with a discounted value (never
+   * null'd out — the evidence is real, just old), but
+   * evidence-sufficiency.ts does not let it count toward "we have enough
+   * real signal to recommend this." */
+  degradedDimensions: string[];
 }
 
 function trendToScore(direction: TrendDirection): number | null {
@@ -94,6 +103,17 @@ export interface VitrineScoreInput {
 }
 
 export function calculateVitrineScore(input: VitrineScoreInput): VitrineScoreResult {
+  // Owner's authorization, 2026-11-19 ("Ordem de Execução", section 4,
+  // repeated after the first review): a commission observation older
+  // than evaluateCommissionEvidence's 45-day freshness window (type
+  // "historical") is still real data — never hidden — but must never
+  // carry the SAME weight as a confirmed-current one. Halved rather than
+  // zeroed: an old R$80 commission is still weaker evidence than no data
+  // at all would be, just not as strong as a fresh one.
+  const commissionStale = input.commissionEvidence?.stale ?? false;
+  const degradedDimensions: string[] = [];
+  if (commissionStale && input.commissionEvidence?.estimatedValueBrl != null) degradedDimensions.push("commissionValue");
+
   const components: VitrineScoreResult["components"] = {
     salesEvidence: {
       value: input.salesEvidence?.demandScore ?? null,
@@ -103,7 +123,7 @@ export function calculateVitrineScore(input: VitrineScoreInput): VitrineScoreRes
     commissionValue: {
       value:
         input.commissionEvidence?.estimatedValueBrl != null
-          ? commissionValueToScore(input.commissionEvidence.estimatedValueBrl)
+          ? Math.round(commissionValueToScore(input.commissionEvidence.estimatedValueBrl) * (commissionStale ? 0.5 : 1))
           : null,
       weight: VITRINE_SCORE_WEIGHTS.commissionValue,
       detail: input.commissionEvidence?.source ?? "Sem evidência de comissão.",
@@ -160,10 +180,13 @@ export function calculateVitrineScore(input: VitrineScoreInput): VitrineScoreRes
       "comissão: SEM EVIDÊNCIA — a API de descoberta do Mercado Livre não divulga comissão (confirmado: GET /items/{id} retorna 403 para itens de outros vendedores). Reduz a confiança, nunca escondido.",
     );
   }
+  if (commissionStale) {
+    reasons.push("comissão: evidência DESATUALIZADA (>45 dias) — valor contado pela metade no score, nunca tratada como vigente.");
+  }
 
   const score = weightPresent > 0 ? Math.round(weightedSum / weightPresent) : 0;
   const confidence = weightTotal > 0 ? Math.round((weightPresent / weightTotal) * 100) / 100 : 0;
   const rankingScore = Math.round(score * confidence);
 
-  return { score, confidence, rankingScore, components, reasons };
+  return { score, confidence, rankingScore, components, reasons, degradedDimensions };
 }

@@ -54,11 +54,32 @@ function breakdownWithEvidence(candidate: VitrineCandidate): object {
  * VITRINE_MAX_DAILY_REPLACEMENTS per run (owner must never see the whole
  * showcase churn in one day). Uses runJob() for the same locking/
  * observability every other job in this project gets.
+ *
+ * Owner's authorization, 2026-11-20 ("Ordem de Execução", section 9): the
+ * daily cap alone was never the real protection the owner asked for — a
+ * fixed 4/day cap can still churn up to 28 of 30 slots across one week,
+ * far past "10% de substituições comerciais por semana" (3 for a 30-slot
+ * showcase). VITRINE_MAX_WEEKLY_REPLACEMENTS is the real, binding limit;
+ * the daily cap stays as an extra, tighter same-day brake. Both apply —
+ * whichever is smaller governs a given run.
  */
 const VITRINE_CAPACITY = Number(process.env.VITRINE_CAPACITY ?? 30);
 const VITRINE_MAX_DAILY_REPLACEMENTS = Number(
   process.env.VITRINE_MAX_DAILY_REPLACEMENTS ?? 4,
 );
+const VITRINE_MAX_WEEKLY_REPLACEMENTS = Number(
+  process.env.VITRINE_MAX_WEEKLY_REPLACEMENTS ?? Math.max(1, Math.round(VITRINE_CAPACITY * 0.1)),
+);
+/** Owner's authorization, same section: "tempo mínimo de observação" — a
+ * product that merely got outranked this cycle (not genuinely invalid)
+ * stays at least this many days before it can be retired, so one bad
+ * cycle of ranking noise never reads as "this doesn't work" on a sample
+ * of a day or two. A genuinely invalid listing (gone, out of stock,
+ * ineligible — present in `discarded` with a disqualifying reason) is
+ * never protected by this: removing a broken offer is immediate, always.
+ */
+const VITRINE_MIN_OBSERVATION_DAYS = Number(process.env.VITRINE_MIN_OBSERVATION_DAYS ?? 3);
+const DISQUALIFYING_DISCARD_REASONS = new Set(["sem_preco_confirmado", "inelegivel_para_anuncio", "preco_nao_confiavel"]);
 
 export async function runVitrineRenewJob() {
   return runJob("VITRINE_RENEW", async (ctx) => {
@@ -88,20 +109,60 @@ export async function runVitrineRenewJob() {
       ctx.counters.updated += 1;
     }
 
-    // Candidates not already active, best-scoring first. The daily
-    // replacement cap only protects an ALREADY-POPULATED showcase from
-    // churning too fast — it must not apply to the very first run (found
-    // live in the isolated-environment test, 2026-11-19: with
-    // current.length === 0, the cap silently limited the brand-new
-    // Vitrine to 4 products instead of filling it to capacity).
-    const newcomerLimit = current.length === 0 ? candidates.length : VITRINE_MAX_DAILY_REPLACEMENTS;
+    // Owner's authorization, 2026-11-20 ("Ordem de Execução", section 9):
+    // the real, binding rotation budget is per WEEK (10% of capacity, 3
+    // for a 30-slot showcase), not per day — a fixed 4/day cap alone could
+    // still churn most of the showcase across one week. Measured off
+    // `activatedAt` across every row (active + reserve + retired) rather
+    // than a dedicated event log — every genuine entry/replacement sets
+    // this timestamp, so counting rows activated in the last 7 days IS
+    // counting replacement events, with no extra schema needed.
+    const sevenDaysAgo = new Date(Date.now() - 7 * 86_400_000);
+    const recentEntries = await prisma.vitrineSelection.count({ where: { activatedAt: { gte: sevenDaysAgo } } });
+    const weeklyBudgetRemaining = Math.max(0, VITRINE_MAX_WEEKLY_REPLACEMENTS - recentEntries);
+    const rotationBudget = Math.min(VITRINE_MAX_DAILY_REPLACEMENTS, weeklyBudgetRemaining);
+
+    const discardedByListingId = new Map(discarded.filter((d) => d.merchantListingId).map((d) => [d.merchantListingId!, d]));
+    const droppedFromCandidates = current.filter((c) => !candidateIds.has(c.merchantListingId));
+
+    // Genuinely invalid now (gone, out of stock, policy-ineligible, price
+    // became untrustworthy) — removed the same cycle it's found broken,
+    // never protected by minimum-observation-time, never rate-limited by
+    // the rotation budget (owner's explicit split, section 9: "remoção de
+    // ofertas inválidas" is immediate; the budget is only for discretionary
+    // "better candidate found" swaps).
+    const invalidNow = droppedFromCandidates.filter((c) => {
+      const d = discardedByListingId.get(c.merchantListingId);
+      return Boolean(d && DISQUALIFYING_DISCARD_REASONS.has(d.reason));
+    });
+
+    // Merely outranked this cycle (not structurally broken) — protected
+    // until VITRINE_MIN_OBSERVATION_DAYS have passed since activation
+    // (owner's requirement: "proteção contra conclusões com amostra
+    // insuficiente"), and even once eligible, limited to what the
+    // rotation budget still allows this week.
+    const now = Date.now();
+    const outrankedProtected: typeof droppedFromCandidates = [];
+    const outrankedEligible = droppedFromCandidates.filter((c) => {
+      if (invalidNow.includes(c)) return false;
+      const observedLongEnough = !c.activatedAt || now - c.activatedAt.getTime() >= VITRINE_MIN_OBSERVATION_DAYS * 86_400_000;
+      if (!observedLongEnough) outrankedProtected.push(c);
+      return observedLongEnough;
+    });
+    const outrankedToRetire = outrankedEligible.slice(0, rotationBudget);
+    const outrankedDeferredByBudget = outrankedEligible.slice(rotationBudget);
+
+    const toRetire = [...invalidNow, ...outrankedToRetire];
+
+    // Newcomers fill: any genuine capacity headroom, plus exactly the
+    // slots just freed above — never more. The very first run (current
+    // length 0) is exempt from every cap, same reasoning as before: there
+    // is no churn to protect against when the showcase doesn't exist yet.
+    const headroom = Math.max(0, VITRINE_CAPACITY - current.length);
+    const newcomerLimit = current.length === 0 ? candidates.length : toRetire.length + headroom;
     const newcomers = candidates
       .filter((c) => !currentIds.has(c.merchantListingId))
       .slice(0, newcomerLimit);
-
-    const toRetire = current
-      .filter((c) => !candidateIds.has(c.merchantListingId))
-      .slice(0, newcomers.length);
 
     for (const row of toRetire) {
       await prisma.vitrineSelection.update({
@@ -166,10 +227,33 @@ export async function runVitrineRenewJob() {
     }
 
     ctx.counters.processed = candidates.length;
-    ctx.metadata.active = staying.length + newcomers.length;
+    // staying + newcomers undercounts: a product "protected" by minimum-
+    // observation-time (or deferred by exhausted rotation budget) is
+    // neither updated nor retired this cycle, but its row is still
+    // ACTIVE — found live in the isolated test, 2026-11-20: metadata
+    // reported active=21 while the real DB count (and the admin panel's
+    // own direct query) was 30. current.length - retired + newcomers is
+    // the one formula that's correct regardless of which bucket a
+    // leftover product fell into.
+    ctx.metadata.active = current.length - toRetire.length + newcomers.length;
     ctx.metadata.retired = toRetire.length;
     ctx.metadata.newcomers = newcomers.length;
     ctx.metadata.reserve = reserve.length;
+    // Owner's requirement, section 9/13: the rotation budget and the
+    // minimum-observation protection must be visible, not just enforced
+    // silently — a reviewer should see exactly how much of this week's
+    // churn allowance is left and which products were shielded.
+    ctx.metadata.rotationStability = {
+      weeklyLimit: VITRINE_MAX_WEEKLY_REPLACEMENTS,
+      recentEntriesLast7d: recentEntries,
+      weeklyBudgetRemainingBeforeThisRun: weeklyBudgetRemaining,
+      dailyLimit: VITRINE_MAX_DAILY_REPLACEMENTS,
+      rotationBudgetUsedThisRun: outrankedToRetire.length,
+      invalidRemovedImmediately: invalidNow.length,
+      protectedByMinObservation: outrankedProtected.length,
+      deferredByExhaustedBudget: outrankedDeferredByBudget.length,
+      minObservationDays: VITRINE_MIN_OBSERVATION_DAYS,
+    };
     // Owner's explicit request, 2026-11-19: when a group falls short of
     // its target, say why — never silently backfilled without a trace.
     // Full funnel (found -> deduped -> discarded -> evaluated -> selected)

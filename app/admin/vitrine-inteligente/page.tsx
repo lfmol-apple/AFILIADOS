@@ -62,15 +62,12 @@ export default async function VitrineInteligentePage() {
   const pendingLink = active.filter(
     (a) => a.row.merchantListing.vitrineLink?.status !== "ACTIVE",
   ).length;
-  const [lastRun, lastDiscovery] = await Promise.all([
-    prisma.automationRun.findFirst({
-      where: { job: "VITRINE_RENEW" },
-      orderBy: { startedAt: "desc" },
-    }),
-    prisma.automationRun.findFirst({
-      where: { job: "VITRINE_DISCOVERY" },
-      orderBy: { startedAt: "desc" },
-    }),
+  const [lastRun, lastDiscovery, lastTrendRollup, lastCreativeFactory, lastMetaSpendSync] = await Promise.all([
+    prisma.automationRun.findFirst({ where: { job: "VITRINE_RENEW" }, orderBy: { startedAt: "desc" } }),
+    prisma.automationRun.findFirst({ where: { job: "VITRINE_DISCOVERY" }, orderBy: { startedAt: "desc" } }),
+    prisma.automationRun.findFirst({ where: { job: "ML_TREND_ROLLUP" }, orderBy: { startedAt: "desc" } }),
+    prisma.automationRun.findFirst({ where: { job: "VITRINE_CREATIVE_FACTORY" }, orderBy: { startedAt: "desc" } }),
+    prisma.automationRun.findFirst({ where: { job: "VITRINE_META_SPEND_SYNC" }, orderBy: { startedAt: "desc" } }),
   ]);
 
   const renewMeta = lastRun?.metadata as {
@@ -85,6 +82,26 @@ export default async function VitrineInteligentePage() {
     };
     discarded?: { title: string; reason: string; detail: string }[];
     activeEvents?: { name: string; stage: string; daysUntilPeak: number }[];
+    rotationStability?: {
+      weeklyLimit: number;
+      recentEntriesLast7d: number;
+      weeklyBudgetRemainingBeforeThisRun: number;
+      dailyLimit: number;
+      rotationBudgetUsedThisRun: number;
+      invalidRemovedImmediately: number;
+      protectedByMinObservation: number;
+      deferredByExhaustedBudget: number;
+      minObservationDays: number;
+    };
+  } | null;
+
+  const creativeFactoryMeta = lastCreativeFactory?.metadata as {
+    generated?: number;
+    priceOnlyUpdates?: number;
+    skipped?: number;
+    rejected?: number;
+    stoppedReason?: string;
+    budgetStoppedEarly?: string;
   } | null;
 
   const discoveryMeta = lastDiscovery?.metadata as {
@@ -129,6 +146,41 @@ export default async function VitrineInteligentePage() {
         <Stat label="Pendentes de link" value={pendingLink} />
         <Stat label="Em reserva" value={reserve} />
       </div>
+
+      {/* Owner's requirement, 2026-11-20 ("Ordem de Execução", section
+          13): monitoramento consolidado da operação — última execução
+          real de cada job do pipeline, não só a renovação. Lido direto do
+          AutomationRun de cada job, nenhum dado inventado quando um job
+          ainda não rodou. */}
+      <div className="border-border-subtle mt-4 rounded-lg border p-3">
+        <h2 className="text-sm font-semibold">Status operacional do pipeline</h2>
+        <ul className="mt-2 space-y-1 text-xs">
+          <JobStatusRow label="Descoberta comercial (VITRINE_DISCOVERY)" run={lastDiscovery} />
+          <JobStatusRow label="Tendência de ranking (ML_TREND_ROLLUP)" run={lastTrendRollup} />
+          <JobStatusRow label="Seleção/renovação (VITRINE_RENEW)" run={lastRun} />
+          <JobStatusRow label="Fábrica de criativos (VITRINE_CREATIVE_FACTORY)" run={lastCreativeFactory} />
+          <JobStatusRow label="Sincronização de gasto Meta (VITRINE_META_SPEND_SYNC)" run={lastMetaSpendSync} />
+        </ul>
+        {creativeFactoryMeta && (
+          <p className="text-foreground/60 mt-2 text-xs">
+            Última fábrica de criativos: {creativeFactoryMeta.generated ?? 0} gerado(s), {creativeFactoryMeta.priceOnlyUpdates ?? 0} atualização(ões) só de preço (sem custo novo), {creativeFactoryMeta.rejected ?? 0} reprovado(s) pela checagem de qualidade.
+            {creativeFactoryMeta.stoppedReason && ` Interrompido: ${creativeFactoryMeta.stoppedReason}.`}
+            {creativeFactoryMeta.budgetStoppedEarly && ` Parou por orçamento: ${creativeFactoryMeta.budgetStoppedEarly}.`}
+          </p>
+        )}
+      </div>
+
+      {renewMeta?.rotationStability && (
+        <div className="border-border-subtle mt-4 rounded-lg border p-3">
+          <h2 className="text-sm font-semibold">Estabilidade da rotação comercial</h2>
+          <p className="text-foreground/70 mt-1 text-xs">
+            Limite semanal de referência: {renewMeta.rotationStability.weeklyLimit} substituições/semana (10% da capacidade) —{" "}
+            {renewMeta.rotationStability.recentEntriesLast7d} entrada(s) nos últimos 7 dias, {renewMeta.rotationStability.weeklyBudgetRemainingBeforeThisRun} de orçamento restante antes desta rodada.
+            Nesta rodada: {renewMeta.rotationStability.rotationBudgetUsedThisRun} substituição(ões) discricionária(s) usada(s), {renewMeta.rotationStability.invalidRemovedImmediately} oferta(s) inválida(s) removida(s) imediatamente (nunca contam no orçamento),{" "}
+            {renewMeta.rotationStability.protectedByMinObservation} protegida(s) por tempo mínimo de observação (&lt;{renewMeta.rotationStability.minObservationDays} dias), {renewMeta.rotationStability.deferredByExhaustedBudget} adiada(s) por orçamento semanal esgotado.
+          </p>
+        </div>
+      )}
 
       <p className="text-foreground/60 mt-4 text-xs">
         Última renovação:{" "}
@@ -380,6 +432,19 @@ export default async function VitrineInteligentePage() {
         </p>
       )}
     </div>
+  );
+}
+
+function JobStatusRow({ label, run }: { label: string; run: { startedAt: Date; status: string; finishedAt: Date | null } | null }) {
+  const problematic = run && (run.status === "FAILED" || run.status === "PARTIAL");
+  const neverRan = !run;
+  return (
+    <li className="flex items-baseline justify-between gap-2">
+      <span>{label}</span>
+      <span className={problematic || neverRan ? "text-amber-700 dark:text-amber-400" : "text-foreground/70"}>
+        {run ? `${run.startedAt.toLocaleString("pt-BR")} — ${run.status}` : "nunca rodou"}
+      </span>
+    </li>
   );
 }
 

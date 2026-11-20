@@ -26,6 +26,47 @@ describe("classifySufficiency — owner's correction, 2026-11-19, section 6", ()
     expect(readyForAdInvestment(result)).toBe(false);
   });
 
+  it("owner's correction, 2026-11-19 (Ordem de Execução, seção 4): a product whose ONLY real dimension is a stale (>45d) commission observation is insufficient — the exact 'campeão recorrente by a September commission' bug", () => {
+    const old = new Date(Date.now() - 90 * 86_400_000);
+    const result = calculateVitrineScore({
+      salesEvidence: null,
+      commissionEvidence: evaluateCommissionEvidence({ individualRate: 0.3, individualCapturedAt: old, mlCategoryId: null, currentPrice: 500 }),
+      priceCompetitiveness: null,
+      qualitySignal: null,
+      seasonalEvent: null,
+      trendDirection: null,
+      vitrineClickCount: 0,
+    });
+    expect(classifySufficiency(result)).toBe("insufficient");
+    expect(readyForAdInvestment(result)).toBe(false);
+  });
+
+  it("a product that would clear 'adequate' (4 real dimensions) with a FRESH commission drops to merely 'partial' when that same commission is stale — the degraded dimension never counts toward the total", () => {
+    const base = {
+      salesEvidence: officialRankEvidence(2),
+      priceCompetitiveness: evaluatePriceCompetitiveness({
+        merchantListingId: "x",
+        siblingOffers: [{ price: 150, condition: "new" as const, sellerReputationLevel: "5_green" as const, mlCategoryId: null }],
+        thisPrice: 100,
+        priceHistory: [],
+      }),
+      qualitySignal: { value: 80, quality: "OBSERVED" as const, detail: "q" },
+      seasonalEvent: null,
+      trendDirection: null,
+      vitrineClickCount: 0,
+    };
+    const withFreshCommission = calculateVitrineScore({
+      ...base,
+      commissionEvidence: evaluateCommissionEvidence({ individualRate: 0.2, individualCapturedAt: new Date(), mlCategoryId: null, currentPrice: 100 }),
+    });
+    const withStaleCommission = calculateVitrineScore({
+      ...base,
+      commissionEvidence: evaluateCommissionEvidence({ individualRate: 0.2, individualCapturedAt: new Date(Date.now() - 90 * 86_400_000), mlCategoryId: null, currentPrice: 100 }),
+    });
+    expect(classifySufficiency(withFreshCommission)).toBe("adequate");
+    expect(classifySufficiency(withStaleCommission)).toBe("partial");
+  });
+
   it("a product with 4+ real dimensions is adequate", () => {
     const result = calculateVitrineScore({
       salesEvidence: officialRankEvidence(1),

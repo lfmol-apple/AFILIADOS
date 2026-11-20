@@ -48,6 +48,15 @@ interface RawHighlightSignal {
 }
 
 export interface DiscardedCandidate {
+  /** Null only for the rare family-level dedup discards that happen
+   * before an individual listing is resolved to one id (duplicado_familia
+   * on the SECOND occurrence still carries it; see buildCommercialCandidatePool).
+   * Owner's requirement, 2026-11-20 ("Ordem de Execução", section 9): the
+   * renewal job needs this to tell "genuinely invalid, remove now" apart
+   * from "merely outranked this cycle, protected by minimum observation
+   * time" — title-only matching was never reliable (two real products can
+   * share a title). */
+  merchantListingId: string | null;
   title: string;
   reason: "sem_preco_confirmado" | "inelegivel_para_anuncio" | "duplicado_familia" | "preco_nao_confiavel" | "evidencia_insuficiente";
   detail: string;
@@ -166,7 +175,7 @@ export async function buildCommercialCandidatePool(poolSize = 3000): Promise<Can
   const deduped = listings.filter((l) => {
     if (l.canonicalProductId) {
       if (seenCanonical.has(l.canonicalProductId)) {
-        discarded.push({ title: l.canonicalProduct?.title ?? "", reason: "duplicado_familia", detail: "Mesmo produto canônico já selecionado." });
+        discarded.push({ merchantListingId: l.id, title: l.canonicalProduct?.title ?? "", reason: "duplicado_familia", detail: "Mesmo produto canônico já selecionado." });
         return false;
       }
       seenCanonical.add(l.canonicalProductId);
@@ -176,7 +185,7 @@ export async function buildCommercialCandidatePool(poolSize = 3000): Promise<Can
     if (brand && model) {
       const familyKey = `${brand}::${model}`;
       if (seenFamily.has(familyKey)) {
-        discarded.push({ title: l.canonicalProduct?.title ?? "", reason: "duplicado_familia", detail: `Mesma marca+modelo (${l.canonicalProduct!.brand} ${l.canonicalProduct!.model}) já selecionada — variação de cor/tensão/tamanho não ocupa vaga própria.` });
+        discarded.push({ merchantListingId: l.id, title: l.canonicalProduct?.title ?? "", reason: "duplicado_familia", detail: `Mesma marca+modelo (${l.canonicalProduct!.brand} ${l.canonicalProduct!.model}) já selecionada — variação de cor/tensão/tamanho não ocupa vaga própria.` });
         return false;
       }
       seenFamily.add(familyKey);
@@ -184,7 +193,7 @@ export async function buildCommercialCandidatePool(poolSize = 3000): Promise<Can
     const normalizedTitle = l.canonicalProduct?.title ? normalize(l.canonicalProduct.title) : null;
     if (normalizedTitle) {
       if (seenTitle.has(normalizedTitle)) {
-        discarded.push({ title: l.canonicalProduct?.title ?? "", reason: "duplicado_familia", detail: "Título idêntico já selecionado." });
+        discarded.push({ merchantListingId: l.id, title: l.canonicalProduct?.title ?? "", reason: "duplicado_familia", detail: "Título idêntico já selecionado." });
         return false;
       }
       seenTitle.add(normalizedTitle);
@@ -209,6 +218,7 @@ export async function buildCommercialCandidatePool(poolSize = 3000): Promise<Can
       });
       if (isPrefixDuplicate) {
         discarded.push({
+          merchantListingId: l.id,
           title: l.canonicalProduct?.title ?? "",
           reason: "duplicado_familia",
           detail: `Mesma marca (${l.canonicalProduct!.brand}) e título quase idêntico a um já selecionado — provável variação (sabor/cor/tamanho) do mesmo produto.`,
@@ -249,13 +259,13 @@ export async function buildCommercialCandidatePool(poolSize = 3000): Promise<Can
       listing.canonicalProduct?.publicSlug ??
       (await ensureCanonicalProductPublicSlug(canonicalProductId, title).catch(() => null));
     if (!slug) {
-      discarded.push({ title, reason: "sem_preco_confirmado", detail: "Não foi possível gerar o slug público." });
+      discarded.push({ merchantListingId: listing.id, title, reason: "sem_preco_confirmado", detail: "Não foi possível gerar o slug público." });
       discardedNoPrice += 1;
       continue;
     }
     const product = await loadPublicMerchantProduct(slug).catch(() => null);
     if (!product || product.currentPrice === null) {
-      discarded.push({ title, reason: "sem_preco_confirmado", detail: "Nenhuma oferta com preço confirmado encontrada para este anúncio." });
+      discarded.push({ merchantListingId: listing.id, title, reason: "sem_preco_confirmado", detail: "Nenhuma oferta com preço confirmado encontrada para este anúncio." });
       discardedNoPrice += 1;
       continue;
     }
@@ -281,6 +291,7 @@ export async function buildCommercialCandidatePool(poolSize = 3000): Promise<Can
       const median = siblingPrices[Math.floor(siblingPrices.length / 2)]!;
       if (median > 0 && (product.currentPrice > median * 3 || product.currentPrice < median / 3)) {
         discarded.push({
+          merchantListingId: listing.id,
           title,
           reason: "preco_nao_confiavel",
           detail: `Preço exibido (R$ ${product.currentPrice.toFixed(2)}) é um outlier extremo frente às ${siblingOffers.length} oferta(s) reais do mesmo produto (mediana R$ ${median.toFixed(2)}).`,
@@ -297,7 +308,7 @@ export async function buildCommercialCandidatePool(poolSize = 3000): Promise<Can
       hasConfirmedPrice: true,
     });
     if (!eligibility.eligible) {
-      discarded.push({ title, reason: "inelegivel_para_anuncio", detail: eligibility.blockedReasons.join(" ") });
+      discarded.push({ merchantListingId: listing.id, title, reason: "inelegivel_para_anuncio", detail: eligibility.blockedReasons.join(" ") });
       discardedIneligible += 1;
       continue;
     }
@@ -491,6 +502,7 @@ export async function selectVitrineCandidates(limit = 30): Promise<VitrineSelect
     // for every group alike — never just labeled and let through.
     if (classifySufficiency(breakdown) === "insufficient") {
       discarded.push({
+        merchantListingId: c.merchantListingId,
         title: c.title,
         reason: "evidencia_insuficiente",
         detail: `Só ${Object.values(breakdown.components).filter((v) => v.value !== null).length} dimensão(ões) real(is) de evidência — insuficiente para recomendar como oportunidade, mesmo com nota bruta ${breakdown.score}.`,
