@@ -11,7 +11,8 @@ import { renderCatalogClean, toBuffer } from "../lib/services/ai-creative-factor
 // foto gerada sem direção visual real. Uma chamada paga só, autorizada.
 
 const PRODUCT_PHOTO_URL = "https://http2.mlstatic.com/D_NQ_NP_774257-MLA99966448927_112025-F.jpg";
-const STYLE_REFERENCE_PATH = "/Users/leonardomol/Downloads/henrique-refs/Imagem do ChatGPT 20 de nov. de 2026, 16_20_49.png";
+const STYLE_REFERENCE_PATH =
+  process.env.HENRIQUE_STYLE_REFERENCE_PATH ?? "/Users/leonardomol/Downloads/henrique-refs/Imagem do ChatGPT 20 de nov. de 2026, 16_20_49.png";
 
 const PROMPT = `Crie um anúncio publicitário comercial vertical para Instagram/Facebook, seguindo EXATAMENTE o padrão visual, cores, tipografia, ícones e composição da segunda imagem fornecida (uma arte real já aprovada, de uma lavadora de alta pressão Electrolux).
 
