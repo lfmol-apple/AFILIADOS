@@ -93,6 +93,16 @@ export function buildCreativePrompt(input: CreativePromptInputs): string {
     "O produto deve ser o elemento central e dominante da composição, grande e bem iluminado.",
     "NÃO inclua texto, preço, números, logotipos, marcas de outras empresas, pessoas ou modelos humanos na imagem.",
     "NÃO inclua nenhuma sobreposição gráfica — a composição final (preço, texto, chamada para ação) será adicionada separadamente por outro processo.",
+    // Owner's directive, 2026-11-20 ("NÃO aprove a segunda versão do
+    // criativo"): a real paid generation invented a fictitious bonus
+    // e-book with its own cover photo and a person deadlifting — a
+    // fabricated commercial item with zero basis in the real listing.
+    // This line exists ONLY to narrow what the AI itself is allowed to
+    // draw; the owner's own rule is explicit that this can never be the
+    // SOLE safeguard (see quality-control.ts's checkUnauthorizedObjects,
+    // a real automated audit that rejects the generation regardless of
+    // what this prompt says).
+    "NÃO adicione nenhum objeto, produto, embalagem, acessório, brinde, livro, e-book, cartaz ou item comercializável extra que não esteja fisicamente presente na foto original. A cena deve conter APENAS o produto real e um ambiente/fundo neutro — nenhum segundo item vendável, nenhuma pessoa, nenhum material impresso adicional.",
     realFactsLines.length > 0 ? realFactsLines.join(" ") : "",
     "Formato de anúncio para redes sociais, qualidade fotográfica profissional, iluminação de estúdio.",
   ]

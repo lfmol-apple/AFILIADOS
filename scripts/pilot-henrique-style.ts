@@ -1,44 +1,37 @@
 import { writeFileSync } from "fs";
 import { generateCreativeBase } from "../lib/services/ai-creative-factory/openai-image-client";
 import { checkCreativeBudget, recordCreativeSpend } from "../lib/services/ai-creative-factory/budget";
-import { renderCatalogClean, toBuffer } from "../lib/services/ai-creative-factory/compositor";
+import { renderCatalogClean, renderAdOverlay, toBuffer } from "../lib/services/ai-creative-factory/compositor";
+import { buildCreativePrompt } from "../lib/services/ai-creative-factory/prompt-builder";
+import { runQualityControl } from "../lib/services/ai-creative-factory/quality-control";
+import { buildAuthorizedElements, describeAuthorizedElements } from "../lib/services/ai-creative-factory/authorized-elements";
 
-// Piloto único — owner's directive 2026-11-20 ("Calibração Visual da
-// Fábrica de Criativos com as Artes do Henrique"): a IA desenha a peça
-// inteira (título, ícones, preço, logos), usando uma arte real e já
-// aprovada do Henrique (mesma categoria/marca) como referência de
-// estilo literal — não uma composição programática por cima de uma
-// foto gerada sem direção visual real. Uma chamada paga só, autorizada.
+// Piloto corrigido — owner's directive 2026-11-20 ("NÃO aprove a
+// segunda versão do criativo"): a versão anterior deixou a IA desenhar
+// a peça inteira e ela inventou um e-book bônus fictício. A regra
+// central agora: a IA só pode criar cenário/ambientação (nunca
+// conteúdo comercial); título, selo "6 em 1", especificação "40kg",
+// preço e CTA entram inteiramente por composição programática
+// (compositor.tsx). Uma auditoria visual automática (quality-
+// control.ts) reprova a geração se detectar QUALQUER objeto extra —
+// não depende só da instrução negativa no prompt.
 
+const PRODUCT_TITLE = "Kit Halteres 6 Em 1 Peso Musculação Até 40kg Ajustável Halter, Kettlebell, Anilha Cor Preto-Vermelho";
+const PRODUCT_BRAND = "Ahead Sports";
 const PRODUCT_PHOTO_URL = "https://http2.mlstatic.com/D_NQ_NP_679906-MLA114988818772_082026-F.jpg";
-const STYLE_REFERENCE_PATH =
-  process.env.HENRIQUE_STYLE_REFERENCE_PATH ?? "/Users/leonardomol/Downloads/henrique-refs/Imagem do ChatGPT 20 de nov. de 2026, 16_21_43.png";
+const CURRENT_PRICE = 367.53;
+const REFERENCE_PRICE = 1048.9;
 
-// Owner's correction, 2026-11-20: the first pilot pick (pressure
-// washer) coincided with the exact category of two of Henrique's own
-// references — that proves nothing about generalization. This pilot
-// uses a fitness/weights kit instead, a category with NO match among
-// the 15 real references, and reuses the Philips OneBlade reference
-// only as a loose structural anchor (its "5 em 1" pill badge + bare-
-// line icon list, since this product also advertises a multi-function
-// "6 em 1" claim) — adapted per henrique-visual-profile.ts's own rule
-// that layout/icon choices follow what's real about THIS product, not
-// a same-category copy.
-const PROMPT = `Crie um anúncio publicitário comercial vertical para Instagram/Facebook. Use a segunda imagem fornecida (uma arte real já aprovada, de um aparador Philips OneBlade) apenas como referência ESTRUTURAL solta: tipografia bold em destaque, um selo/pílula colorida grande para uma característica "N em 1", e uma lista de ícones de linha coloridos sem fundo, cada um ao lado de um rótulo curto. Não copie o produto, a marca, as cores específicas ou o layout exato dessa referência — ela só mostra o PADRÃO DE QUALIDADE esperado.
-
-O produto real está na PRIMEIRA imagem fornecida: "Kit Halteres 6 Em 1 Peso Musculação Até 40kg Ajustável Halter, Kettlebell, Anilha Cor Preto-Vermelho", marca Ahead Sports. Preserve o produto exatamente como aparece na foto — mesma cor, formato e proporções. Não redesenhe nem altere o produto.
-
-Escolha uma paleta de cores e ambientação adequadas a equipamento de musculação/academia (tons escuros, vermelho e preto, sensação de energia e força — igual à cor real do produto). Inclua:
-- Título do produto em destaque, bold, duas linhas, duas cores.
-- Um selo/pílula grande destacando "6 EM 1" (fato real do próprio anúncio).
-- De 2 a 3 ícones de linha coloridos (sem fundo em círculo), cada um desenhando literalmente um benefício real: peso ajustável até 40kg, versatilidade (halter + kettlebell + anilha em um produto só). Rótulo curto de 2-4 palavras ao lado de cada ícone.
-- Produto grande e centralizado, ocupando a maior parte da composição.
-- Selo de preço vermelho e amarelo bem legível: "Por apenas" + preço real "R$ 367,53", e menor e riscado o preço anterior real "R$ 1.048,90".
-- No rodapé, uma faixa amarela horizontal com o logotipo real do Mercado Livre (ícone de aperto de mãos) e um botão azul-marinho arredondado "Compre agora no Mercado Livre".
-
-Não invente avaliação, quantidade vendida ou certificação — não há dado real disponível para isso, então NÃO inclua nenhuma menção a nota ou vendas. Não use "últimas unidades" ou qualquer urgência artificial.
-
-IMPORTANTE sobre enquadramento: esta imagem será cortada posteriormente para a proporção 4:5 (a borda superior e a borda inferior serão removidas). Deixe uma margem vazia, neutra, SEM NENHUM elemento (sem logotipo, sem texto, sem o banner) ocupando os 18% superiores e os 18% inferiores da altura total da imagem. Todo elemento crítico — título, logotipo, selo de preço, banner do Mercado Livre — deve estar inteiramente dentro dos 64% centrais da altura.`;
+// Lista fechada de elementos autorizados (diretiva item 1) — tudo real,
+// nada inventado. "6 em 1" e "40kg" já vêm do título real do anúncio.
+const authorized = buildAuthorizedElements({
+  productTitle: PRODUCT_TITLE,
+  brand: PRODUCT_BRAND,
+  realProductPhotoUrl: PRODUCT_PHOTO_URL,
+  currentPrice: CURRENT_PRICE,
+  referencePrice: REFERENCE_PRICE,
+  confirmedFacts: ["65% de desconto real (de R$ 1.048,90 para R$ 367,53)", "Até 40kg de peso ajustável", "6 funções em 1 produto (halter, kettlebell, anilha)"],
+});
 
 async function main() {
   const budget = await checkCreativeBudget();
@@ -48,38 +41,79 @@ async function main() {
     process.exit(1);
   }
 
-  console.log("=== PROMPT REAL ENVIADO À IA ===");
-  console.log(PROMPT);
+  console.log("=== LISTA FECHADA DE ELEMENTOS AUTORIZADOS ===");
+  console.log(describeAuthorizedElements(authorized));
 
-  const [photoRes, styleRes] = await Promise.all([
-    fetch(PRODUCT_PHOTO_URL),
-    (async () => {
-      const { readFileSync } = await import("fs");
-      return { buffer: readFileSync(STYLE_REFERENCE_PATH), contentType: "image/png" };
-    })(),
-  ]);
+  // Prompt de CENÁRIO APENAS — a mesma disciplina já usada no resto do
+  // projeto (prompt-builder.ts), nunca o prompt "desenhe tudo" do
+  // piloto anterior. Nenhum benefício é passado como texto a desenhar.
+  const promptText = buildCreativePrompt({
+    title: PRODUCT_TITLE,
+    brand: PRODUCT_BRAND,
+    categoryHint: "esportes",
+    currentPrice: CURRENT_PRICE,
+    referencePrice: REFERENCE_PRICE,
+    hasConfirmedDiscount: true,
+    rating: null,
+    soldQuantityLabel: null,
+    impulseFit: "indeterminado",
+    isSeasonalEvent: null,
+  });
+  console.log("=== PROMPT REAL ENVIADO À IA (cenário apenas) ===");
+  console.log(promptText);
+
+  const photoRes = await fetch(PRODUCT_PHOTO_URL);
   if (!photoRes.ok) throw new Error(`Failed to fetch product photo: HTTP ${photoRes.status}`);
   const photoBuffer = Buffer.from(await photoRes.arrayBuffer());
   const photoContentType = photoRes.headers.get("content-type") ?? "image/jpeg";
 
-  console.log("=== CHAMANDO A API REAL DA OPENAI (1 chamada paga) ===");
+  console.log("=== CHAMANDO A API REAL DA OPENAI (1 chamada paga — cenário apenas) ===");
   const generation = await generateCreativeBase({
     productPhoto: photoBuffer,
     productPhotoContentType: photoContentType,
-    prompt: PROMPT,
-    styleReferencePhoto: styleRes.buffer,
-    styleReferencePhotoContentType: styleRes.contentType,
+    prompt: promptText,
   });
-  await recordCreativeSpend({ amountUsd: generation.costUsd, note: "PILOTO — calibração visual Henrique — Kit Halteres 6 em 1" });
+  await recordCreativeSpend({ amountUsd: generation.costUsd, note: "PILOTO v3 — cenário apenas + composição programática — Kit Halteres 6 em 1" });
   console.log("Custo real desta geração:", generation.costUsd, "USD");
 
+  console.log("=== AUDITORIA AUTOMÁTICA (estrutural + objetos não autorizados) ===");
+  const qc = await runQualityControl({
+    generatedImageBuffer: generation.imageBuffer,
+    expectedWidth: 1024,
+    expectedHeight: 1536,
+    originalPhotoBase64: photoBuffer.toString("base64"),
+    title: PRODUCT_TITLE,
+  });
+  if (qc.visionCheckCostUsd) await recordCreativeSpend({ amountUsd: qc.visionCheckCostUsd, note: "Checagem visual — piloto v3" });
+  console.log(JSON.stringify(qc, null, 2));
+
   writeFileSync(".scratch-pilot-raw.png", generation.imageBuffer);
-  console.log("Imagem bruta (sem corte) salva em .scratch-pilot-raw.png");
+
+  if (qc.status !== "approved") {
+    console.log("=== REPROVADO PELA AUDITORIA — não compõe, não publica ===");
+    console.log("Imagem bruta (reprovada) salva em .scratch-pilot-raw.png para inspeção.");
+    return;
+  }
 
   const dataUri = `data:image/png;base64,${generation.imageBuffer.toString("base64")}`;
-  const cropped = await toBuffer(renderCatalogClean({ aiBaseImageDataUri: dataUri }));
-  writeFileSync(".scratch-pilot-final.png", cropped);
-  console.log("Imagem final 1080x1350 salva em .scratch-pilot-final.png");
+  const [cleanPng, overlayPng] = await Promise.all([
+    toBuffer(renderCatalogClean({ aiBaseImageDataUri: dataUri })),
+    toBuffer(
+      renderAdOverlay({
+        aiBaseImageDataUri: dataUri,
+        title: PRODUCT_TITLE,
+        brand: PRODUCT_BRAND,
+        currentPrice: CURRENT_PRICE,
+        referencePrice: REFERENCE_PRICE,
+        hasConfirmedDiscount: true,
+        heroBadge: "6 EM 1",
+        specBadges: ["Até 40KG ajustável"],
+      }),
+    ),
+  ]);
+  writeFileSync(".scratch-pilot-final.png", overlayPng);
+  writeFileSync(".scratch-pilot-clean.png", cleanPng);
+  console.log("=== APROVADO — imagens finais salvas: .scratch-pilot-final.png (ad_overlay), .scratch-pilot-clean.png (catalog_clean) ===");
 }
 
 main().catch((err) => {
