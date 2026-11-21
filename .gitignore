@@ -44,3 +44,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Vitrine Inteligente — Henrique visual-reference preservation (owner's
+# directive, 2026-11-21: "os arquivos de referência preservados não serão
+# incluídos acidentalmente em commits"). The real reference PNG is
+# intentionally NOT committed yet — committing it is a separate, explicit
+# decision once the one-shot architecture itself is authorized for real
+# use. Until then this stays structurally un-stageable by a broad `git
+# add`, not just a habit to remember.
+/docs/henrique-visual-reference/
+/lib/services/ai-creative-factory/assets/

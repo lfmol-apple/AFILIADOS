@@ -129,18 +129,115 @@ describe("classifyVisualFidelity — the 3 real outcomes (owner's correction, 20
     });
   });
 
-  describe("invented commercial content → ALWAYS REJECTED, regardless of everything else", () => {
-    it("rejects even when the product itself is otherwise perfectly preserved", () => {
+  describe("invented commercial content → REJECTED only with cited, specific evidence", () => {
+    it("rejects when the flag is true AND a specific invented item is cited", () => {
       const result = classifyVisualFidelity({
         mesmo_produto_fisico: true,
         marca_modelo_preservados: true,
         cor_preservada: true,
         acessorios_preservados: true,
         apenas_ambientacao_mudou: true,
-        conteudo_comercial_inventado: true, // e.g. the AI drew a fake price or a fabricated bonus item
+        conteudo_comercial_inventado: true,
+        evidencia_conteudo_inventado: "A segunda imagem mostra um e-book promocional com capa própria que não existe em nenhum lugar da foto original.",
         duvida_requer_revisao_humana: false,
       });
       expect(result).toEqual({ approved: false, classification: "conteudo_inventado" });
+    });
+
+    it("never rejects on the flag alone — missing evidence becomes doubt, not a confident rejection", () => {
+      const result = classifyVisualFidelity({
+        mesmo_produto_fisico: true,
+        marca_modelo_preservados: true,
+        cor_preservada: true,
+        acessorios_preservados: true,
+        apenas_ambientacao_mudou: true,
+        conteudo_comercial_inventado: true,
+        evidencia_conteudo_inventado: null,
+        duvida_requer_revisao_humana: false,
+      });
+      expect(result).toEqual({ approved: null, classification: "duvida" });
+    });
+
+    it("also treats an empty/blank evidence string as no evidence", () => {
+      const result = classifyVisualFidelity({
+        mesmo_produto_fisico: true,
+        marca_modelo_preservados: true,
+        cor_preservada: true,
+        acessorios_preservados: true,
+        apenas_ambientacao_mudou: true,
+        conteudo_comercial_inventado: true,
+        evidencia_conteudo_inventado: "   ",
+        duvida_requer_revisao_humana: false,
+      });
+      expect(result).toEqual({ approved: null, classification: "duvida" });
+    });
+  });
+
+  describe("os 4 casos reais contestados da reauditoria de 2026-11-20 — corrigidos pela evidência obrigatória", () => {
+    // Real notes from the 2026-11-20 revalidation (docs/incidents/ — not
+    // committed here) all set conteudo_comercial_inventado=true on purely
+    // speculative language ("pode indicar", "pode conter") or, in the
+    // Kit Halteres case, while the note itself said nothing was wrong —
+    // none of the 4 ever cited a real, specific invented item. Under the
+    // corrected schema those calls would never have populated
+    // evidencia_conteudo_inventado — these fixtures reproduce exactly
+    // that (flag true, no real evidence) and prove the outcome is now
+    // "duvida" (pending human review), never the false "reprovado" these
+    // 4 actually received, and never a silent approval either.
+    it("Electrolux 1850PSI — modelo real mais nítido na imagem gerada não é evidência de invenção", () => {
+      const result = classifyVisualFidelity({
+        mesmo_produto_fisico: true,
+        marca_modelo_preservados: true,
+        cor_preservada: true,
+        acessorios_preservados: true,
+        apenas_ambientacao_mudou: true,
+        conteudo_comercial_inventado: true,
+        evidencia_conteudo_inventado: null, // a nota real só especulava ("pode indicar"), nunca citou algo concreto
+        duvida_requer_revisao_humana: false,
+      });
+      expect(result).toEqual({ approved: null, classification: "duvida" });
+    });
+
+    it("Kit Halteres Barra E Anilhas — nota real já dizia 'não foi encontrado texto comercial inventado'", () => {
+      const result = classifyVisualFidelity({
+        mesmo_produto_fisico: true,
+        marca_modelo_preservados: true,
+        cor_preservada: true,
+        acessorios_preservados: true,
+        apenas_ambientacao_mudou: true, // remoção do modelo humano, regra já coberta acima
+        conteudo_comercial_inventado: true,
+        evidencia_conteudo_inventado: null,
+        duvida_requer_revisao_humana: false,
+      });
+      expect(result).toEqual({ approved: null, classification: "duvida" });
+    });
+
+    it("Régua Extensão Elétrica — especificações reais visíveis na foto original não são conteúdo inventado", () => {
+      const result = classifyVisualFidelity({
+        mesmo_produto_fisico: true,
+        marca_modelo_preservados: true,
+        cor_preservada: true,
+        acessorios_preservados: true,
+        apenas_ambientacao_mudou: true,
+        conteudo_comercial_inventado: true,
+        evidencia_conteudo_inventado: null, // nota real: "pode conter texto adicional... como no caso das especificações visíveis NA PRIMEIRA imagem" — isso descreve a foto original, não a gerada
+        duvida_requer_revisao_humana: false,
+      });
+      expect(result).toEqual({ approved: null, classification: "duvida" });
+    });
+
+    it("Kit 10 Potes Herméticos Starhouse — remoção de selo promocional de terceiro não é conteúdo inventado", () => {
+      const result = classifyVisualFidelity({
+        mesmo_produto_fisico: true,
+        marca_modelo_preservados: true,
+        cor_preservada: true,
+        acessorios_preservados: true,
+        apenas_ambientacao_mudou: true, // nota real: única diferença foi "remoção dos selos promocionais e mudança no cenário"
+        conteudo_comercial_inventado: true,
+        evidencia_conteudo_inventado: null,
+        duvida_requer_revisao_humana: false,
+      });
+      expect(result).toEqual({ approved: null, classification: "duvida" });
     });
   });
 
