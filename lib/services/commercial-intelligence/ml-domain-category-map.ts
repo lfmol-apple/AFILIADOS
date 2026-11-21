@@ -40,11 +40,11 @@ export const DOMAIN_TO_CATEGORY_RULES: DomainCategoryRule[] = [
   },
   {
     categorySlug: "audio-games",
-    keywords: ["HEADPHONE", "SPEAKER", "SOUNDBAR", "TELEVISION", "_TV", "GAME_CONSOLE", "VIDEOGAME"],
+    keywords: ["HEADPHONE", "SPEAKER", "SOUNDBAR", "TELEVISION", "_TV", "GAME_CONSOLE", "VIDEOGAME", "MICROPHONE", "VIDEO_GAME", "GAMEPAD", "JOYSTICK"],
   },
   {
     categorySlug: "informatica",
-    keywords: ["NOTEBOOK", "DESKTOP_COMPUTER", "PRINTER", "KEYBOARD", "COMPUTER_MOUSE", "MONITOR", "3D_PRINTER", "FILAMENT"],
+    keywords: ["NOTEBOOK", "DESKTOP_COMPUTER", "PRINTER", "KEYBOARD", "COMPUTER_MOUSE", "MONITOR", "3D_PRINTER", "FILAMENT", "MEMORY_CARD"],
   },
   {
     categorySlug: "ferramentas",
@@ -64,15 +64,22 @@ export const DOMAIN_TO_CATEGORY_RULES: DomainCategoryRule[] = [
       "BLENDER",
       "MICROWAVE",
       "ELECTRIC_HAIR_BRUSH",
+      "POWER_STRIP",
+      "EVAPORATIVE",
+      "AIR_COOLER",
     ],
   },
   {
     categorySlug: "casa",
-    keywords: ["KITCHEN_CABINET", "FOOD_STORAGE", "COOKWARE", "DECORATION", "CHRISTMAS", "FURNITURE", "MIRROR", "CURTAIN", "BEDDING", "TOWEL"],
+    keywords: ["KITCHEN_CABINET", "FOOD_STORAGE", "COOKWARE", "DECORATION", "CHRISTMAS", "NATIVITY", "FURNITURE", "MIRROR", "CURTAIN", "BEDDING", "TOWEL"],
+  },
+  {
+    categorySlug: "limpeza",
+    keywords: ["CLEANING_PRODUCT", "DETERGENT", "TOILET_PAPER", "SCHOOL_AND_OFFICE_PAPER"],
   },
   {
     categorySlug: "moda",
-    keywords: ["SNEAKER", "HANDBAG", "SUITCASE", "BACKPACK", "CLOTHING", "DRESS", "JEWELRY", "WATCH_"],
+    keywords: ["SNEAKER", "HANDBAG", "SUITCASE", "BACKPACK", "CLOTHING", "DRESS", "JEWELRY", "WATCH"],
   },
   {
     categorySlug: "pet",
@@ -88,15 +95,11 @@ export const DOMAIN_TO_CATEGORY_RULES: DomainCategoryRule[] = [
   },
   {
     categorySlug: "automotivo",
-    keywords: ["_CAR_", "MOTORCYCLE", "VEHICLE", "BICYCLE", "ELECTRIC_BICYCLE"],
+    keywords: ["_CAR_", "MOTORCYCLE", "VEHICLE", "BICYCLE", "ELECTRIC_BICYCLE", "TRICYCLE", "KICK_SCOOTER"],
   },
   {
     categorySlug: "musica",
     keywords: ["MUSICAL_INSTRUMENT", "GUITAR", "KEYBOARD_INSTRUMENT"],
-  },
-  {
-    categorySlug: "limpeza",
-    keywords: ["CLEANING_PRODUCT", "DETERGENT", "TOILET_PAPER"],
   },
   {
     categorySlug: "brinquedos-festas",
