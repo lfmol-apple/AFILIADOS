@@ -11,6 +11,7 @@ import {
 } from "@/lib/services/ml-offer-quality";
 import { getHistoricalClickSignal } from "@/lib/services/historical-click-signal";
 import { mapDomainIdToCategorySlug } from "@/lib/services/commercial-intelligence/ml-domain-category-map";
+import { evaluateCanonicalEquivalence, extractVariantAttributes } from "@/lib/services/canonical-product-equivalence";
 import type { MonetizationScoreInput } from "@/types/monetization";
 
 /** Real root cause, 2026-11-20 ("Etapa 4 — Categorias e Sazonalidade"):
@@ -80,45 +81,134 @@ export async function enrichCatalogListing(
     findAttribute(detail, "ALPHANUMERIC_MODELS") ??
     findAttribute(detail, "ALPHANUMERIC_MODEL") ??
     null;
+  const brand = findAttribute(detail, "BRAND") ?? null;
+  const model = findAttribute(detail, "MODEL") ?? null;
+  // Owner's directive, 2026-11-21 ("Produtos Philco — aprovado com
+  // restrições"): real variant-defining attributes (voltage, color,
+  // capacity, kit composition), captured so a future equivalence check
+  // never has to guess — see canonical-product-equivalence.ts's doc
+  // comment for the real, live-confirmed Philco 127V/220V case this
+  // exists for.
+  const variantAttributes = extractVariantAttributes(detail.attributes);
 
   const categoryId = await resolveCategoryId(detail.domain_id);
 
-  const canonical = await prisma.canonicalProduct.upsert({
+  const specifications = {
+    catalogProductId,
+    domainId: detail.domain_id ?? null,
+    familyName: detail.family_name ?? null,
+    line: findAttribute(detail, "LINE") ?? null,
+    manufacturer,
+    alphanumericModel,
+    variantAttributes,
+  };
+
+  const existingBySlug = await prisma.canonicalProduct.findUnique({
     where: { slug: `ml-catalog-${catalogProductId}` },
-    create: {
-      slug: `ml-catalog-${catalogProductId}`,
-      title: detail.name,
-      brand: findAttribute(detail, "BRAND") ?? null,
-      model: findAttribute(detail, "MODEL") ?? null,
-      gtin: findAttribute(detail, "GTIN") ?? null,
-      imageUrl: detail.pictures?.[0]?.url ?? null,
-      categoryId,
-      specifications: {
-        catalogProductId,
-        domainId: detail.domain_id ?? null,
-        familyName: detail.family_name ?? null,
-        line: findAttribute(detail, "LINE") ?? null,
-        manufacturer,
-        alphanumericModel,
-      },
-    },
-    update: {
-      title: detail.name,
-      brand: findAttribute(detail, "BRAND") ?? null,
-      model: findAttribute(detail, "MODEL") ?? null,
-      gtin: findAttribute(detail, "GTIN") ?? null,
-      imageUrl: detail.pictures?.[0]?.url ?? null,
-      categoryId,
-      specifications: {
-        catalogProductId,
-        domainId: detail.domain_id ?? null,
-        familyName: detail.family_name ?? null,
-        line: findAttribute(detail, "LINE") ?? null,
-        manufacturer,
-        alphanumericModel,
-      },
-    },
+    select: { id: true },
   });
+
+  let canonical: { id: string };
+  if (existingBySlug) {
+    // Unchanged behavior: this exact catalogProductId already has its
+    // own canonical — just refresh it, same as before this change.
+    canonical = await prisma.canonicalProduct.update({
+      where: { id: existingBySlug.id },
+      data: { title: detail.name, brand, model, gtin: findAttribute(detail, "GTIN") ?? null, imageUrl: detail.pictures?.[0]?.url ?? null, categoryId, specifications },
+      select: { id: true },
+    });
+  } else {
+    // Owner's directive, 2026-11-21: before creating a brand-new
+    // CanonicalProduct for a catalogProductId never seen before, check
+    // whether an EXISTING canonical with the same brand+model is
+    // actually the SAME real product under a different official ML
+    // catalogProductId (the real root cause of the 164-row Philco
+    // split — ML itself assigned two catalogProductIds to what looked
+    // like one product). Reuse only on CONFIRMED equivalence (real
+    // matching variant attribute, e.g. same VOLTAGE+COLOR) — brand+model
+    // alone is explicitly never sufficient (owner's rule: "não faça
+    // fusão automática... apenas por marca e modelo").
+    const reuseCandidates =
+      brand && model
+        ? await prisma.canonicalProduct.findMany({
+            where: { brand: { equals: brand, mode: "insensitive" }, model: { equals: model, mode: "insensitive" } },
+            select: { id: true, brand: true, model: true, specifications: true },
+          })
+        : [];
+
+    let reuseTargetId: string | null = null;
+    const nonEquivalentFindings: { candidateId: string; verdict: ReturnType<typeof evaluateCanonicalEquivalence> }[] = [];
+    for (const candidate of reuseCandidates) {
+      const candidateSpecs = candidate.specifications as { variantAttributes?: Record<string, string> } | null;
+      const verdict = evaluateCanonicalEquivalence(
+        { brand, model, variantAttributes },
+        { brand: candidate.brand, model: candidate.model, variantAttributes: candidateSpecs?.variantAttributes ?? {} },
+      );
+      if (verdict.decision === "equivalent" && !reuseTargetId) {
+        reuseTargetId = candidate.id;
+      } else if (verdict.decision !== "equivalent") {
+        nonEquivalentFindings.push({ candidateId: candidate.id, verdict });
+      }
+    }
+
+    if (reuseTargetId) {
+      const target = await prisma.canonicalProduct.findUniqueOrThrow({ where: { id: reuseTargetId } });
+      const existingSpecs = (target.specifications as Record<string, unknown> | null) ?? {};
+      const alsoKnownAs = new Set([
+        ...((existingSpecs.alsoKnownAsCatalogProductIds as string[] | undefined) ?? []),
+        catalogProductId,
+      ]);
+      canonical = await prisma.canonicalProduct.update({
+        where: { id: reuseTargetId },
+        data: { specifications: { ...existingSpecs, alsoKnownAsCatalogProductIds: [...alsoKnownAs] } },
+        select: { id: true },
+      });
+    } else {
+      // Genuinely never seen this real product before (or every
+      // same-brand+model candidate was confirmed DISTINCT, or there's
+      // not enough shared attribute data to decide) — record every
+      // unresolved/distinct finding for human review, then create a new
+      // canonical as before this change. Never deletes or merges
+      // existing rows — purely additive logging + the normal create.
+      for (const finding of nonEquivalentFindings) {
+        await prisma.canonicalProductMergeReview.upsert({
+          where: {
+            existingCanonicalProductId_newCatalogProductId: {
+              existingCanonicalProductId: finding.candidateId,
+              newCatalogProductId: catalogProductId,
+            },
+          },
+          create: {
+            existingCanonicalProductId: finding.candidateId,
+            newCatalogProductId: catalogProductId,
+            brand,
+            model,
+            verdict: finding.verdict.decision === "distinct" ? "confirmed_distinct_variant" : "ambiguous_no_attribute_overlap",
+            matchedAttributes: finding.verdict.matchedAttributes,
+            conflictingAttributes: finding.verdict.conflictingAttributes,
+          },
+          update: {
+            verdict: finding.verdict.decision === "distinct" ? "confirmed_distinct_variant" : "ambiguous_no_attribute_overlap",
+            matchedAttributes: finding.verdict.matchedAttributes,
+            conflictingAttributes: finding.verdict.conflictingAttributes,
+          },
+        });
+      }
+      canonical = await prisma.canonicalProduct.create({
+        data: {
+          slug: `ml-catalog-${catalogProductId}`,
+          title: detail.name,
+          brand,
+          model,
+          gtin: findAttribute(detail, "GTIN") ?? null,
+          imageUrl: detail.pictures?.[0]?.url ?? null,
+          categoryId,
+          specifications,
+        },
+        select: { id: true },
+      });
+    }
+  }
 
   if (catalogListing.canonicalProductId !== canonical.id) {
     await prisma.merchantListing.update({

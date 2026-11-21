@@ -7,6 +7,8 @@ import {
 import { AdminLoginForm } from "@/components/admin-login-form";
 import { prisma } from "@/lib/db";
 import { loadPublicMerchantProduct } from "@/lib/queries/public-product";
+import { formatCommissionEvidence, summarizeCommissionFreshness, COMMISSION_TYPE_LABELS } from "@/lib/services/commercial-intelligence/commission-evidence-labels";
+import type { CommissionEvidenceType } from "@/lib/services/commercial-intelligence/commission-evidence";
 
 export const metadata: Metadata = {
   title: "Vitrine Inteligente — Admin",
@@ -62,6 +64,14 @@ export default async function VitrineInteligentePage() {
   const pendingLink = active.filter(
     (a) => a.row.merchantListing.vitrineLink?.status !== "ACTIVE",
   ).length;
+
+  // Owner's directive, 2026-11-21 ("Transparência das comissões —
+  // aprovado"): real percentual breakdown across the 30 active products,
+  // by the EXISTING commission evidence types (never a new taxonomy).
+  const commissionTypes = active
+    .map((a) => (a.row.scoreBreakdown as { commissionEvidence?: { type?: CommissionEvidenceType } } | null)?.commissionEvidence?.type)
+    .filter((t): t is CommissionEvidenceType => Boolean(t));
+  const commissionFreshness = summarizeCommissionFreshness(commissionTypes);
   const [lastRun, lastDiscovery, lastTrendRollup, lastCreativeFactory, lastMetaSpendSync] = await Promise.all([
     prisma.automationRun.findFirst({ where: { job: "VITRINE_RENEW" }, orderBy: { startedAt: "desc" } }),
     prisma.automationRun.findFirst({ where: { job: "VITRINE_DISCOVERY" }, orderBy: { startedAt: "desc" } }),
@@ -146,6 +156,32 @@ export default async function VitrineInteligentePage() {
         <Stat label="Pendentes de link" value={pendingLink} />
         <Stat label="Em reserva" value={reserve} />
       </div>
+
+      {/* Owner's directive, 2026-11-21 ("Transparência das comissões —
+          aprovado"): real breakdown of the 30 active products by
+          commission evidence type — never presented as guaranteed
+          revenue, just the real distribution of how fresh/stale/unknown
+          the underlying data is. */}
+      {commissionFreshness.total > 0 && (
+        <div className="border-border-subtle mt-4 rounded-lg border p-3">
+          <h2 className="text-sm font-semibold">Frescor da comissão nos 30 ativos</h2>
+          <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-xs sm:grid-cols-3">
+            {(Object.keys(COMMISSION_TYPE_LABELS) as CommissionEvidenceType[])
+              .filter((type) => commissionFreshness.counts[type] > 0)
+              .map((type) => (
+                <li key={type}>
+                  <strong>{commissionFreshness.percents[type]}%</strong> {COMMISSION_TYPE_LABELS[type]} ({commissionFreshness.counts[type]})
+                </li>
+              ))}
+          </ul>
+          <p className="text-foreground/60 mt-2 text-xs">
+            Nenhuma estimativa de comissão é tratada como receita garantida — e
+            potencial publicitário continua sendo apresentado só como
+            hipótese, nunca como desempenho comprovado, enquanto não houver
+            dado real de campanha.
+          </p>
+        </div>
+      )}
 
       {/* Owner's requirement, 2026-11-20 ("Ordem de Execução", section
           13): monitoramento consolidado da operação — última execução
@@ -329,7 +365,7 @@ export default async function VitrineInteligentePage() {
             rankingScore?: number;
             matchedEventName?: string | null;
             matchedKeyword?: string | null;
-            commissionEvidence?: { type: string; rate: number | null; estimatedValueBrl: number | null; stale: boolean };
+            commissionEvidence?: { type: CommissionEvidenceType; rate: number | null; estimatedValueBrl: number | null; stale: boolean };
             priceCompetitiveness?: { score: number | null; siblingOfferCount: number; hasConfirmedPriceDrop: boolean };
             adPotentialHypothesis?: { impulseFit: string; impulseFitReason: string; offerClarity: string; hasVisibleDiscountHook: boolean };
           } | null;
@@ -369,9 +405,7 @@ export default async function VitrineInteligentePage() {
                   <div>
                     <dt className="inline text-foreground/50">Comissão: </dt>
                     <dd className="inline">
-                      {breakdown?.commissionEvidence?.estimatedValueBrl != null
-                        ? `${brl(breakdown.commissionEvidence.estimatedValueBrl)} por venda (${Math.round((breakdown.commissionEvidence.rate ?? 0) * 100)}%, ${breakdown.commissionEvidence.type}${breakdown.commissionEvidence.stale ? ", desatualizada" : ""})`
-                        : "sem evidência (API do ML não divulga)"}
+                      {formatCommissionEvidence(breakdown?.commissionEvidence, brl)}
                     </dd>
                   </div>
                   <div>
