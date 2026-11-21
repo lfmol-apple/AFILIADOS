@@ -352,6 +352,24 @@ export async function runVitrineRenewJob() {
     // which call selectVitrineCandidates()/buildCommercialCandidatePool()
     // directly — so "não grave simulações como decisões reais" holds by
     // construction, not by a flag that could be left unset.
+    //
+    // Real root cause fixed, 2026-11-21 (PR #17 review, "persistência do
+    // histórico — projete uma identidade estável por execução real"):
+    // `automationRunId: ctx.runId` attaches this round to the exact,
+    // already-unique AutomationRun row runJob() created for THIS
+    // execution before this function body ever started (see
+    // lib/jobs/automation-run.ts). The column is `@unique` — if this
+    // exact run id were ever written twice (it structurally can't be:
+    // runJob() mints a fresh id per attempt and already refuses a second
+    // concurrent run of VITRINE_RENEW), Postgres itself would reject the
+    // duplicate rather than silently doubling the round. This does NOT
+    // make this write atomic with the earlier VitrineSelection
+    // mutations above (retire/newcomer/reserve) — each of those already
+    // commits independently, same as before this change — but it makes
+    // every real round traceably 1:1 with one real execution, so a
+    // partial run (crashed or FAILED after this point, before the job
+    // function returns) is auditable by joining AutomationRun.status on
+    // this id, never silently indistinguishable from a clean one.
     const roundCandidateRows = buildRoundCandidateRows({
       allScored,
       discarded,
@@ -360,6 +378,7 @@ export async function runVitrineRenewJob() {
     });
     await prisma.vitrineSelectionRound.create({
       data: {
+        automationRunId: ctx.runId,
         foundInDatabase: funnel.foundInDatabase,
         afterDedup: funnel.afterDedup,
         discardedNoPrice: funnel.discardedNoPrice,

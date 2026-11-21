@@ -61,6 +61,20 @@ services:
       # need the identical host directory for VITRINE_CREATIVE_DIR, so a
       # rebuild never loses an image real money was spent generating.
       - ./data/vitrine-creatives:/app/data/vitrine-creatives
+      # One-time manual step, NEVER committed to git (see .gitignore and
+      # docs/DEPLOYMENT.md): place the real, owner-approved Henrique
+      # reference PNG at ./data/vitrine-creative-reference/henrique-style-
+      # reference.png on the host before the one-shot ad generator is
+      # ever used for a real paid call. Same bind-mount reasoning as the
+      # two mounts above — without this, VITRINE_HENRIQUE_STYLE_REFERENCE_PATH
+      # (lib/config/env.ts) would point into the image's own writable
+      # layer and silently lose the file on the next `docker compose
+      # build`. Missing on either side is safe either way: the generator
+      # throws OneShotReferenceMissingError and never falls back to the
+      # old compositor (one-shot-ad-generator.ts) — this mount only makes
+      # that failure a deliberate, provisioning-time problem instead of a
+      # surprise after a rebuild.
+      - ./data/vitrine-creative-reference:/app/data/vitrine-creative-reference
     # The production VPS's actual reverse proxy is a host-level nginx site
     # (/etc/nginx/sites-available/precocaindo), not the `caddy` service
     # below — nginx's upstream is hardcoded to 127.0.0.1:3100. Without

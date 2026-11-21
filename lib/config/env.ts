@@ -345,13 +345,23 @@ const envSchema = z.object({
   /// "o pilot-result-3 é nossa referência oficial"): a real, already-
   /// approved Henrique art used as a loose STRUCTURAL style anchor (see
   /// one-shot-ad-generator.ts's doc comment) — never copied literally,
-  /// only its typography/icon/layout quality. Defaults to the bundled
-  /// copy at lib/services/ai-creative-factory/assets/ (relative to repo
-  /// root) so this works the same in the Docker image as locally,
-  /// without depending on any path on the owner's own Mac. Missing file
-  /// → OneShotReferenceMissingError, a hard stop, never a silent
-  /// fallback to the old compositor (owner's explicit rule).
-  VITRINE_HENRIQUE_STYLE_REFERENCE_PATH: z.string().default("lib/services/ai-creative-factory/assets/henrique-style-reference.png"),
+  /// only its typography/icon/layout quality.
+  ///
+  /// Real root cause fixed, 2026-11-21 (PR #17 review, "referência visual
+  /// no deploy"): this used to default to a path INSIDE the app source
+  /// tree (lib/services/ai-creative-factory/assets/) — correctly
+  /// gitignored (the real art is never committed), but that also means
+  /// it lived in the image's own writable layer, not a volume, so a
+  /// routine `docker compose build` would silently lose it on the next
+  /// deploy with no warning before a real paid call tried to use it.
+  /// Moved to the SAME host-bind-mount pattern already proven for
+  /// VITRINE_CREATIVE_DIR/PRODUCT_IMAGE_DIR just above (see
+  /// docker-compose.prod.yml's `./data/vitrine-creative-reference` mount
+  /// and docs/DEPLOYMENT.md's one-time provisioning step) — a real
+  /// rebuild can never lose this file again. Missing file →
+  /// OneShotReferenceMissingError, a hard stop, never a silent fallback
+  /// to the old compositor (owner's explicit rule, unchanged by this fix).
+  VITRINE_HENRIQUE_STYLE_REFERENCE_PATH: z.string().default("data/vitrine-creative-reference/henrique-style-reference.png"),
   /// Owner's directive, 2026-11-21 ("não permita que a simples mudança de
   /// mecanismo provoque automaticamente 30 gerações pagas... migração
   /// progressiva, começando com um único produto autorizado"): a SEPARATE

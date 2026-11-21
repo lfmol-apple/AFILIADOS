@@ -171,6 +171,18 @@ export async function enrichCatalogListing(
       // canonical as before this change. Never deletes or merges
       // existing rows — purely additive logging + the normal create.
       for (const finding of nonEquivalentFindings) {
+        // Real root cause fixed, 2026-11-21 (PR #17 review): "ambiguous"
+        // used to collapse two real, different situations into one label
+        // — zero shared attribute data at all, vs. SOME attributes
+        // matching but a real one known on only one side (asymmetric
+        // coverage — see canonical-product-equivalence.ts). A human
+        // reviewing this log needs to tell those apart.
+        const verdictLabel =
+          finding.verdict.decision === "distinct"
+            ? "confirmed_distinct_variant"
+            : finding.verdict.asymmetricAttributes.length > 0
+              ? "ambiguous_incomplete_attribute_coverage"
+              : "ambiguous_no_attribute_overlap";
         await prisma.canonicalProductMergeReview.upsert({
           where: {
             existingCanonicalProductId_newCatalogProductId: {
@@ -183,14 +195,16 @@ export async function enrichCatalogListing(
             newCatalogProductId: catalogProductId,
             brand,
             model,
-            verdict: finding.verdict.decision === "distinct" ? "confirmed_distinct_variant" : "ambiguous_no_attribute_overlap",
+            verdict: verdictLabel,
             matchedAttributes: finding.verdict.matchedAttributes,
             conflictingAttributes: finding.verdict.conflictingAttributes,
+            asymmetricAttributes: finding.verdict.asymmetricAttributes,
           },
           update: {
-            verdict: finding.verdict.decision === "distinct" ? "confirmed_distinct_variant" : "ambiguous_no_attribute_overlap",
+            verdict: verdictLabel,
             matchedAttributes: finding.verdict.matchedAttributes,
             conflictingAttributes: finding.verdict.conflictingAttributes,
+            asymmetricAttributes: finding.verdict.asymmetricAttributes,
           },
         });
       }

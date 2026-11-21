@@ -53,4 +53,9 @@ next-env.d.ts
 # use. Until then this stays structurally un-stageable by a broad `git
 # add`, not just a habit to remember.
 /docs/henrique-visual-reference/
-/lib/services/ai-creative-factory/assets/
+# Real root cause fixed, 2026-11-21 (PR #17 review, "referência visual no
+# deploy"): moved from lib/services/ai-creative-factory/assets/ (inside
+# the app source tree, lost on every image rebuild) to this host-bind-
+# mounted path (see docker-compose.prod.yml + docs/DEPLOYMENT.md) — still
+# never committed, now also never silently lost on deploy.
+/data/vitrine-creative-reference/

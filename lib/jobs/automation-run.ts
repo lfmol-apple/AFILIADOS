@@ -12,6 +12,15 @@ export interface JobCounters {
 export interface JobContext {
   counters: JobCounters;
   metadata: Record<string, unknown>;
+  /** Added 2026-11-21 (PR #17 review, "persistência do histórico — projete
+   * uma identidade estável por execução real"): the real AutomationRun.id
+   * for THIS specific execution attempt, created before the job body
+   * runs (see below) — a stable, unique identity a job can attach to its
+   * own per-run records (e.g. VitrineSelectionRound.automationRunId) so
+   * a human can later join back to this exact run's real
+   * status/duration/outcome, and a retry can never silently attribute
+   * its own records to the wrong (or a duplicate) execution. */
+  runId: string;
 }
 
 export type JobFn = (ctx: JobContext) => Promise<void>;
@@ -83,6 +92,7 @@ export async function runJob(
   const ctx: JobContext = {
     counters: { processed: 0, created: 0, updated: 0, errors: 0 },
     metadata: {},
+    runId: run.id,
   };
 
   try {

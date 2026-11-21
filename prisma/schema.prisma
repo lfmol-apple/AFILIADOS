@@ -708,6 +708,26 @@ model VitrineSelection {
 /// (VitrineSelectionRoundCandidate below) are pruned by retention.
 model VitrineSelectionRound {
   id                  String   @id @default(cuid())
+  /// Added 2026-11-21 (PR #17 review, "persistência do histórico —
+  /// projete uma identidade estável por execução real"): the real
+  /// AutomationRun.id for the exact VITRINE_RENEW execution that produced
+  /// this round (lib/jobs/automation-run.ts's runJob() creates that row,
+  /// and exposes it as ctx.runId, BEFORE the job body runs). `@unique`
+  /// means this round can only ever be attributed to ONE real execution —
+  /// a retry of a crashed run gets its own fresh AutomationRun.id (the
+  /// job-level lock in runJob() already prevents two concurrent attempts
+  /// of the same job), so this can never be silently duplicated under the
+  /// same identity. Deliberately NOT a `@relation`/foreign key: AutomationRun
+  /// has its own, already-active 90-day retention (jobs/cleanup.ts) —
+  /// an FK with cascade delete would silently tie this round's retention
+  /// to THAT schedule instead of its own separate, disabled-by-default
+  /// one (jobs/vitrine-selection-round-cleanup.ts). A human auditing
+  /// "did this round's underlying run actually finish, or was it only
+  /// partial/failed afterward" joins on this id manually; a round whose
+  /// AutomationRun has already aged out of its own 90-day retention and a
+  /// round created by a run that is still RUNNING are both visible this
+  /// way, never silently presented as certainly-complete.
+  automationRunId     String?  @unique
   runAt               DateTime @default(now())
   /// Real funnel counts for this round — same shape as
   /// CandidatePoolFunnel, kept here even after candidate rows are pruned.
@@ -786,10 +806,17 @@ model CanonicalProductMergeReview {
   newCatalogProductId        String
   brand                      String?
   model                      String?
-  /// "ambiguous_no_attribute_overlap" | "confirmed_distinct_variant"
+  /// "ambiguous_no_attribute_overlap" | "ambiguous_incomplete_attribute_coverage" | "confirmed_distinct_variant"
+  /// (the middle value added 2026-11-21, PR #17 review: some shared
+  /// attributes DID match, but a real variant-relevant attribute is
+  /// known on only one of the two products — still never equivalent).
   verdict                    String
   matchedAttributes          Json
   conflictingAttributes      Json
+  /// Added 2026-11-21 (PR #17 review, "equivalência canônica"): attribute
+  /// ids known on only one side — see canonical-product-equivalence.ts's
+  /// own doc comment for why this alone blocks "equivalent".
+  asymmetricAttributes       Json
   reviewedAt                 DateTime?
   reviewDecision             String?
 

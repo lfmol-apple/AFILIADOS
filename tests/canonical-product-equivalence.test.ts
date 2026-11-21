@@ -100,13 +100,50 @@ describe("evaluateCanonicalEquivalence — never merges on brand+model alone", (
     expect(verdict.decision).toBe("distinct");
   });
 
-  it("an attribute present on only one side contributes no signal (not counted as matched or conflicting)", () => {
+  it("an attribute present on only one side contributes no signal (not counted as matched or conflicting), and is tracked as asymmetric", () => {
     const verdict = evaluateCanonicalEquivalence(
       { brand: "Tssaper", model: "TP550", variantAttributes: { VOLTAGE: "127V" } },
       { brand: "Tssaper", model: "TP550", variantAttributes: { COLOR: "Azul" } },
     );
     expect(verdict.matchedAttributes).toEqual([]);
     expect(verdict.conflictingAttributes).toEqual([]);
+    expect(verdict.asymmetricAttributes.sort()).toEqual(["COLOR", "VOLTAGE"]);
     expect(verdict.decision).toBe("ambiguous");
+  });
+
+  it("real root cause fixed, 2026-11-21 (PR #17 review): a shared attribute matching is NEVER enough on its own when a commercially-relevant attribute is known on only one side — never 'equivalent' with incomplete coverage", () => {
+    // Side A (COLOR+VOLTAGE both known) vs side B (only COLOR known, e.g.
+    // ML hasn't filled in VOLTAGE for this specific catalogProductId yet).
+    // The naive "ignore what's not shared" rule would have called this
+    // "equivalent" off COLOR alone — exactly the real risk the owner
+    // flagged reviewing PR #17: a commercially-relevant attribute present
+    // on only one of the two products must never be silently waved through.
+    const verdict = evaluateCanonicalEquivalence(
+      { brand: "Philco", model: "PSC3500", variantAttributes: { COLOR: "Bege", VOLTAGE: "127V" } },
+      { brand: "Philco", model: "PSC3500", variantAttributes: { COLOR: "Bege" } },
+    );
+    expect(verdict.decision).toBe("ambiguous");
+    expect(verdict.matchedAttributes).toEqual(["COLOR"]);
+    expect(verdict.asymmetricAttributes).toEqual(["VOLTAGE"]);
+    expect(verdict.conflictingAttributes).toEqual([]);
+  });
+
+  it("still confirms equivalent when attribute coverage is fully symmetric — no attribute known on only one side", () => {
+    const verdict = evaluateCanonicalEquivalence(
+      { brand: "Philco", model: "PSC3500", variantAttributes: { COLOR: "Bege", VOLTAGE: "127V" } },
+      { brand: "Philco", model: "PSC3500", variantAttributes: { COLOR: "Bege", VOLTAGE: "127V" } },
+    );
+    expect(verdict.decision).toBe("equivalent");
+    expect(verdict.asymmetricAttributes).toEqual([]);
+  });
+
+  it("asymmetric coverage is reported even when a real conflict also exists — distinct still wins, but the asymmetry is visible for review", () => {
+    const verdict = evaluateCanonicalEquivalence(
+      { brand: "Philco", model: "PSC3500", variantAttributes: { COLOR: "Bege", VOLTAGE: "127V", CAPACITY: "2L" } },
+      { brand: "Philco", model: "PSC3500", variantAttributes: { COLOR: "Bege", VOLTAGE: "220V" } },
+    );
+    expect(verdict.decision).toBe("distinct");
+    expect(verdict.conflictingAttributes).toEqual(["VOLTAGE"]);
+    expect(verdict.asymmetricAttributes).toEqual(["CAPACITY"]);
   });
 });

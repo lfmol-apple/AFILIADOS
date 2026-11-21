@@ -97,6 +97,17 @@ export interface EquivalenceVerdict {
   /** Attribute ids present on both sides with DIFFERENT values — any
    * single entry here forces "distinct", never overridden. */
   conflictingAttributes: string[];
+  /** Real root cause fixed, 2026-11-21 (PR #17 review, "equivalência
+   * canônica — pode ser insuficiente quando há atributos comerciais
+   * relevantes presentes somente em um dos produtos"): attribute ids
+   * known on exactly ONE side — e.g. side A's real ML attributes include
+   * CAPACITY but side B's don't, for whatever reason (a real gap in the
+   * catalog detail response, an attribute ML hasn't filled in yet for
+   * that specific catalogProductId, etc.). Any entry here means genuine
+   * variant-relevant information exists that could NOT be cross-checked
+   * — this alone blocks "equivalent", even when every SHARED attribute
+   * matches with zero conflicts. */
+  asymmetricAttributes: string[];
   reason: string;
 }
 
@@ -107,7 +118,9 @@ export interface EquivalenceVerdict {
  * (reuse the existing canonical, or log an ambiguous/distinct case for
  * human review via CanonicalProductMergeReview).
  *
- * Decision rules, safest-first:
+ * Decision rules, safest-first (conservative by construction: every rule
+ * below either confirms "distinct" or requires POSITIVE evidence for
+ * "equivalent" — the default on any doubt is always "ambiguous"):
  *  1. Brand or model missing/mismatched on either side → "ambiguous"
  *     (never assume; brand+model are the minimum bar even to consider
  *     equivalence).
@@ -115,10 +128,22 @@ export interface EquivalenceVerdict {
  *     DIFFERENT value → "distinct", always — a confirmed real
  *     difference (e.g. 127V vs 220V) can never be overridden by
  *     anything else matching.
- *  3. At least one variant-defining attribute present on both sides,
- *     all of them matching, and no conflicts → "equivalent" — real,
- *     positive confirmation, not just "nothing contradicts it".
- *  4. Brand+model match but there is no shared variant-attribute data
+ *  3. Real root cause fixed, 2026-11-21 (PR #17 review): any variant-
+ *     defining attribute known on only ONE side (asymmetric coverage) →
+ *     "ambiguous", even if every attribute that IS shared matches with
+ *     no conflict. A real, commercially-relevant attribute present on
+ *     only one of the two real catalogProductIds is exactly the kind of
+ *     case a naive "ignore what's not shared" rule would wrongly wave
+ *     through — the side missing it might simply never have had that
+ *     attribute filled in by ML yet, not necessarily because it doesn't
+ *     apply; equivalence can never be confidently demonstrated while
+ *     that gap exists.
+ *  4. At least one variant-defining attribute present on BOTH sides
+ *     (and, by rule 3, no attribute present on only one side), all
+ *     shared attributes matching, and no conflicts → "equivalent" —
+ *     real, positive, SYMMETRIC confirmation, not just "nothing
+ *     contradicts it".
+ *  5. Brand+model match but there is no shared variant-attribute data
  *     to confirm sameness either way → "ambiguous" — the owner's
  *     explicit instruction: no overlap means no confident merge, keep
  *     separate and record the case for review.
@@ -137,16 +162,25 @@ export function evaluateCanonicalEquivalence(
       decision: "ambiguous",
       matchedAttributes: [],
       conflictingAttributes: [],
+      asymmetricAttributes: [],
       reason: "Marca e/ou modelo ausentes ou diferentes — sem base mínima para considerar equivalência.",
     };
   }
 
   const matched: string[] = [];
   const conflicting: string[] = [];
+  const asymmetric: string[] = [];
   for (const attrId of VARIANT_DEFINING_ATTRIBUTE_IDS) {
     const valueA = a.variantAttributes[attrId];
     const valueB = b.variantAttributes[attrId];
-    if (valueA === undefined || valueB === undefined) continue; // not present on both sides — no signal either way
+    if (valueA === undefined && valueB === undefined) continue; // not present on either side — no signal either way
+    if (valueA === undefined || valueB === undefined) {
+      // Real root cause fixed, 2026-11-21 (PR #17 review): known on only
+      // ONE side — a real, commercially-relevant gap, never silently
+      // ignored. Blocks "equivalent" below regardless of what else matches.
+      asymmetric.push(attrId);
+      continue;
+    }
     if (normalizeIdentityToken(valueA) === normalizeIdentityToken(valueB)) {
       matched.push(attrId);
     } else {
@@ -159,7 +193,18 @@ export function evaluateCanonicalEquivalence(
       decision: "distinct",
       matchedAttributes: matched,
       conflictingAttributes: conflicting,
+      asymmetricAttributes: asymmetric,
       reason: `Mesma marca+modelo, mas ${conflicting.join(", ")} diverge(m) — variação comercial real e distinta (ex.: voltagem/cor diferente).`,
+    };
+  }
+
+  if (asymmetric.length > 0) {
+    return {
+      decision: "ambiguous",
+      matchedAttributes: matched,
+      conflictingAttributes: [],
+      asymmetricAttributes: asymmetric,
+      reason: `Mesma marca+modelo${matched.length > 0 ? ` e ${matched.join(", ")} coincide(m)` : ""}, mas ${asymmetric.join(", ")} só está disponível em um dos dois produtos — equivalência não pode ser demonstrada com cobertura de atributos incompleta, mantido separado para revisão humana.`,
     };
   }
 
@@ -168,7 +213,8 @@ export function evaluateCanonicalEquivalence(
       decision: "equivalent",
       matchedAttributes: matched,
       conflictingAttributes: [],
-      reason: `Mesma marca+modelo e ${matched.join(", ")} coincide(m) — equivalência confirmada por atributo real, não só por marca+modelo.`,
+      asymmetricAttributes: [],
+      reason: `Mesma marca+modelo e ${matched.join(", ")} coincide(m), sem nenhum atributo de variação assimétrico — equivalência confirmada por atributo real, não só por marca+modelo.`,
     };
   }
 
@@ -176,6 +222,7 @@ export function evaluateCanonicalEquivalence(
     decision: "ambiguous",
     matchedAttributes: [],
     conflictingAttributes: [],
+    asymmetricAttributes: [],
     reason: "Mesma marca+modelo, mas nenhum atributo de variação (voltagem/cor/capacidade/kit) disponível em ambos os lados para confirmar — mantido separado para revisão humana.",
   };
 }

@@ -60,6 +60,36 @@ describe("pruneOldSelectionRounds — real retention logic against the local dev
   });
 });
 
+describe("VitrineSelectionRound.automationRunId — stable per-execution identity (PR #17 review)", () => {
+  afterEach(async () => {
+    await prisma.vitrineSelectionRound.deleteMany({ where: { foundInDatabase: 1, afterDedup: 1, evaluated: 1 } });
+  });
+
+  it("rejects a second round attributed to the SAME real execution id — never silently duplicated on a retry", async () => {
+    const automationRunId = `test-run-${Date.now()}`;
+    await prisma.vitrineSelectionRound.create({
+      data: { automationRunId, foundInDatabase: 1, afterDedup: 1, discardedNoPrice: 0, discardedIneligible: 0, evaluated: 1, selected: 0 },
+    });
+
+    await expect(
+      prisma.vitrineSelectionRound.create({
+        data: { automationRunId, foundInDatabase: 1, afterDedup: 1, discardedNoPrice: 0, discardedIneligible: 0, evaluated: 1, selected: 0 },
+      }),
+    ).rejects.toThrow();
+  });
+
+  it("allows automationRunId to be null (never-attributed historical rows stay valid, nullable+unique coexist in Postgres)", async () => {
+    const first = await prisma.vitrineSelectionRound.create({
+      data: { foundInDatabase: 1, afterDedup: 1, discardedNoPrice: 0, discardedIneligible: 0, evaluated: 1, selected: 0 },
+    });
+    const second = await prisma.vitrineSelectionRound.create({
+      data: { foundInDatabase: 1, afterDedup: 1, discardedNoPrice: 0, discardedIneligible: 0, evaluated: 1, selected: 0 },
+    });
+    expect(first.automationRunId).toBeNull();
+    expect(second.automationRunId).toBeNull();
+  });
+});
+
 describe("structural guard — the cleanup job is never auto-wired", () => {
   it("is not referenced by the real production orchestrator (jobs/run-ml-shopee-cycle.ts)", async () => {
     const { readFileSync } = await import("node:fs");

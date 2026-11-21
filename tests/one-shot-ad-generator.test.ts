@@ -15,6 +15,20 @@ import {
  * preservação das informações reais do produto, a separação dos
  * formatos e os bloqueios financeiros"). Every test here is a pure
  * function call or a mocked fetch — zero network, zero cost.
+ *
+ * Real root cause found in CI, 2026-11-21 (PR #17 review): two tests
+ * below pointed VITRINE_HENRIQUE_STYLE_REFERENCE_PATH at the REAL bundled
+ * Henrique reference art (lib/services/ai-creative-factory/assets/
+ * henrique-style-reference.png) — correctly gitignored (owner's rule:
+ * never commit the original art), so it only existed on a machine that
+ * had manually placed it there, never on a fresh CI checkout. Fixed by
+ * pointing those tests at tests/fixtures/one-shot-style-reference.synthetic.png
+ * instead — a throwaway 1x1 PNG committed ONLY to prove the gates
+ * (financial mode, migration allowlist/call-count) fire correctly once a
+ * reference file exists, never to assert anything about its visual
+ * content. Production's own default path (env.ts) is untouched — the
+ * real art still loads from the real, gitignored path in every real
+ * environment; only these tests' stubbed env var changed.
  */
 
 describe("buildOneShotPrompt — preserves real product information, never invents", () => {
@@ -271,9 +285,10 @@ describe("generateOneShotAd — fails safe, never falls back silently, respects 
   });
 
   it("still blocks on VITRINE_CREATIVE_MODE=teste even when the reference file DOES exist — the financial gate is never bypassed by this mechanism", async () => {
-    // Uses the real bundled reference asset — proves the gate, not file
-    // availability, is what stops the call here.
-    vi.stubEnv("VITRINE_HENRIQUE_STYLE_REFERENCE_PATH", "lib/services/ai-creative-factory/assets/henrique-style-reference.png");
+    // A committed synthetic fixture (never the real Henrique art) —
+    // proves the gate, not file availability, is what stops the call
+    // here, on any machine including a fresh CI checkout.
+    vi.stubEnv("VITRINE_HENRIQUE_STYLE_REFERENCE_PATH", "tests/fixtures/one-shot-style-reference.synthetic.png");
     vi.stubEnv("VITRINE_ONE_SHOT_MIGRATION_ALLOWLIST", "MLB-TEST");
     vi.stubEnv("VITRINE_ONE_SHOT_MIGRATION_MAX_CALLS", "1");
     delete process.env.VITRINE_CREATIVE_MODE; // the real default — blocked
@@ -304,9 +319,10 @@ describe("generateOneShotAd — controlled migration rollout (owner's directive,
     vi.resetModules();
     vi.stubGlobal("fetch", fetchMock);
     fetchMock.mockReset();
-    // A real reference file and an authorized financial mode so these
-    // tests isolate the migration gate specifically, not some other gate.
-    vi.stubEnv("VITRINE_HENRIQUE_STYLE_REFERENCE_PATH", "lib/services/ai-creative-factory/assets/henrique-style-reference.png");
+    // A committed synthetic fixture (never the real Henrique art) and an
+    // authorized financial mode so these tests isolate the migration gate
+    // specifically, not some other gate.
+    vi.stubEnv("VITRINE_HENRIQUE_STYLE_REFERENCE_PATH", "tests/fixtures/one-shot-style-reference.synthetic.png");
     vi.stubEnv("VITRINE_CREATIVE_MODE", "piloto_autorizado");
     vi.stubEnv("VITRINE_CREATIVE_PILOT_MAX_CALLS", "5");
     vi.stubEnv("OPENAI_API_KEY", "sk-test-key-not-real");

@@ -4,6 +4,7 @@ ALTER TABLE "VitrineSelection" ADD COLUMN     "retiredReason" TEXT;
 -- CreateTable
 CREATE TABLE "VitrineSelectionRound" (
     "id" TEXT NOT NULL,
+    "automationRunId" TEXT,
     "runAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "foundInDatabase" INTEGER NOT NULL,
     "afterDedup" INTEGER NOT NULL,
@@ -51,6 +52,7 @@ CREATE TABLE "CanonicalProductMergeReview" (
     "verdict" TEXT NOT NULL,
     "matchedAttributes" JSONB NOT NULL,
     "conflictingAttributes" JSONB NOT NULL,
+    "asymmetricAttributes" JSONB NOT NULL,
     "reviewedAt" TIMESTAMP(3),
     "reviewDecision" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -60,6 +62,9 @@ CREATE TABLE "CanonicalProductMergeReview" (
 
 -- CreateIndex
 CREATE INDEX "VitrineSelectionRound_runAt_idx" ON "VitrineSelectionRound"("runAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "VitrineSelectionRound_automationRunId_key" ON "VitrineSelectionRound"("automationRunId");
 
 -- CreateIndex
 CREATE INDEX "VitrineSelectionRoundCandidate_roundId_idx" ON "VitrineSelectionRoundCandidate"("roundId");
