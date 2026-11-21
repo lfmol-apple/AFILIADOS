@@ -24,6 +24,12 @@ export interface QualityCheckResult {
   status: "approved" | "rejected" | "pending";
   notes: string;
   visionCheckCostUsd: number | null;
+  /** Which of the 3 real outcomes the vision check landed on — owner's
+   * explicit requirement, 2026-11-20, to separate "alteração legítima de
+   * ambientação", "alteração factual do produto" and "dúvida que exige
+   * revisão" instead of a single ambiguous boolean. Null when the vision
+   * check itself never ran (structural rejection, missing key, etc.). */
+  classification: VisualFidelityClassification | null;
 }
 
 function checkStructural(imageBuffer: Buffer, expectedWidth: number, expectedHeight: number): { ok: boolean; note: string } {
@@ -40,17 +46,43 @@ function checkStructural(imageBuffer: Buffer, expectedWidth: number, expectedHei
   return { ok: true, note: `Arquivo estrutural válido (${(imageBuffer.length / 1024).toFixed(0)}KB), dimensões esperadas ${expectedWidth}x${expectedHeight}.` };
 }
 
-/** Real vision-based fidelity check — compares the original product
- * photo against the AI-generated composition. Returns null cost (and
- * status "pending") when OPENAI_API_KEY isn't configured — never fakes
- * a pass. */
+/** Real root cause, 2026-11-20 (owner's directive, "corrigir a causa
+ * raiz, não apenas aprovar manualmente"): a direct, manual visual
+ * comparison of all 11 pending creatives against their real original
+ * photos found that 100% of rejections were FALSE — the previous
+ * prompt's single `mesmo_produto` boolean conflated two completely
+ * different things: (1) the AI correctly recomposing the environment/
+ * lighting/background around the product (the hybrid architecture's
+ * own, INTENTIONAL job — see prompt-builder.ts) and, in one case, (2)
+ * correctly REMOVING a human model per this project's own generation
+ * rule ("NÃO inclua... pessoas ou modelos humanos") — both of which the
+ * old prompt penalized as if they were product alterations.
+ *
+ * This schema explicitly separates three outcomes instead of inferring
+ * one from an ambiguous "mesmo_produto":
+ *  - Real factual alteration (marca/modelo/cor/acessórios genuinely
+ *    different) → REJECTED. The only real defect category.
+ *  - Legitimate ambientation change (background/lighting/pose/human-
+ *    model-removal differs, but the real product itself — every visible
+ *    brand mark, model badge, color, and accessory — is intact) →
+ *    APPROVED. This is the architecture working as designed, never a
+ *    defect.
+ *  - Genuine ambiguity (the model itself isn't confident which of the
+ *    above applies) → PENDING, for human review — never silently
+ *    approved just because nothing else matched.
+ *  - Invented commercial content (price/text/spec/benefit baked into
+ *    the image by the AI, which this project's prompt explicitly
+ *    forbids — see prompt-builder.ts's "NÃO inclua nenhuma sobreposição
+ *    gráfica") is checked separately and ALWAYS rejects outright,
+ *    regardless of the other three outcomes — a real, serious defect
+ *    class the old prompt never checked for at all. */
 async function checkVisualFidelity(input: {
   originalPhotoBase64: string;
   generatedImageBase64: string;
   title: string;
-}): Promise<{ approved: boolean | null; note: string; costUsd: number | null }> {
+}): Promise<{ approved: boolean | null; note: string; costUsd: number | null; classification: VisualFidelityClassification | null }> {
   if (!env.OPENAI_API_KEY) {
-    return { approved: null, note: "OPENAI_API_KEY não configurada — checagem visual não executada.", costUsd: null };
+    return { approved: null, note: "OPENAI_API_KEY não configurada — checagem visual não executada.", costUsd: null, classification: null };
   }
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -64,7 +96,30 @@ async function checkVisualFidelity(input: {
           content: [
             {
               type: "text",
-              text: `A primeira imagem é a fotografia REAL do produto "${input.title}". A segunda imagem é uma composição publicitária gerada por IA a partir da primeira. Responda em JSON: {"mesmo_produto": true|false, "embalagem_preservada": true|false, "cor_preservada": true|false, "nota": "texto curto explicando"}. Seja estrito: se a marca, modelo, cor ou embalagem foi alterada, mesmo_produto deve ser false.`,
+              text: `A primeira imagem é a fotografia REAL do produto "${input.title}". A segunda imagem é uma composição publicitária gerada por IA a partir da primeira, usando a mesma foto do produto como base.
+
+IMPORTANTE — isto é esperado e NUNCA deve contar como defeito:
+- Mudança de fundo, cenário, iluminação, ângulo levemente diferente, ou o produto posicionado sobre uma superfície diferente.
+- Remoção de uma pessoa/modelo humano que segurava ou usava o produto na foto original — isto é uma regra deliberada deste projeto, nunca um erro.
+- Remoção de texto de marketing de terceiros (selos de desconto, splashes promocionais) que não faça parte do produto físico em si.
+
+O que REALMENTE conta como defeito (alteração factual do produto):
+- A marca, o modelo, a cor ou os acessórios/componentes reais e físicos do produto são diferentes entre as duas imagens.
+- A segunda imagem contém qualquer texto, preço, especificação ou benefício comercial desenhado pela IA que não existe fisicamente no produto.
+
+Responda em JSON estrito:
+{
+  "mesmo_produto_fisico": true|false,
+  "marca_modelo_preservados": true|false,
+  "cor_preservada": true|false,
+  "acessorios_preservados": true|false,
+  "apenas_ambientacao_mudou": true|false,
+  "conteudo_comercial_inventado": true|false,
+  "duvida_requer_revisao_humana": true|false,
+  "nota": "texto curto explicando, citando especificamente onde cada marca/texto aparece em cada imagem"
+}
+
+Seja preciso e cite evidência textual visível (ex: "EWS1850P aparece no selo superior em ambas as imagens") — nunca reprove só por mudança de cenário, iluminação ou remoção de pessoas.`,
             },
             { type: "image_url", image_url: { url: `data:image/jpeg;base64,${input.originalPhotoBase64}` } },
             { type: "image_url", image_url: { url: `data:image/png;base64,${input.generatedImageBase64}` } },
@@ -78,7 +133,7 @@ async function checkVisualFidelity(input: {
   if (!response.ok) {
     const body = await response.text().catch(() => "");
     logger.error("ai_creative_factory.vision_check_failed", { status: response.status, body: body.slice(0, 300) });
-    return { approved: null, note: `Checagem visual falhou (HTTP ${response.status}) — fica pendente, nunca aprovado por omissão.`, costUsd: null };
+    return { approved: null, note: `Checagem visual falhou (HTTP ${response.status}) — fica pendente, nunca aprovado por omissão.`, costUsd: null, classification: null };
   }
 
   const payload = (await response.json()) as {
@@ -86,13 +141,22 @@ async function checkVisualFidelity(input: {
     usage?: { prompt_tokens?: number; completion_tokens?: number };
   };
   const content = payload.choices?.[0]?.message?.content;
-  if (!content) return { approved: null, note: "Resposta vazia da checagem visual.", costUsd: null };
+  if (!content) return { approved: null, note: "Resposta vazia da checagem visual.", costUsd: null, classification: null };
 
-  let parsed: { mesmo_produto?: boolean; embalagem_preservada?: boolean; cor_preservada?: boolean; nota?: string };
+  let parsed: {
+    mesmo_produto_fisico?: boolean;
+    marca_modelo_preservados?: boolean;
+    cor_preservada?: boolean;
+    acessorios_preservados?: boolean;
+    apenas_ambientacao_mudou?: boolean;
+    conteudo_comercial_inventado?: boolean;
+    duvida_requer_revisao_humana?: boolean;
+    nota?: string;
+  };
   try {
     parsed = JSON.parse(content);
   } catch {
-    return { approved: null, note: "Resposta da checagem visual não era um JSON válido — fica pendente.", costUsd: null };
+    return { approved: null, note: "Resposta da checagem visual não era um JSON válido — fica pendente.", costUsd: null, classification: null };
   }
 
   // gpt-4o-mini real rates: $0.15/M input tokens, $0.60/M output tokens —
@@ -102,8 +166,46 @@ async function checkVisualFidelity(input: {
   const completionTokens = payload.usage?.completion_tokens ?? 0;
   const costUsd = Math.round((promptTokens * 0.15e-6 + completionTokens * 0.6e-6) * 10000) / 10000;
 
-  const approved = parsed.mesmo_produto === true && parsed.embalagem_preservada === true && parsed.cor_preservada === true;
-  return { approved, note: parsed.nota ?? "(sem nota)", costUsd };
+  const { approved, classification } = classifyVisualFidelity(parsed);
+  return { approved, note: parsed.nota ?? "(sem nota)", costUsd, classification };
+}
+
+export type VisualFidelityClassification = "ambientacao_legitima" | "alteracao_factual" | "conteudo_inventado" | "duvida";
+
+/** Pure decision function, separated from the network call so it can be
+ * unit-tested with realistic fixtures (owner's directive, 2026-11-20:
+ * "criar testes de regressão... sem chamadas pagas") — this is the part
+ * that can genuinely be proven correct without spending anything; only
+ * the real model's real-world judgment on real images still needs a
+ * real (separately authorized) call to validate. */
+export function classifyVisualFidelity(parsed: {
+  mesmo_produto_fisico?: boolean;
+  marca_modelo_preservados?: boolean;
+  cor_preservada?: boolean;
+  acessorios_preservados?: boolean;
+  apenas_ambientacao_mudou?: boolean;
+  conteudo_comercial_inventado?: boolean;
+  duvida_requer_revisao_humana?: boolean;
+}): { approved: boolean | null; classification: VisualFidelityClassification } {
+  // Invented commercial content is a real, serious defect regardless of
+  // everything else — never approved even if the product itself is fine.
+  if (parsed.conteudo_comercial_inventado === true) {
+    return { approved: false, classification: "conteudo_inventado" };
+  }
+  if (parsed.duvida_requer_revisao_humana === true) {
+    return { approved: null, classification: "duvida" };
+  }
+  const factualmentePreservado =
+    parsed.mesmo_produto_fisico === true &&
+    parsed.marca_modelo_preservados === true &&
+    parsed.cor_preservada === true &&
+    parsed.acessorios_preservados === true;
+  if (!factualmentePreservado) {
+    return { approved: false, classification: "alteracao_factual" };
+  }
+  // Product/brand/color/accessories all intact — whether or not the
+  // ambientation also changed, this is a legitimate, approvable result.
+  return { approved: true, classification: "ambientacao_legitima" };
 }
 
 export async function runQualityControl(input: {
@@ -115,7 +217,7 @@ export async function runQualityControl(input: {
 }): Promise<QualityCheckResult> {
   const structural = checkStructural(input.generatedImageBuffer, input.expectedWidth, input.expectedHeight);
   if (!structural.ok) {
-    return { status: "rejected", notes: structural.note, visionCheckCostUsd: null };
+    return { status: "rejected", notes: structural.note, visionCheckCostUsd: null, classification: null };
   }
 
   const vision = await checkVisualFidelity({
@@ -125,10 +227,25 @@ export async function runQualityControl(input: {
   });
 
   if (vision.approved === true) {
-    return { status: "approved", notes: `${structural.note} | Checagem visual: aprovado — ${vision.note}`, visionCheckCostUsd: vision.costUsd };
+    return {
+      status: "approved",
+      notes: `${structural.note} | Checagem visual: aprovado (ambientação legítima) — ${vision.note}`,
+      visionCheckCostUsd: vision.costUsd,
+      classification: vision.classification,
+    };
   }
   if (vision.approved === false) {
-    return { status: "rejected", notes: `Checagem visual reprovou: ${vision.note}`, visionCheckCostUsd: vision.costUsd };
+    return {
+      status: "rejected",
+      notes: `Checagem visual reprovou (${vision.classification ?? "motivo desconhecido"}): ${vision.note}`,
+      visionCheckCostUsd: vision.costUsd,
+      classification: vision.classification,
+    };
   }
-  return { status: "pending", notes: `${structural.note} | Checagem visual inconclusiva: ${vision.note}`, visionCheckCostUsd: vision.costUsd };
+  return {
+    status: "pending",
+    notes: `${structural.note} | Checagem visual inconclusiva (${vision.classification ?? "sem classificação"}): ${vision.note}`,
+    visionCheckCostUsd: vision.costUsd,
+    classification: vision.classification,
+  };
 }
