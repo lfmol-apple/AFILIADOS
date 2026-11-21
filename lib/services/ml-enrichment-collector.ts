@@ -10,7 +10,27 @@ import {
   getDiscountPercent,
 } from "@/lib/services/ml-offer-quality";
 import { getHistoricalClickSignal } from "@/lib/services/historical-click-signal";
+import { mapDomainIdToCategorySlug } from "@/lib/services/commercial-intelligence/ml-domain-category-map";
 import type { MonetizationScoreInput } from "@/types/monetization";
+
+/** Real root cause, 2026-11-20 ("Etapa 4 — Categorias e Sazonalidade"):
+ * `detail.domain_id` was already captured into `specifications.domainId`
+ * on every product, but nothing ever resolved it to our own real
+ * `Category.id` — so `categoryId` stayed null for 100% of products,
+ * site-wide. Cached (our own Category table is a fixed, rarely-changing
+ * 17 rows — a 5-minute cache avoids a query per enriched listing
+ * without ever risking a stale slug for long). */
+let categorySlugToIdCache: { at: number; value: Map<string, string> } | null = null;
+const CATEGORY_CACHE_TTL_MS = 5 * 60 * 1000;
+
+async function resolveCategoryId(domainId: string | null | undefined): Promise<string | null> {
+  if (!categorySlugToIdCache || Date.now() - categorySlugToIdCache.at > CATEGORY_CACHE_TTL_MS) {
+    const rows = await prisma.category.findMany({ select: { id: true, slug: true } });
+    categorySlugToIdCache = { at: Date.now(), value: new Map(rows.map((r) => [r.slug, r.id])) };
+  }
+  const slug = mapDomainIdToCategorySlug(domainId);
+  return categorySlugToIdCache.value.get(slug) ?? null;
+}
 
 /**
  * Shared per-catalog-product enrichment logic, extracted from
@@ -61,6 +81,8 @@ export async function enrichCatalogListing(
     findAttribute(detail, "ALPHANUMERIC_MODEL") ??
     null;
 
+  const categoryId = await resolveCategoryId(detail.domain_id);
+
   const canonical = await prisma.canonicalProduct.upsert({
     where: { slug: `ml-catalog-${catalogProductId}` },
     create: {
@@ -70,6 +92,7 @@ export async function enrichCatalogListing(
       model: findAttribute(detail, "MODEL") ?? null,
       gtin: findAttribute(detail, "GTIN") ?? null,
       imageUrl: detail.pictures?.[0]?.url ?? null,
+      categoryId,
       specifications: {
         catalogProductId,
         domainId: detail.domain_id ?? null,
@@ -85,6 +108,7 @@ export async function enrichCatalogListing(
       model: findAttribute(detail, "MODEL") ?? null,
       gtin: findAttribute(detail, "GTIN") ?? null,
       imageUrl: detail.pictures?.[0]?.url ?? null,
+      categoryId,
       specifications: {
         catalogProductId,
         domainId: detail.domain_id ?? null,
