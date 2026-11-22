@@ -137,15 +137,18 @@ function pickVisualDirection(categoryHint: string | null) {
  * are found first — the caller still caps at 4 total benefits across
  * ALL sources, discount/rating included. */
 const SPEC_PATTERNS: { regex: RegExp; label: (m: RegExpMatchArray) => string }[] = [
-  { regex: /FPS\s*(\d+)/i, label: (m) => `Proteção solar real FPS ${m[1]}` },
+  { regex: /FPS\s*(\d+)/i, label: (m) => `Proteção solar FPS ${m[1]}` },
   { regex: /(\d+[.,]?\d*)\s*w\b/i, label: (m) => `${m[1]}W de potência` },
   { regex: /(\d+[.,]?\d*)\s*l\b(?!b)/i, label: (m) => `${m[1]}L de capacidade` },
   { regex: /(\d+)\s*h(?:s|oras)?\s*(?:de bateria|de autonomia)?/i, label: (m) => `${m[1]}h de autonomia` },
   { regex: /(\d+[.,]?\d*)\s*kg\b/i, label: (m) => `Até ${m[1]}kg` },
   { regex: /(\d+)\s*em\s*1\b/i, label: (m) => `${m[1]} funções em 1 produto` },
-  { regex: /(\d+[.,]?\d*)\s*(?:g|ml)\b/i, label: (m) => `${m[1]}${m[0].match(/ml/i) ? "ml" : "g"} reais no anúncio` },
+  // Owner's directive, 2026-11-21: never phrase this as "reais no
+  // anúncio" (that's internal validation language, not commercial copy)
+  // — just state the real capacity naturally.
+  { regex: /(\d+[.,]?\d*)\s*(?:g|ml)\b/i, label: (m) => `Capacidade de ${m[1]}${m[0].match(/ml/i) ? "ml" : "g"}` },
   { regex: /sem sabor/i, label: () => "Sem sabor" },
-  { regex: /hipoalerg[eê]nic[oa]/i, label: () => "Hipoalergênico (conforme descrito pelo vendedor)" },
+  { regex: /hipoalerg[eê]nic[oa]/i, label: () => "Hipoalergênico" },
   { regex: /dobr[aá]vel/i, label: () => "Dobrável" },
 ];
 
@@ -166,15 +169,20 @@ export function interpretProduct(input: ProductInterpretationInput): CreativePro
 
   if (input.hasConfirmedDiscount && input.referencePrice !== null) {
     const percent = Math.round((1 - input.currentPrice / input.referencePrice) * 100);
+    const savings = input.referencePrice - input.currentPrice;
+    // Owner's directive, 2026-11-21: the badge text shown ON THE AD must
+    // read like real commercial copy ("39% OFF — economize R$ 147,80"),
+    // never internal validation language like "desconto real" — the
+    // `source` field below still carries the full audit trail.
     benefits.push({
-      text: `${percent}% de desconto real (de R$ ${input.referencePrice.toFixed(2)} para R$ ${input.currentPrice.toFixed(2)})`,
-      source: "Preço de referência e preço atual — dado confirmado pelo vendedor no Mercado Livre.",
+      text: `${percent}% OFF — economize R$ ${savings.toFixed(2).replace(".", ",")}`,
+      source: `Preço de referência (R$ ${input.referencePrice.toFixed(2)}) e preço atual (R$ ${input.currentPrice.toFixed(2)}) — dado confirmado pelo vendedor no Mercado Livre.`,
     });
     sources.push("Desconto confirmado pelo vendedor (MerchantListingFacts.referencePrice/discountPercent).");
   }
   if (input.rating !== null && input.reviewCount !== null && input.reviewCount > 0) {
     benefits.push({
-      text: `Avaliação real ${input.rating.toFixed(1)}/5 (${input.reviewCount} avaliações)`,
+      text: `Avaliação ${input.rating.toFixed(1)}/5 (${input.reviewCount} avaliações)`,
       source: "Dado real do Mercado Livre — nota e contagem de avaliações do anúncio.",
     });
     sources.push("Avaliação e nº de avaliações reais do Mercado Livre.");
@@ -202,7 +210,7 @@ export function interpretProduct(input: ProductInterpretationInput): CreativePro
     colorPalette: direction.palette,
     ambientation: input.isSeasonalEvent ? `${direction.ambientation}, com sugestão sutil de ${input.isSeasonalEvent} sem poluir a composição` : direction.ambientation,
     productPositioning: "produto grande e centralizado, ocupando a maior parte vertical da composição, nunca disputando espaço com texto",
-    graphicElements: [...direction.graphicElements, ...(input.hasConfirmedDiscount ? ["selo de desconto real"] : [])],
+    graphicElements: [...direction.graphicElements, ...(input.hasConfirmedDiscount ? ["selo de desconto"] : [])],
     priceStrategy: input.hasConfirmedDiscount
       ? "preço atual em destaque máximo, preço anterior riscado menor ao lado, percentual real em selo"
       : "preço atual em destaque máximo, sem preço anterior (nenhum desconto confirmado a mostrar)",

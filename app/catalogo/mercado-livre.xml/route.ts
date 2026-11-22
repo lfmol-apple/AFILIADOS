@@ -89,8 +89,18 @@ export async function GET() {
       continue;
     }
 
+    // Owner's directive, 2026-11-21 ("confirme que somente imagens
+    // efetivamente aprovadas sejam usadas"): `publishedAt: { not: null }`
+    // already only gets set on an approved generation in
+    // jobs/vitrine-creative-factory.ts, but that is true BY CONSTRUCTION
+    // of that one file, not enforced here — adding the explicit
+    // qualityStatus check is defense-in-depth, the same reasoning
+    // already applied to commercialAudit.verdict a few lines above. If a
+    // row somehow isn't approved, this falls back to the real original
+    // marketplace photo (product.imageUrl) rather than serving nothing
+    // or a stale/rejected render.
     const creative = await prisma.vitrineCreative.findFirst({
-      where: { merchantListingId: selection.merchantListingId, kind: "catalog_clean", publishedAt: { not: null } },
+      where: { merchantListingId: selection.merchantListingId, kind: "catalog_clean", publishedAt: { not: null }, qualityStatus: "approved" },
       orderBy: { version: "desc" },
       select: { finalImageUrl: true },
     });

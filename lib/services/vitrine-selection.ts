@@ -490,6 +490,13 @@ export interface VitrineCandidate {
   adPotentialHypothesis: AdPotentialHypothesis;
   categoryId: string | null;
   commercialAudit: AuditResult;
+  /** Owner's directive, 2026-11-21 ("Confirmar o significado de
+   * salesEvidence"): the raw evidence TYPE (official_rank vs.
+   * search_relevance_only vs. unknown — never confused with a sold
+   * quantity), threaded through faithfully for round-candidate
+   * persistence and any future panel display — never re-derived or
+   * guessed from `scoreBreakdown`, which only carries the numeric score. */
+  salesEvidenceType: SalesEvidence["type"];
 }
 
 export interface GroupFillReport {
@@ -643,6 +650,7 @@ export async function selectVitrineCandidates(limit = 30): Promise<VitrineSelect
       }),
       categoryId: c.categoryId,
       commercialAudit,
+      salesEvidenceType: c.salesEvidence.type,
     });
   }
 

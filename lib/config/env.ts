@@ -341,6 +341,56 @@ const envSchema = z.object({
   /// Same bind-mount pattern as PRODUCT_IMAGE_DIR above — a rebuild must
   /// never lose a generated creative (real money was spent on it).
   VITRINE_CREATIVE_DIR: z.string().default("data/vitrine-creatives"),
+  /// One-shot `ad_overlay` mechanism (owner's directive, 2026-11-21:
+  /// "o pilot-result-3 é nossa referência oficial"): a real, already-
+  /// approved Henrique art used as a loose STRUCTURAL style anchor (see
+  /// one-shot-ad-generator.ts's doc comment) — never copied literally,
+  /// only its typography/icon/layout quality.
+  ///
+  /// Real root cause fixed, 2026-11-21 (PR #17 review, "referência visual
+  /// no deploy"): this used to default to a path INSIDE the app source
+  /// tree (lib/services/ai-creative-factory/assets/) — correctly
+  /// gitignored (the real art is never committed), but that also means
+  /// it lived in the image's own writable layer, not a volume, so a
+  /// routine `docker compose build` would silently lose it on the next
+  /// deploy with no warning before a real paid call tried to use it.
+  /// Moved to the SAME host-bind-mount pattern already proven for
+  /// VITRINE_CREATIVE_DIR/PRODUCT_IMAGE_DIR just above (see
+  /// docker-compose.prod.yml's `./data/vitrine-creative-reference` mount
+  /// and docs/DEPLOYMENT.md's one-time provisioning step) — a real
+  /// rebuild can never lose this file again. Missing file →
+  /// OneShotReferenceMissingError, a hard stop, never a silent fallback
+  /// to the old compositor (owner's explicit rule, unchanged by this fix).
+  VITRINE_HENRIQUE_STYLE_REFERENCE_PATH: z.string().default("data/vitrine-creative-reference/henrique-style-reference.png"),
+  /// Owner's directive, 2026-11-21 ("não permita que a simples mudança de
+  /// mecanismo provoque automaticamente 30 gerações pagas... migração
+  /// progressiva, começando com um único produto autorizado"): a SEPARATE
+  /// gate from VITRINE_CREATIVE_MODE — that one controls whether ANY paid
+  /// call is allowed at all; this one controls WHICH specific real
+  /// products may use the one-shot mechanism (new or migrating from the
+  /// old hybrid compositor), independent of mode. Comma-separated real
+  /// Mercado Livre externalIds (e.g. "MLB36520675"). Empty (the default)
+  /// blocks every product — fail closed, same direction as every other
+  /// gate in this file.
+  VITRINE_ONE_SHOT_MIGRATION_ALLOWLIST: z.string().default(""),
+  /// Hard ceiling on how many one-shot generations (new or migrating) a
+  /// SINGLE process run may make — independent of, and in addition to,
+  /// the dollar-based VITRINE_CREATIVE_DAILY_BUDGET_USD/MONTHLY ceiling.
+  /// Defaults to 0: a missing value blocks every migration, never
+  /// silently allows one.
+  VITRINE_ONE_SHOT_MIGRATION_MAX_CALLS: z.coerce.number().int().nonnegative().default(0),
+  /// Owner's directive, 2026-11-21 ("não regenere automaticamente uma
+  /// imagem a cada pequena alteração de preço... proponha uma política
+  /// que considere frequência"): price-staleness still unpublishes a
+  /// wrong-priced ad_overlay IMMEDIATELY and unconditionally (safety is
+  /// never throttled) — but a real, paid regeneration attempt for a
+  /// price-only trigger is rate-limited to once per this many hours per
+  /// product, so a product whose price moves several times a day doesn't
+  /// burn a real paid call on every single cycle while it's still
+  /// settling. Does NOT apply to a migration (mechanism change) or a
+  /// rejected/category/event-driven regeneration — those are already
+  /// deliberate, one-time events, never a repeating price chase.
+  VITRINE_PRICE_REGENERATION_MIN_INTERVAL_HOURS: z.coerce.number().positive().default(24),
 });
 
 export type Env = z.infer<typeof envSchema>;

@@ -125,3 +125,22 @@ Validar manualmente uma amostra de conteúdo gerado pelo
 `ContentQualityGate` como `APPROVED`. O gate é conservador por design, mas
 ainda é novo — trate a primeira ativação de `AUTO_PUBLISH` como um rollout
 gradual, não um interruptor geral.
+
+## Antes de usar o gerador one-shot de anúncios (Vitrine Inteligente)
+
+A arte real e aprovada do Henrique (referência visual do mecanismo
+`one_shot_v1`, `lib/services/ai-creative-factory/one-shot-ad-generator.ts`)
+**nunca é commitada no repositório**. Ela precisa ser copiada manualmente,
+uma única vez, para o host da VPS em:
+
+```
+./data/vitrine-creative-reference/henrique-style-reference.png
+```
+
+Esse caminho é montado no container via `docker-compose.prod.yml` (mesmo
+padrão de bind mount de `./data/vitrine-creatives` e
+`./data/product-images`) — sobrevive a `docker compose build`. Se o
+arquivo estiver ausente, toda chamada ao gerador one-shot falha
+imediatamente com `OneShotReferenceMissingError`, antes de qualquer
+chamada paga, e **nunca** cai de volta no compositor antigo — isso é
+intencional e não deve ser contornado.

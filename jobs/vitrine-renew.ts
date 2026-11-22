@@ -1,10 +1,26 @@
 import { prisma } from "@/lib/db";
 import { runJob } from "@/lib/jobs/automation-run";
-import { selectVitrineCandidates, type VitrineCandidate } from "@/lib/services/vitrine-selection";
+import { selectVitrineCandidates, type VitrineCandidate, type DiscardedCandidate } from "@/lib/services/vitrine-selection";
 import { registerCandidate } from "@/lib/services/commercial-intelligence/candidate-registry";
 import { auditCandidate } from "@/lib/services/commercial-intelligence/commercial-audit";
+import { buildRoundCandidateRows } from "@/lib/services/vitrine-selection-round-persistence";
 import type { VitrineScoreResult } from "@/lib/services/vitrine-score";
 import { logger } from "@/lib/observability/logger";
+
+/** Owner's directive, 2026-11-21 ("Registrar motivos de retirada"):
+ * short, complete, human-readable label for every real DiscardedCandidate
+ * reason — used only to build `retiredReason` text below, never to
+ * rewrite the existing (separate, out of scope) discard-reason display
+ * in app/admin/vitrine-inteligente/page.tsx. */
+const DISCARD_REASON_LABEL: Record<DiscardedCandidate["reason"], string> = {
+  sem_preco_confirmado: "sem preço confirmado",
+  inelegivel_para_anuncio: "inelegível para anúncio",
+  duplicado_familia: "duplicado (família comercial)",
+  preco_nao_confiavel: "preço não confiável (outlier)",
+  evidencia_insuficiente: "evidência insuficiente",
+  descricao_inadequada: "descrição inadequada (idioma)",
+  reprovado_auditoria: "reprovado na auditoria comercial",
+};
 
 /** The site's own /ofertas monetizationScore, registered as ONE MORE
  * informational CommercialCandidateRegistry source (owner's
@@ -246,10 +262,27 @@ export async function runVitrineRenewJob() {
       .filter((c) => !currentIds.has(c.merchantListingId))
       .slice(0, newcomerLimit);
 
+    // Owner's directive, 2026-11-21 ("Registrar motivos de retirada"):
+    // real root cause fixed — this update never touched `reason`/any
+    // retirement-specific field before, so a retired row's `reason`
+    // stayed frozen with "why it was picked" forever. `retiredReason` is
+    // ADDITIVE and only ever set going forward — existing RETIRED rows
+    // from before this change keep `retiredReason: null`, never
+    // backfilled or guessed.
+    const invalidIds = new Set(invalidNow.map((r) => r.id));
     for (const row of toRetire) {
+      const isInvalid = invalidIds.has(row.id);
+      const retiredReason = isInvalid
+        ? (() => {
+            const d = discardedByListingId.get(row.merchantListingId);
+            return d
+              ? `Oferta inválida — ${DISCARD_REASON_LABEL[d.reason]}: ${d.detail}`
+              : "Oferta inválida — motivo não encontrado no funil desta rodada.";
+          })()
+        : "Substituição comercial — superado nesta rodada por candidato(s) com pontuação mais alta, dentro do orçamento de rotação semanal permitido.";
       await prisma.vitrineSelection.update({
         where: { id: row.id },
-        data: { status: "RETIRED", retiredAt: new Date() },
+        data: { status: "RETIRED", retiredAt: new Date(), retiredReason },
       });
       ctx.counters.updated += 1;
     }
@@ -307,6 +340,55 @@ export async function runVitrineRenewJob() {
         },
       });
     }
+
+    // Owner's directive, 2026-11-21 ("Persistir o pool avaliado"): one
+    // row per real candidate evaluated this round (allScored + discarded),
+    // nested inside a single VitrineSelectionRound create — Prisma wraps a
+    // nested createMany in the same atomic write as its parent create, so
+    // a failure here can never leave a half-written round behind (either
+    // the whole round + all its candidate rows land, or none do). This
+    // ONLY ever runs from this real production job — never the simulation
+    // page or the Commercial Intelligence Lab's comparison tool, both of
+    // which call selectVitrineCandidates()/buildCommercialCandidatePool()
+    // directly — so "não grave simulações como decisões reais" holds by
+    // construction, not by a flag that could be left unset.
+    //
+    // Real root cause fixed, 2026-11-21 (PR #17 review, "persistência do
+    // histórico — projete uma identidade estável por execução real"):
+    // `automationRunId: ctx.runId` attaches this round to the exact,
+    // already-unique AutomationRun row runJob() created for THIS
+    // execution before this function body ever started (see
+    // lib/jobs/automation-run.ts). The column is `@unique` — if this
+    // exact run id were ever written twice (it structurally can't be:
+    // runJob() mints a fresh id per attempt and already refuses a second
+    // concurrent run of VITRINE_RENEW), Postgres itself would reject the
+    // duplicate rather than silently doubling the round. This does NOT
+    // make this write atomic with the earlier VitrineSelection
+    // mutations above (retire/newcomer/reserve) — each of those already
+    // commits independently, same as before this change — but it makes
+    // every real round traceably 1:1 with one real execution, so a
+    // partial run (crashed or FAILED after this point, before the job
+    // function returns) is auditable by joining AutomationRun.status on
+    // this id, never silently indistinguishable from a clean one.
+    const roundCandidateRows = buildRoundCandidateRows({
+      allScored,
+      discarded,
+      selectedIds: candidateIds,
+      reserveIds: new Set(reserve.map((r) => r.merchantListingId)),
+    });
+    await prisma.vitrineSelectionRound.create({
+      data: {
+        automationRunId: ctx.runId,
+        foundInDatabase: funnel.foundInDatabase,
+        afterDedup: funnel.afterDedup,
+        discardedNoPrice: funnel.discardedNoPrice,
+        discardedIneligible: funnel.discardedIneligible,
+        evaluated: funnel.evaluated,
+        selected: Math.min(candidates.length, VITRINE_CAPACITY),
+        candidates: { createMany: { data: roundCandidateRows.map((r) => ({ ...r, scoreBreakdown: r.scoreBreakdown as object | undefined })) } },
+      },
+    });
+    ctx.metadata.roundCandidatesPersisted = roundCandidateRows.length;
 
     ctx.counters.processed = candidates.length;
     // staying + newcomers undercounts: a product "protected" by minimum-

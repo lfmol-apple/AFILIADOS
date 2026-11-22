@@ -115,9 +115,12 @@ Responda em JSON estrito:
   "acessorios_preservados": true|false,
   "apenas_ambientacao_mudou": true|false,
   "conteudo_comercial_inventado": true|false,
+  "evidencia_conteudo_inventado": "string ou null",
   "duvida_requer_revisao_humana": true|false,
   "nota": "texto curto explicando, citando especificamente onde cada marca/texto aparece em cada imagem"
 }
+
+Regra crítica sobre "conteudo_comercial_inventado": só marque true quando tiver CERTEZA, nunca por especulação. Se sua nota usar linguagem como "pode indicar", "pode conter", "possivelmente", "talvez" a respeito de um item inventado — isso é DÚVIDA, não uma reprovação confiante: marque "conteudo_comercial_inventado": false e "duvida_requer_revisao_humana": true em vez disso. Quando marcar "conteudo_comercial_inventado": true, "evidencia_conteudo_inventado" é OBRIGATÓRIO e deve citar o item específico e inventado (ex: um preço, texto ou objeto que aparece na segunda imagem e comprovadamente NÃO existe na primeira) — nunca deixe null ou vago nesse caso. A nitidez de um texto/número REAL que já existe no produto (como um número de modelo real ficar mais legível na imagem gerada) nunca conta como conteúdo inventado.
 
 Seja preciso e cite evidência textual visível (ex: "EWS1850P aparece no selo superior em ambas as imagens") — nunca reprove só por mudança de cenário, iluminação ou remoção de pessoas.`,
             },
@@ -150,6 +153,7 @@ Seja preciso e cite evidência textual visível (ex: "EWS1850P aparece no selo s
     acessorios_preservados?: boolean;
     apenas_ambientacao_mudou?: boolean;
     conteudo_comercial_inventado?: boolean;
+    evidencia_conteudo_inventado?: string | null;
     duvida_requer_revisao_humana?: boolean;
     nota?: string;
   };
@@ -185,11 +189,22 @@ export function classifyVisualFidelity(parsed: {
   acessorios_preservados?: boolean;
   apenas_ambientacao_mudou?: boolean;
   conteudo_comercial_inventado?: boolean;
+  evidencia_conteudo_inventado?: string | null;
   duvida_requer_revisao_humana?: boolean;
 }): { approved: boolean | null; classification: VisualFidelityClassification } {
-  // Invented commercial content is a real, serious defect regardless of
-  // everything else — never approved even if the product itself is fine.
+  // Real root cause, 2026-11-21 (owner's directive: "uma reprovação por
+  // conteúdo inventado deve exigir evidência específica"): a real
+  // revalidation found the model setting this flag true on hedged
+  // language ("pode indicar") or even while its OWN note said nothing
+  // was wrong — a confident rejection needs a cited, specific piece of
+  // evidence, never just the boolean alone. Missing/empty evidence next
+  // to a true flag is treated as genuine doubt, never a silent approval
+  // and never a confident rejection either.
   if (parsed.conteudo_comercial_inventado === true) {
+    const evidence = parsed.evidencia_conteudo_inventado?.trim();
+    if (!evidence) {
+      return { approved: null, classification: "duvida" };
+    }
     return { approved: false, classification: "conteudo_inventado" };
   }
   if (parsed.duvida_requer_revisao_humana === true) {

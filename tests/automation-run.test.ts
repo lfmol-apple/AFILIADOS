@@ -56,6 +56,29 @@ describe("runJob locking", () => {
     ).toBe(true);
   });
 
+  it("exposes ctx.runId as the real AutomationRun.id for this exact execution (PR #17 review: stable identity per real run)", async () => {
+    const jobName = `${TEST_JOB_PREFIX}RUNID`;
+    let seenRunId = "";
+    await runJob(jobName, async (ctx) => {
+      seenRunId = ctx.runId;
+    });
+
+    const run = await prisma.automationRun.findFirst({ where: { job: jobName } });
+    expect(seenRunId).toBe(run!.id);
+  });
+
+  it("gives two sequential runs of the same job two DIFFERENT runIds — never reused, never duplicated", async () => {
+    const jobName = `${TEST_JOB_PREFIX}RUNID_SEQUENTIAL`;
+    const seen: string[] = [];
+    await runJob(jobName, async (ctx) => {
+      seen.push(ctx.runId);
+    });
+    await runJob(jobName, async (ctx) => {
+      seen.push(ctx.runId);
+    });
+    expect(seen[0]).not.toBe(seen[1]);
+  });
+
   it("allows sequential runs of the same job once the previous one finished", async () => {
     const jobName = `${TEST_JOB_PREFIX}SEQUENTIAL`;
     await runJob(jobName, async () => {});
