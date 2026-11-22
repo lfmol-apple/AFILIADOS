@@ -2,6 +2,8 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { GenericAffiliateDisclosure } from "@/components/merchant-cta";
 import { ProductImage } from "@/components/product-image";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
+import { VitrineViewContentBeacon } from "@/components/vitrine-view-content-beacon";
+import { AffiliateOutboundLink } from "@/components/affiliate-outbound-link";
 import { CanalInviteBlock } from "@/components/canal-invite-block";
 import { formatCurrency, formatDate } from "@/lib/format";
 import { siteConfig } from "@/lib/config/site";
@@ -74,10 +76,19 @@ export function MerchantProductView({
   data,
   related,
   similar,
+  vitrineTracked = false,
 }: {
   data: PublicMerchantProductViewModel;
   related: RelatedMerchantProduct[];
   similar: SimilarOffers;
+  /** Owner's authorization, 2026-11-22 ("Frente B — Pixel Meta do
+   * Henrique"): true only when this exact page load came through the
+   * Vitrine's own tracked entry point (?src=vitrine with a real ACTIVE
+   * vitrineLink — see lib/services/vitrine-cta.ts). `data.ctaHref` alone
+   * is NOT a safe signal for this — it's present on every normal product
+   * page too (the site's own precocaindo-tagged link), so ViewContent/
+   * AffiliateOutboundClick must never fire off its presence alone. */
+  vitrineTracked?: boolean;
 }) {
   const priceSummary = summarizePriceHistory(data.priceHistory, data.currentPrice);
   const guide = guideForCategory(similar.categorySlug);
@@ -112,6 +123,9 @@ export function MerchantProductView({
   return (
     <div className="mx-auto w-full max-w-5xl overflow-x-hidden px-4 py-8 sm:px-6">
       <AnalyticsBeacon pageType="product" pageSlug={data.slug} productId={data.merchantListingId} />
+      {vitrineTracked && data.currentPrice !== null && (
+        <VitrineViewContentBeacon merchantListingId={data.merchantListingId} title={data.title} price={data.currentPrice} />
+      )}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(breadcrumbList) }} />
 
@@ -170,13 +184,23 @@ export function MerchantProductView({
               </p>
             )}
 
-            {data.ctaHref && (
-              <a
+            {data.ctaHref && vitrineTracked && data.currentPrice !== null ? (
+              <AffiliateOutboundLink
+                product={{ merchantListingId: data.merchantListingId, title: data.title, price: data.currentPrice }}
                 href={data.ctaHref}
                 className={`mt-5 block rounded-full py-4 text-center text-base font-bold ${MERCHANT_BUTTON_CLASS[data.source]}`}
               >
                 Ver {MERCHANT_BUTTON_LABEL[data.source]} →
-              </a>
+              </AffiliateOutboundLink>
+            ) : (
+              data.ctaHref && (
+                <a
+                  href={data.ctaHref}
+                  className={`mt-5 block rounded-full py-4 text-center text-base font-bold ${MERCHANT_BUTTON_CLASS[data.source]}`}
+                >
+                  Ver {MERCHANT_BUTTON_LABEL[data.source]} →
+                </a>
+              )
             )}
             {data.amazonMatch && (
               <a

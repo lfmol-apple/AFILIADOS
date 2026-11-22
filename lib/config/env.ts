@@ -289,6 +289,20 @@ const envSchema = z.object({
   /// specific campaign manually before enabling.
   META_VITRINE_CAMPAIGN_ID: z.string().default(""),
 
+  /// Meta Pixel (owner's authorization, 2026-11-22, "Frente B — Pixel
+  /// Meta do Henrique"; adapted 2026-11-22 for "Gerenciador de Vitrines
+  /// Inteligentes" Etapa 5): the numeric Pixel id Henrique provides from
+  /// his own Meta Events Manager — NEVER invented or guessed. Empty (the
+  /// default) means the pixel script is never loaded at all, same
+  /// fail-closed convention as every other optional integration in this
+  /// file. ONE id, mounted once (app/layout.tsx), covers every Vitrine —
+  /// there is no per-vitrine Pixel configuration. The base script itself
+  /// loads site-wide (components/meta-pixel.tsx), same as any ordinary
+  /// Meta Pixel install; the e-commerce-style ViewContent/
+  /// AffiliateOutboundClick events (lib/analytics/meta-pixel-client.ts)
+  /// are the part scoped to a Vitrine's own featured product.
+  META_PIXEL_ID: z.string().default(""),
+
   // Fábrica Inteligente de Criativos (owner's authorization, 2026-11-19)
   // — reuses the SAME OPENAI_API_KEY already declared above for content
   // generation (one OpenAI account/billing covers both chat and image

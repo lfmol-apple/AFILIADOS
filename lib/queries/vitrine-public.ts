@@ -34,11 +34,14 @@ import type { UnifiedOfferCard } from "@/lib/queries/unified-offers";
  * creative image happens to show.
  */
 export interface VitrinePublicProduct extends UnifiedOfferCard {
-  /** The real id the Meta catalog feed (app/catalogo/mercado-livre.xml/route.ts)
-   * already publishes as `g:id` — exposed here so a future Pixel
-   * integration (Etapa 5) can use the exact same identifier as
-   * content_ids, confirmed consistent at the source, never re-derived
-   * separately. */
+  /** The real VitrineSelection.id — used ONLY as a stable `?p=` highlight
+   * key (app/vitrine/[slug]/page.tsx), never as a Pixel/catalog
+   * identifier. Correction, 2026-11-22 (Etapa 5): re-verified directly
+   * against app/catalogo/mercado-livre.xml/route.ts — the real `g:id` it
+   * publishes is `selection.merchantListingId`, NOT this field. The Meta
+   * Pixel's `content_ids` (lib/analytics/meta-pixel-client.ts) must match
+   * `g:id` exactly, so it's sourced from this object's own `id` field
+   * (== merchantListingId, set below), never from vitrineSelectionId. */
   vitrineSelectionId: string;
 }
 

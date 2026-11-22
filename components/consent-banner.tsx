@@ -6,6 +6,7 @@ import {
   submitConsent,
   type CachedConsent,
 } from "@/lib/privacy/consent-client";
+import { COOKIE_PREFERENCES_REOPEN_EVENT } from "@/components/cookie-preferences-button";
 
 /**
  * LGPD consent banner. All three choices (Aceitar / Recusar / Configurar)
@@ -24,6 +25,21 @@ export function ConsentBanner() {
     // "synchronize with an external system" case effects are for.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setVisible(readCachedConsent() === null);
+
+    // Owner's authorization, 2026-11-22 ("Frente B — Pixel Meta do
+    // Henrique", B8: "alterar posteriormente a preferência") — reopens
+    // the SAME banner on demand (components/cookie-preferences-button.tsx),
+    // pre-filled with the visitor's current real choice, never a second
+    // duplicate banner.
+    const reopen = () => {
+      const current = readCachedConsent();
+      setAnalytics(current ? current.analytics === "GRANTED" : true);
+      setMarketing(current ? current.marketing === "GRANTED" : false);
+      setConfiguring(true);
+      setVisible(true);
+    };
+    window.addEventListener(COOKIE_PREFERENCES_REOPEN_EVENT, reopen);
+    return () => window.removeEventListener(COOKIE_PREFERENCES_REOPEN_EVENT, reopen);
   }, []);
 
   if (!visible) return null;
@@ -57,7 +73,7 @@ export function ConsentBanner() {
               />
             </label>
             <label className="flex items-center justify-between gap-4">
-              <span>Marketing (ainda não utilizado no PreçoCaindo)</span>
+              <span>Marketing (usado para medir anúncios da Vitrine Inteligente no Facebook/Instagram)</span>
               <input
                 type="checkbox"
                 checked={marketing}
