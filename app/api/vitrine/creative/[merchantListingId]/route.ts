@@ -31,7 +31,15 @@ export async function GET(
 ) {
   const { merchantListingId } = await context.params;
 
-  const selection = await prisma.vitrineSelection.findUnique({
+  // Owner's authorization, 2026-11-22 ("Gerenciador de Vitrines
+  // Inteligentes"): merchantListingId is no longer globally unique on
+  // this table (a listing can have one row per vitrine over time) —
+  // findFirst instead of findUnique. At most one row can genuinely be
+  // ACTIVE for a given listing at any moment regardless of vitrine (the
+  // real cross-vitrine exclusivity constraint — see
+  // VitrineSelection_active_canonicalProductId_key), so this still
+  // resolves to the single real active selection, never an ambiguous one.
+  const selection = await prisma.vitrineSelection.findFirst({
     where: { merchantListingId, status: "ACTIVE" },
     select: {
       merchantListing: {

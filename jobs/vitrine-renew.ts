@@ -22,6 +22,18 @@ const DISCARD_REASON_LABEL: Record<DiscardedCandidate["reason"], string> = {
   reprovado_auditoria: "reprovado na auditoria comercial",
 };
 
+/** Owner's authorization, 2026-11-22 ("Gerenciador de Vitrines
+ * Inteligentes"): this job still only ever manages the ORIGINAL Vitrine
+ * — the real row every one of the 37 real pre-existing VitrineSelection
+ * rows was backfilled into (prisma/migrations/20261122153228_multi_vitrine_core).
+ * Looked up by its real, stable slug every run, never by a hardcoded id
+ * (which the migration assigns, not this file). Wiring this job to
+ * manage several vitrines at once is a separate, not-yet-authorized
+ * change — lib/services/vitrine-manager.ts is where that distribution
+ * logic lives for NEW vitrines today.
+ */
+const LEGACY_VITRINE_SLUG = "vitrine-geral";
+
 /** The site's own /ofertas monetizationScore, registered as ONE MORE
  * informational CommercialCandidateRegistry source (owner's
  * authorization, 2026-11-19, section 1: "poderá servir como uma
@@ -130,6 +142,7 @@ const DISQUALIFYING_DISCARD_REASONS = new Set([
 
 export async function runVitrineRenewJob() {
   return runJob("VITRINE_RENEW", async (ctx) => {
+    const vitrine = await prisma.vitrine.findUniqueOrThrow({ where: { slug: LEGACY_VITRINE_SLUG } });
     ctx.metadata.legacyMonetizationScoreCandidatesRegistered = await registerLegacyMonetizationScoreCandidates();
     const { candidates, allScored, groupReport, discarded, funnel, activeEvents } =
       await selectVitrineCandidates(VITRINE_CAPACITY);
@@ -137,7 +150,7 @@ export async function runVitrineRenewJob() {
     const scoredById = new Map(allScored.map((c) => [c.merchantListingId, c]));
 
     const current = await prisma.vitrineSelection.findMany({
-      where: { status: "ACTIVE" },
+      where: { vitrineId: vitrine.id, status: "ACTIVE" },
     });
     const currentIds = new Set(current.map((c) => c.merchantListingId));
 
@@ -289,9 +302,11 @@ export async function runVitrineRenewJob() {
 
     for (const candidate of newcomers) {
       await prisma.vitrineSelection.upsert({
-        where: { merchantListingId: candidate.merchantListingId },
+        where: { vitrineId_merchantListingId: { vitrineId: vitrine.id, merchantListingId: candidate.merchantListingId } },
         create: {
+          vitrineId: vitrine.id,
           merchantListingId: candidate.merchantListingId,
+          canonicalProductId: candidate.canonicalProductId,
           groupType: candidate.group,
           status: "ACTIVE",
           score: candidate.score,
@@ -300,6 +315,7 @@ export async function runVitrineRenewJob() {
           activatedAt: new Date(),
         },
         update: {
+          canonicalProductId: candidate.canonicalProductId,
           status: "ACTIVE",
           groupType: candidate.group,
           score: candidate.score,
@@ -323,9 +339,11 @@ export async function runVitrineRenewJob() {
       .slice(0, 20);
     for (const candidate of reserve) {
       await prisma.vitrineSelection.upsert({
-        where: { merchantListingId: candidate.merchantListingId },
+        where: { vitrineId_merchantListingId: { vitrineId: vitrine.id, merchantListingId: candidate.merchantListingId } },
         create: {
+          vitrineId: vitrine.id,
           merchantListingId: candidate.merchantListingId,
+          canonicalProductId: candidate.canonicalProductId,
           groupType: candidate.group,
           status: "RESERVE",
           score: candidate.score,
@@ -333,6 +351,7 @@ export async function runVitrineRenewJob() {
           reason: candidate.reason,
         },
         update: {
+          canonicalProductId: candidate.canonicalProductId,
           score: candidate.score,
           groupType: candidate.group,
           scoreBreakdown: breakdownWithEvidence(candidate),
