@@ -86,6 +86,22 @@ describe("applyPriorityAdjustment", () => {
     expect(newIndex).toBe(10 - 1 - 5); // rose exactly 5 positions, never more
   });
 
+  it("gives a displaced candidate (pushed down by a neighbor's rise) its OWN real reason, never claiming it was recommended 'priorizar' itself", () => {
+    const pool = [candidate("riser", "unknown"), candidate("displaced", "unknown")];
+    const evals = new Map([
+      ["riser", evaluation({ merchantListingId: "riser", recommendation: "priorizar", confidence: 0.8, evidenceUsed: ["sales_official_rank"] as never })],
+      ["displaced", evaluation({ merchantListingId: "displaced", recommendation: "observar", confidence: 0.9 })],
+    ]);
+    // "riser" starts behind "displaced" so it rises past it.
+    const result = applyPriorityAdjustment([candidate("displaced", "unknown"), candidate("riser", "unknown")], evals);
+    const displacedAdj = result.adjustments.find((a) => a.merchantListingId === "displaced")!;
+    expect(displacedAdj.rankDelta).toBeLessThan(0);
+    expect(displacedAdj.reason).not.toContain('subiu por recomendação "priorizar"');
+    expect(displacedAdj.reason).toContain('"observar"');
+    const riserAdj = result.adjustments.find((a) => a.merchantListingId === "riser")!;
+    expect(riserAdj.reason).toContain('recomendação "priorizar"');
+  });
+
   it("never changes membership — same candidates in, same candidates out", () => {
     const pool = [candidate("a", "unknown"), candidate("b", "historical"), candidate("c", "confirmed_individual")];
     const evals = new Map([["b", evaluation({ merchantListingId: "b", recommendation: "priorizar", confidence: 0.8, evidenceUsed: ["sales_official_rank"] as never })]]);

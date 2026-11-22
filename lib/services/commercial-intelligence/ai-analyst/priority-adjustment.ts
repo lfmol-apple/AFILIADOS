@@ -114,12 +114,20 @@ export function applyPriorityAdjustment(
     const delta = entry.originalRank - newIndex;
     if (delta !== 0) {
       const evaluation = evaluations.get(entry.candidate.merchantListingId);
+      // Two real, distinct cases a reader must never confuse: a
+      // candidate that rose because ITS OWN evaluation earned it
+      // (weight > 0), vs. one that only moved DOWN because a neighbor
+      // rose past it — the latter never had a "priorizar" of its own.
+      const reason =
+        delta > 0
+          ? `subiu por recomendação "priorizar" com confiança ${evaluation?.confidence ?? 0} e ${evaluation?.evidenceUsed.length ?? 0} evidência(s) real(is) verificada(s); comissão: ${entry.candidate.commissionEvidence.type}.`
+          : `deslocado(a) ${Math.abs(delta)} posição(ões) porque outro candidato com "priorizar" confiante o(a) ultrapassou; a própria avaliação deste item foi "${evaluation?.recommendation ?? "sem avaliação"}".`;
       adjustments.push({
         merchantListingId: entry.candidate.merchantListingId,
         originalRank: entry.originalRank + 1,
         adjustedRank: newIndex + 1,
         rankDelta: delta,
-        reason: `recomendação "priorizar" com confiança ${evaluation?.confidence ?? 0} e ${evaluation?.evidenceUsed.length ?? 0} evidência(s) real(is) verificada(s); comissão: ${entry.candidate.commissionEvidence.type}.`,
+        reason,
       });
     }
   });
