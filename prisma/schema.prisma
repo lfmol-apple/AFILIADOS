@@ -299,7 +299,7 @@ model MerchantListing {
   /// VitrineSelection's own doc comment) — real-time cross-vitrine
   /// exclusivity for ACTIVE rows is enforced separately, by a partial
   /// unique index on canonicalProductId (migration-only raw SQL).
-  vitrineSelections                VitrineSelection[]
+  vitrineSelections               VitrineSelection[]
   trend                           MerchantListingTrend?
   commercialCandidateRegistryRows CommercialCandidateRegistry[]
   vitrineCreatives                VitrineCreative[]
@@ -1625,4 +1625,65 @@ model CommercialSelectionCheckpoint {
 
   @@index([snapshotId, checkpointDays])
   @@index([dueAt, completedAt])
+}
+
+/// AI Commercial Analyst (owner's authorization, 2026-11-22, "Motor de
+/// Inteligência Comercial com IA"). One row per real evaluation actually
+/// performed — cached by (merchantListingId, evidenceFingerprint) so a
+/// candidate whose real evidence hasn't changed is NEVER re-evaluated
+/// (owner's explicit cost rule: "reavaliação somente quando houver
+/// mudança relevante"). `evidenceFingerprint` is a deterministic hash of
+/// the exact real evidence object sent to the model — never the model's
+/// own output — so a cache hit is provably "the same real inputs",
+/// never a stale guess.
+model CommercialAnalystEvaluation {
+  id                  String   @id @default(cuid())
+  merchantListingId   String
+  evidenceFingerprint String
+  /// The exact real evidence object sent to the model — kept so a human
+  /// (or a future audit) can always see precisely what the AI did and
+  /// did not have access to.
+  evidenceSnapshot    Json
+  /// "priorizar" | "observar" | "rejeitar" — never anything else.
+  recommendation      String
+  commercialScore     Int
+  confidence          Float
+  favorableArguments  Json
+  risks               Json
+  evidenceUsed        Json
+  missingData         Json
+  /// The literal model response text, kept verbatim for audit — a
+  /// prompt/parsing change must never silently rewrite history.
+  rawResponseText     String?
+  model               String
+  promptTokens        Int?
+  completionTokens    Int?
+  costUsd             Decimal? @db.Decimal(8, 4)
+  /// Set when this row is a deterministic fallback (budget exceeded /
+  /// API not configured / response failed validation) rather than a
+  /// real model call — never silently indistinguishable from a real
+  /// evaluation.
+  isFallback          Boolean  @default(false)
+  createdAt           DateTime @default(now())
+
+  @@unique([merchantListingId, evidenceFingerprint])
+  @@index([merchantListingId])
+  @@index([createdAt])
+}
+
+/// Real, metered spend ledger for the AI Commercial Analyst — a SEPARATE
+/// ledger from VitrineCreativeSpend (different budget, different purpose:
+/// text evaluation of candidates, never image generation). Same pattern
+/// as lib/services/ai-creative-factory/budget.ts, owner's explicit rule
+/// unchanged: "implemente limites configuráveis de gasto... bloqueio de
+/// chamadas acima do orçamento."
+model CommercialAnalystSpend {
+  id           String   @id @default(cuid())
+  spentOn      DateTime
+  amountUsd    Decimal  @db.Decimal(8, 4)
+  evaluationId String?
+  note         String?
+  recordedAt   DateTime @default(now())
+
+  @@index([spentOn])
 }
