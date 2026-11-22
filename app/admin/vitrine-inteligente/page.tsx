@@ -9,6 +9,7 @@ import { prisma } from "@/lib/db";
 import { loadPublicMerchantProduct } from "@/lib/queries/public-product";
 import { formatCommissionEvidence, summarizeCommissionFreshness, COMMISSION_TYPE_LABELS } from "@/lib/services/commercial-intelligence/commission-evidence-labels";
 import type { CommissionEvidenceType } from "@/lib/services/commercial-intelligence/commission-evidence";
+import { getLegacyVitrineId } from "@/lib/services/vitrine-manager";
 
 export const metadata: Metadata = {
   title: "Vitrine Inteligente — Admin",
@@ -32,9 +33,18 @@ export default async function VitrineInteligentePage() {
   );
   if (!authorized) return <AdminLoginForm />;
 
+  // Owner's authorization, 2026-11-22 ("Proteção da Vitrine Geral"): real
+  // bug this closes — this page used to query VitrineSelection by
+  // `status: "ACTIVE"` alone, with no vitrineId filter. The instant a
+  // second real vitrine got its own ACTIVE rows, this page (the Vitrine
+  // Geral's own admin view) would have silently started showing that
+  // other vitrine's products mixed into its own. Resolved through the
+  // same single source of truth jobs/vitrine-renew.ts and the Meta
+  // catalog feed use.
+  const vitrineId = await getLegacyVitrineId();
   const [activeRaw, reserve, withLink] = await Promise.all([
     prisma.vitrineSelection.findMany({
-      where: { status: "ACTIVE" },
+      where: { vitrineId, status: "ACTIVE" },
       orderBy: { score: "desc" },
       include: {
         merchantListing: {
@@ -47,7 +57,11 @@ export default async function VitrineInteligentePage() {
         },
       },
     }),
-    prisma.vitrineSelection.count({ where: { status: "RESERVE" } }),
+    prisma.vitrineSelection.count({ where: { vitrineId, status: "RESERVE" } }),
+    // Site-wide on purpose (VitrineLink has no vitrineId — the same real
+    // link is reusable across vitrines over time by design, see
+    // prisma/schema.prisma's own doc comment): a general infrastructure
+    // health count, not a Vitrine-Geral-specific one.
     prisma.vitrineLink.count({ where: { status: "ACTIVE" } }),
   ]);
 
@@ -81,7 +95,10 @@ export default async function VitrineInteligentePage() {
   ]);
 
   const renewMeta = lastRun?.metadata as {
-    groupReport?: { group: string; target: number; eligible: number; filled: number; reason: string | null }[];
+    // Owner's authorization, 2026-11-22 ("Corrigir a competição
+    // comercial"): group is now a descriptive label, never a quota —
+    // `target`/`filled` removed, replaced by `eligible`/`selected`.
+    groupReport?: { group: string; eligible: number; selected: number; reason: string | null }[];
     funnel?: {
       foundInDatabase: number;
       afterDedup: number;
@@ -229,7 +246,7 @@ export default async function VitrineInteligentePage() {
         <div className="mt-3 space-y-1">
           {renewMeta.groupReport.map((g) => (
             <p key={g.group} className="text-xs">
-              <strong>{GROUP_LABEL[g.group] ?? g.group}:</strong> {g.filled}/{g.target}
+              <strong>{GROUP_LABEL[g.group] ?? g.group}:</strong> {g.selected} selecionado(s) de {g.eligible} elegível(eis)
               {g.reason && (
                 <span className="text-amber-700 dark:text-amber-400"> — {g.reason}</span>
               )}

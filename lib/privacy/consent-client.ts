@@ -51,9 +51,19 @@ export function writeCachedConsent(consent: CachedConsent): void {
   writeCookie(CONSENT_COOKIE, JSON.stringify(consent), ONE_YEAR_DAYS);
 }
 
+/** Dispatched whenever a consent choice is submitted — lets a
+ * consent-gated component (e.g. components/meta-pixel.tsx) react
+ * immediately after the visitor accepts, instead of only on the next
+ * page load. Owner's authorization, 2026-11-22 ("Pixel só deve ser
+ * carregado após consentimento válido"). */
+export const CONSENT_CHANGED_EVENT = "pc:consent-changed";
+
 export async function submitConsent(consent: CachedConsent): Promise<void> {
   const subjectId = getOrCreateSubjectId();
   writeCachedConsent(consent);
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent(CONSENT_CHANGED_EVENT, { detail: consent }));
+  }
   await fetch("/api/consent", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

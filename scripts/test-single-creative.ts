@@ -20,7 +20,11 @@ if (!MERCHANT_LISTING_ID) {
 }
 
 async function main() {
-  const selection = await prisma.vitrineSelection.findUnique({
+  // Owner's authorization, 2026-11-22 ("Gerenciador de Vitrines
+  // Inteligentes"): merchantListingId is no longer globally unique on
+  // this table — findFirst, same reasoning as app/api/vitrine/creative/
+  // [merchantListingId]/route.ts.
+  const selection = await prisma.vitrineSelection.findFirst({
     where: { merchantListingId: MERCHANT_LISTING_ID },
     select: {
       merchantListingId: true,

@@ -4,7 +4,9 @@ import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ConsentBanner } from "@/components/consent-banner";
+import { MetaPixel } from "@/components/meta-pixel";
 import { siteConfig } from "@/lib/config/site";
+import { env } from "@/lib/config/env";
 import type { AppLayoutProps } from "@/lib/next-route-types";
 
 const geistSans = Geist({
@@ -88,6 +90,7 @@ export default function RootLayout({ children }: AppLayoutProps) {
         <main className="flex-1">{children}</main>
         <SiteFooter />
         <ConsentBanner />
+        <MetaPixel pixelId={env.META_PIXEL_ID} />
       </body>
     </html>
   );

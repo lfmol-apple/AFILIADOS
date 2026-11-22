@@ -291,7 +291,15 @@ model MerchantListing {
   matchEvidenceAsB                ProductMatchEvidence[]        @relation("MatchListingB")
   affiliateLink                   AffiliateLinkRegistry?
   vitrineLink                     VitrineLink?
-  vitrineSelection                VitrineSelection?
+  /// Owner's authorization, 2026-11-22 ("Gerenciador de Vitrines
+  /// Inteligentes"): was a one-to-one relation (a listing could only
+  /// ever be in ONE VitrineSelection row, period). Now a list — the SAME
+  /// listing can have independent rows across different vitrines over
+  /// time (a paused/ended vitrine releases its products — see
+  /// VitrineSelection's own doc comment) — real-time cross-vitrine
+  /// exclusivity for ACTIVE rows is enforced separately, by a partial
+  /// unique index on canonicalProductId (migration-only raw SQL).
+  vitrineSelections                VitrineSelection[]
   trend                           MerchantListingTrend?
   commercialCandidateRegistryRows CommercialCandidateRegistry[]
   vitrineCreatives                VitrineCreative[]
@@ -660,15 +668,84 @@ model VitrineLink {
   @@index([status])
 }
 
-/// Which listings the Vitrine Inteligente module currently shows (ACTIVE),
-/// keeps as backup candidates (RESERVE), or has dropped (RETIRED) — separate
-/// from the public /ofertas ranking (MonetizationScore), since the Vitrine's
+/// Owner's authorization, 2026-11-22 ("Gerenciador de Vitrines
+/// Inteligentes"): one row per real vitrine the admin creates — a
+/// campaign, an audience, or a commercial opportunity, never a hardcoded
+/// category/quota. The ORIGINAL (and, before this migration, only)
+/// Vitrine Inteligente becomes exactly one real row here (slug
+/// "vitrine-geral" — see the migration's own backfill), never a second,
+/// duplicate "general" vitrine created alongside it.
+model Vitrine {
+  id      String  @id @default(cuid())
+  /// Stable, human-chosen URL key (e.g. "casa-inteligente") — independent
+  /// of this row's own cuid `id`, so a public URL never has to expose or
+  /// depend on it.
+  slug    String  @unique
+  name    String
+  /// Free-text commercial focus, shown to the admin — never used as a
+  /// hard filter; the real candidate pool and scoring are the same
+  /// shared engine (lib/services/vitrine-selection.ts) for every vitrine.
+  purpose String?
+
+  /// Configurable per vitrine (owner's explicit rule: "não existe número
+  /// fixo obrigatório... a quantidade será configurável"). Never forced
+  /// to be reached — see pickGlobalVitrineSelection's own "diversidade
+  /// nunca obriga vaga" rule, which already applies per vitrine.
+  maxProducts Int @default(30)
+
+  /// "DRAFT" (being configured, never shown publicly, never claims
+  /// products) | "ACTIVE" (live, participates in cross-vitrine
+  /// exclusivity) | "PAUSED" (temporarily off; owner's rule: "regras
+  /// explícitas para liberar seus produtos" — see
+  /// lib/services/vitrine-manager.ts's releaseProductsFrom()) | "ENDED"
+  /// (permanently closed, same release rule, never reactivated).
+  status String @default("DRAFT")
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  pausedAt  DateTime?
+  endedAt   DateTime?
+
+  selections VitrineSelection[]
+
+  @@index([status])
+}
+
+/// Which listings a given Vitrine currently shows (ACTIVE), keeps as
+/// backup candidates (RESERVE), or has dropped (RETIRED) — separate from
+/// the public /ofertas ranking (MonetizationScore), since each Vitrine's
 /// selection criteria (seasonal weight, daily replacement limits, group
 /// balance) are its own and must never affect the public site's ranking.
 model VitrineSelection {
   id                String          @id @default(cuid())
-  merchantListingId String          @unique
+  merchantListingId String
   merchantListing   MerchantListing @relation(fields: [merchantListingId], references: [id], onDelete: Cascade)
+
+  /// Owner's authorization, 2026-11-22 ("Gerenciador de Vitrines
+  /// Inteligentes"): every real row (including the original Vitrine's
+  /// 37 real rows, backfilled by this same migration into a real
+  /// "Vitrine Geral" row — never left null) belongs to exactly one
+  /// Vitrine. @@unique([vitrineId, merchantListingId]) below replaces
+  /// the old global-per-listing uniqueness: the SAME listing can now
+  /// have independent rows in different vitrines over time (a vitrine
+  /// that pauses/ends must release its products back to the shared
+  /// pool — owner's explicit rule, section 4), while the SEPARATE
+  /// partial unique index on canonicalProductId (migration-only SQL,
+  /// Prisma has no native partial-index syntax) is what actually
+  /// enforces real-time cross-vitrine exclusivity for ACTIVE rows.
+  vitrineId String
+  vitrine   Vitrine @relation(fields: [vitrineId], references: [id])
+
+  /// Owner's authorization, same date ("a exclusividade deve considerar
+  /// produtos equivalentes, não apenas IDs de anúncios diferentes"):
+  /// denormalized from MerchantListing.canonicalProductId at selection
+  /// time (every real candidate already has one — confirmed by reading
+  /// buildCommercialCandidatePool, which only ever pools listings with
+  /// canonicalProductId set) so the cross-vitrine exclusivity index can
+  /// be a plain column index, not a join. Nullable only because
+  /// pre-migration rows predate this field — never left null for any
+  /// row this code creates going forward.
+  canonicalProductId String?
 
   /// "sazonal" | "recorrente" | "emergente" — see lib/services/vitrine-selection.ts.
   groupType String
@@ -695,7 +772,10 @@ model VitrineSelection {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@unique([vitrineId, merchantListingId])
   @@index([status, groupType])
+  @@index([vitrineId, status])
+  @@index([canonicalProductId])
 }
 
 /// Owner's directive, 2026-11-21 ("Persistir o pool avaliado"): one row

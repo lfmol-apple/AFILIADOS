@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { getLegacyVitrineId } from "@/lib/services/vitrine-manager";
 
 export interface VitrineLinkQueueRow {
   merchantListingId: string;
@@ -15,14 +16,26 @@ export interface VitrineLinkQueueRow {
  * VitrineSelection/VitrineLink instead of the hardcoded panel-pick lists,
  * since every candidate here was already discovered by the real ML/Shopee
  * jobs (see lib/services/vitrine-selection.ts).
+ *
+ * Owner's correction, 2026-11-22 (Etapa 6, item 6: "garanta que novas
+ * vitrines não sejam publicadas vazias por falta de links"): this still
+ * had the exact same missing-vitrineId gap already fixed in the admin
+ * panel, the Meta XML route and jobs/vitrine-renew.ts (commit 5d3e471) —
+ * found late because it's the one real caller of VitrineSelection that
+ * none of those three earlier fixes happened to touch. Defaults to the
+ * legacy Vitrine Geral (every existing caller passes no argument), so
+ * this is a pure bugfix, not a behavior change for today's only real
+ * vitrine — but it's the one that would have silently mixed two
+ * vitrines' pending links together the moment a second one went ACTIVE.
  */
-export async function loadVitrineLinkQueue(): Promise<{
+export async function loadVitrineLinkQueue(vitrineId?: string): Promise<{
   pending: VitrineLinkQueueRow[];
   activeCount: number;
   linkedCount: number;
 }> {
+  const scopedVitrineId = vitrineId ?? (await getLegacyVitrineId());
   const selections = await prisma.vitrineSelection.findMany({
-    where: { status: "ACTIVE" },
+    where: { vitrineId: scopedVitrineId, status: "ACTIVE" },
     orderBy: { score: "desc" },
     include: {
       merchantListing: {

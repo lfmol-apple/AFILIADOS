@@ -293,6 +293,7 @@ export default async function ProductPage(
         data={vitrineCtaHref ? { ...merchantData, ctaHref: vitrineCtaHref } : merchantData}
         related={related}
         similar={similar}
+        vitrineTracked={Boolean(vitrineCtaHref)}
       />
     );
   }

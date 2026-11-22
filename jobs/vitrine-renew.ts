@@ -4,6 +4,7 @@ import { selectVitrineCandidates, type VitrineCandidate, type DiscardedCandidate
 import { registerCandidate } from "@/lib/services/commercial-intelligence/candidate-registry";
 import { auditCandidate } from "@/lib/services/commercial-intelligence/commercial-audit";
 import { buildRoundCandidateRows } from "@/lib/services/vitrine-selection-round-persistence";
+import { getLegacyVitrineId } from "@/lib/services/vitrine-manager";
 import type { VitrineScoreResult } from "@/lib/services/vitrine-score";
 import { logger } from "@/lib/observability/logger";
 
@@ -21,6 +22,19 @@ const DISCARD_REASON_LABEL: Record<DiscardedCandidate["reason"], string> = {
   descricao_inadequada: "descrição inadequada (idioma)",
   reprovado_auditoria: "reprovado na auditoria comercial",
 };
+
+/** Owner's authorization, 2026-11-22 ("Gerenciador de Vitrines
+ * Inteligentes" / "Proteção da Vitrine Geral"): this job still only ever
+ * manages the ORIGINAL Vitrine — the real row every one of the 37 real
+ * pre-existing VitrineSelection rows was backfilled into
+ * (prisma/migrations/20261122153228_multi_vitrine_core). Resolved
+ * through the SAME single source of truth the admin panel and the Meta
+ * catalog feed use (lib/services/vitrine-manager.ts's getLegacyVitrineId()),
+ * never a locally duplicated constant/lookup that could drift from
+ * theirs. Wiring this job to manage several vitrines at once is a
+ * separate, not-yet-authorized change — vitrine-manager.ts is where
+ * that distribution logic lives for NEW vitrines today.
+ */
 
 /** The site's own /ofertas monetizationScore, registered as ONE MORE
  * informational CommercialCandidateRegistry source (owner's
@@ -130,6 +144,7 @@ const DISQUALIFYING_DISCARD_REASONS = new Set([
 
 export async function runVitrineRenewJob() {
   return runJob("VITRINE_RENEW", async (ctx) => {
+    const vitrineId = await getLegacyVitrineId();
     ctx.metadata.legacyMonetizationScoreCandidatesRegistered = await registerLegacyMonetizationScoreCandidates();
     const { candidates, allScored, groupReport, discarded, funnel, activeEvents } =
       await selectVitrineCandidates(VITRINE_CAPACITY);
@@ -137,7 +152,7 @@ export async function runVitrineRenewJob() {
     const scoredById = new Map(allScored.map((c) => [c.merchantListingId, c]));
 
     const current = await prisma.vitrineSelection.findMany({
-      where: { status: "ACTIVE" },
+      where: { vitrineId, status: "ACTIVE" },
     });
     const currentIds = new Set(current.map((c) => c.merchantListingId));
 
@@ -289,9 +304,11 @@ export async function runVitrineRenewJob() {
 
     for (const candidate of newcomers) {
       await prisma.vitrineSelection.upsert({
-        where: { merchantListingId: candidate.merchantListingId },
+        where: { vitrineId_merchantListingId: { vitrineId, merchantListingId: candidate.merchantListingId } },
         create: {
+          vitrineId,
           merchantListingId: candidate.merchantListingId,
+          canonicalProductId: candidate.canonicalProductId,
           groupType: candidate.group,
           status: "ACTIVE",
           score: candidate.score,
@@ -300,6 +317,7 @@ export async function runVitrineRenewJob() {
           activatedAt: new Date(),
         },
         update: {
+          canonicalProductId: candidate.canonicalProductId,
           status: "ACTIVE",
           groupType: candidate.group,
           score: candidate.score,
@@ -323,9 +341,11 @@ export async function runVitrineRenewJob() {
       .slice(0, 20);
     for (const candidate of reserve) {
       await prisma.vitrineSelection.upsert({
-        where: { merchantListingId: candidate.merchantListingId },
+        where: { vitrineId_merchantListingId: { vitrineId, merchantListingId: candidate.merchantListingId } },
         create: {
+          vitrineId,
           merchantListingId: candidate.merchantListingId,
+          canonicalProductId: candidate.canonicalProductId,
           groupType: candidate.group,
           status: "RESERVE",
           score: candidate.score,
@@ -333,6 +353,7 @@ export async function runVitrineRenewJob() {
           reason: candidate.reason,
         },
         update: {
+          canonicalProductId: candidate.canonicalProductId,
           score: candidate.score,
           groupType: candidate.group,
           scoreBreakdown: breakdownWithEvidence(candidate),

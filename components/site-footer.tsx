@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AffiliateDisclosure } from "@/components/affiliate-disclosure";
+import { CookiePreferencesButton } from "@/components/cookie-preferences-button";
 import { siteConfig } from "@/lib/config/site";
 
 const LINKS = [
@@ -26,6 +27,7 @@ export function SiteFooter() {
               {link.label}
             </Link>
           ))}
+          <CookiePreferencesButton />
         </div>
         <div className="mt-6 max-w-2xl">
           <AffiliateDisclosure full />

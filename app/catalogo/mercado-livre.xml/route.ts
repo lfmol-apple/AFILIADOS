@@ -3,6 +3,7 @@ import { loadPublicMerchantProduct } from "@/lib/queries/public-product";
 import { siteConfig } from "@/lib/config/site";
 import { env } from "@/lib/config/env";
 import { logger } from "@/lib/observability/logger";
+import { getLegacyVitrineId } from "@/lib/services/vitrine-manager";
 
 export const dynamic = "force-dynamic";
 
@@ -45,8 +46,18 @@ export const dynamic = "force-dynamic";
  * Frame/Dynamic Overlay once in Ads Manager (one-time UI step, not code).
  */
 export async function GET() {
+  // Owner's authorization, 2026-11-22 ("Proteção da Vitrine Geral"): real
+  // bug this closes — this live, public feed used to query
+  // VitrineSelection by `status: "ACTIVE"` alone, with no vitrineId
+  // filter. The instant a second real vitrine got its own ACTIVE rows,
+  // this exact feed (already configured in Henrique's real Meta Commerce
+  // Manager) would have silently started publishing that other vitrine's
+  // products too. A per-vitrine catalog feed is a reasonable future
+  // request but not this one's job today — this keeps its existing,
+  // already-configured behavior exactly as it is now.
+  const vitrineId = await getLegacyVitrineId();
   const selections = await prisma.vitrineSelection.findMany({
-    where: { status: "ACTIVE" },
+    where: { vitrineId, status: "ACTIVE" },
     select: {
       merchantListingId: true,
       scoreBreakdown: true,

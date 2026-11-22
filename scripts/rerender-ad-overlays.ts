@@ -15,7 +15,12 @@ async function main() {
       merchantListing: {
         select: {
           canonicalProduct: { select: { publicSlug: true, title: true, categoryId: true } },
-          vitrineSelection: { select: { scoreBreakdown: true } },
+          // Owner's authorization, 2026-11-22 ("Gerenciador de Vitrines
+          // Inteligentes"): the relation is now a list (a listing can have
+          // one row per vitrine) — this script only ever cares about the
+          // real, currently-active one, same single row it always read
+          // before this change for the one vitrine that existed then.
+          vitrineSelections: { where: { status: "ACTIVE" }, select: { scoreBreakdown: true }, take: 1 },
         },
       },
     },
@@ -29,7 +34,7 @@ async function main() {
     const aiBaseBytes = readAiBase(row.merchantListingId, row.version);
     if (!aiBaseBytes) continue;
     const dataUri = `data:image/png;base64,${aiBaseBytes.toString("base64")}`;
-    const breakdown = row.merchantListing.vitrineSelection?.scoreBreakdown as { matchedEventName?: string | null } | null;
+    const breakdown = row.merchantListing.vitrineSelections[0]?.scoreBreakdown as { matchedEventName?: string | null } | null;
     const profile = interpretProduct({
       title: product.title,
       brand: product.brand,
