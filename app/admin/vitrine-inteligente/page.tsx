@@ -81,7 +81,10 @@ export default async function VitrineInteligentePage() {
   ]);
 
   const renewMeta = lastRun?.metadata as {
-    groupReport?: { group: string; target: number; eligible: number; filled: number; reason: string | null }[];
+    // Owner's authorization, 2026-11-22 ("Corrigir a competição
+    // comercial"): group is now a descriptive label, never a quota —
+    // `target`/`filled` removed, replaced by `eligible`/`selected`.
+    groupReport?: { group: string; eligible: number; selected: number; reason: string | null }[];
     funnel?: {
       foundInDatabase: number;
       afterDedup: number;
@@ -229,7 +232,7 @@ export default async function VitrineInteligentePage() {
         <div className="mt-3 space-y-1">
           {renewMeta.groupReport.map((g) => (
             <p key={g.group} className="text-xs">
-              <strong>{GROUP_LABEL[g.group] ?? g.group}:</strong> {g.filled}/{g.target}
+              <strong>{GROUP_LABEL[g.group] ?? g.group}:</strong> {g.selected} selecionado(s) de {g.eligible} elegível(eis)
               {g.reason && (
                 <span className="text-amber-700 dark:text-amber-400"> — {g.reason}</span>
               )}

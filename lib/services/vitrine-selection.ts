@@ -468,11 +468,16 @@ function classifyGroup(
   return "recorrente";
 }
 
-const GROUP_TARGETS: Record<VitrineGroupType, number> = {
-  sazonal: 12,
-  recorrente: 12,
-  emergente: 6,
-};
+/** Owner's authorization, 2026-11-22 ("Corrigir a competição comercial"):
+ * `group` is now a descriptive label only — why a candidate was found
+ * (genuine seasonal relevance, a real rising trend, or the default
+ * "recorrente") — never a reserved bucket with its own quota. See
+ * pickGlobalVitrineSelection()'s own doc comment for the real root cause
+ * this replaces: a rigid 12/12/6 split let a weak sazonal candidate
+ * (rankingScore as low as 14) hold a guaranteed slot ahead of a far
+ * stronger recorrente one (rankingScore 34+), because the two groups
+ * never had to compete directly — confirmed live, 2026-11-22. */
+const ALL_GROUP_TYPES: VitrineGroupType[] = ["sazonal", "recorrente", "emergente"];
 
 export interface VitrineCandidate {
   merchantListingId: string;
@@ -499,11 +504,17 @@ export interface VitrineCandidate {
   salesEvidenceType: SalesEvidence["type"];
 }
 
+/** Owner's authorization, 2026-11-22: descriptive composition of the
+ * final selection by group label — `eligible` is how many real
+ * candidates carried that label at all (before the global rank+
+ * diversity pass), `selected` is how many actually made the final cut.
+ * There is no `target`/`filled` anymore — a group is never owed a
+ * minimum or maximum number of slots; it either has strong real
+ * candidates or it doesn't, same bar as every other group. */
 export interface GroupFillReport {
   group: VitrineGroupType;
-  target: number;
   eligible: number;
-  filled: number;
+  selected: number;
   reason: string | null;
 }
 
@@ -654,70 +665,89 @@ export async function selectVitrineCandidates(limit = 30): Promise<VitrineSelect
     });
   }
 
-  for (const group of Object.keys(byGroup) as VitrineGroupType[]) {
-    byGroup[group].sort((a, b) => b.rankingScore - a.rankingScore);
-  }
-
-  // Owner's finding, 2026-11-20 ("Auditoria Contínua", section 4): "dois
-  // kits de halteres e dois presépios ocupam vagas próximas, apesar de
-  // disputarem intenções de compra semelhantes" — brand+model dedup
-  // never catches this (different brands/models, same real category).
-  // See category-concentration.ts for the real, generic, tested cap.
-  const MAX_PER_CATEGORY_PER_GROUP = 2;
-
-  const activeEventNames = activeEvents.map((a) => a.name).join(", ") || "nenhum";
-  const selected: VitrineCandidate[] = [];
-  const groupReport: GroupFillReport[] = [];
-  for (const group of Object.keys(GROUP_TARGETS) as VitrineGroupType[]) {
-    const target = GROUP_TARGETS[group];
-    const eligible = byGroup[group];
-
-    // Owner's finding, confirmed live in isolated testing, 2026-11-20: a
-    // keyword-discovered seasonal find ("decoração natalina" →
-    // Presépio Sagrada Família, Presépio 13 Peças, Kit Decoração
-    // Natalina — 3 real products, all found by the identical search
-    // term) never carries a real ML categoryId, so the cap above never
-    // reached it. These compete for the exact same purchase intent by
-    // construction — falling back to the matched keyword as the
-    // concentration key when the category is genuinely unknown catches
-    // this without inventing a category that was never observed.
-    const concentrationKey = (c: VitrineCandidate) => c.categoryId ?? (c.matchedKeyword ? `kw:${c.matchedKeyword}` : null);
-    const { picked } = applyCategoryConcentrationCap(eligible, target, MAX_PER_CATEGORY_PER_GROUP, concentrationKey);
-
-    const filled = Math.min(target, picked.length);
-    selected.push(...picked);
-    groupReport.push({
-      group,
-      target,
-      eligible: eligible.length,
-      filled,
-      reason:
-        filled >= target
-          ? null
-          : group === "sazonal"
-            ? `Só ${eligible.length} candidato(s) com relevância sazonal GENUÍNA (palavra-chave real para evento temático, ou queda de preço comprovada para evento promocional) agora (${activeEventNames}).`
-            : group === "emergente"
-              ? `Só ${eligible.length} candidato(s) com tendência de ranking real em alta ou achado pela varredura de palavras-chave em alta.`
-              : `Só ${eligible.length} candidato(s) recorrente(s) elegível(eis) depois da deduplicação por família comercial.`,
-    });
-  }
-
   const allScored = Object.values(byGroup).flat();
-
-  if (selected.length < limit) {
-    const chosenIds = new Set(selected.map((s) => s.merchantListingId));
-    const leftovers = allScored
-      .filter((c) => !chosenIds.has(c.merchantListingId))
-      .sort((a, b) => b.rankingScore - a.rankingScore);
-    selected.push(...leftovers.slice(0, limit - selected.length));
-  }
+  const activeEventNames = activeEvents.map((a) => a.name).join(", ") || "nenhum";
+  const { picked, groupReport } = pickGlobalVitrineSelection(allScored, limit, activeEventNames);
 
   return {
-    candidates: selected.sort((a, b) => b.rankingScore - a.rankingScore).slice(0, limit),
+    candidates: picked,
     allScored,
     groupReport,
     discarded,
-    funnel: { ...funnel, selected: Math.min(selected.length, limit) },
+    funnel: { ...funnel, selected: Math.min(picked.length, limit) },
     activeEvents,
   };
+}
+
+/** Owner's authorization, 2026-11-22 ("Corrigir a competição comercial —
+ * substitua as cotas rígidas por uma classificação global baseada nas
+ * evidências comerciais disponíveis"). Real root cause confirmed live
+ * the same day: with the old per-group quota (12 sazonal / 12 recorrente
+ * / 6 emergente, each filled independently), "recorrente" had 439 real
+ * eligible candidates for only 12 slots while "sazonal" had 11 for 12 —
+ * meaning a sazonal candidate with rankingScore as low as 14-17
+ * (Presépio Sagrada Família, Kit Decoração Natalina) held a GUARANTEED
+ * slot ahead of real recorrente candidates scoring 34 (Secador Philco,
+ * Air Fryer Philco, Parafusadeira), because the two groups never had to
+ * compete directly — only a group's own leftover unfilled slots ever
+ * got backfilled from elsewhere.
+ *
+ * Fixed: every real, evidence-sufficient, audit-approved candidate
+ * (regardless of group label) is ranked on the SAME real rankingScore —
+ * unchanged formula, unchanged weights (owner's explicit rule: "não
+ * altere pesos arbitrariamente para produzir resultados desejados") —
+ * then a single, ONE-PASS diversity cap (the same generic, already-
+ * tested applyCategoryConcentrationCap, unchanged, just no longer run
+ * three times in three separate buckets) prevents redundant near-
+ * identical products from crowding out everything else. `group` becomes
+ * a purely descriptive label (why this candidate was found) attached to
+ * the groupReport for visibility — it was never, and must never become
+ * again, a reserved quota. If diversity capping would leave the
+ * showcase under capacity, the capped-out candidates are still
+ * backfilled (same as before) — diversity is a tiebreaker among
+ * already-good candidates, never a reason to leave a real vaga empty,
+ * and never a guaranteed floor for a weaker group either (owner's
+ * explicit rule: "não crie pisos mínimos obrigatórios que reproduzam o
+ * problema atual com outro nome").
+ */
+export function pickGlobalVitrineSelection(
+  allScored: VitrineCandidate[],
+  limit: number,
+  activeEventNamesForReport: string,
+): { picked: VitrineCandidate[]; groupReport: GroupFillReport[] } {
+  const rankedGlobally = [...allScored].sort((a, b) => b.rankingScore - a.rankingScore);
+
+  // Same reasoning as before (owner's finding, 2026-11-20, "Auditoria
+  // Contínua", section 4): a keyword-discovered seasonal find often
+  // carries no real ML categoryId, so falling back to the matched
+  // keyword as the concentration key still catches near-duplicate
+  // seasonal finds that compete for the exact same purchase intent.
+  const MAX_PER_CATEGORY = 2;
+  const concentrationKey = (c: VitrineCandidate) => c.categoryId ?? (c.matchedKeyword ? `kw:${c.matchedKeyword}` : null);
+  const { picked } = applyCategoryConcentrationCap(rankedGlobally, limit, MAX_PER_CATEGORY, concentrationKey);
+
+  const selectedByGroup = new Map<VitrineGroupType, number>();
+  for (const c of picked) selectedByGroup.set(c.group, (selectedByGroup.get(c.group) ?? 0) + 1);
+  const eligibleByGroup = new Map<VitrineGroupType, number>();
+  for (const c of allScored) eligibleByGroup.set(c.group, (eligibleByGroup.get(c.group) ?? 0) + 1);
+
+  const groupReport: GroupFillReport[] = ALL_GROUP_TYPES.map((group) => {
+    const eligible = eligibleByGroup.get(group) ?? 0;
+    const selected = selectedByGroup.get(group) ?? 0;
+    return {
+      group,
+      eligible,
+      selected,
+      reason:
+        eligible > 0
+          ? null
+          : group === "sazonal"
+            ? `Nenhum candidato com relevância sazonal GENUÍNA (palavra-chave real para evento temático, ou queda de preço comprovada para evento promocional) agora (${activeEventNamesForReport}).`
+            : group === "emergente"
+              ? "Nenhum candidato com tendência de ranking real em alta ou achado pela varredura de palavras-chave em alta."
+              : "Nenhum candidato recorrente elegível depois da deduplicação por família comercial.",
+    };
+  });
+
+  return { picked: picked.slice(0, limit), groupReport };
 }
