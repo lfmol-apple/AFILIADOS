@@ -23,7 +23,17 @@ export type CandidateSourceType =
   | "panel_recommended" // ML affiliate panel, "recomendados" section
   | "panel_extra_commission" // ML affiliate panel, "GANHOS EXTRAS" badge — temporary, never a baseline rate
   | "panel_offered_commission" // ML affiliate panel, regular per-product commission badge
-  | "monetization_score_legacy"; // the site's own /ofertas score — informational only, never a gate
+  | "monetization_score_legacy" // the site's own /ofertas score — informational only, never a gate
+  | "general_market_scan"; // GET /highlights/{site}/category/{id}, jobs/ml-demand.ts's own 13-category
+  // rotation (Eletrodomésticos, Ferramentas, Eletrônicos, Casa/Móveis, etc.) — owner's correction,
+  // 2026-11-22 ("Descoberta ampliada, incluindo categorias hoje ausentes"): confirmed live the same
+  // day that ml-demand.ts already discovers real robot vacuums/coffee makers/tools/cameras this way
+  // (it ran 100 times in production, 2026-09-08 to 2026-09-24) but never registered a single finding
+  // here — so every one of those real, already-discovered listings was invisible to
+  // buildCommercialCandidatePool, which only reads from this registry. A DISTINCT sourceType from
+  // "official_rank" (vitrine-discovery.ts's own category-bestseller sweep) because the two run on
+  // different schedules/category sets and must count as independent corroboration when both see the
+  // same real item.
 
 export interface RegisterCandidateInput {
   externalId: string;

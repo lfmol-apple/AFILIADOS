@@ -231,6 +231,130 @@ describe("ML_DEMAND job", () => {
 
     await cleanupMerchantListings([goodItem]);
   });
+
+  // Owner's correction, 2026-11-22 ("Descoberta ampliada, incluindo
+  // categorias hoje ausentes" + "Enriquecimento seletivo, com medição
+  // real de custo e chamadas de API"). Real root cause confirmed live
+  // the same day: ML_DEMAND already discovers real robot-vacuum/coffee-
+  // maker/tool/electronics category highlights, but never registered a
+  // single one in the CommercialCandidateRegistry — invisible to the
+  // Vitrine's own selection no matter how many real matches existed.
+  it("registers every real highlight in the CommercialCandidateRegistry (general_market_scan) and enriches it when within the real cost cutoff", async () => {
+    stubMlCredentials();
+    await seedMlCredentialRow();
+
+    const topItem = `MLDEMANDTOP${runId}`;
+    const sellerIdForTop = 777;
+
+    const fetchSpy = vi.fn(async (url: string) => {
+      const u = String(url);
+      if (u.includes("/trends/")) return { ok: true, status: 200, json: async () => [] };
+      if (u.includes("/highlights/")) {
+        return { ok: true, status: 200, json: async () => ({ content: [{ id: topItem, position: 1, type: "PRODUCT" }] }) };
+      }
+      if (u.includes(`/products/${topItem}/items`)) {
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({
+            results: [{ item_id: `${topItem}OFFER`, seller_id: sellerIdForTop, price: 499, currency_id: "BRL", condition: "new", shipping: { free_shipping: true } }],
+          }),
+        };
+      }
+      if (u.includes(`/products/${topItem}`)) {
+        return { ok: true, status: 200, json: async () => ({ id: topItem, name: "Robô Aspirador Teste", pictures: [{ url: "https://x/robo.jpg" }] }) };
+      }
+      if (u.includes(`/users/${sellerIdForTop}`)) {
+        return { ok: true, status: 200, json: async () => ({ nickname: "loja-robos", seller_reputation: { level_id: "5_green", power_seller_status: "platinum" } }) };
+      }
+      throw new Error(`Unexpected fetch in test: ${u}`);
+    });
+    vi.stubGlobal("fetch", fetchSpy);
+
+    vi.doMock("@/lib/config/ml-demand-categories", () => ({
+      pickRotationGroup: () => [{ id: "MLB5726", name: "Eletrodomésticos" }],
+      ML_GENERAL_SCAN_CATEGORY_GROUPS: [[{ id: "MLB5726", name: "Eletrodomésticos" }]],
+    }));
+    const { runMlDemandJob } = await import("@/jobs/ml-demand");
+    const counters = await runMlDemandJob();
+    expect(counters.errors).toBe(0);
+
+    // Registered — the real gap this fix closes: a "Eletrodomésticos"
+    // highlight is now visible to buildCommercialCandidatePool.
+    const registered = await prisma.commercialCandidateRegistry.findFirst({
+      where: { externalId: topItem, sourceType: "general_market_scan" },
+    });
+    expect(registered?.categoryId).toBe("MLB5726");
+
+    // Within the cost cutoff (position 1) and with no prior
+    // canonicalProductId — real enrichment ran, so the listing now has a
+    // real CanonicalProduct (title/photo came from the real API mock
+    // above, never invented).
+    const listing = await prisma.merchantListing.findFirst({ where: { externalId: topItem }, include: { canonicalProduct: true } });
+    expect(listing?.canonicalProduct?.title).toBe("Robô Aspirador Teste");
+
+    const run = await prisma.automationRun.findFirst({ where: { job: "ML_DEMAND" }, orderBy: { startedAt: "desc" } });
+    const enrichment = (run?.metadata as { enrichment?: { attempts: number; skippedBeyondPositionCutoff: number } } | null)?.enrichment;
+    expect(enrichment?.attempts).toBe(1);
+    expect(enrichment?.skippedBeyondPositionCutoff).toBe(0);
+
+    await prisma.commercialCandidateRegistry.deleteMany({ where: { externalId: { in: [topItem] } } });
+    await prisma.canonicalProduct.deleteMany({ where: { slug: `ml-catalog-${topItem}` } });
+    await cleanupMerchantListings([topItem, `${topItem}OFFER`]);
+  });
+
+  it("registers a highlight beyond the real cost cutoff WITHOUT spending the extra enrichment API calls — selective, not blanket", async () => {
+    stubMlCredentials();
+    await seedMlCredentialRow();
+
+    const deepItem = `MLDEMANDDEEP${runId}`;
+
+    const fetchSpy = vi.fn(async (url: string) => {
+      const u = String(url);
+      if (u.includes("/trends/")) return { ok: true, status: 200, json: async () => [] };
+      if (u.includes("/highlights/")) {
+        // Position 11 — one past ENRICHMENT_POSITION_CUTOFF (10).
+        return { ok: true, status: 200, json: async () => ({ content: [{ id: deepItem, position: 11, type: "PRODUCT" }] }) };
+      }
+      // collectRaw() itself still needs to resolve the real title before
+      // this highlight can be persisted at all — mocked narrowly (never
+      // matching /items or /users below), so if enrichment incorrectly
+      // fired for this position, it would hit the explicit throw instead
+      // of silently succeeding against this same mock.
+      if (u.endsWith(`/products/${deepItem}`)) {
+        return { ok: true, status: 200, json: async () => ({ id: deepItem, name: "Ferramenta Teste" }) };
+      }
+      // Deliberately no mock for /items or /users — if enrichment fired
+      // for this one, the test would fail on this unexpected-fetch throw,
+      // proving the cutoff actually held.
+      throw new Error(`Unexpected fetch in test: ${u}`);
+    });
+    vi.stubGlobal("fetch", fetchSpy);
+
+    vi.doMock("@/lib/config/ml-demand-categories", () => ({
+      pickRotationGroup: () => [{ id: "MLB263532", name: "Ferramentas" }],
+      ML_GENERAL_SCAN_CATEGORY_GROUPS: [[{ id: "MLB263532", name: "Ferramentas" }]],
+    }));
+    const { runMlDemandJob } = await import("@/jobs/ml-demand");
+    const counters = await runMlDemandJob();
+    expect(counters.errors).toBe(0);
+
+    const registered = await prisma.commercialCandidateRegistry.findFirst({
+      where: { externalId: deepItem, sourceType: "general_market_scan" },
+    });
+    expect(registered).not.toBeNull(); // still registered — discovery itself is never selective, only enrichment is.
+
+    const listing = await prisma.merchantListing.findFirst({ where: { externalId: deepItem } });
+    expect(listing?.canonicalProductId).toBeNull(); // no enrichment call was made.
+
+    const run = await prisma.automationRun.findFirst({ where: { job: "ML_DEMAND" }, orderBy: { startedAt: "desc" } });
+    const enrichment = (run?.metadata as { enrichment?: { attempts: number; skippedBeyondPositionCutoff: number } } | null)?.enrichment;
+    expect(enrichment?.attempts).toBe(0);
+    expect(enrichment?.skippedBeyondPositionCutoff).toBe(1);
+
+    await prisma.commercialCandidateRegistry.deleteMany({ where: { externalId: { in: [deepItem] } } });
+    await cleanupMerchantListings([deepItem]);
+  });
 });
 
 // ---------------------------------------------------------------------
