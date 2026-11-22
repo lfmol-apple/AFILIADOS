@@ -215,7 +215,7 @@ export async function rankByAiAssisted(
   extendedRankedPool: readonly VitrineCandidate[],
   pool: readonly PooledCandidate[],
   limit: number,
-): Promise<{ items: LabRankedItem[]; evaluations: AnalystEvaluation[] }> {
+): Promise<{ items: LabRankedItem[]; evaluations: AnalystEvaluation[]; picked: VitrineCandidate[]; evaluationsByListing: Map<string, AnalystEvaluation> }> {
   // Looks up each candidate's REAL PooledCandidate (price, full evidence
   // objects) by id — never fabricates a value VitrineCandidate alone
   // doesn't carry (it has no price field at all). A candidate genuinely
@@ -244,7 +244,7 @@ export async function rankByAiAssisted(
     },
   }));
 
-  return { items, evaluations };
+  return { items, evaluations, picked, evaluationsByListing };
 }
 
 /**

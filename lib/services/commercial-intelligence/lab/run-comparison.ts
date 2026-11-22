@@ -12,6 +12,7 @@ import {
   type LabMethodology,
   type LabRankedItem,
 } from "@/lib/services/commercial-intelligence/lab/methodologies";
+import { runCriticalReview } from "@/lib/services/commercial-intelligence/ai-analyst/critic";
 
 /** Owner's authorization, 2026-11-22 ("Motor de Inteligência Comercial
  * com IA", section 6: pré-filtragem antes da IA, custo bounded). The AI
@@ -34,6 +35,11 @@ export interface LabComparisonSummary {
     discoveredNewCandidates: number | null;
     topItems: LabRankedItem[];
   }>;
+  /** IA Crítica's own findings over the final ai_assisted_v1 selection —
+   * also folded into that methodology's snapshot.notes as text, exposed
+   * here separately so a caller can act on them structurally (e.g. a
+   * report) without re-parsing text. */
+  criticFindings: ReturnType<typeof runCriticalReview>;
 }
 
 /**
@@ -66,6 +72,10 @@ export async function runCommercialIntelligenceLab(): Promise<LabComparisonSumma
   const activeEventNamesForReport = v3Result.activeEvents.map((a) => a.name).join(", ") || "nenhum";
   const { picked: extendedRankedPool } = pickGlobalVitrineSelection(v3Result.allScored, LIMIT + AI_ASSISTED_BUFFER, activeEventNamesForReport);
   const aiAssisted = await rankByAiAssisted(extendedRankedPool, pool, LIMIT);
+  // IA Crítica (owner's authorization, 2026-11-22, section 6) — a second,
+  // deterministic pass over the FINAL ai_assisted_v1 selection, never a
+  // second model call grading the first one's own output.
+  const criticFindings = runCriticalReview(aiAssisted.picked, aiAssisted.evaluationsByListing);
 
   const rankings: Record<LabMethodology, LabRankedItem[]> = {
     official_rank_only: rankByOfficialRankOnly(pool, LIMIT),
@@ -101,6 +111,7 @@ export async function runCommercialIntelligenceLab(): Promise<LabComparisonSumma
     referenceDate,
     candidateUniverseSize: pool.length,
     snapshots: [],
+    criticFindings,
   };
 
   for (const methodology of Object.keys(rankings) as LabMethodology[]) {
@@ -122,7 +133,12 @@ export async function runCommercialIntelligenceLab(): Promise<LabComparisonSumma
                 : methodology === "panel_recommended"
                   ? "Produtos que o próprio painel de afiliados do Mercado Livre apresentou como destaque (mais vendido/recomendado/ganhos extras), lido ao vivo — ver data/ml-panel-reads/."
                   : methodology === "ai_assisted_v1"
-                    ? "Mesmo ranking do multifactor_v3 — o Analista Comercial de IA só pode REMOVER um candidato (nunca promover um mais fraco), ver lib/services/commercial-intelligence/ai-analyst/safety-filter.ts."
+                    ? [
+                        "Mesmo ranking do multifactor_v3 — o Analista Comercial de IA só pode REMOVER um candidato (nunca promover um mais fraco), ver lib/services/commercial-intelligence/ai-analyst/safety-filter.ts.",
+                        criticFindings.length > 0
+                          ? `IA Crítica — ${criticFindings.length} achado(s): ${criticFindings.map((f) => `[${f.severity}] ${f.issue}: ${f.detail}`).join(" | ")}`
+                          : "IA Crítica — nenhum achado nesta execução.",
+                      ].join(" ")
                     : null,
       },
     });
