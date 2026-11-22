@@ -127,6 +127,69 @@ describe("loadVitrinePublicProducts — real scoping and ACTIVE-link gating (loc
     expect(products[0]!.currentPrice).toBe(199.9);
   });
 
+  // Owner's authorization, 2026-11-22 (Etapa 6 — validação final, item 2:
+  // "demonstre... fallback correto nas superfícies públicas"). Real
+  // integration proof against the local dev DB: jobs/vitrine-creative-
+  // factory.ts's own stale-price safety mechanism sets ONLY
+  // `publishedAt: null` on a stale ad_overlay/catalog_clean row (see
+  // tests/vitrine-creative-factory-mechanism.test.ts) — it never deletes
+  // or overwrites finalImageUrl, so the original asset stays intact on
+  // disk/storage, just no longer eligible to be served. This test proves
+  // the OTHER half of that contract: the public page's own read
+  // (`publishedAt: { not: null }`) correctly treats that row as absent
+  // and falls back to the real, current marketplace photo — never the
+  // stale image, and never an error.
+  it("falls back to the real marketplace photo when the only VitrineCreative row is unpublished (stale price) — never serves it", async () => {
+    const { canonical, listing } = await makeFixture();
+    const merchant = await prisma.merchant.findUniqueOrThrow({ where: { code: "MERCADO_LIVRE" } });
+    const vitrine = await createVitrine({ slug: `${TEST_PREFIX}e-${Date.now()}`, name: "Vitrine pública (teste)" });
+    await prisma.vitrineSelection.create({
+      data: {
+        vitrineId: vitrine.id,
+        merchantListingId: listing.id,
+        canonicalProductId: canonical.id,
+        status: "ACTIVE",
+        groupType: "recorrente",
+        score: 70,
+        scoreBreakdown: {},
+        reason: "fixture",
+      },
+    });
+    await prisma.vitrineLink.create({
+      data: {
+        merchantListingId: listing.id,
+        merchantId: merchant.id,
+        publicUrl: "https://produto.mercadolivre.com.br/fixture",
+        source: "MANUAL_ADMIN",
+        status: "ACTIVE",
+      },
+    });
+    // The exact real state runVitrineCreativeFactoryJob() leaves behind
+    // when a baked price goes stale: approved, but publishedAt nulled —
+    // the asset itself (finalImageUrl) is left completely untouched.
+    const staleFinalImageUrl = "https://precocaindo.com.br/api/vitrine/creative-asset/stale-price-image.png";
+    await prisma.vitrineCreative.create({
+      data: {
+        merchantListingId: listing.id,
+        kind: "catalog_clean",
+        version: 1,
+        originalPhotoUrl: "https://example.com/original.jpg",
+        finalImageUrl: staleFinalImageUrl,
+        promptInputs: {},
+        model: "gpt-image-2",
+        qualityStatus: "approved",
+        publishedAt: null,
+      },
+    });
+
+    const products = await loadVitrinePublicProducts(vitrine.id);
+    expect(products).toHaveLength(1);
+    expect(products[0]!.imageUrl).toBe("https://example.com/fixture.jpg"); // the real product photo, never the stale asset
+    expect(products[0]!.imageUrl).not.toBe(staleFinalImageUrl);
+
+    await prisma.vitrineCreative.deleteMany({ where: { merchantListingId: listing.id } });
+  });
+
   it("never leaks another vitrine's products — the real bug this query exists to avoid", async () => {
     const { canonical, listing } = await makeFixture();
     const merchant = await prisma.merchant.findUniqueOrThrow({ where: { code: "MERCADO_LIVRE" } });
