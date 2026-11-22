@@ -4,6 +4,7 @@ import { selectVitrineCandidates, type VitrineCandidate, type DiscardedCandidate
 import { registerCandidate } from "@/lib/services/commercial-intelligence/candidate-registry";
 import { auditCandidate } from "@/lib/services/commercial-intelligence/commercial-audit";
 import { buildRoundCandidateRows } from "@/lib/services/vitrine-selection-round-persistence";
+import { getLegacyVitrineId } from "@/lib/services/vitrine-manager";
 import type { VitrineScoreResult } from "@/lib/services/vitrine-score";
 import { logger } from "@/lib/observability/logger";
 
@@ -23,16 +24,17 @@ const DISCARD_REASON_LABEL: Record<DiscardedCandidate["reason"], string> = {
 };
 
 /** Owner's authorization, 2026-11-22 ("Gerenciador de Vitrines
- * Inteligentes"): this job still only ever manages the ORIGINAL Vitrine
- * — the real row every one of the 37 real pre-existing VitrineSelection
- * rows was backfilled into (prisma/migrations/20261122153228_multi_vitrine_core).
- * Looked up by its real, stable slug every run, never by a hardcoded id
- * (which the migration assigns, not this file). Wiring this job to
- * manage several vitrines at once is a separate, not-yet-authorized
- * change — lib/services/vitrine-manager.ts is where that distribution
- * logic lives for NEW vitrines today.
+ * Inteligentes" / "Proteção da Vitrine Geral"): this job still only ever
+ * manages the ORIGINAL Vitrine — the real row every one of the 37 real
+ * pre-existing VitrineSelection rows was backfilled into
+ * (prisma/migrations/20261122153228_multi_vitrine_core). Resolved
+ * through the SAME single source of truth the admin panel and the Meta
+ * catalog feed use (lib/services/vitrine-manager.ts's getLegacyVitrineId()),
+ * never a locally duplicated constant/lookup that could drift from
+ * theirs. Wiring this job to manage several vitrines at once is a
+ * separate, not-yet-authorized change — vitrine-manager.ts is where
+ * that distribution logic lives for NEW vitrines today.
  */
-const LEGACY_VITRINE_SLUG = "vitrine-geral";
 
 /** The site's own /ofertas monetizationScore, registered as ONE MORE
  * informational CommercialCandidateRegistry source (owner's
@@ -142,7 +144,7 @@ const DISQUALIFYING_DISCARD_REASONS = new Set([
 
 export async function runVitrineRenewJob() {
   return runJob("VITRINE_RENEW", async (ctx) => {
-    const vitrine = await prisma.vitrine.findUniqueOrThrow({ where: { slug: LEGACY_VITRINE_SLUG } });
+    const vitrineId = await getLegacyVitrineId();
     ctx.metadata.legacyMonetizationScoreCandidatesRegistered = await registerLegacyMonetizationScoreCandidates();
     const { candidates, allScored, groupReport, discarded, funnel, activeEvents } =
       await selectVitrineCandidates(VITRINE_CAPACITY);
@@ -150,7 +152,7 @@ export async function runVitrineRenewJob() {
     const scoredById = new Map(allScored.map((c) => [c.merchantListingId, c]));
 
     const current = await prisma.vitrineSelection.findMany({
-      where: { vitrineId: vitrine.id, status: "ACTIVE" },
+      where: { vitrineId, status: "ACTIVE" },
     });
     const currentIds = new Set(current.map((c) => c.merchantListingId));
 
@@ -302,9 +304,9 @@ export async function runVitrineRenewJob() {
 
     for (const candidate of newcomers) {
       await prisma.vitrineSelection.upsert({
-        where: { vitrineId_merchantListingId: { vitrineId: vitrine.id, merchantListingId: candidate.merchantListingId } },
+        where: { vitrineId_merchantListingId: { vitrineId, merchantListingId: candidate.merchantListingId } },
         create: {
-          vitrineId: vitrine.id,
+          vitrineId,
           merchantListingId: candidate.merchantListingId,
           canonicalProductId: candidate.canonicalProductId,
           groupType: candidate.group,
@@ -339,9 +341,9 @@ export async function runVitrineRenewJob() {
       .slice(0, 20);
     for (const candidate of reserve) {
       await prisma.vitrineSelection.upsert({
-        where: { vitrineId_merchantListingId: { vitrineId: vitrine.id, merchantListingId: candidate.merchantListingId } },
+        where: { vitrineId_merchantListingId: { vitrineId, merchantListingId: candidate.merchantListingId } },
         create: {
-          vitrineId: vitrine.id,
+          vitrineId,
           merchantListingId: candidate.merchantListingId,
           canonicalProductId: candidate.canonicalProductId,
           groupType: candidate.group,

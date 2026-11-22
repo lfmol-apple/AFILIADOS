@@ -6,6 +6,7 @@ import {
   pauseVitrine,
   endVitrine,
   claimSelectionForVitrine,
+  VitrineTransitionError,
 } from "@/lib/services/vitrine-manager";
 import type { VitrineCandidate } from "@/lib/services/vitrine-selection";
 
@@ -113,7 +114,7 @@ describe("vitrine-manager — real transactional cross-vitrine exclusivity (loca
     expect(activeRows[0]!.vitrineId).toBe(vitrineA.id);
   });
 
-  it("pausing the holding vitrine releases the product — the other vitrine can then claim it for real", async () => {
+  it("real root cause fixed, 2026-11-22 (reavaliação do ciclo de vida): PAUSING a vitrine NEVER releases its products — another vitrine still loses the race for the same canonical product", async () => {
     const { canonical, listingA, listingB } = await makeSharedCanonicalProductFixture();
     const vitrineA = await createVitrine({ slug: `${TEST_PREFIX}a-${Date.now()}`, name: "Vitrine A (teste)" });
     const vitrineB = await createVitrine({ slug: `${TEST_PREFIX}b-${Date.now()}`, name: "Vitrine B (teste)" });
@@ -122,20 +123,89 @@ describe("vitrine-manager — real transactional cross-vitrine exclusivity (loca
 
     await claimSelectionForVitrine(vitrineA.id, [fakeCandidate(listingA.id, canonical.id, 80)]);
 
-    const beforePause = await claimSelectionForVitrine(vitrineB.id, [fakeCandidate(listingB.id, canonical.id, 90)]);
-    expect(beforePause.lostRace).toHaveLength(1); // still held by A
+    const { releasedCount, vitrine: paused } = await pauseVitrine(vitrineA.id);
+    expect(releasedCount).toBe(0); // the real fix: pause releases nothing
+    expect(paused.status).toBe("PAUSED");
 
-    const { releasedCount } = await pauseVitrine(vitrineA.id);
+    const stillBlocked = await claimSelectionForVitrine(vitrineB.id, [fakeCandidate(listingB.id, canonical.id, 90)]);
+    expect(stillBlocked.lostRace).toHaveLength(1); // still reserved for A, even while paused
+
+    const row = await prisma.vitrineSelection.findUnique({
+      where: { vitrineId_merchantListingId: { vitrineId: vitrineA.id, merchantListingId: listingA.id } },
+    });
+    expect(row?.status).toBe("ACTIVE"); // never touched by the pause
+  });
+
+  it("reactivating a PAUSED vitrine needs zero re-claim — its products were never released", async () => {
+    const { canonical, listingA } = await makeSharedCanonicalProductFixture();
+    const vitrineA = await createVitrine({ slug: `${TEST_PREFIX}a-${Date.now()}`, name: "Vitrine A (teste)" });
+    await activateVitrine(vitrineA.id);
+    await claimSelectionForVitrine(vitrineA.id, [fakeCandidate(listingA.id, canonical.id, 80)]);
+
+    await pauseVitrine(vitrineA.id);
+    const reactivated = await activateVitrine(vitrineA.id);
+    expect(reactivated.status).toBe("ACTIVE");
+
+    const row = await prisma.vitrineSelection.findUnique({
+      where: { vitrineId_merchantListingId: { vitrineId: vitrineA.id, merchantListingId: listingA.id } },
+    });
+    expect(row?.status).toBe("ACTIVE"); // still there, never needed re-claiming
+  });
+
+  it("ENDING a vitrine (not pausing) is the real, intentional release point — only then can another vitrine claim the same product", async () => {
+    const { canonical, listingA, listingB } = await makeSharedCanonicalProductFixture();
+    const vitrineA = await createVitrine({ slug: `${TEST_PREFIX}a-${Date.now()}`, name: "Vitrine A (teste)" });
+    const vitrineB = await createVitrine({ slug: `${TEST_PREFIX}b-${Date.now()}`, name: "Vitrine B (teste)" });
+    await activateVitrine(vitrineA.id);
+    await activateVitrine(vitrineB.id);
+    await claimSelectionForVitrine(vitrineA.id, [fakeCandidate(listingA.id, canonical.id, 80)]);
+
+    const { releasedCount } = await endVitrine(vitrineA.id);
     expect(releasedCount).toBe(1);
 
-    const afterPause = await claimSelectionForVitrine(vitrineB.id, [fakeCandidate(listingB.id, canonical.id, 90)]);
-    expect(afterPause.claimed).toHaveLength(1); // now free
+    const afterEnd = await claimSelectionForVitrine(vitrineB.id, [fakeCandidate(listingB.id, canonical.id, 90)]);
+    expect(afterEnd.claimed).toHaveLength(1); // now genuinely free
 
     const releasedRow = await prisma.vitrineSelection.findUnique({
       where: { vitrineId_merchantListingId: { vitrineId: vitrineA.id, merchantListingId: listingA.id } },
     });
     expect(releasedRow?.status).toBe("RETIRED");
-    expect(releasedRow?.retiredReason).toMatch(/pausada/);
+    expect(releasedRow?.retiredReason).toMatch(/encerrada/);
+  });
+
+  it("an ENDED vitrine can never be reactivated", async () => {
+    const vitrine = await createVitrine({ slug: `${TEST_PREFIX}ended-${Date.now()}`, name: "Vitrine encerrada (teste)" });
+    await activateVitrine(vitrine.id);
+    await endVitrine(vitrine.id);
+    await expect(activateVitrine(vitrine.id)).rejects.toThrow(VitrineTransitionError);
+  });
+
+  it("a claim attempt for a non-ACTIVE vitrine (DRAFT or PAUSED) is rejected before any write — never silently acquires a new product while not running", async () => {
+    const { canonical, listingA } = await makeSharedCanonicalProductFixture();
+    const draft = await createVitrine({ slug: `${TEST_PREFIX}draft-${Date.now()}`, name: "Vitrine rascunho (teste)" });
+    await expect(claimSelectionForVitrine(draft.id, [fakeCandidate(listingA.id, canonical.id, 80)])).rejects.toThrow(VitrineTransitionError);
+
+    const paused = await createVitrine({ slug: `${TEST_PREFIX}paused-${Date.now()}`, name: "Vitrine pausada (teste)" });
+    await activateVitrine(paused.id);
+    await pauseVitrine(paused.id);
+    await expect(claimSelectionForVitrine(paused.id, [fakeCandidate(listingA.id, canonical.id, 80)])).rejects.toThrow(VitrineTransitionError);
+  });
+
+  it("concurrency-resistant transition: two concurrent attempts to end the SAME vitrine never both report success, and never double-release", async () => {
+    const { canonical, listingA } = await makeSharedCanonicalProductFixture();
+    const vitrineA = await createVitrine({ slug: `${TEST_PREFIX}a-${Date.now()}`, name: "Vitrine A (teste)" });
+    await activateVitrine(vitrineA.id);
+    await claimSelectionForVitrine(vitrineA.id, [fakeCandidate(listingA.id, canonical.id, 80)]);
+
+    const [first, second] = await Promise.allSettled([endVitrine(vitrineA.id), endVitrine(vitrineA.id)]);
+    const results = [first, second];
+    const succeeded = results.filter((r) => r.status === "fulfilled");
+    const failed = results.filter((r) => r.status === "rejected");
+    expect(succeeded).toHaveLength(1); // exactly one call actually transitioned it
+    expect(failed).toHaveLength(1);
+    if (succeeded[0]!.status === "fulfilled") {
+      expect(succeeded[0]!.value.releasedCount).toBe(1); // released exactly once, never twice
+    }
   });
 
   it("ending a vitrine releases its products the same way pausing does", async () => {
@@ -150,10 +220,10 @@ describe("vitrine-manager — real transactional cross-vitrine exclusivity (loca
     expect(vitrine.endedAt).not.toBeNull();
   });
 
-  it("a DRAFT vitrine cannot be activated twice", async () => {
+  it("an already-ACTIVE vitrine cannot be activated again", async () => {
     const vitrine = await createVitrine({ slug: `${TEST_PREFIX}once-${Date.now()}`, name: "Vitrine única (teste)" });
     await activateVitrine(vitrine.id);
-    await expect(activateVitrine(vitrine.id)).rejects.toThrow(/DRAFT/);
+    await expect(activateVitrine(vitrine.id)).rejects.toThrow(VitrineTransitionError);
   });
 
   it("the same listing CAN be re-claimed by the SAME vitrine (upsert, not a conflict with itself)", async () => {

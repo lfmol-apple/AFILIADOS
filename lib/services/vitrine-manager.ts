@@ -25,6 +25,35 @@ import { selectVitrineCandidates, type VitrineCandidate } from "@/lib/services/v
 
 export type VitrineStatus = "DRAFT" | "ACTIVE" | "PAUSED" | "ENDED";
 
+/** Owner's authorization, 2026-11-22 ("Proteção da Vitrine Geral"): the
+ * real, stable slug every one of the original 37 VitrineSelection rows
+ * was backfilled under (prisma/migrations/20261122153228_multi_vitrine_core).
+ * The single source of truth — jobs/vitrine-renew.ts, the admin panel
+ * (app/admin/vitrine-inteligente/page.tsx) and the live Meta catalog
+ * feed (app/catalogo/mercado-livre.xml/route.ts) all resolve it through
+ * getLegacyVitrineId() below, never a locally hardcoded id or a
+ * same-name duplicate constant that could drift. Real bug this closes,
+ * found during Etapa 3's own review: both of those production surfaces
+ * queried VitrineSelection by `status: "ACTIVE"` alone, with NO vitrineId
+ * filter — the instant a second real vitrine got its own ACTIVE rows,
+ * the public Meta catalog feed and the admin panel would have silently
+ * started mixing its products into the Vitrine Geral's. */
+export const LEGACY_VITRINE_SLUG = "vitrine-geral";
+
+let cachedLegacyVitrineId: string | null = null;
+
+/** Memoized per process — the Vitrine Geral row's id never changes once
+ * created, and this is called on every single request to the catalog
+ * feed/admin panel, so a repeat indexed lookup per call is unnecessary
+ * cost, not a correctness concern (a process restart simply re-resolves
+ * it once, same real row). */
+export async function getLegacyVitrineId(): Promise<string> {
+  if (cachedLegacyVitrineId) return cachedLegacyVitrineId;
+  const vitrine = await prisma.vitrine.findUniqueOrThrow({ where: { slug: LEGACY_VITRINE_SLUG } });
+  cachedLegacyVitrineId = vitrine.id;
+  return vitrine.id;
+}
+
 export interface CreateVitrineInput {
   slug: string;
   name: string;
@@ -55,18 +84,73 @@ export async function getVitrineBySlug(slug: string) {
   return prisma.vitrine.findUnique({ where: { slug } });
 }
 
-/** DRAFT -> ACTIVE. Owner's rule: "a criação de uma vitrine não deve
+/**
+ * Owner's authorization, 2026-11-22 ("Exclusividade e ciclo de vida —
+ * reavalie a regra que libera automaticamente produtos quando uma
+ * vitrine é pausada"). Real root cause of the redesign: the FIRST
+ * version of this module released a vitrine's products on PAUSE too —
+ * but a pause is meant to be temporary, and releasing on pause means
+ * another vitrine could legitimately claim the exact same real product
+ * in the meantime, making reactivation unable to get it back. The
+ * policy now is:
+ *
+ *   DRAFT   — never holds any real ACTIVE selection; never blocks
+ *             anything; never shown publicly.
+ *   ACTIVE  — holds its real ACTIVE selections; these are exactly what
+ *             the cross-vitrine exclusivity index protects.
+ *   PAUSED  — temporarily not shown/serving traffic, but its real
+ *             ACTIVE selections are left COMPLETELY UNTOUCHED (status
+ *             stays "ACTIVE" on VitrineSelection) — still reserved,
+ *             still blocking every other vitrine from claiming the same
+ *             canonicalProductId. Reactivating needs zero re-claim.
+ *   ENDED   — terminal. THIS is the real, intentional release point
+ *             (owner's rule: "uma vitrine... encerrada deverá ter
+ *             regras explícitas para liberar seus produtos") — every
+ *             real ACTIVE row is retired (reusing the existing,
+ *             already-understood RETIRED status, with an honest,
+ *             specific retiredReason), which is what actually frees the
+ *             canonicalProductId for another vitrine. Never auto-
+ *             reassigns it anywhere (owner's rule: "não transferir
+ *             automaticamente produtos de campanhas ativas para outra
+ *             vitrine") — a human or a later claim decides that
+ *             separately. An ENDED vitrine can never be reactivated.
+ *
+ * Every transition below is guarded by an `updateMany` keyed on BOTH id
+ * AND the expected current status, so two concurrent calls (e.g. two
+ * simultaneous "end" requests) can never both report success or
+ * double-release the same products — exactly one of them actually
+ * updates a row; the other sees `count === 0` and is told plainly that
+ * the vitrine was already in a different state, resistant to
+ * concurrency the same way claimSelectionForVitrine() is.
+ */
+
+export class VitrineTransitionError extends Error {}
+
+async function guardedTransition(vitrineId: string, from: readonly VitrineStatus[], to: VitrineStatus, extra?: Record<string, unknown>) {
+  const result = await prisma.vitrine.updateMany({
+    where: { id: vitrineId, status: { in: from as VitrineStatus[] } },
+    data: { status: to, ...extra },
+  });
+  if (result.count === 0) {
+    const current = await prisma.vitrine.findUniqueOrThrow({ where: { id: vitrineId } });
+    throw new VitrineTransitionError(
+      `Cannot move vitrine ${vitrineId} to ${to}: current status is ${current.status}, expected one of [${from.join(", ")}] (lost a concurrent transition, or this transition is not allowed from here).`,
+    );
+  }
+  return prisma.vitrine.findUniqueOrThrow({ where: { id: vitrineId } });
+}
+
+/** DRAFT -> ACTIVE, or PAUSED -> ACTIVE (reactivation — zero re-claim
+ * needed, since a paused vitrine's real selections were never
+ * released). Owner's rule: "a criação de uma vitrine não deve
  * automaticamente criar anúncios na Meta" — this only flips the
  * Vitrine's own status; it never touches Meta, never generates a
- * creative, never runs a selection by itself (call selectForVitrine +
- * claimSelectionForVitrine separately, same explicit-step pattern as
- * every other paid/production action in this project). */
+ * creative, never runs a selection by itself (call
+ * previewSelectionForVitrine + claimSelectionForVitrine separately,
+ * same explicit-step pattern as every other paid/production action in
+ * this project). */
 export async function activateVitrine(vitrineId: string) {
-  const vitrine = await prisma.vitrine.findUniqueOrThrow({ where: { id: vitrineId } });
-  if (vitrine.status !== "DRAFT") {
-    throw new Error(`Only a DRAFT vitrine can be activated (current status: ${vitrine.status}).`);
-  }
-  return prisma.vitrine.update({ where: { id: vitrineId }, data: { status: "ACTIVE" } });
+  return guardedTransition(vitrineId, ["DRAFT", "PAUSED"], "ACTIVE");
 }
 
 export interface ReleaseResult {
@@ -74,19 +158,13 @@ export interface ReleaseResult {
   releasedCount: number;
 }
 
-/** Owner's explicit rule, section 4: "uma vitrine pausada ou encerrada
- * deverá ter regras explícitas para liberar seus produtos, sem
- * comprometer campanhas que ainda estejam recebendo tráfego." Every
- * real ACTIVE row this vitrine holds is retired (reusing the existing,
- * already-understood RETIRED status — no new VitrineSelection status
- * invented) with an honest, specific retiredReason, which — because the
- * cross-vitrine exclusivity index only covers status='ACTIVE' — is what
- * actually makes the product's canonicalProductId selectable by another
- * vitrine again. Never auto-reassigns it anywhere (owner's rule: "não
- * transferir automaticamente produtos de campanhas ativas para outra
- * vitrine") — a human or a later selectForVitrine() run decides that
- * separately.
- */
+/** ACTIVE -> PAUSED. Never releases a single product — see this
+ * section's own doc comment above. */
+export async function pauseVitrine(vitrineId: string): Promise<ReleaseResult> {
+  const vitrine = await guardedTransition(vitrineId, ["ACTIVE"], "PAUSED", { pausedAt: new Date() });
+  return { vitrine, releasedCount: 0 };
+}
+
 async function releaseProducts(vitrineId: string, reasonLabel: string): Promise<number> {
   const result = await prisma.vitrineSelection.updateMany({
     where: { vitrineId, status: "ACTIVE" },
@@ -95,15 +173,10 @@ async function releaseProducts(vitrineId: string, reasonLabel: string): Promise<
   return result.count;
 }
 
-export async function pauseVitrine(vitrineId: string): Promise<ReleaseResult> {
-  const releasedCount = await releaseProducts(vitrineId, "Vitrine pausada — produto liberado para outras vitrines.");
-  const vitrine = await prisma.vitrine.update({ where: { id: vitrineId }, data: { status: "PAUSED", pausedAt: new Date() } });
-  return { vitrine, releasedCount };
-}
-
+/** DRAFT, ACTIVE or PAUSED -> ENDED. Terminal — the real release point. */
 export async function endVitrine(vitrineId: string): Promise<ReleaseResult> {
+  const vitrine = await guardedTransition(vitrineId, ["DRAFT", "ACTIVE", "PAUSED"], "ENDED", { endedAt: new Date() });
   const releasedCount = await releaseProducts(vitrineId, "Vitrine encerrada — produto liberado para outras vitrines.");
-  const vitrine = await prisma.vitrine.update({ where: { id: vitrineId }, data: { status: "ENDED", endedAt: new Date() } });
   return { vitrine, releasedCount };
 }
 
@@ -202,6 +275,19 @@ export interface ClaimResult {
  * throughout this codebase's job design.
  */
 export async function claimSelectionForVitrine(vitrineId: string, candidates: VitrineCandidate[]): Promise<ClaimResult> {
+  // Owner's rule, section 5/9: a DRAFT vitrine must never claim a real
+  // product before explicit activation, and a PAUSED/ENDED one is not
+  // currently running a campaign — claiming a NEW product for it would
+  // contradict "não transferir automaticamente produtos de campanhas
+  // ativas para outra vitrine" in spirit, since it's not active. This
+  // check is deliberately NOT what protects existing PAUSED selections
+  // (those are untouched by design, see pauseVitrine's own doc comment)
+  // — it only blocks acquiring something NEW while not ACTIVE.
+  const vitrine = await prisma.vitrine.findUniqueOrThrow({ where: { id: vitrineId } });
+  if (vitrine.status !== "ACTIVE") {
+    throw new VitrineTransitionError(`Cannot claim products for vitrine ${vitrineId}: status is ${vitrine.status}, expected ACTIVE.`);
+  }
+
   const claimed: VitrineCandidate[] = [];
   const lostRace: VitrineCandidate[] = [];
 
