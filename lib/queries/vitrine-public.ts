@@ -19,6 +19,19 @@ import type { UnifiedOfferCard } from "@/lib/queries/unified-offers";
  * /go/[merchant]/[externalId] (the site's own precocaindo tag), which is
  * what lib/queries/unified-offers.ts itself builds for the general
  * /ofertas grid and would have been the wrong link here.
+ *
+ * Owner's correction, 2026-11-22 ("ajuste importante na Etapa 3 — não
+ * gere imagens genéricas... reutilize os criativos existentes"): the
+ * image shown prefers a REAL, already-APPROVED VitrineCreative
+ * (kind="catalog_clean" — no price/text baked in, by design) when one
+ * exists for that exact product, falling back to the plain real
+ * marketplace photo otherwise — the EXACT same lookup already
+ * established in app/catalogo/mercado-livre.xml/route.ts, copied
+ * verbatim here rather than re-derived, so the two surfaces can never
+ * drift on what counts as "approved." Never generates anything new;
+ * price/discount/availability/link always come from
+ * loadPublicMerchantProduct()'s real-time read, never from whatever a
+ * creative image happens to show.
  */
 export interface VitrinePublicProduct extends UnifiedOfferCard {
   /** The real id the Meta catalog feed (app/catalogo/mercado-livre.xml/route.ts)
@@ -56,12 +69,20 @@ export async function loadVitrinePublicProducts(vitrineId: string): Promise<Vitr
     const product = await loadPublicMerchantProduct(slug).catch(() => null);
     if (!product || !product.imageUrl || product.currentPrice === null) continue;
 
+    // Same lookup as app/catalogo/mercado-livre.xml/route.ts, copied
+    // verbatim — never a new generation, never an unapproved render.
+    const creative = await prisma.vitrineCreative.findFirst({
+      where: { merchantListingId: selection.merchantListingId, kind: "catalog_clean", publishedAt: { not: null }, qualityStatus: "approved" },
+      orderBy: { version: "desc" },
+      select: { finalImageUrl: true },
+    });
+
     products.push({
       vitrineSelectionId: selection.id,
       id: selection.merchantListingId,
       merchant: "MERCADO_LIVRE",
       title: product.title,
-      imageUrl: product.imageUrl,
+      imageUrl: creative?.finalImageUrl ?? product.imageUrl,
       currentPrice: product.currentPrice,
       referencePrice: product.referencePrice,
       discountPercent: product.discountPercent,

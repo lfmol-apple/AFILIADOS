@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Breadcrumbs } from "@/components/breadcrumbs";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
 import { UnifiedOfferCard } from "@/components/unified-offer-card";
 import { VitrineFeaturedProduct } from "@/components/vitrine-featured-product";
+import { VitrineNeutralHeader } from "@/components/vitrine-neutral-header";
 import { getVitrineBySlug } from "@/lib/services/vitrine-manager";
 import { loadVitrinePublicProducts } from "@/lib/queries/vitrine-public";
 import type { PagePropsWithParams } from "@/lib/next-route-types";
@@ -33,6 +33,16 @@ export const dynamic = "force-dynamic";
  *  - "não criar página de erro para produto indisponível" — only a
  *    genuinely nonexistent vitrine slug 404s; a real vitrine that's
  *    DRAFT/PAUSED/ENDED renders a plain, honest "não disponível" state.
+ *
+ * Owner's correction, 2026-11-22 ("cabeçalho... neutro, sem destaque
+ * para a marca PreçoCaindo... não deve simular ser uma página oficial
+ * do Mercado Livre"): the site's own Breadcrumbs trail ("Início →
+ * {vitrine.name}") was removed from this page — it frames the visit as
+ * browsing the PreçoCaindo site, the opposite of a neutral landing —
+ * and replaced with components/vitrine-neutral-header.tsx's single
+ * discreet attribution line. The global SiteHeader/SiteFooter
+ * (app/layout.tsx) are untouched, per the owner's own rule to preserve
+ * the existing structure.
  */
 export async function generateMetadata(props: PagePropsWithParams<{ slug: string }>): Promise<Metadata> {
   const { slug } = await props.params;
@@ -54,8 +64,11 @@ export default async function VitrinePublicPage(props: PagePropsWithParams<{ slu
   if (vitrine.status !== "ACTIVE") {
     return (
       <div className="mx-auto w-full max-w-3xl px-4 py-16 text-center sm:px-6">
-        <h1 className="text-xl font-bold">{vitrine.name}</h1>
+        <h1 className="text-foreground text-lg font-medium">{vitrine.name}</h1>
         <p className="text-foreground/60 mt-3">Esta vitrine não está disponível publicamente no momento.</p>
+        <div className="mt-6">
+          <VitrineNeutralHeader />
+        </div>
       </div>
     );
   }
@@ -69,11 +82,11 @@ export default async function VitrinePublicPage(props: PagePropsWithParams<{ slu
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
       <AnalyticsBeacon pageType="vitrine" pageSlug={slug} />
-      <Breadcrumbs items={[{ label: "Início", href: "/" }, { label: vitrine.name }]} />
+      <VitrineNeutralHeader />
 
       {!featured && (
         <div className="mt-4">
-          <h1 className="text-2xl font-bold">{vitrine.name}</h1>
+          <h1 className="text-foreground text-lg font-medium">{vitrine.name}</h1>
           {vitrine.purpose && <p className="text-foreground/60 mt-1">{vitrine.purpose}</p>}
         </div>
       )}
