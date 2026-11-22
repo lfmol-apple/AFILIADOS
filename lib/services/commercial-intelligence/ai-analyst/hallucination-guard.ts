@@ -68,19 +68,36 @@ export interface SanitizedAnalystResponse {
   missingData: MissingDataKey[];
 }
 
-/** Returns null when the response is unusable (wrong shape, or claims
- * ZERO real evidence after stripping hallucinated keys) — the caller
- * must treat null as "reject this response", never patch it up. */
-export function validateAndSanitizeResponse(
-  raw: RawAnalystResponse,
-  input: AnalystEvidenceInput,
-): SanitizedAnalystResponse | null {
-  if (raw.recommendation !== "priorizar" && raw.recommendation !== "observar" && raw.recommendation !== "rejeitar") return null;
-  if (typeof raw.commercialScore !== "number" || !Number.isFinite(raw.commercialScore)) return null;
-  if (typeof raw.confidence !== "number" || !Number.isFinite(raw.confidence)) return null;
-  if (!Array.isArray(raw.favorableArguments) || !raw.favorableArguments.every((a) => typeof a === "string")) return null;
-  if (!Array.isArray(raw.risks) || !raw.risks.every((r) => typeof r === "string")) return null;
-  if (!Array.isArray(raw.evidenceUsed) || !Array.isArray(raw.missingData)) return null;
+/** Specific, auditable reason a response was rejected — owner's
+ * authorization, 2026-11-22 ("Operação Cérebro Comercial", Fase A,
+ * requirement 3: "registre os motivos específicos de rejeição"), never
+ * a single generic message. */
+export type RejectionReason =
+  | "invalid_recommendation"
+  | "invalid_commercialScore"
+  | "invalid_confidence"
+  | "invalid_favorableArguments"
+  | "invalid_risks"
+  | "invalid_evidenceUsed_or_missingData_shape"
+  | "zero_verified_evidence";
+
+export type ValidationResult = { ok: true; value: SanitizedAnalystResponse } | { ok: false; reason: RejectionReason };
+
+/** The real, detailed check — returns WHY a response was rejected, not
+ * just that it was. `validateAndSanitizeResponse` below is a thin,
+ * backward-compatible wrapper over this for callers that only need
+ * accept/reject. */
+export function validateAndSanitizeResponseDetailed(raw: RawAnalystResponse, input: AnalystEvidenceInput): ValidationResult {
+  if (raw.recommendation !== "priorizar" && raw.recommendation !== "observar" && raw.recommendation !== "rejeitar") {
+    return { ok: false, reason: "invalid_recommendation" };
+  }
+  if (typeof raw.commercialScore !== "number" || !Number.isFinite(raw.commercialScore)) return { ok: false, reason: "invalid_commercialScore" };
+  if (typeof raw.confidence !== "number" || !Number.isFinite(raw.confidence)) return { ok: false, reason: "invalid_confidence" };
+  if (!Array.isArray(raw.favorableArguments) || !raw.favorableArguments.every((a) => typeof a === "string")) {
+    return { ok: false, reason: "invalid_favorableArguments" };
+  }
+  if (!Array.isArray(raw.risks) || !raw.risks.every((r) => typeof r === "string")) return { ok: false, reason: "invalid_risks" };
+  if (!Array.isArray(raw.evidenceUsed) || !Array.isArray(raw.missingData)) return { ok: false, reason: "invalid_evidenceUsed_or_missingData_shape" };
 
   const realEvidence = computeRealEvidenceKeys(input);
   const realMissing = computeRealMissingDataKeys(input);
@@ -98,15 +115,27 @@ export function validateAndSanitizeResponse(
 
   // A recommendation standing on zero real, verified evidence is never
   // trustworthy — reject outright rather than accept a bare opinion.
-  if (evidenceUsed.length === 0) return null;
+  if (evidenceUsed.length === 0) return { ok: false, reason: "zero_verified_evidence" };
 
   return {
-    recommendation: raw.recommendation,
-    commercialScore: Math.min(100, Math.max(0, Math.round(raw.commercialScore))),
-    confidence: Math.min(1, Math.max(0, raw.confidence)),
-    favorableArguments: raw.favorableArguments.slice(0, 10),
-    risks: raw.risks.slice(0, 10),
-    evidenceUsed,
-    missingData,
+    ok: true,
+    value: {
+      recommendation: raw.recommendation,
+      commercialScore: Math.min(100, Math.max(0, Math.round(raw.commercialScore))),
+      confidence: Math.min(1, Math.max(0, raw.confidence)),
+      favorableArguments: raw.favorableArguments.slice(0, 10),
+      risks: raw.risks.slice(0, 10),
+      evidenceUsed,
+      missingData,
+    },
   };
+}
+
+/** Returns null when the response is unusable (wrong shape, or claims
+ * ZERO real evidence after stripping hallucinated keys) — the caller
+ * must treat null as "reject this response", never patch it up.
+ * Backward-compatible accept/reject view over validateAndSanitizeResponseDetailed. */
+export function validateAndSanitizeResponse(raw: RawAnalystResponse, input: AnalystEvidenceInput): SanitizedAnalystResponse | null {
+  const result = validateAndSanitizeResponseDetailed(raw, input);
+  return result.ok ? result.value : null;
 }

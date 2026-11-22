@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { validateAndSanitizeResponse, computeRealEvidenceKeys, computeRealMissingDataKeys } from "@/lib/services/commercial-intelligence/ai-analyst/hallucination-guard";
+import {
+  validateAndSanitizeResponse,
+  validateAndSanitizeResponseDetailed,
+  computeRealEvidenceKeys,
+  computeRealMissingDataKeys,
+} from "@/lib/services/commercial-intelligence/ai-analyst/hallucination-guard";
 import type { AnalystEvidenceInput } from "@/lib/services/commercial-intelligence/ai-analyst/types";
 
 /**
@@ -132,5 +137,69 @@ describe("validateAndSanitizeResponse — the real hallucination guard", () => {
     );
     expect(result?.commercialScore).toBe(100);
     expect(result?.confidence).toBe(1);
+  });
+});
+
+/**
+ * Owner's authorization, 2026-11-22 ("Operação Cérebro Comercial", Fase
+ * A, requirement 3: "registre os motivos específicos de rejeição").
+ * `validateAndSanitizeResponse` above stays accept/reject-only for its
+ * existing callers/tests — these prove the DETAILED reason each specific
+ * rejection path reports, which analyze-candidate.ts now surfaces as a
+ * real, auditable fallbackReason instead of one generic message.
+ */
+describe("validateAndSanitizeResponseDetailed — specific rejection reasons", () => {
+  it("reports zero_verified_evidence when every claimed key is fabricated", () => {
+    const result = validateAndSanitizeResponseDetailed(
+      { recommendation: "priorizar", commercialScore: 95, confidence: 0.95, favorableArguments: [], risks: [], evidenceUsed: ["trend_falling"], missingData: [] },
+      realInput,
+    );
+    expect(result).toEqual({ ok: false, reason: "zero_verified_evidence" });
+  });
+
+  it("reports invalid_recommendation for a value outside the closed set", () => {
+    const result = validateAndSanitizeResponseDetailed(
+      { recommendation: "comprar_agora", commercialScore: 50, confidence: 0.5, favorableArguments: [], risks: [], evidenceUsed: ["sales_official_rank"], missingData: [] },
+      realInput,
+    );
+    expect(result).toEqual({ ok: false, reason: "invalid_recommendation" });
+  });
+
+  it("reports invalid_commercialScore for a non-numeric score", () => {
+    const result = validateAndSanitizeResponseDetailed(
+      { recommendation: "observar", commercialScore: "alto" as unknown, confidence: 0.5, favorableArguments: [], risks: [], evidenceUsed: [], missingData: [] },
+      realInput,
+    );
+    expect(result).toEqual({ ok: false, reason: "invalid_commercialScore" });
+  });
+
+  it("the EXACT real-world rejection pattern found in the 2026-11-22 controlled test: a title that sounds popular, but salesEvidence is genuinely unknown — the model must not invent sales_official_rank from the title alone", () => {
+    const noSalesEvidenceInput: AnalystEvidenceInput = {
+      ...realInput,
+      title: "Lavadora de Alta Pressão Potente Mais Vendida — Lava Tudo",
+      salesEvidence: { type: "unknown", demandScore: null },
+    };
+    // Even though the title screams "mais vendida", claiming
+    // sales_official_rank is a hallucination — it is not in the real
+    // evidence set for this input, so it must be stripped. The response
+    // still has OTHER genuinely real evidence, so it is accepted, but
+    // with the fabricated sales claim removed.
+    const result = validateAndSanitizeResponseDetailed(
+      {
+        recommendation: "priorizar",
+        commercialScore: 90,
+        confidence: 0.9,
+        favorableArguments: ["Produto muito vendido, conforme o título."],
+        risks: [],
+        evidenceUsed: ["sales_official_rank", "commission_confirmed_individual"],
+        missingData: [],
+      },
+      noSalesEvidenceInput,
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.evidenceUsed).toEqual(["commission_confirmed_individual"]);
+      expect(result.value.evidenceUsed).not.toContain("sales_official_rank");
+    }
   });
 });

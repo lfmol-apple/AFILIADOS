@@ -123,7 +123,7 @@ describe("analyzeCandidate — real orchestration (mocked OpenAI, local dev DB)"
     expect(second.recommendation).toBe(first.recommendation);
   });
 
-  it("falls back when the model's response fails the hallucination guard — never persists a fabricated evaluation", async () => {
+  it("falls back when the model's response fails the hallucination guard — never persists a fabricated evaluation, BUT still records the real billed cost (Fase A fix: rejected responses are billable too)", async () => {
     vi.stubEnv("OPENAI_API_KEY", "sk-test-key-not-real");
     vi.stubGlobal(
       "fetch",
@@ -142,8 +142,73 @@ describe("analyzeCandidate — real orchestration (mocked OpenAI, local dev DB)"
     const result = await analyzeCandidate(baseInput);
     expect(result.isFallback).toBe(true);
     expect(result.recommendation).toBe("observar");
+    expect(result.fallbackReason).toContain("evidências citadas pelo modelo foram rejeitadas");
+    // The real bug this fixes: a rejected response still consumed real
+    // tokens on OpenAI's side, so it must show up as a real, non-null
+    // cost on the fallback evaluation AND in the spend ledger — never
+    // silently free just because the response was unusable.
+    expect(result.costUsd).toBeGreaterThan(0);
 
     const persisted = await prisma.commercialAnalystEvaluation.findFirst({ where: { merchantListingId: baseInput.merchantListingId } });
     expect(persisted).toBeNull();
+
+    const spend = await prisma.commercialAnalystSpend.findFirst({ where: { note: { contains: baseInput.title.slice(0, 30) } } });
+    expect(spend).not.toBeNull();
+    expect(spend?.amountUsd.toNumber()).toBeGreaterThan(0);
+    expect(spend?.note).toContain("[REJEITADA]");
+  });
+
+  it("never bills an API-level failure (HTTP error) — OpenAI generated no completion to charge for", async () => {
+    vi.stubEnv("OPENAI_API_KEY", "sk-test-key-not-real");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => ({ ok: false, status: 500, json: async () => ({}), text: async () => "internal error" })),
+    );
+    const { analyzeCandidate } = await import("@/lib/services/commercial-intelligence/ai-analyst/analyze-candidate");
+    const result = await analyzeCandidate({ ...baseInput, merchantListingId: `${baseInput.merchantListingId}-api-error` });
+    expect(result.isFallback).toBe(true);
+    expect(result.costUsd).toBeNull();
+    expect(result.fallbackReason).toContain("api_error_500");
+
+    const spend = await prisma.commercialAnalystSpend.findFirst({ where: { note: { contains: baseInput.title.slice(0, 30) } } });
+    expect(spend).toBeNull();
+    await prisma.commercialAnalystEvaluation.deleteMany({ where: { merchantListingId: `${baseInput.merchantListingId}-api-error` } });
+  });
+});
+
+describe("analyzeCandidates — per-run hard cost ceiling (Fase A requirement 2)", () => {
+  afterEach(async () => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+    vi.resetModules();
+  });
+
+  it("blocks a candidate BEFORE calling the API once the run's cost ceiling would be at risk of being exceeded", async () => {
+    vi.stubEnv("OPENAI_API_KEY", "sk-test-key-not-real");
+    const fetchSpy = mockOpenAiResponse({
+      recommendation: "observar",
+      commercialScore: 50,
+      confidence: 0.5,
+      favorableArguments: [],
+      risks: [],
+      evidenceUsed: ["sales_official_rank"],
+      missingData: [],
+    });
+    vi.stubGlobal("fetch", fetchSpy);
+    const { analyzeCandidates } = await import("@/lib/services/commercial-intelligence/ai-analyst/analyze-candidate");
+
+    const inputs = [0, 1, 2].map((i) => ({ ...baseInput, merchantListingId: `${baseInput.merchantListingId}-ceiling-${i}` }));
+    // A ceiling smaller than even the pessimistic single-call estimate —
+    // the very first candidate must be skipped WITHOUT ever calling fetch.
+    const results = await analyzeCandidates(inputs, { maxTotalCostUsd: 0.0000001 });
+
+    expect(results).toHaveLength(3);
+    expect(results.every((r) => r.isFallback)).toBe(true);
+    expect(results[0]?.fallbackReason).toContain("Teto de custo desta execução");
+    expect(fetchSpy).not.toHaveBeenCalled();
+
+    for (const input of inputs) {
+      await prisma.commercialAnalystEvaluation.deleteMany({ where: { merchantListingId: input.merchantListingId } });
+    }
   });
 });

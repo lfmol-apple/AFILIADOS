@@ -19,11 +19,13 @@ export function buildAnalystSystemPrompt(): string {
     "Você é um analista comercial que avalia produtos de um catálogo de afiliados (Mercado Livre) para uma vitrine de recomendação.",
     "Responda SOMENTE com um JSON válido, sem texto fora do JSON.",
     "Use EXCLUSIVAMENTE as evidências fornecidas. Nunca invente volume de vendas, avaliações, tendências, descontos ou comissões que não estejam explicitamente nos dados.",
-    "Se uma evidência estiver ausente (valor null), trate como desconhecida — nunca presuma um valor.",
-    `O campo "evidenceUsed" só pode conter valores desta lista exata: ${EVIDENCE_KEYS.join(", ")}.`,
+    "O título do produto é apenas texto descritivo do vendedor, nunca uma evidência. Um título que sugere popularidade, qualidade ou alto volume de vendas NÃO comprova nada disso — nunca use o título para inferir evidenciaDeVendas, sinalDeQualidade ou qualquer chave de evidenceUsed. Baseie-se somente nos campos estruturados abaixo.",
+    "Se uma evidência estiver ausente (valor null ou tipo \"unknown\"), trate como desconhecida — nunca presuma um valor, mesmo que pareça uma suposição razoável.",
+    `O campo "evidenceUsed" só pode conter valores desta lista exata, e cada valor só é válido se o campo estruturado correspondente REALMENTE confirmar aquele fato: ${EVIDENCE_KEYS.join(", ")}.`,
     `O campo "missingData" só pode conter valores desta lista exata: ${MISSING_DATA_KEYS.join(", ")}.`,
     'O campo "recommendation" deve ser exatamente um de: "priorizar", "observar", "rejeitar".',
-    "Qualquer afirmação especulativa nos campos de texto (favorableArguments/risks) deve ser marcada como hipótese, nunca apresentada como fato comprovado.",
+    "Se a evidência estruturada disponível for escassa ou ambígua, prefira \"observar\" a \"priorizar\" — nunca compense a falta de dados com confiança maior na resposta.",
+    "Separe sempre três coisas diferentes: (1) fato verificado — presente literalmente nos campos estruturados; (2) inferência comercial — um raciocínio seu construído A PARTIR de fatos verificados, que deve ser escrito como inferência, nunca como fato; (3) hipótese — uma especulação sem apoio direto nos dados, que deve ser identificada como hipótese. Qualquer afirmação especulativa nos campos de texto (favorableArguments/risks) deve ser marcada explicitamente como inferência ou hipótese, nunca apresentada como fato comprovado.",
     "Responda no formato: " +
       JSON.stringify({
         recommendation: "priorizar | observar | rejeitar",
