@@ -1,5 +1,9 @@
-import type { PooledCandidate } from "@/lib/services/vitrine-selection";
+import type { PooledCandidate, VitrineCandidate } from "@/lib/services/vitrine-selection";
 import { calculateVitrineScoreLegacyV2 } from "@/lib/services/commercial-intelligence/legacy/vitrine-score-v2-frozen";
+import { toAnalystEvidenceInput } from "@/lib/services/commercial-intelligence/ai-analyst/candidate-adapter";
+import { analyzeCandidates } from "@/lib/services/commercial-intelligence/ai-analyst/analyze-candidate";
+import { applyAnalystSafetyFilter } from "@/lib/services/commercial-intelligence/ai-analyst/safety-filter";
+import type { AnalystEvaluation } from "@/lib/services/commercial-intelligence/ai-analyst/types";
 
 /**
  * Commercial Intelligence Lab — four methodologies, owner's authorization
@@ -28,7 +32,8 @@ export type LabMethodology =
   | "commission_only"
   | "commission_current_only"
   | "legacy_v2"
-  | "multifactor_v3";
+  | "multifactor_v3"
+  | "ai_assisted_v1";
 
 export const LAB_METHODOLOGY_LABELS: Record<LabMethodology, string> = {
   official_rank_only: "A — Ranking oficial de vendas (Mercado Livre)",
@@ -37,6 +42,7 @@ export const LAB_METHODOLOGY_LABELS: Record<LabMethodology, string> = {
   commission_current_only: "C — Maior comissão vigente e confirmada (exclui histórico)",
   legacy_v2: "D — Algoritmo anterior às correções (congelado, commit 1cbf7e6)",
   multifactor_v3: "E — Inteligência comercial multifatorial (atual)",
+  ai_assisted_v1: "F — Multifatorial + Analista Comercial de IA (filtro eliminativo, 2026-11-22)",
 };
 
 export const ALGORITHM_VERSIONS: Record<LabMethodology, string> = {
@@ -46,6 +52,7 @@ export const ALGORITHM_VERSIONS: Record<LabMethodology, string> = {
   commission_current_only: "baseline-v1",
   legacy_v2: "1cbf7e6",
   multifactor_v3: "v3-2026-11-19",
+  ai_assisted_v1: "ai-v1-2026-11-22",
 };
 
 export interface LabRankedItem {
@@ -184,6 +191,60 @@ export function rankByMultifactorV3(
       discoverySource: c.discoverySource,
       evidenceSnapshot: toEvidenceSnapshot(c),
     }));
+}
+
+/**
+ * F — multifactorial ranking (rankByMultifactorV3's SAME order, same
+ * weights, nothing changed) + the AI Commercial Analyst as an
+ * ELIMINATION-ONLY safety filter on top (owner's authorization,
+ * 2026-11-22, "Motor de Inteligência Comercial com IA", section 4: "não
+ * substitua o ranking inteiro por uma opinião do modelo"). Only the
+ * extended candidate pool (limit + buffer) is ever sent to the AI —
+ * never the whole universe — bounding real cost to a few dozen cheap
+ * text-model calls per run, cached per (listing, evidence) so an
+ * unchanged candidate is never re-evaluated.
+ *
+ * Never calls the real API without a configured key/budget — see
+ * analyzeCandidate's own fallback contract (always "observar", never
+ * silently indistinguishable from a real evaluation). A fallback never
+ * vetoes anything (safety-filter.ts), so running this methodology with
+ * no AI configured degrades EXACTLY to multifactor_v3, never to an
+ * error or a different ranking.
+ */
+export async function rankByAiAssisted(
+  extendedRankedPool: readonly VitrineCandidate[],
+  pool: readonly PooledCandidate[],
+  limit: number,
+): Promise<{ items: LabRankedItem[]; evaluations: AnalystEvaluation[] }> {
+  // Looks up each candidate's REAL PooledCandidate (price, full evidence
+  // objects) by id — never fabricates a value VitrineCandidate alone
+  // doesn't carry (it has no price field at all). A candidate genuinely
+  // missing from the pool (should not happen — both come from the same
+  // buildCommercialCandidatePool() run) is skipped, never given a
+  // placeholder price.
+  const poolByListingId = new Map(pool.map((c) => [c.merchantListingId, c]));
+  const evidenceInputs = extendedRankedPool
+    .map((c) => poolByListingId.get(c.merchantListingId))
+    .filter((c): c is PooledCandidate => c !== undefined)
+    .map(toAnalystEvidenceInput);
+  const evaluations = await analyzeCandidates(evidenceInputs);
+  const evaluationsByListing = new Map(evaluations.map((e) => [e.merchantListingId, e]));
+
+  const { picked } = applyAnalystSafetyFilter(extendedRankedPool, evaluationsByListing, limit);
+
+  const items: LabRankedItem[] = picked.map((c, i) => ({
+    merchantListingId: c.merchantListingId,
+    title: c.title,
+    rank: i + 1,
+    criterionValue: c.rankingScore,
+    discoverySource: null,
+    evidenceSnapshot: {
+      rankingScore: c.rankingScore,
+      aiEvaluation: evaluationsByListing.get(c.merchantListingId) ?? null,
+    },
+  }));
+
+  return { items, evaluations };
 }
 
 /**

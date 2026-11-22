@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { buildCommercialCandidatePool, selectVitrineCandidates } from "@/lib/services/vitrine-selection";
+import { buildCommercialCandidatePool, selectVitrineCandidates, pickGlobalVitrineSelection } from "@/lib/services/vitrine-selection";
 import {
   rankByOfficialRankOnly,
   rankByPanelRecommended,
@@ -7,10 +7,18 @@ import {
   rankByCurrentCommissionOnly,
   rankByLegacyV2,
   rankByMultifactorV3,
+  rankByAiAssisted,
   ALGORITHM_VERSIONS,
   type LabMethodology,
   type LabRankedItem,
 } from "@/lib/services/commercial-intelligence/lab/methodologies";
+
+/** Owner's authorization, 2026-11-22 ("Motor de Inteligência Comercial
+ * com IA", section 6: pré-filtragem antes da IA, custo bounded). The AI
+ * is only ever shown this many extra candidates beyond LIMIT — enough
+ * real headroom to backfill a handful of AI-rejected picks, never the
+ * whole universe. */
+const AI_ASSISTED_BUFFER = 10;
 
 const CHECKPOINT_DAYS = [7, 15, 30, 60, 90] as const;
 const LIMIT = 30;
@@ -51,6 +59,14 @@ export async function runCommercialIntelligenceLab(): Promise<LabComparisonSumma
   const v3Result = await selectVitrineCandidates(LIMIT);
   const v3ScoreByListingId = new Map(v3Result.candidates.map((c) => [c.merchantListingId, c.rankingScore]));
 
+  // ai_assisted_v1's own extended, diversity-capped pool (LIMIT + buffer)
+  // — reuses pickGlobalVitrineSelection exactly as selectVitrineCandidates
+  // does, just with a larger limit so the AI safety filter has real
+  // backfill headroom. Never a second, competing ranking formula.
+  const activeEventNamesForReport = v3Result.activeEvents.map((a) => a.name).join(", ") || "nenhum";
+  const { picked: extendedRankedPool } = pickGlobalVitrineSelection(v3Result.allScored, LIMIT + AI_ASSISTED_BUFFER, activeEventNamesForReport);
+  const aiAssisted = await rankByAiAssisted(extendedRankedPool, pool, LIMIT);
+
   const rankings: Record<LabMethodology, LabRankedItem[]> = {
     official_rank_only: rankByOfficialRankOnly(pool, LIMIT),
     panel_recommended: rankByPanelRecommended(pool, LIMIT),
@@ -58,6 +74,7 @@ export async function runCommercialIntelligenceLab(): Promise<LabComparisonSumma
     commission_current_only: rankByCurrentCommissionOnly(pool, LIMIT),
     legacy_v2: rankByLegacyV2(pool, LIMIT),
     multifactor_v3: rankByMultifactorV3(pool, LIMIT, v3ScoreByListingId),
+    ai_assisted_v1: aiAssisted.items,
   };
 
   // Discovery-capability axis (owner's requirement, evaluated separately
@@ -77,6 +94,7 @@ export async function runCommercialIntelligenceLab(): Promise<LabComparisonSumma
     commission_current_only: null,
     legacy_v2: countNewDiscoveries(rankings.legacy_v2),
     multifactor_v3: countNewDiscoveries(rankings.multifactor_v3),
+    ai_assisted_v1: countNewDiscoveries(rankings.multifactor_v3), // same ranking base as multifactor_v3 — the AI layer is eliminative, never a discovery mechanism of its own.
   };
 
   const summary: LabComparisonSummary = {
@@ -103,7 +121,9 @@ export async function runCommercialIntelligenceLab(): Promise<LabComparisonSumma
                 ? "Exclui comissão histórica/de categoria — só observação individual fresca (<=45 dias) ou campanha de ganhos extras ativa."
                 : methodology === "panel_recommended"
                   ? "Produtos que o próprio painel de afiliados do Mercado Livre apresentou como destaque (mais vendido/recomendado/ganhos extras), lido ao vivo — ver data/ml-panel-reads/."
-                  : null,
+                  : methodology === "ai_assisted_v1"
+                    ? "Mesmo ranking do multifactor_v3 — o Analista Comercial de IA só pode REMOVER um candidato (nunca promover um mais fraco), ver lib/services/commercial-intelligence/ai-analyst/safety-filter.ts."
+                    : null,
       },
     });
 
