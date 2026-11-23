@@ -650,12 +650,30 @@ describe("ML_SHOPEE_CYCLE lock", () => {
   it("rejects a second cycle run while the first is still in progress", async () => {
     // Ambient .env has real ML/Shopee credentials configured (matching
     // production), so each step genuinely attempts a network call rather
-    // than failing fast on a missing-config check — the mock below adds a
-    // deliberate delay so the first cycle is still verifiably RUNNING when
-    // the second call races it (same technique tests/jobs-cycle-lock.test.ts
-    // relies on the real 13-job Amazon cycle's own natural duration for).
+    // than failing fast on a missing-config check — the mock below gates
+    // on a manually-released promise (never a fixed delay) so the first
+    // cycle is provably still RUNNING for as long as this test needs,
+    // regardless of system load.
+    //
+    // Real root cause fixed (2026-11-23), in two layers: (1) a fixed 30ms
+    // guess racing runJob()'s own lock write (findFirst + create, not
+    // atomic) — fixed by polling the real AutomationRun row instead of
+    // guessing a delay. (2) discovered when running the FULL suite
+    // (never reproduced running this file alone): a fixed 200ms mocked
+    // fetch delay is not a safe margin either — under full-suite system
+    // load the SECOND call's own findFirst+create round trip can take
+    // longer than 200ms, so by the time it runs, the first cycle's mocked
+    // fetch had already resolved and the job had already finished and
+    // released the lock, so the second call legitimately succeeds
+    // instead of rejecting. A fixed delay of any length is a guess about
+    // load that will eventually be wrong; a manually-released gate has
+    // no such assumption.
+    let releaseFetch: () => void = () => {};
+    const fetchGate = new Promise<void>((resolve) => {
+      releaseFetch = resolve;
+    });
     const fetchSpy = vi.fn(async () => {
-      await new Promise((r) => setTimeout(r, 200));
+      await fetchGate;
       return { ok: false, status: 500, json: async () => ({}) };
     });
     vi.stubGlobal("fetch", fetchSpy);
@@ -663,17 +681,11 @@ describe("ML_SHOPEE_CYCLE lock", () => {
     const { runMlShopeeCycle } = await import("@/jobs/run-ml-shopee-cycle");
 
     const first = runMlShopeeCycle();
-    // Real root cause fixed (2026-11-23): a fixed 30ms guess races
-    // runJob()'s own lock write (findFirst + create, not atomic) — under
-    // load/GC pauses the second call's own findFirst can run before the
-    // first call's create has committed, so BOTH read "not running" and
-    // the test flakes. Poll for the real AutomationRun row to actually
-    // reach RUNNING instead of guessing a delay — a deterministic
-    // barrier, not a longer guess.
     await waitForAutomationRunStatus("ML_SHOPEE_CYCLE", "RUNNING");
 
     await expect(runMlShopeeCycle()).rejects.toThrow(/already running/);
 
+    releaseFetch();
     await first;
   }, 30000);
 
