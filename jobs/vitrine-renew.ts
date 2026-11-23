@@ -7,6 +7,7 @@ import { buildRoundCandidateRows } from "@/lib/services/vitrine-selection-round-
 import { getLegacyVitrineId } from "@/lib/services/vitrine-manager";
 import type { VitrineScoreResult } from "@/lib/services/vitrine-score";
 import { logger } from "@/lib/observability/logger";
+import { countRecentCommercialSwaps } from "@/lib/services/vitrine-rotation-budget";
 
 /** Owner's directive, 2026-11-21 ("Registrar motivos de retirada"):
  * short, complete, human-readable label for every real DiscardedCandidate
@@ -191,8 +192,22 @@ export async function runVitrineRenewJob() {
     // than a dedicated event log — every genuine entry/replacement sets
     // this timestamp, so counting rows activated in the last 7 days IS
     // counting replacement events, with no extra schema needed.
+    //
+    // Real root cause fixed, 2026-11-23 ("correção do orçamento de
+    // rotação"): confirmed live — 8 real VITRINE_RENEW executions inside
+    // a ~20h window (2026-11-19/20, cross-referenced against real
+    // AutomationRun rows) were the initial build/test of the multi-
+    // vitrine feature, not 8 weeks of real commercial decisions, yet
+    // they exhausted the budget for a human approving a REAL decision
+    // days later. `activationSource` (schema.prisma's own doc comment
+    // has the full real investigation) now distinguishes a genuine
+    // engine-driven commercial swap from that kind of pre-production
+    // burst — only "engine_commercial_swap" ever counts toward the
+    // budget; a row with no activationSource at all (legacy, predating
+    // this field) is treated the same as excluded, never silently
+    // counted just because the field is missing.
     const sevenDaysAgo = new Date(Date.now() - 7 * 86_400_000);
-    const recentEntries = await prisma.vitrineSelection.count({ where: { activatedAt: { gte: sevenDaysAgo } } });
+    const recentEntries = await countRecentCommercialSwaps(sevenDaysAgo);
     const weeklyBudgetRemaining = Math.max(0, VITRINE_MAX_WEEKLY_REPLACEMENTS - recentEntries);
     const rotationBudget = Math.min(VITRINE_MAX_DAILY_REPLACEMENTS, weeklyBudgetRemaining);
 
@@ -315,6 +330,7 @@ export async function runVitrineRenewJob() {
           scoreBreakdown: breakdownWithEvidence(candidate),
           reason: candidate.reason,
           activatedAt: new Date(),
+          activationSource: "engine_commercial_swap",
         },
         update: {
           canonicalProductId: candidate.canonicalProductId,
@@ -322,6 +338,7 @@ export async function runVitrineRenewJob() {
           groupType: candidate.group,
           score: candidate.score,
           scoreBreakdown: breakdownWithEvidence(candidate),
+          activationSource: "engine_commercial_swap",
           reason: candidate.reason,
           activatedAt: new Date(),
           retiredAt: null,

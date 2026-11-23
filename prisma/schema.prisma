@@ -757,6 +757,32 @@ model VitrineSelection {
   reason         String
 
   activatedAt   DateTime?
+  /// Owner's authorization, 2026-11-23 ("Operação Cérebro Comercial" —
+  /// correção do orçamento de rotação): real root cause found — the
+  /// weekly rotation budget (VITRINE_MAX_WEEKLY_REPLACEMENTS) counts
+  /// EVERY row with a recent `activatedAt`, with no way to tell a real
+  /// commercial swap decision apart from a burst of development/testing
+  /// runs. Confirmed live: 8 real VITRINE_RENEW executions inside a
+  /// ~20h window (2026-11-19 21:47 to 2026-11-20 17:01, cross-referenced
+  /// against real AutomationRun rows) were the initial build/test of the
+  /// multi-vitrine feature, not 8 weeks of real rotation — yet they
+  /// exhausted the real budget for a human approving a real decision
+  /// today. Not a migration artifact (the 2026-11-22 multi-vitrine
+  /// migration never touches activatedAt — confirmed by reading its SQL).
+  /// "engine_commercial_swap": a real newcomer created by
+  /// jobs/vitrine-renew.ts's own rotation logic — cron-triggered or
+  /// admin-approved, same code path, always counts toward the budget.
+  /// "pre_production_testing": the 36 rows above, confirmed via
+  /// AutomationRun timestamps to be development-time iteration, not a
+  /// real weekly decision — backfilled ONCE, with real evidence, never
+  /// counts toward the budget. "manual_data_correction": reserved for a
+  /// future direct admin edit outside the engine — never implemented
+  /// yet, never counts. Nullable/additive: a row from before this field
+  /// existed that was never backfilled stays null and is treated the
+  /// same as "pre_production_testing" (excluded) by the counting query,
+  /// never silently treated as a real swap just because the field is
+  /// missing.
+  activationSource String?
   retiredAt     DateTime?
   /// Owner's directive, 2026-11-21 ("Registrar motivos de retirada"):
   /// `reason` is reused from the ORIGINAL selection and jobs/vitrine-
