@@ -336,4 +336,57 @@ describe("fluxo de aprovação (mesma verificação da rota POST /api/admin/vitr
     }
     expect(fresh.fingerprint).not.toBe(staleToken); // a rota real recusaria (409) com este token
   });
+
+  // Owner's authorization, 2026-11-23 (follow-up, item 4: "não basta que
+  // a função seja chamada: sua decisão precisa chegar efetivamente à
+  // proposta de renovação"). Real proof that computeVitrineRenewalDecision()
+  // uses the SNAPSHOT'S order, not the raw deterministic rankingScore
+  // order, whenever they genuinely differ — the exact link that would
+  // silently break if a future refactor re-sorted candidates by score
+  // after reading the snapshot, or read the wrong field.
+  it("a ordem do snapshot (não o rankingScore bruto) é o que chega aos candidatos reais da decisão de renovação", async () => {
+    const low = await seedListing(`${TEST_PREFIX}ordem-baixo`);
+    const high = await seedListing(`${TEST_PREFIX}ordem-alto`);
+    for (const { merchant, listing } of [low, high]) {
+      await prisma.affiliateLinkRegistry.create({
+        data: {
+          merchantListingId: listing.id,
+          merchantId: merchant.id,
+          publicUrl: listing.productUrl,
+          affiliateUrl: `https://produto.mercadolivre.com.br/${listing.externalId}?matt_tool=precocaindo`,
+          attributionTag: "precocaindo",
+          source: "MANUAL_ADMIN",
+          status: "ACTIVE",
+        },
+      });
+    }
+    // O snapshot lista o de rankingScore BAIXO primeiro — o inverso da
+    // ordem determinística pura — exatamente o que um ajuste de
+    // prioridade real produziria.
+    await createGenuineSnapshot({ referenceDate: new Date(), listingIds: [low.listing.id, high.listing.id] });
+
+    const lowCandidate = fakeCandidate(low.listing, { merchantListingId: low.listing.id, rankingScore: 40, score: 40 });
+    const highCandidate = fakeCandidate(high.listing, { merchantListingId: high.listing.id, rankingScore: 95, score: 95 });
+    // Pool determinístico na ordem NORMAL (alto -> baixo) — se a decisão
+    // usasse essa ordem em vez da do snapshot, o teste abaixo falharia.
+    vi.doMock("@/lib/services/vitrine-selection", () => ({
+      selectVitrineCandidates: vi.fn().mockResolvedValue({
+        candidates: [highCandidate, lowCandidate],
+        allScored: [highCandidate, lowCandidate],
+        discarded: [],
+        funnel: { foundInDatabase: 2, afterDedup: 2, discardedNoPrice: 0, discardedIneligible: 0, evaluated: 2 },
+        activeEvents: [],
+        groupReport: [],
+      }),
+    }));
+    vi.resetModules();
+    const { computeVitrineRenewalDecision } = await import("@/lib/services/vitrine-renewal-decision");
+
+    const decision = await computeVitrineRenewalDecision();
+    expect(decision.blocked).toBe(false);
+    if (decision.blocked) return;
+
+    expect(decision.candidates.map((c) => c.merchantListingId)).toEqual([low.listing.id, high.listing.id]);
+    expect(decision.newcomers.map((c) => c.merchantListingId)).toEqual([low.listing.id, high.listing.id]);
+  });
 });
