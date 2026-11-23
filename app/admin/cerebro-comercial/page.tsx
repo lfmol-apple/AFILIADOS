@@ -41,6 +41,11 @@ export default async function CerebroComercialPage() {
         </a>
       </p>
       <h1 className="mt-2 text-2xl font-semibold">Cérebro Comercial</h1>
+      <p className="mt-1 text-sm">
+        <a href="/admin/cerebro-comercial/revisao" className="text-brand underline">
+          Revisão da Vitrine Geral (prévia + aprovação) →
+        </a>
+      </p>
       <p className="text-foreground/70 mt-2 text-sm leading-relaxed">
         Lê exclusivamente dados já persistidos (seleção real da Vitrine Geral, avaliações de IA já pagas, cliques reais, relatórios de
         comissão) — nunca recalcula o pool completo nem chama a IA ao carregar esta página. Gerado em {data.generatedAt.toLocaleString("pt-BR")}.
