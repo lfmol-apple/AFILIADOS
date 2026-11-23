@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
  * action that writes real ACTIVE/RETIRED rows to the real Vitrine
  * Geral. `window.confirm` is a deliberate second gate, not decoration.
  */
-export function VitrineRenewApproveButton() {
+export function VitrineRenewApproveButton({ previewToken }: { previewToken: string }) {
   const router = useRouter();
   const [state, setState] = useState<"idle" | "running" | "done" | "error">("idle");
   const [message, setMessage] = useState("");
@@ -26,7 +26,7 @@ export function VitrineRenewApproveButton() {
       const response = await fetch("/api/admin/vitrine-renew-approve", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ confirm: true }),
+        body: JSON.stringify({ confirm: true, previewToken }),
       });
       const data = (await response.json().catch(() => ({}))) as { error?: string; counters?: Record<string, number> };
       if (!response.ok) {

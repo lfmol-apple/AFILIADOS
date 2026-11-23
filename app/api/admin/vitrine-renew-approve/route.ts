@@ -3,19 +3,26 @@ import { z } from "zod";
 import { cookies } from "next/headers";
 import { ADMIN_SESSION_COOKIE, isAdminRequestAuthorized } from "@/lib/admin/auth";
 import { runVitrineRenewJob } from "@/jobs/vitrine-renew";
+import { computeVitrineRenewalDecision } from "@/lib/services/vitrine-renewal-decision";
 
-const bodySchema = z.object({ confirm: z.literal(true) });
+const bodySchema = z.object({ confirm: z.literal(true), previewToken: z.string().min(1) });
 
 /**
- * Owner's authorization, 2026-11-22 ("Operação Cérebro Comercial", item
- * 2: "implemente uma prévia de alterações com aprovação explícita...
- * nenhuma aprovação simulada pode alterar produção"). This calls the
- * REAL, unmodified runVitrineRenewJob() — the exact same function the
- * manual script invocation runs — never a parallel write path. Nothing
- * here is simulated: whatever DATABASE_URL this process is configured
- * with is where it writes, same as any other job. `confirm: true` is
- * required in the body (not just a UI click) so this can never be
- * triggered by an accidental GET, a CSRF-able link, or a stray request.
+ * Owner's authorization, 2026-11-22/23 ("Operação Cérebro Comercial"):
+ * "nenhuma aprovação simulada pode alterar produção"; item 3: "se os
+ * dados mudaram entre prévia e aprovação, interrompa e exija nova
+ * revisão." This calls the REAL, unmodified runVitrineRenewJob() —
+ * never a parallel write path, never simulated. Whatever DATABASE_URL
+ * this process is configured with is where it writes.
+ *
+ * `previewToken` must match a FRESH recomputation of the exact same
+ * decision (same AI snapshot id + same current ACTIVE set) taken right
+ * before applying — if either changed since the preview was shown
+ * (someone else approved, the AI snapshot was refreshed, a link
+ * changed), the fingerprints differ and this refuses, asking for a new
+ * preview instead of applying a decision the person on screen never
+ * actually saw. Real double-click protection on top of this: runJob()
+ * already refuses a second concurrent VITRINE_RENEW execution.
  */
 export async function POST(request: Request) {
   const cookieStore = await cookies();
@@ -24,7 +31,18 @@ export async function POST(request: Request) {
   }
   const parsed = bodySchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
-    return NextResponse.json({ error: "Confirmação explícita obrigatória." }, { status: 400 });
+    return NextResponse.json({ error: "Confirmação explícita e token da prévia são obrigatórios." }, { status: 400 });
+  }
+
+  const fresh = await computeVitrineRenewalDecision();
+  if (fresh.blocked) {
+    return NextResponse.json({ error: `Bloqueado: ${fresh.reason}` }, { status: 409 });
+  }
+  if (fresh.fingerprint !== parsed.data.previewToken) {
+    return NextResponse.json(
+      { error: "Os dados mudaram desde a prévia mostrada — gere uma nova revisão antes de aprovar." },
+      { status: 409 },
+    );
   }
 
   try {
