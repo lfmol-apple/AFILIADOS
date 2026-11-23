@@ -1,12 +1,14 @@
 import { prisma } from "@/lib/db";
 import { runJob } from "@/lib/jobs/automation-run";
-import { selectVitrineCandidates, type VitrineCandidate, type DiscardedCandidate } from "@/lib/services/vitrine-selection";
+import type { VitrineCandidate, DiscardedCandidate } from "@/lib/services/vitrine-selection";
 import { registerCandidate } from "@/lib/services/commercial-intelligence/candidate-registry";
 import { auditCandidate } from "@/lib/services/commercial-intelligence/commercial-audit";
 import { buildRoundCandidateRows } from "@/lib/services/vitrine-selection-round-persistence";
 import { getLegacyVitrineId } from "@/lib/services/vitrine-manager";
 import type { VitrineScoreResult } from "@/lib/services/vitrine-score";
 import { logger } from "@/lib/observability/logger";
+import { countRecentCommercialSwaps } from "@/lib/services/vitrine-rotation-budget";
+import { computeVitrineRenewalDecision } from "@/lib/services/vitrine-renewal-decision";
 
 /** Owner's directive, 2026-11-21 ("Registrar motivos de retirada"):
  * short, complete, human-readable label for every real DiscardedCandidate
@@ -118,43 +120,55 @@ const VITRINE_MAX_WEEKLY_REPLACEMENTS = Number(
  * never protected by this: removing a broken offer is immediate, always.
  */
 const VITRINE_MIN_OBSERVATION_DAYS = Number(process.env.VITRINE_MIN_OBSERVATION_DAYS ?? 3);
-// Owner's finding, 2026-11-20 ("Auditoria Contínua"): a title that turns
-// out to carry strong foreign-language markers is not "merely
-// outranked" — it's the same kind of structural invalidity as an
-// ineligible or untrustworthy price, and the independent audit
-// (commercial-audit.ts) already reprova it outright. Confirmed live:
-// without this, "Taza Termica... Vaca Lechera" and "Warm Snow Boots..."
-// sat PROTECTED by minimum-observation-time despite being correctly
-// flagged "reprovado" — removing a genuinely invalid offer must never
-// wait out a protection window meant for ranking noise, not for this.
-const DISQUALIFYING_DISCARD_REASONS = new Set([
-  "sem_preco_confirmado",
-  "inelegivel_para_anuncio",
-  "preco_nao_confiavel",
-  "descricao_inadequada",
-  // Owner's requirement, 2026-11-20 ("Primeiro teste real da Vitrine",
-  // item 1): "remova automaticamente... não dependa de remoção manual."
-  // A product the independent commercial audit reproves (see
-  // commercial-audit.ts, now evaluated INSIDE selectVitrineCandidates)
-  // is a real commercial-quality failure, never mere ranking noise —
-  // removing it is immediate, same as an ineligible or untrustworthy
-  // price, never shielded by the minimum-observation-time protection.
-  "reprovado_auditoria",
-]);
-
 export async function runVitrineRenewJob() {
   return runJob("VITRINE_RENEW", async (ctx) => {
     const vitrineId = await getLegacyVitrineId();
     ctx.metadata.legacyMonetizationScoreCandidatesRegistered = await registerLegacyMonetizationScoreCandidates();
-    const { candidates, allScored, groupReport, discarded, funnel, activeEvents } =
-      await selectVitrineCandidates(VITRINE_CAPACITY);
+
+    // Owner's authorization, 2026-11-23 ("Operação Cérebro Comercial" —
+    // conectar a inteligência à seleção real), item 1/3: this whole
+    // decision — AI-validated order, eligibility, rotation budget,
+    // link-readiness — is computed by the SAME shared, pure function the
+    // /admin/cerebro-comercial/revisao preview calls, so the two can
+    // never drift apart. Never an AI call here; the decision only reads
+    // what jobs/commercial-lab-run.ts already computed and persisted
+    // offline.
+    const decision = await computeVitrineRenewalDecision();
+    if (decision.blocked) {
+      ctx.metadata.blocked = true;
+      ctx.metadata.blockedReason = decision.reason;
+      logger.warn("vitrine_renew.blocked", { reason: decision.reason });
+      return;
+    }
+    const {
+      current,
+      candidates,
+      allScored,
+      discarded,
+      funnel,
+      activeEvents,
+      groupReport,
+      rotationBudget,
+      weeklyBudgetRemainingBeforeThisRun,
+      invalidNow,
+      outrankedToRetire,
+      outrankedDeferredByBudget,
+      outrankedProtected,
+      toRetire,
+      newcomers,
+      entrantsAwaitingLink,
+      reserve,
+    } = decision;
     const candidateIds = new Set(candidates.map((c) => c.merchantListingId));
     const scoredById = new Map(allScored.map((c) => [c.merchantListingId, c]));
+    const discardedByListingId = new Map(discarded.filter((d) => d.merchantListingId).map((d) => [d.merchantListingId!, d]));
+    const recentEntries = await countRecentCommercialSwaps(new Date(Date.now() - 7 * 86_400_000));
 
-    const current = await prisma.vitrineSelection.findMany({
-      where: { vitrineId, status: "ACTIVE" },
-    });
-    const currentIds = new Set(current.map((c) => c.merchantListingId));
+    ctx.metadata.aiSnapshotId = decision.aiSnapshotId;
+    ctx.metadata.aiSnapshotReferenceDate = decision.aiSnapshotReferenceDate.toISOString();
+    ctx.metadata.aiSnapshotOverlapRatio = decision.aiSnapshotOverlapRatio;
+    if (decision.criticNotes) ctx.metadata.aiCriticNotes = decision.criticNotes;
+    ctx.metadata.entrantsAwaitingLink = entrantsAwaitingLink.length;
 
     // Owner's finding, 2026-11-20 ("Auditoria Contínua", section 4): this
     // used to refresh ONLY products still in the top-30 `candidates` —
@@ -183,51 +197,6 @@ export async function runVitrineRenewJob() {
       ctx.counters.updated += 1;
     }
 
-    // Owner's authorization, 2026-11-20 ("Ordem de Execução", section 9):
-    // the real, binding rotation budget is per WEEK (10% of capacity, 3
-    // for a 30-slot showcase), not per day — a fixed 4/day cap alone could
-    // still churn most of the showcase across one week. Measured off
-    // `activatedAt` across every row (active + reserve + retired) rather
-    // than a dedicated event log — every genuine entry/replacement sets
-    // this timestamp, so counting rows activated in the last 7 days IS
-    // counting replacement events, with no extra schema needed.
-    const sevenDaysAgo = new Date(Date.now() - 7 * 86_400_000);
-    const recentEntries = await prisma.vitrineSelection.count({ where: { activatedAt: { gte: sevenDaysAgo } } });
-    const weeklyBudgetRemaining = Math.max(0, VITRINE_MAX_WEEKLY_REPLACEMENTS - recentEntries);
-    const rotationBudget = Math.min(VITRINE_MAX_DAILY_REPLACEMENTS, weeklyBudgetRemaining);
-
-    const discardedByListingId = new Map(discarded.filter((d) => d.merchantListingId).map((d) => [d.merchantListingId!, d]));
-    const droppedFromCandidates = current.filter((c) => !candidateIds.has(c.merchantListingId));
-
-    // Genuinely invalid now (gone, out of stock, policy-ineligible, price
-    // became untrustworthy) — removed the same cycle it's found broken,
-    // never protected by minimum-observation-time, never rate-limited by
-    // the rotation budget (owner's explicit split, section 9: "remoção de
-    // ofertas inválidas" is immediate; the budget is only for discretionary
-    // "better candidate found" swaps).
-    const invalidNow = droppedFromCandidates.filter((c) => {
-      const d = discardedByListingId.get(c.merchantListingId);
-      return Boolean(d && DISQUALIFYING_DISCARD_REASONS.has(d.reason));
-    });
-
-    // Merely outranked this cycle (not structurally broken) — protected
-    // until VITRINE_MIN_OBSERVATION_DAYS have passed since activation
-    // (owner's requirement: "proteção contra conclusões com amostra
-    // insuficiente"), and even once eligible, limited to what the
-    // rotation budget still allows this week.
-    const now = Date.now();
-    const outrankedProtected: typeof droppedFromCandidates = [];
-    const outrankedEligible = droppedFromCandidates.filter((c) => {
-      if (invalidNow.includes(c)) return false;
-      const observedLongEnough = !c.activatedAt || now - c.activatedAt.getTime() >= VITRINE_MIN_OBSERVATION_DAYS * 86_400_000;
-      if (!observedLongEnough) outrankedProtected.push(c);
-      return observedLongEnough;
-    });
-    const outrankedToRetire = outrankedEligible.slice(0, rotationBudget);
-    const outrankedDeferredByBudget = outrankedEligible.slice(rotationBudget);
-
-    const toRetire = [...invalidNow, ...outrankedToRetire];
-
     // Same finding as above, the other half of it: a dropped product
     // that isn't even in the broader sufficiency-passing pool anymore
     // (evidência ficou insuficiente, não só "superado por outro") has no
@@ -236,6 +205,7 @@ export async function runVitrineRenewJob() {
     // instead of leaving yesterday's "why it was picked" standing as if
     // still true. Skipped for rows about to be retired this cycle —
     // they get status+retiredAt updated below instead.
+    const droppedFromCandidates = current.filter((c) => !candidateIds.has(c.merchantListingId));
     const toRetireIds = new Set(toRetire.map((r) => r.id));
     for (const row of droppedFromCandidates) {
       if (scoredById.has(row.merchantListingId) || toRetireIds.has(row.id)) continue;
@@ -266,16 +236,6 @@ export async function runVitrineRenewJob() {
       });
       ctx.counters.updated += 1;
     }
-
-    // Newcomers fill: any genuine capacity headroom, plus exactly the
-    // slots just freed above — never more. The very first run (current
-    // length 0) is exempt from every cap, same reasoning as before: there
-    // is no churn to protect against when the showcase doesn't exist yet.
-    const headroom = Math.max(0, VITRINE_CAPACITY - current.length);
-    const newcomerLimit = current.length === 0 ? candidates.length : toRetire.length + headroom;
-    const newcomers = candidates
-      .filter((c) => !currentIds.has(c.merchantListingId))
-      .slice(0, newcomerLimit);
 
     // Owner's directive, 2026-11-21 ("Registrar motivos de retirada"):
     // real root cause fixed — this update never touched `reason`/any
@@ -315,6 +275,7 @@ export async function runVitrineRenewJob() {
           scoreBreakdown: breakdownWithEvidence(candidate),
           reason: candidate.reason,
           activatedAt: new Date(),
+          activationSource: "engine_commercial_swap",
         },
         update: {
           canonicalProductId: candidate.canonicalProductId,
@@ -322,6 +283,7 @@ export async function runVitrineRenewJob() {
           groupType: candidate.group,
           score: candidate.score,
           scoreBreakdown: breakdownWithEvidence(candidate),
+          activationSource: "engine_commercial_swap",
           reason: candidate.reason,
           activatedAt: new Date(),
           retiredAt: null,
@@ -331,14 +293,9 @@ export async function runVitrineRenewJob() {
     }
 
     // Reserve list: best candidates not selected this round, for visibility
-    // in the admin panel — not activated, just recorded as RESERVE.
-    const reserve = candidates
-      .filter(
-        (c) =>
-          !currentIds.has(c.merchantListingId) &&
-          !newcomers.some((n) => n.merchantListingId === c.merchantListingId),
-      )
-      .slice(0, 20);
+    // in the admin panel — not activated, just recorded as RESERVE. Comes
+    // straight from `decision.reserve` (destructured above) — already
+    // includes entrants awaiting a link, same list the preview showed.
     for (const candidate of reserve) {
       await prisma.vitrineSelection.upsert({
         where: { vitrineId_merchantListingId: { vitrineId, merchantListingId: candidate.merchantListingId } },
@@ -431,7 +388,7 @@ export async function runVitrineRenewJob() {
     ctx.metadata.rotationStability = {
       weeklyLimit: VITRINE_MAX_WEEKLY_REPLACEMENTS,
       recentEntriesLast7d: recentEntries,
-      weeklyBudgetRemainingBeforeThisRun: weeklyBudgetRemaining,
+      weeklyBudgetRemainingBeforeThisRun,
       dailyLimit: VITRINE_MAX_DAILY_REPLACEMENTS,
       rotationBudgetUsedThisRun: outrankedToRetire.length,
       invalidRemovedImmediately: invalidNow.length,

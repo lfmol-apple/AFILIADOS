@@ -16,13 +16,29 @@ afterAll(async () => {
   await prisma.automationRun.deleteMany({ where: { job: "JOBS_CYCLE" } });
 });
 
+/** Deterministic replacement for a fixed-delay guess — see
+ * tests/automation-operational-v1.test.ts's own copy of this helper for the
+ * real race (runJob()'s lock check+create isn't atomic) a fixed setTimeout
+ * guess was exposed to. */
+async function waitForAutomationRunStatus(job: string, status: "RUNNING", timeoutMs = 5000): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const run = await prisma.automationRun.findFirst({ where: { job, status }, orderBy: { startedAt: "desc" } });
+    if (run) return;
+    await new Promise((r) => setTimeout(r, 5));
+  }
+  throw new Error(`Timed out waiting for AutomationRun ${job} to reach ${status}`);
+}
+
 describe("JOBS_CYCLE lock", () => {
   it("rejects a second full-cycle run while the first is still in progress", async () => {
     const first = runFullCycle();
 
     // Give the first cycle's runJob() call time to create its RUNNING row
-    // before racing the second — same pattern as tests/automation-run.test.ts.
-    await new Promise((r) => setTimeout(r, 30));
+    // before racing the second — polls the real row instead of guessing a
+    // fixed delay (same fix as tests/automation-operational-v1.test.ts's
+    // ML_SHOPEE_CYCLE lock test).
+    await waitForAutomationRunStatus("JOBS_CYCLE", "RUNNING");
 
     await expect(runFullCycle()).rejects.toThrow(/already running/);
 

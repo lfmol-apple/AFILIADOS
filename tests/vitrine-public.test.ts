@@ -160,6 +160,7 @@ describe("loadVitrinePublicProducts — real scoping and ACTIVE-link gating (loc
         merchantListingId: listing.id,
         merchantId: merchant.id,
         publicUrl: "https://produto.mercadolivre.com.br/fixture",
+        affiliateUrl: "https://produto.mercadolivre.com.br/fixture?matt_tool=vitrinedinamica",
         source: "MANUAL_ADMIN",
         status: "ACTIVE",
       },

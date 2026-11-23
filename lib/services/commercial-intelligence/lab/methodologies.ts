@@ -1,5 +1,10 @@
-import type { PooledCandidate } from "@/lib/services/vitrine-selection";
+import type { PooledCandidate, VitrineCandidate } from "@/lib/services/vitrine-selection";
 import { calculateVitrineScoreLegacyV2 } from "@/lib/services/commercial-intelligence/legacy/vitrine-score-v2-frozen";
+import { toAnalystEvidenceInput } from "@/lib/services/commercial-intelligence/ai-analyst/candidate-adapter";
+import { analyzeCandidates } from "@/lib/services/commercial-intelligence/ai-analyst/analyze-candidate";
+import { applyAnalystSafetyFilter } from "@/lib/services/commercial-intelligence/ai-analyst/safety-filter";
+import { applyPriorityAdjustment, type PriorityAdjustment } from "@/lib/services/commercial-intelligence/ai-analyst/priority-adjustment";
+import type { AnalystEvaluation } from "@/lib/services/commercial-intelligence/ai-analyst/types";
 
 /**
  * Commercial Intelligence Lab — four methodologies, owner's authorization
@@ -28,7 +33,8 @@ export type LabMethodology =
   | "commission_only"
   | "commission_current_only"
   | "legacy_v2"
-  | "multifactor_v3";
+  | "multifactor_v3"
+  | "ai_assisted_v1";
 
 export const LAB_METHODOLOGY_LABELS: Record<LabMethodology, string> = {
   official_rank_only: "A — Ranking oficial de vendas (Mercado Livre)",
@@ -37,6 +43,7 @@ export const LAB_METHODOLOGY_LABELS: Record<LabMethodology, string> = {
   commission_current_only: "C — Maior comissão vigente e confirmada (exclui histórico)",
   legacy_v2: "D — Algoritmo anterior às correções (congelado, commit 1cbf7e6)",
   multifactor_v3: "E — Inteligência comercial multifatorial (atual)",
+  ai_assisted_v1: "F — Multifatorial + Analista Comercial de IA (filtro eliminativo, 2026-11-22)",
 };
 
 export const ALGORITHM_VERSIONS: Record<LabMethodology, string> = {
@@ -46,6 +53,7 @@ export const ALGORITHM_VERSIONS: Record<LabMethodology, string> = {
   commission_current_only: "baseline-v1",
   legacy_v2: "1cbf7e6",
   multifactor_v3: "v3-2026-11-19",
+  ai_assisted_v1: "ai-v1-2026-11-22",
 };
 
 export interface LabRankedItem {
@@ -184,6 +192,120 @@ export function rankByMultifactorV3(
       discoverySource: c.discoverySource,
       evidenceSnapshot: toEvidenceSnapshot(c),
     }));
+}
+
+/**
+ * F — multifactorial ranking (rankByMultifactorV3's SAME order, same
+ * weights, nothing changed) + the AI Commercial Analyst as a bounded,
+ * two-stage layer on top (owner's authorization, 2026-11-22, "Motor de
+ * Inteligência Comercial com IA", section 4: "não substitua o ranking
+ * inteiro por uma opinião do modelo"; reconnected 2026-11-23, "Operação
+ * Cérebro Comercial" — the real root cause this closes: applyPriorityAdjustment
+ * was built and tested in Fase E but never called from here, so every
+ * ai_assisted_v1 run before this fix was, in practice, indistinguishable
+ * from multifactor_v3). Only the extended candidate pool (limit + buffer)
+ * is ever sent to the AI — never the whole universe — bounding real cost
+ * to a few dozen cheap text-model calls per run, cached per (listing,
+ * evidence) so an unchanged candidate is never re-evaluated.
+ *
+ * Exact sequence (owner's required order, 2026-11-23, item 1 — each
+ * stage strictly after the previous one, so a later stage never silently
+ * undoes an earlier one):
+ *   1. Deterministic ranking — `extendedRankedPool`, already computed by
+ *      multifactor_v3 + pickGlobalVitrineSelection before this function
+ *      is ever called.
+ *   2. Real AI evaluations — `analyzeCandidates` (reuses a persisted
+ *      evaluation per (listing, evidence) when one already exists; never
+ *      forces a new paid call here).
+ *   3. Safety filter — `applyAnalystSafetyFilter` (ELIMINATION only: can
+ *      remove a "rejeitar" candidate and backfill from the buffer, never
+ *      reorders).
+ *   4. Priority adjustment — `applyPriorityAdjustment` (bounded, capped
+ *      promotion for a confident "priorizar" with real evidence; a
+ *      revisao_necessaria candidate's own weight is forced to 0, so it
+ *      can be displaced but never be the one rising — see that
+ *      function's own doc comment).
+ *   5. Commercial audit — already baked into each VitrineCandidate's
+ *      `commercialAudit` field by vitrine-selection.ts, BEFORE this
+ *      function ever runs (a `reprovado` candidate is discarded there
+ *      and never reaches this pool at all — structurally impossible to
+ *      promote one here). Step 4 reads that verdict; nothing after step
+ *      4 recomputes or overrides it.
+ *   6/7/8. Final eligibility, snapshot persistence and engine consumption
+ *      happen entirely OUTSIDE this function — `order` below (not
+ *      `picked`) is what run-comparison.ts must persist as the final
+ *      ranked `items`, which is what jobs/vitrine-renew.ts's
+ *      validated-ai-selection.ts reads back.
+ *
+ * Never calls the real API without a configured key/budget — see
+ * analyzeCandidate's own fallback contract (always "observar", never
+ * silently indistinguishable from a real evaluation). A fallback never
+ * vetoes anything (safety-filter.ts) and never earns a priority
+ * adjustment either (priorityWeight returns 0 for a fallback), so
+ * running this methodology with no AI configured degrades EXACTLY to
+ * multifactor_v3, never to an error or a different ranking.
+ */
+export async function rankByAiAssisted(
+  extendedRankedPool: readonly VitrineCandidate[],
+  pool: readonly PooledCandidate[],
+  limit: number,
+): Promise<{
+  items: LabRankedItem[];
+  evaluations: AnalystEvaluation[];
+  /** Post-safety-filter, PRE-priority-adjustment order — kept only for
+   * callers that need the raw elimination result (e.g. a before/after
+   * comparison); never what gets persisted as the final ranked order. */
+  picked: VitrineCandidate[];
+  /** The actual final order — post safety-filter AND post priority-
+   * adjustment. This is what `items`' `rank` field reflects, and what
+   * any caller building the real, applied ai_assisted_v1 selection must
+   * use. */
+  order: VitrineCandidate[];
+  priorityAdjustments: PriorityAdjustment[];
+  evaluationsByListing: Map<string, AnalystEvaluation>;
+}> {
+  // Looks up each candidate's REAL PooledCandidate (price, full evidence
+  // objects) by id — never fabricates a value VitrineCandidate alone
+  // doesn't carry (it has no price field at all). A candidate genuinely
+  // missing from the pool (should not happen — both come from the same
+  // buildCommercialCandidatePool() run) is skipped, never given a
+  // placeholder price.
+  const poolByListingId = new Map(pool.map((c) => [c.merchantListingId, c]));
+  const evidenceInputs = extendedRankedPool
+    .map((c) => poolByListingId.get(c.merchantListingId))
+    .filter((c): c is PooledCandidate => c !== undefined)
+    .map(toAnalystEvidenceInput);
+  const evaluations = await analyzeCandidates(evidenceInputs);
+  const evaluationsByListing = new Map(evaluations.map((e) => [e.merchantListingId, e]));
+
+  const { picked } = applyAnalystSafetyFilter(extendedRankedPool, evaluationsByListing, limit);
+  const { order, adjustments: priorityAdjustments } = applyPriorityAdjustment(picked, evaluationsByListing);
+
+  const items: LabRankedItem[] = order.map((c, i) => {
+    const adjustment = priorityAdjustments.find((a) => a.merchantListingId === c.merchantListingId) ?? null;
+    return {
+      merchantListingId: c.merchantListingId,
+      title: c.title,
+      rank: i + 1,
+      criterionValue: c.rankingScore,
+      discoverySource: null,
+      evidenceSnapshot: {
+        rankingScore: c.rankingScore,
+        aiEvaluation: evaluationsByListing.get(c.merchantListingId) ?? null,
+        // Owner's authorization, 2026-11-23 (item 2, "sinalização... para
+        // revisao_necessaria"): the persisted record must show WHICH
+        // verdict each item carries — a human reading the snapshot must
+        // never have to re-derive this from elsewhere to notice a
+        // pending-review item sitting in the final selection.
+        commercialAuditVerdict: c.commercialAudit.verdict,
+        commercialAuditRisks: c.commercialAudit.risks,
+        commissionEvidenceType: c.commissionEvidence.type,
+        priorityAdjustment: adjustment,
+      },
+    };
+  });
+
+  return { items, evaluations, picked, order, priorityAdjustments, evaluationsByListing };
 }
 
 /**

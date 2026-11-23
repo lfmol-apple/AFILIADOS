@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { loadPublicMerchantProduct } from "@/lib/queries/public-product";
 import type { UnifiedOfferCard } from "@/lib/queries/unified-offers";
+import { evaluateCommercialEligibility } from "@/lib/services/publication-gate";
 
 /**
  * Owner's authorization, 2026-11-22 ("Gerenciador de Vitrines
@@ -56,7 +57,7 @@ export async function loadVitrinePublicProducts(vitrineId: string): Promise<Vitr
         select: {
           externalId: true,
           canonicalProduct: { select: { publicSlug: true } },
-          vitrineLink: { select: { status: true } },
+          vitrineLink: { select: { status: true, affiliateUrl: true } },
         },
       },
     },
@@ -65,12 +66,27 @@ export async function loadVitrinePublicProducts(vitrineId: string): Promise<Vitr
   const products: VitrinePublicProduct[] = [];
   for (const selection of selections) {
     const slug = selection.merchantListing.canonicalProduct?.publicSlug;
-    // Same real gates the Meta catalog feed already applies — never a
-    // broken/partial card. Silently skipped this render (same convention
-    // as the catalog feed), not an error page.
-    if (selection.merchantListing.vitrineLink?.status !== "ACTIVE" || !slug) continue;
+    if (!slug) continue;
     const product = await loadPublicMerchantProduct(slug).catch(() => null);
-    if (!product || !product.imageUrl || product.currentPrice === null) continue;
+    if (!product || !product.imageUrl) continue;
+
+    // Owner's directive, 2026-11-23 ("defina e reutilize um critério
+    // único de elegibilidade comercial para publicação"): the SAME shared
+    // function app/catalogo/mercado-livre.xml/route.ts calls — this page
+    // and the Meta catalog feed are the two real destinations fed by
+    // VitrineLink, and must never drift on what "commercially eligible"
+    // means, which is exactly what two independently hand-rolled copies
+    // of this check risked.
+    const commercial = evaluateCommercialEligibility({
+      active: product.active,
+      title: product.title,
+      externalId: selection.merchantListing.externalId,
+      currentPrice: product.currentPrice,
+      lastObservedAt: product.lastObservedAt,
+      linkStatus: selection.merchantListing.vitrineLink?.status ?? null,
+      linkUrl: selection.merchantListing.vitrineLink?.affiliateUrl ?? null,
+    });
+    if (!commercial.eligible || product.currentPrice === null) continue;
 
     // Same lookup as app/catalogo/mercado-livre.xml/route.ts, copied
     // verbatim — never a new generation, never an unapproved render.

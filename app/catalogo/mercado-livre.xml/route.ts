@@ -4,6 +4,7 @@ import { siteConfig } from "@/lib/config/site";
 import { env } from "@/lib/config/env";
 import { logger } from "@/lib/observability/logger";
 import { getLegacyVitrineId } from "@/lib/services/vitrine-manager";
+import { evaluateCommercialEligibility } from "@/lib/services/publication-gate";
 
 export const dynamic = "force-dynamic";
 
@@ -64,7 +65,7 @@ export async function GET() {
       merchantListing: {
         select: {
           externalId: true,
-          vitrineLink: { select: { status: true } },
+          vitrineLink: { select: { status: true, affiliateUrl: true } },
           canonicalProduct: { select: { publicSlug: true, brand: true } },
         },
       },
@@ -75,7 +76,38 @@ export async function GET() {
   for (const selection of selections) {
     const listing = selection.merchantListing;
     const slug = listing.canonicalProduct?.publicSlug;
-    if (listing.vitrineLink?.status !== "ACTIVE" || !slug) continue;
+    if (!slug) continue;
+
+    const product = await loadPublicMerchantProduct(slug).catch(() => null);
+    if (!product) continue;
+
+    // Same critério único de elegibilidade comercial used by the public
+    // product page (evaluatePublicationGate, lib/services/publication-gate.ts)
+    // — only the link source differs: this destination reads the
+    // Vitrine-specific VitrineLink table (attributionTag "vitrinedinamica"),
+    // never the general AffiliateLinkRegistry ("precocaindo") the public
+    // page reads. Active/price/recency must mean exactly the same thing in
+    // both places, which is why this calls the shared function rather than
+    // re-implementing the checks here (owner's directive, 2026-11-23:
+    // "defina e reutilize um critério único de elegibilidade comercial para
+    // publicação", after confirming this route never shared logic with
+    // evaluatePublicationGate before).
+    const commercial = evaluateCommercialEligibility({
+      active: product.active,
+      title: product.title,
+      externalId: listing.externalId,
+      currentPrice: product.currentPrice,
+      lastObservedAt: product.lastObservedAt,
+      linkStatus: listing.vitrineLink?.status ?? null,
+      linkUrl: listing.vitrineLink?.affiliateUrl ?? null,
+    });
+    if (!commercial.eligible || product.currentPrice === null) {
+      logger.warn("vitrine_catalog.skipped_ineligible", {
+        merchantListingId: selection.merchantListingId,
+        missing: commercial.missing,
+      });
+      continue;
+    }
 
     // Owner's requirement, 2026-11-20 ("Primeiro teste real da
     // Vitrine", item 3): "confirme que produtos reprovados pela
@@ -85,15 +117,18 @@ export async function GET() {
     // cycle on — this is defense-in-depth for the narrow window inside
     // a single cycle (and for any row a future code path might leave
     // ACTIVE without going through that gate), read directly from the
-    // stored audit verdict, never re-derived here.
+    // stored audit verdict, never re-derived here. This is deliberately
+    // NOT part of evaluateCommercialEligibility: the audit verdict is a
+    // Vitrine-specific fact (VitrineSelection.scoreBreakdown), not a
+    // general property of every MerchantListing the public product page
+    // also serves.
     const audit = (selection.scoreBreakdown as { commercialAudit?: { verdict?: string } } | null)?.commercialAudit;
     if (audit?.verdict === "reprovado") {
       logger.warn("vitrine_catalog.skipped_reprovado_auditoria", { merchantListingId: selection.merchantListingId });
       continue;
     }
 
-    const product = await loadPublicMerchantProduct(slug).catch(() => null);
-    if (!product || !product.imageUrl || product.currentPrice === null) {
+    if (!product.imageUrl) {
       logger.warn("vitrine_catalog.skipped_incomplete", {
         merchantListingId: selection.merchantListingId,
       });
