@@ -7,6 +7,21 @@ afterEach(async () => {
   vi.resetModules();
 });
 
+/** Deterministic replacement for a fixed-delay guess — see
+ * tests/automation-operational-v1.test.ts's own copy of this helper for the
+ * real race (runJob()'s lock check+create isn't atomic) a fixed setTimeout
+ * guess was exposed to; this is the exact race behind this file's earlier
+ * transient failure under parallel execution. */
+async function waitForAutomationRunStatus(job: string, status: "RUNNING", timeoutMs = 5000): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const run = await prisma.automationRun.findFirst({ where: { job, status }, orderBy: { startedAt: "desc" } });
+    if (run) return;
+    await new Promise((r) => setTimeout(r, 5));
+  }
+  throw new Error(`Timed out waiting for AutomationRun ${job} to reach ${status}`);
+}
+
 describe("PRODUCT_MATCHER_SHADOW job", () => {
   it("records a real AutomationRun with the shadow orchestrator's real counters, on a genuinely empty/no-op run", async () => {
     const { runProductMatcherShadowJob } = await import("@/jobs/product-matcher-shadow");
@@ -63,7 +78,7 @@ describe("PRODUCT_MATCHER_SHADOW job", () => {
     const { runProductMatcherShadowJob } = await import("@/jobs/product-matcher-shadow");
 
     const first = runProductMatcherShadowJob();
-    await new Promise((r) => setTimeout(r, 30));
+    await waitForAutomationRunStatus("PRODUCT_MATCHER_SHADOW", "RUNNING");
     await expect(runProductMatcherShadowJob()).rejects.toThrow(/already running/);
     await first;
   }, 15000);

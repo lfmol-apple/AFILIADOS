@@ -2,6 +2,25 @@ import { describe, expect, it, vi, afterEach, beforeEach } from "vitest";
 import { prisma } from "@/lib/db";
 import { withRetry, isRetryableError } from "@/lib/jobs/retry";
 
+/** Deterministic replacement for a fixed-delay guess when a test needs to
+ * fire a second call while the first is provably still RUNNING — polls the
+ * real AutomationRun row instead of hoping a fixed setTimeout was long
+ * enough (see "rejects a second cycle run..." below for the race this
+ * closes). */
+async function waitForAutomationRunStatus(
+  job: string,
+  status: "RUNNING",
+  timeoutMs = 5000,
+): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const run = await prisma.automationRun.findFirst({ where: { job, status }, orderBy: { startedAt: "desc" } });
+    if (run) return;
+    await new Promise((r) => setTimeout(r, 5));
+  }
+  throw new Error(`Timed out waiting for AutomationRun ${job} to reach ${status}`);
+}
+
 const runId = Date.now();
 
 afterEach(async () => {
@@ -644,7 +663,14 @@ describe("ML_SHOPEE_CYCLE lock", () => {
     const { runMlShopeeCycle } = await import("@/jobs/run-ml-shopee-cycle");
 
     const first = runMlShopeeCycle();
-    await new Promise((r) => setTimeout(r, 30));
+    // Real root cause fixed (2026-11-23): a fixed 30ms guess races
+    // runJob()'s own lock write (findFirst + create, not atomic) — under
+    // load/GC pauses the second call's own findFirst can run before the
+    // first call's create has committed, so BOTH read "not running" and
+    // the test flakes. Poll for the real AutomationRun row to actually
+    // reach RUNNING instead of guessing a delay — a deterministic
+    // barrier, not a longer guess.
+    await waitForAutomationRunStatus("ML_SHOPEE_CYCLE", "RUNNING");
 
     await expect(runMlShopeeCycle()).rejects.toThrow(/already running/);
 
