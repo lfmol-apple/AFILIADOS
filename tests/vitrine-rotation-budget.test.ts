@@ -112,4 +112,61 @@ describe("countRecentCommercialSwaps", () => {
     const count = await countRecentCommercialSwaps(new Date(Date.now() - 7 * 86_400_000));
     expect(count).toBe(0);
   });
+
+  it("never counts a row explicitly classified as manual_data_correction (reserved value)", async () => {
+    const listing = await seedListing(`${TEST_PREFIX}correcao`);
+    await prisma.vitrineSelection.create({
+      data: {
+        vitrineId: TEST_VITRINE_ID,
+        merchantListingId: listing.id,
+        groupType: "recorrente",
+        status: "ACTIVE",
+        score: 50,
+        scoreBreakdown: {},
+        reason: `${TEST_PREFIX}correção manual de dados`,
+        activatedAt: new Date(),
+        activationSource: "manual_data_correction",
+      },
+    });
+    const count = await countRecentCommercialSwaps(new Date(Date.now() - 7 * 86_400_000));
+    expect(count).toBe(0);
+  });
+
+  // Owner's authorization, 2026-11-23 (item 3: "garanta que futuras
+  // migrações não consumam o orçamento indevidamente"). A real migration
+  // never calls application code — it's raw SQL applied directly to the
+  // table (prisma/migrations/*/migration.sql), so the only way a FUTURE
+  // migration/backfill could corrupt the budget is by touching
+  // `activatedAt` directly, the same way this test does with $executeRaw.
+  // Proves the counting function is safe by construction, not by
+  // assumption: it opts a row IN only on an exact activationSource
+  // match, so any raw-SQL write that doesn't explicitly set that column
+  // to 'engine_commercial_swap' can never be counted, no matter what else
+  // it changes on the row.
+  it("uma migração/backfill futura (SQL bruto) que toque activatedAt sem tocar activationSource nunca é contada", async () => {
+    const listing = await seedListing(`${TEST_PREFIX}migracao-futura`);
+    const selection = await prisma.vitrineSelection.create({
+      data: {
+        vitrineId: TEST_VITRINE_ID,
+        merchantListingId: listing.id,
+        groupType: "recorrente",
+        status: "ACTIVE",
+        score: 50,
+        scoreBreakdown: {},
+        reason: `${TEST_PREFIX}linha pré-existente, nunca uma troca real`,
+        activatedAt: new Date(Date.now() - 60 * 86_400_000),
+        activationSource: null,
+      },
+    });
+    // Simula exatamente o que uma migração/backfill futura faria: SQL
+    // bruto mexendo em activatedAt (ex.: normalizar fusos, corrigir dados
+    // importados) — nunca passando pelo código da engine, logo nunca
+    // define activationSource.
+    await prisma.$executeRawUnsafe(
+      `UPDATE "VitrineSelection" SET "activatedAt" = NOW() WHERE "id" = $1`,
+      selection.id,
+    );
+    const count = await countRecentCommercialSwaps(new Date(Date.now() - 7 * 86_400_000));
+    expect(count).toBe(0);
+  });
 });
