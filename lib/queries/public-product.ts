@@ -44,6 +44,7 @@ export interface PublicMerchantProductViewModel {
   categoryId: string | null;
   slug: string;
   canonicalUrl: string;
+  active: boolean;
   title: string;
   brand: string | null;
   model: string | null;
@@ -191,6 +192,7 @@ function buildViewModel(facts: MerchantListingFacts, slug: string): PublicMercha
     categoryId: facts.categoryId,
     slug,
     canonicalUrl: `${siteConfig.url}/produto/${slug}`,
+    active: facts.active,
     title: facts.title,
     brand: facts.brand,
     model: facts.model,
