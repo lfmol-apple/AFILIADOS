@@ -73,9 +73,12 @@ export async function runCommercialIntelligenceLab(): Promise<LabComparisonSumma
   const { picked: extendedRankedPool } = pickGlobalVitrineSelection(v3Result.allScored, LIMIT + AI_ASSISTED_BUFFER, activeEventNamesForReport);
   const aiAssisted = await rankByAiAssisted(extendedRankedPool, pool, LIMIT);
   // IA Crítica (owner's authorization, 2026-11-22, section 6) — a second,
-  // deterministic pass over the FINAL ai_assisted_v1 selection, never a
-  // second model call grading the first one's own output.
-  const criticFindings = runCriticalReview(aiAssisted.picked, aiAssisted.evaluationsByListing);
+  // deterministic pass over the FINAL ai_assisted_v1 selection (post
+  // safety-filter AND post priority-adjustment — `order`, never `picked`,
+  // since `picked` is the pre-adjustment list and reviewing it would miss
+  // whatever the priority adjustment itself changed), never a second
+  // model call grading the first one's own output.
+  const criticFindings = runCriticalReview(aiAssisted.order, aiAssisted.evaluationsByListing);
 
   const rankings: Record<LabMethodology, LabRankedItem[]> = {
     official_rank_only: rankByOfficialRankOnly(pool, LIMIT),
@@ -134,7 +137,10 @@ export async function runCommercialIntelligenceLab(): Promise<LabComparisonSumma
                   ? "Produtos que o próprio painel de afiliados do Mercado Livre apresentou como destaque (mais vendido/recomendado/ganhos extras), lido ao vivo — ver data/ml-panel-reads/."
                   : methodology === "ai_assisted_v1"
                     ? [
-                        "Mesmo ranking do multifactor_v3 — o Analista Comercial de IA só pode REMOVER um candidato (nunca promover um mais fraco), ver lib/services/commercial-intelligence/ai-analyst/safety-filter.ts.",
+                        "Base: ranking do multifactor_v3, com as avaliações reais da IA aplicadas em duas etapas sobre ele — filtro de segurança (só remove, ver safety-filter.ts) e, sobre o que sobreviveu, ajuste de prioridade (só reordena, nunca adiciona/remove, ver priority-adjustment.ts).",
+                        aiAssisted.priorityAdjustments.length > 0
+                          ? `Ajuste de prioridade — ${aiAssisted.priorityAdjustments.length} posição(ões) alterada(s): ${aiAssisted.priorityAdjustments.map((a) => `${a.merchantListingId}(${a.originalRank}→${a.adjustedRank})`).join(", ")}.`
+                          : "Ajuste de prioridade — nenhuma mudança de posição nesta execução (sem recomendação 'priorizar' com evidência real suficiente, ou sem candidato elegível para subir).",
                         criticFindings.length > 0
                           ? `IA Crítica — ${criticFindings.length} achado(s): ${criticFindings.map((f) => `[${f.severity}] ${f.issue}: ${f.detail}`).join(" | ")}`
                           : "IA Crítica — nenhum achado nesta execução.",

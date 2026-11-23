@@ -1,6 +1,7 @@
 import type { VitrineCandidate } from "@/lib/services/vitrine-selection";
 import type { AnalystEvaluation } from "@/lib/services/commercial-intelligence/ai-analyst/types";
 import type { CommissionEvidenceType } from "@/lib/services/commercial-intelligence/commission-evidence";
+import { COMMISSION_CONFIDENCE_TIER } from "@/lib/services/commercial-intelligence/commission-evidence-labels";
 
 /**
  * Bounded, auditable priority adjustment — owner's authorization,
@@ -27,17 +28,6 @@ import type { CommissionEvidenceType } from "@/lib/services/commercial-intellige
 
 const MAX_RANK_SHIFT = 5;
 
-/** Lower = more trustworthy. A candidate may never rise above a
- * candidate whose commission tier is strictly more trustworthy, no
- * matter the AI score — this is the hard ceiling the owner required. */
-const COMMISSION_TIER_RANK: Record<CommissionEvidenceType, number> = {
-  confirmed_individual: 0,
-  promotional_temporary: 1,
-  historical: 2,
-  category_tier: 3,
-  unknown: 4,
-};
-
 export interface PriorityAdjustment {
   merchantListingId: string;
   originalRank: number;
@@ -57,8 +47,32 @@ export interface PriorityAdjustmentResult {
  * small, explainable number: how confidently "priorizar" was recommended,
  * scaled down by how little real evidence backs it. Never a bare
  * commercialScore — that field is explicitly "informational only" per
- * types.ts and the lab's own doc comment. */
-function priorityWeight(evaluation: AnalystEvaluation | undefined): number {
+ * types.ts and the lab's own doc comment.
+ *
+ * Owner's authorization, 2026-11-23 ("Operação Cérebro Comercial" —
+ * item 2, política de revisao_necessaria): "pode permanecer como
+ * candidato, mas deve receber... restrições proporcionais à gravidade
+ * das lacunas." The commercial audit only has two non-reprovado
+ * verdicts (aprovado_para_teste, revisao_necessaria — reprovado never
+ * reaches this function at all, filtered upstream in
+ * vitrine-selection.ts), so the one restriction that grading actually
+ * supports today is the strongest one: a candidate the audit itself
+ * flagged as not-yet-confirmed can be DISPLACED by a confident neighbor
+ * rising past it, same as anyone else, but can never be the one doing
+ * the rising — promotion implies a confidence the audit explicitly
+ * hasn't given it yet. This is a restriction on PROMOTION only, never a
+ * re-classification to reprovado (which this function has no authority
+ * to apply) and never a second penalty on top of whatever the audit
+ * already disclosed (no change to score/rankingScore here at all). */
+function priorityWeight(candidate: VitrineCandidate, evaluation: AnalystEvaluation | undefined): number {
+  // Defense-in-depth, never the primary guarantee: a "reprovado" candidate
+  // should be structurally impossible here at all (vitrine-selection.ts
+  // discards it before it ever becomes a VitrineCandidate) — this branch
+  // exists so that IF that upstream guarantee were ever broken by a
+  // future change, this function still cannot be the thing that promotes
+  // it, same reasoning as the Meta feed route's own redundant audit check.
+  if (candidate.commercialAudit.verdict === "reprovado") return 0;
+  if (candidate.commercialAudit.verdict === "revisao_necessaria") return 0;
   if (!evaluation || evaluation.isFallback) return 0;
   if (evaluation.recommendation !== "priorizar") return 0; // "observar" never pushes order — only an explicit, confident endorsement does
   const evidenceStrength = Math.min(evaluation.evidenceUsed.length, 5) / 5; // 0..1
@@ -78,8 +92,8 @@ export function applyPriorityAdjustment(
   const working = rankedPool.map((candidate, index) => ({
     candidate,
     originalRank: index,
-    commissionTier: COMMISSION_TIER_RANK[candidate.commissionEvidence.type as CommissionEvidenceType] ?? COMMISSION_TIER_RANK.unknown,
-    weight: priorityWeight(evaluations.get(candidate.merchantListingId)),
+    commissionTier: COMMISSION_CONFIDENCE_TIER[candidate.commissionEvidence.type as CommissionEvidenceType]?.rank ?? COMMISSION_CONFIDENCE_TIER.unknown.rank,
+    weight: priorityWeight(candidate, evaluations.get(candidate.merchantListingId)),
   }));
 
   const result = [...working];

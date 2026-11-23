@@ -3,18 +3,23 @@ import { applyPriorityAdjustment } from "@/lib/services/commercial-intelligence/
 import type { VitrineCandidate } from "@/lib/services/vitrine-selection";
 import type { AnalystEvaluation } from "@/lib/services/commercial-intelligence/ai-analyst/types";
 import type { CommissionEvidenceType } from "@/lib/services/commercial-intelligence/commission-evidence";
+import type { AuditVerdict } from "@/lib/services/commercial-intelligence/commercial-audit";
 
 /**
  * Owner's authorization, 2026-11-22 ("Operação Cérebro Comercial", Fase
  * E, item 2): bounded, auditable re-ordering — never arbitrary, never
  * crossing the commission-confidence ceiling, never moved by "observar"
- * alone.
+ * alone. Extended 2026-11-23 (item 2 of the follow-up: "revisao_necessaria
+ * pode permanecer como candidato, mas deve receber restrições
+ * proporcionais à gravidade das lacunas") — a candidate the commercial
+ * audit hasn't confirmed can never be the one promoted.
  */
-function candidate(id: string, commissionType: CommissionEvidenceType): VitrineCandidate {
+function candidate(id: string, commissionType: CommissionEvidenceType, auditVerdict: AuditVerdict = "aprovado_para_teste"): VitrineCandidate {
   return {
     merchantListingId: id,
     title: id,
     commissionEvidence: { type: commissionType, rate: null, capturedAt: null, ageDays: null, stale: false, estimatedValueBrl: null, source: "" },
+    commercialAudit: { verdict: auditVerdict, reasons: [], risks: [] },
   } as unknown as VitrineCandidate;
 }
 
@@ -107,5 +112,32 @@ describe("applyPriorityAdjustment", () => {
     const evals = new Map([["b", evaluation({ merchantListingId: "b", recommendation: "priorizar", confidence: 0.8, evidenceUsed: ["sales_official_rank"] as never })]]);
     const result = applyPriorityAdjustment(pool, evals);
     expect(new Set(result.order.map((c) => c.merchantListingId))).toEqual(new Set(["a", "b", "c"]));
+  });
+
+  it("NEVER promotes a revisao_necessaria candidate, even with a maximally confident 'priorizar' and strong evidence", () => {
+    const pool = [
+      candidate("aprovado", "unknown", "aprovado_para_teste"),
+      candidate("pendente", "unknown", "revisao_necessaria"),
+    ];
+    const evals = new Map([
+      ["pendente", evaluation({ merchantListingId: "pendente", recommendation: "priorizar", confidence: 1, evidenceUsed: ["sales_official_rank", "price_competitiveness_scored", "price_drop_confirmed"] as never })],
+    ]);
+    const result = applyPriorityAdjustment(pool, evals);
+    expect(result.order.map((c) => c.merchantListingId)).toEqual(["aprovado", "pendente"]);
+    expect(result.adjustments).toHaveLength(0);
+  });
+
+  it("a revisao_necessaria candidate CAN still be displaced downward by a confident neighbor rising past it", () => {
+    const pool = [
+      candidate("pendente", "unknown", "revisao_necessaria"),
+      candidate("riser", "unknown", "aprovado_para_teste"),
+    ];
+    const evals = new Map([
+      ["riser", evaluation({ merchantListingId: "riser", recommendation: "priorizar", confidence: 0.9, evidenceUsed: ["sales_official_rank"] as never })],
+    ]);
+    const result = applyPriorityAdjustment(pool, evals);
+    expect(result.order.map((c) => c.merchantListingId)).toEqual(["riser", "pendente"]);
+    const displaced = result.adjustments.find((a) => a.merchantListingId === "pendente")!;
+    expect(displaced.rankDelta).toBeLessThan(0);
   });
 });
