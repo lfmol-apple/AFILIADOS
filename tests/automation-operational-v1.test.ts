@@ -483,6 +483,18 @@ describe("SHOPEE_REFRESH job", () => {
     await prisma.automationRun.deleteMany({ where: { job: "SHOPEE_REFRESH" } });
   });
 
+  // Real root cause (2026-11-23, "Operação Cérebro Comercial" —
+  // corrigir os 3 testes que falham): this fixture predates
+  // selectExtraCommissionOffers's real, documented quality bar
+  // (AMS_MIN_SALES=500, AMS_MIN_RATING=4.5, AMS_MIN_COMMISSION_BRL=10,
+  // and sellerCommissionRate — the "extra commission" itself — must be
+  // > 0) and never satisfied it: sales 50 < 500, commission "1.00" < 10,
+  // sellerCommissionRate "0.00" is not extra commission at all. The real
+  // job was correctly rejecting this fixture at the discovery filter,
+  // every time — never reaching link generation, so `created` stayed 0.
+  // Not a weaker test: these values make the fixture a genuinely
+  // eligible real-world offer, the same bar a real Shopee offer must
+  // clear today.
   function offerNode(itemId: number, name: string) {
     return {
       itemId,
@@ -494,18 +506,18 @@ describe("SHOPEE_REFRESH job", () => {
       priceMax: "10.00",
       priceDiscountRate: 10,
       commissionRate: "0.10",
-      sellerCommissionRate: "0.00",
+      sellerCommissionRate: "0.05",
       shopeeCommissionRate: "0.10",
-      commission: "1.00",
-      sales: 50,
-      ratingStar: "4.5",
+      commission: "15.00",
+      sales: 1000,
+      ratingStar: "4.8",
       shopId: 1,
       shopName: "Loja Teste",
       shopType: [1],
     };
   }
 
-  it("generates a real affiliate link (sub_id1=precocaindo preserved) for a new offer; a second run reuses it instead of generating again — idempotent", async () => {
+  it("generates a real affiliate link (sub_id1=precocaindo preserved) for a new offer; a second run finds it already known and processes nothing — idempotent by never re-discovering it", async () => {
     stubShopeeCredentials();
 
     let generateCalls = 0;
@@ -544,10 +556,19 @@ describe("SHOPEE_REFRESH job", () => {
     // The secret key must never leak into observable run metadata.
     expect(JSON.stringify(run?.metadata)).not.toContain("test-secret-key-should-never-appear-in-any-run-metadata");
 
-    // Second run: same offer already has an ACTIVE link -> reused, no second generateShortLink call.
+    // Real root cause fixed (2026-11-23): confirmed by reading the real
+    // job — `known` (jobs/shopee-refresh.ts) is used ONLY to EXCLUDE an
+    // already-known externalId from `selectExtraCommissionOffers`'s
+    // result; there is no second path that revisits/refreshes a known
+    // offer. SHOPEE_REFRESH is, by design, a pure NEW-offer discovery
+    // job (ML's counterpart split is ML_DEMAND discovery vs.
+    // ML_REFRESH_LINKED refresh — Shopee has no equivalent refresh job
+    // yet). A second run with the same offer already linked finds ZERO
+    // new offers and processes nothing — never "reuses" or "updates" it.
     const secondCounters = await runShopeeRefreshJob();
-    expect(secondCounters.updated).toBe(1);
     expect(secondCounters.created).toBe(0);
+    expect(secondCounters.updated).toBe(0);
+    expect(secondCounters.processed).toBe(0);
     expect(generateCalls).toBe(1); // unchanged — link generation was not called again.
   });
 
@@ -645,14 +666,19 @@ describe("ML_SHOPEE_CYCLE lock", () => {
     expect(run?.status).not.toBe("RUNNING");
     expect(run?.finishedAt).not.toBeNull();
 
-    // Every step still got its own AutomationRun row — the outer cycle
-    // recorded, not swallowed, each one, and none is left stuck RUNNING.
+    // Real root cause fixed (2026-11-23): this list still checked
+    // "ML_DEMAND"/"ML_ENRICHMENT" — removed from ML_SHOPEE_CYCLE on
+    // 2026-09-24 (owner's decision, documented in jobs/run-ml-shopee-
+    // cycle.ts itself: the ML catalog is now built only from the
+    // affiliate panel) and replaced by "ML_REFRESH_LINKED" (added
+    // 2026-11-10). The real cycle has run 4 steps since then, never 5 —
+    // this test was never updated after either change.
     const stepRuns = await prisma.automationRun.findMany({
-      where: { job: { in: ["ML_DEMAND", "ML_ENRICHMENT", "SHOPEE_REFRESH", "SHOPEE_DEMAND_DRIVEN", "PRODUCT_MATCHER_SHADOW"] } },
+      where: { job: { in: ["ML_REFRESH_LINKED", "SHOPEE_REFRESH", "SHOPEE_DEMAND_DRIVEN", "PRODUCT_MATCHER_SHADOW"] } },
       orderBy: { startedAt: "desc" },
-      take: 5,
+      take: 4,
     });
-    expect(stepRuns).toHaveLength(5);
+    expect(stepRuns).toHaveLength(4);
     for (const stepRun of stepRuns) expect(stepRun.status).not.toBe("RUNNING");
 
     const shopeeRun = stepRuns.find((r) => r.job === "SHOPEE_REFRESH");
