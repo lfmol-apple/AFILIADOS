@@ -91,10 +91,16 @@ describe("VitrineSelectionRound.automationRunId — stable per-execution identit
 });
 
 describe("structural guard — the cleanup job is never auto-wired", () => {
-  it("is not referenced by the real production orchestrator (jobs/run-ml-shopee-cycle.ts)", async () => {
-    const { readFileSync } = await import("node:fs");
-    const source = readFileSync(new URL("../jobs/run-ml-shopee-cycle.ts", import.meta.url), "utf8");
-    expect(source).not.toMatch(/vitrine-selection-round-cleanup|VITRINE_SELECTION_ROUND_CLEANUP/);
+  // jobs/run-ml-shopee-cycle.ts (the orchestrator this used to grep) was
+  // deleted 2026-11-24 along with the rest of the organic site's job
+  // cycle (owner's decision — see git tag
+  // archive/preco-caindo-organico-2026-11-24). The invariant this
+  // guarded — "the cleanup job is never auto-wired into a real
+  // orchestrator" — now holds even more strongly: there is no such
+  // orchestrator left to reference it.
+  it("the deleted orchestrator it used to guard against no longer exists", async () => {
+    const { existsSync } = await import("node:fs");
+    expect(existsSync(new URL("../jobs/run-ml-shopee-cycle.ts", import.meta.url))).toBe(false);
   });
 
   it("the job's own CLI entrypoint requires an explicit opt-in env flag before it does anything", async () => {
