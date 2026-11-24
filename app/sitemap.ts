@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/db";
 import { siteConfig } from "@/lib/config/site";
+import { env } from "@/lib/config/env";
 import { isProductPageIndexable } from "@/lib/seo/indexability";
 import { PRIMARY_PUBLIC_MARKETPLACE } from "@/lib/config/marketplaces";
 import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
@@ -44,6 +45,11 @@ export const STATIC_ROUTE_PATHS = [
  * via lib/seo/indexability.ts, so the two can't disagree).
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // Owner's decision, 2026-11-24 ("site público inteiro adormece"): see
+  // app/robots.ts and middleware.ts for the matching gate — while
+  // dormant there is nothing on this site meant to be indexed.
+  if (env.SITE_MODE === "vitrine_only") return [];
+
   // No currently-visible data source (pre-launch, or every gate closed —
   // see lib/config/public-catalog.ts) means the sitemap must not list a
   // single product/category/content URL: an empty sitemap with just the

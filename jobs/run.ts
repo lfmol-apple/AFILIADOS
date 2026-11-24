@@ -2,6 +2,7 @@ import "dotenv/config";
 import { JOBS, type JobName } from "./index";
 import { runJob } from "@/lib/jobs/automation-run";
 import { logger } from "@/lib/observability/logger";
+import { env } from "@/lib/config/env";
 
 const ALL_JOBS_IN_ORDER: JobName[] = [
   "DISCOVER_PRODUCTS",
@@ -29,6 +30,14 @@ const ALL_JOBS_IN_ORDER: JobName[] = [
  * sequence in one more.
  */
 export async function runFullCycle(): Promise<void> {
+  // Owner's decision, 2026-11-24: this whole cycle is the organic/Amazon
+  // side of the (now dormant) public price-comparison site — see
+  // middleware.ts. A no-op while SITE_MODE=vitrine_only, reversible by
+  // flipping it back; nothing here was deleted.
+  if (env.SITE_MODE === "vitrine_only") {
+    logger.info("jobs.full_cycle_skipped_dormant_site_mode");
+    return;
+  }
   await runJob("JOBS_CYCLE", async (ctx) => {
     for (const name of ALL_JOBS_IN_ORDER) {
       logger.info("jobs.step_start", { job: name });

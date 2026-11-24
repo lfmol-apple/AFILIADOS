@@ -2,6 +2,7 @@ import "dotenv/config";
 import { runJob } from "@/lib/jobs/automation-run";
 import { prisma } from "@/lib/db";
 import { logger } from "@/lib/observability/logger";
+import { env } from "@/lib/config/env";
 import { runShopeeRefreshJob } from "./shopee-refresh";
 import { runShopeeDemandDrivenJob } from "./shopee-demand-driven";
 import { runProductMatcherShadowJob } from "./product-matcher-shadow";
@@ -39,6 +40,14 @@ import { runMlRefreshLinkedJob } from "./ml-refresh-linked";
  * already did stays intact.
  */
 export async function runMlShopeeCycle(): Promise<void> {
+  // Owner's decision, 2026-11-24: this cycle only refreshes/discovers for
+  // the (now dormant) public price-comparison site — see middleware.ts.
+  // A no-op while SITE_MODE=vitrine_only, reversible by flipping it back;
+  // nothing here was deleted.
+  if (env.SITE_MODE === "vitrine_only") {
+    logger.info("jobs.ml_shopee_cycle_skipped_dormant_site_mode");
+    return;
+  }
   await runJob("ML_SHOPEE_CYCLE", async (ctx) => {
     const steps: Array<{ name: string; run: () => Promise<{ processed: number; created: number; updated: number; errors: number }> }> = [
       // ML_DEMAND / ML_ENRICHMENT removed 2026-09-24 (owner's decision): the

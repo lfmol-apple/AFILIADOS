@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/lib/config/site";
+import { env } from "@/lib/config/env";
 import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
 import { listIndexableMerchantProductUrls } from "@/lib/queries/public-product";
 import { isOffersPageIndexable } from "@/lib/seo/offers-indexability";
@@ -22,6 +23,15 @@ const OFFERS_PATH = "/ofertas";
 export const dynamic = "force-dynamic";
 
 export default async function robots(): Promise<MetadataRoute.Robots> {
+  // Owner's decision, 2026-11-24 ("site público inteiro adormece"): while
+  // dormant, nothing on this site is meant to be crawled — the Vitrine
+  // engine's own surfaces (catalog feed, ad-landing page) aren't product
+  // pages search engines should index either. See middleware.ts for the
+  // matching 404 gate; this just helps existing indexed pages drop out.
+  if (env.SITE_MODE === "vitrine_only") {
+    return { rules: [{ userAgent: "*", disallow: "/" }] };
+  }
+
   const disallow = ["/admin", "/go/", "/api/"];
 
   // Pre-launch (or every data-source gate closed) — see
