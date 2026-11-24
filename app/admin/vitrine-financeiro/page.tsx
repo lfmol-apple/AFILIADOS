@@ -4,8 +4,8 @@ import { ADMIN_SESSION_COOKIE, isAdminRequestAuthorized } from "@/lib/admin/auth
 import { AdminLoginForm } from "@/components/admin-login-form";
 import { prisma } from "@/lib/db";
 import { getVitrineFinancialSummary } from "@/lib/services/vitrine-financials";
-import { reviewVitrineLearningReadiness } from "@/lib/services/vitrine-weight-learning";
 import { VitrineAdSpendForm, VitrineCommissionForm } from "@/components/vitrine-financial-forms";
+import type { VitrineAdSpend, VitrineCommissionReport } from "@prisma/client";
 
 export const metadata: Metadata = {
   title: "Vitrine Inteligente — financeiro — Admin",
@@ -23,9 +23,8 @@ export default async function VitrineFinanceiroPage() {
 
   const periodEnd = new Date();
   const periodStart = new Date(periodEnd.getTime() - 30 * 24 * 60 * 60 * 1000);
-  const [summary, learning, adSpends, commissionReports] = await Promise.all([
+  const [summary, adSpends, commissionReports] = await Promise.all([
     getVitrineFinancialSummary({ periodStart, periodEnd }),
-    reviewVitrineLearningReadiness(),
     prisma.vitrineAdSpend.findMany({ orderBy: { spentOn: "desc" }, take: 10 }),
     prisma.vitrineCommissionReport.findMany({ orderBy: { periodStart: "desc" }, take: 10 }),
   ]);
@@ -66,7 +65,7 @@ export default async function VitrineFinanceiroPage() {
       <h2 className="mt-8 text-lg font-semibold">Registrar investimento (Meta Ads)</h2>
       <VitrineAdSpendForm />
       <ul className="mt-2 space-y-1 text-xs text-foreground/60">
-        {adSpends.map((row) => (
+        {adSpends.map((row: VitrineAdSpend) => (
           <li key={row.id}>
             {row.spentOn.toLocaleDateString("pt-BR")} — {brl(row.amountBrl.toNumber())} —{" "}
             {row.source === "meta_api" ? "automático (Meta)" : "manual"}
@@ -78,7 +77,7 @@ export default async function VitrineFinanceiroPage() {
       <h2 className="mt-8 text-lg font-semibold">Registrar comissão (painel do Mercado Livre)</h2>
       <VitrineCommissionForm />
       <ul className="mt-2 space-y-1 text-xs text-foreground/60">
-        {commissionReports.map((row) => (
+        {commissionReports.map((row: VitrineCommissionReport) => (
           <li key={row.id}>
             {row.periodStart.toLocaleDateString("pt-BR")}–{row.periodEnd.toLocaleDateString("pt-BR")} —
             direta {brl(row.directAmountBrl.toNumber())} + indireta {brl(row.indirectAmountBrl.toNumber())} —{" "}
@@ -88,8 +87,6 @@ export default async function VitrineFinanceiroPage() {
         ))}
       </ul>
 
-      <h2 className="mt-8 text-lg font-semibold">Aprendizado contínuo</h2>
-      <p className="text-foreground/70 mt-2 text-sm">{learning.reason}</p>
     </div>
   );
 }

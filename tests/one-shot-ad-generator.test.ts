@@ -115,7 +115,7 @@ describe("buildOneShotPrompt — preserves real product information, never inven
     expect(prompt).toContain("Não adicione nenhum objeto");
   });
 
-  it("keeps the proven 18% crop-safety margin instruction", () => {
+  it("tells the model the truth about framing (no crop happens) and requires a real bottom margin for the CTA banner", () => {
     const prompt = buildOneShotPrompt({
       externalId: "MLB-TEST",
       title: "Produto V",
@@ -127,8 +127,8 @@ describe("buildOneShotPrompt — preserves real product information, never inven
       hasConfirmedDiscount: false,
       benefits: [],
     });
-    expect(prompt).toContain("18% superiores");
-    expect(prompt).toContain("18% inferiores");
+    expect(prompt).toContain("esta é a imagem FINAL, ela NÃO será cortada depois");
+    expect(prompt).toContain("margem vazia real de pelo menos 6%");
   });
 });
 

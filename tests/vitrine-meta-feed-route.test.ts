@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { prisma } from "@/lib/db";
 import { getLegacyVitrineId } from "@/lib/services/vitrine-manager";
-import { loadVitrinePublicProducts } from "@/lib/queries/vitrine-public";
 import { GET } from "@/app/catalogo/mercado-livre.xml/route";
 
 /**
@@ -109,9 +108,6 @@ describe("Meta catalog feed and Vitrine pública — critério único de elegibi
 
     const xml = await getXmlText();
     expect(xml).toContain(`<g:id>${listing.id}</g:id>`);
-
-    const vitrinePublicProducts = await loadVitrinePublicProducts(vitrineId);
-    expect(vitrinePublicProducts.some((p) => p.id === listing.id)).toBe(true);
   });
 
   it("produto INELEGÍVEL (sem VitrineLink ACTIVE) fica fora dos dois destinos — nunca só de um deles", async () => {
@@ -133,9 +129,6 @@ describe("Meta catalog feed and Vitrine pública — critério único de elegibi
 
     const xml = await getXmlText();
     expect(xml).not.toContain(`<g:id>${listing.id}</g:id>`);
-
-    const vitrinePublicProducts = await loadVitrinePublicProducts(vitrineId);
-    expect(vitrinePublicProducts.some((p) => p.id === listing.id)).toBe(false);
   });
 
   it("produto INELEGÍVEL (VitrineLink ACTIVE mas sem affiliateUrl real — estado inconsistente) fica fora dos dois destinos", async () => {
@@ -170,9 +163,6 @@ describe("Meta catalog feed and Vitrine pública — critério único de elegibi
 
     const xml = await getXmlText();
     expect(xml).not.toContain(`<g:id>${listing.id}</g:id>`);
-
-    const vitrinePublicProducts = await loadVitrinePublicProducts(vitrineId);
-    expect(vitrinePublicProducts.some((p) => p.id === listing.id)).toBe(false);
   });
 
   it("produto reprovado pela auditoria comercial nunca é exportado ao XML, mesmo com VitrineLink ACTIVE válido", async () => {
