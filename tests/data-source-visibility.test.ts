@@ -252,42 +252,9 @@ describe("ProductCandidate never leaks into any public query", () => {
   });
 });
 
-describe("sitemap and robots stay dataSource-aware", () => {
-  afterEach(() => {
-    vi.resetModules();
-    vi.unstubAllEnvs();
-  });
-
-  it("sitemap lists no product URLs when nothing is currently visible", async () => {
-    vi.resetModules();
-    vi.stubEnv("PUBLIC_CATALOG_ENABLED", "false");
-    const { default: sitemap } = await import("@/app/sitemap");
-    const entries = await sitemap();
-    expect(entries.some((e) => e.url.includes(MANUAL_SLUG))).toBe(false);
-    expect(entries.some((e) => e.url.includes(MOCK_SLUG))).toBe(false);
-  });
-
-  it("sitemap includes a MANUAL_VERIFIED product once its gate is on, but never a MOCK one while the catalog is unsafe", async () => {
-    vi.resetModules();
-    vi.stubEnv("PUBLIC_CATALOG_ENABLED", "true");
-    vi.stubEnv("MANUAL_PRODUCTS_ENABLED", "true");
-    vi.stubEnv("AMAZON_PROVIDER", "mock");
-    vi.stubEnv("NODE_ENV", "production");
-    const { default: sitemap } = await import("@/app/sitemap");
-    const entries = await sitemap();
-    expect(entries.some((e) => e.url.includes(MANUAL_SLUG))).toBe(true);
-    expect(entries.some((e) => e.url.includes(MOCK_SLUG))).toBe(false);
-  });
-
-  it("robots allows the catalog once a MANUAL_VERIFIED cohort is visible, even with AMAZON_PROVIDER=mock in production", async () => {
-    vi.resetModules();
-    vi.stubEnv("PUBLIC_CATALOG_ENABLED", "true");
-    vi.stubEnv("MANUAL_PRODUCTS_ENABLED", "true");
-    vi.stubEnv("AMAZON_PROVIDER", "mock");
-    vi.stubEnv("NODE_ENV", "production");
-    const { default: robots } = await import("@/app/robots");
-    const result = await robots();
-    const rule = Array.isArray(result.rules) ? result.rules[0] : result.rules;
-    expect(rule?.disallow).not.toContain("/produto/");
-  });
-});
+// The "sitemap and robots stay dataSource-aware" describe block that used
+// to follow here was removed 2026-11-24: app/sitemap.ts and app/robots.ts
+// no longer have any dataSource-aware logic to test — the organic public
+// site they used to gate (and /produto itself) was deleted outright
+// (owner's decision; see git tag archive/preco-caindo-organico-2026-11-24
+// for the prior versions of both files).

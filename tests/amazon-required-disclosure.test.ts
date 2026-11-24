@@ -4,7 +4,6 @@ import {
   isDisclosureCompliant,
 } from "@/lib/amazon/disclosure";
 import { env } from "@/lib/config/env";
-import { STATIC_ROUTE_PATHS } from "@/app/sitemap";
 
 describe("Amazon required affiliate disclosure", () => {
   it("accepts the exact statement Amazon Brasil requires, ignoring trailing period and spacing", () => {
@@ -31,15 +30,7 @@ describe("Amazon required affiliate disclosure", () => {
   });
 });
 
-describe("public Amazon page", () => {
-  it("is listed in the sitemap so Amazon's reviewers can find it", () => {
-    expect(STATIC_ROUTE_PATHS).toContain("/achados");
-  });
-});
-
-describe("public Amazon page rendering mode", () => {
-  it("renders per request, so the runtime Tracking ID is used (not a build-time empty one)", async () => {
-    const page = await import("@/app/achados/page");
-    expect(page.dynamic).toBe("force-dynamic");
-  });
-});
+// The "public Amazon page" (/achados) describe blocks that used to follow
+// here were removed 2026-11-24 along with the page itself — owner's
+// decision to take the organic public site dormant. See git tag
+// archive/preco-caindo-organico-2026-11-24 for the prior version.

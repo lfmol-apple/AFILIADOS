@@ -18,16 +18,6 @@ const envSchema = z.object({
   NEXT_PUBLIC_SITE_URL: z.string().url().default("http://localhost:3000"),
   NEXT_PUBLIC_SITE_NAME: z.string().default("PreçoCaindo"),
 
-  // Owner's decision, 2026-11-24: take the public price-comparison site
-  // dormant (middleware.ts 404s everything except the Vitrine/admin
-  // surface, app/robots.ts and app/sitemap.ts also self-gate) and run
-  // only the Vitrine Inteligente campaign engine. Defaults to "full" —
-  // a true no-op until a human deliberately sets this in production.
-  // Reversible: flip back to "full" (or unset) to wake the site back up;
-  // the pre-pivot project state is also preserved at git tag
-  // archive/preco-caindo-organico-2026-11-24.
-  SITE_MODE: z.enum(["full", "vitrine_only"]).default("full"),
-
   // Web Push for the owner-only "site was accessed" alert (lib/push/send.ts).
   // The public key is also read directly as process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
   // from client components — Next only inlines a NEXT_PUBLIC_ var into the
