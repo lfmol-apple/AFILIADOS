@@ -352,6 +352,21 @@ const envSchema = z.object({
   /// VitrineCreativeSpend — never estimated).
   VITRINE_CREATIVE_DAILY_BUDGET_USD: z.coerce.number().positive().default(2),
   VITRINE_CREATIVE_MONTHLY_BUDGET_USD: z.coerce.number().positive().default(20),
+  /// AI Commercial Analyst (owner's authorization, 2026-11-22, "Motor de
+  /// Inteligência Comercial com IA", section 6: "limites configuráveis
+  /// de consumo... bloqueio de chamadas acima do orçamento"). A SEPARATE
+  /// ledger/ceiling from the creative budget above — text evaluation of
+  /// candidates (gpt-4o-mini, a few cents per 1k candidates), never image
+  /// generation. Deliberately small defaults — this is a new, unproven
+  /// cost center.
+  VITRINE_ANALYST_DAILY_BUDGET_USD: z.coerce.number().positive().default(1),
+  VITRINE_ANALYST_MONTHLY_BUDGET_USD: z.coerce.number().positive().default(10),
+  /// Of the real candidates that pass every objective gate (same pool
+  /// buildCommercialCandidatePool already produces), how many may be sent
+  /// to the AI per run — a second, request-shaped ceiling on top of the
+  /// dollar budget, so a single run can never silently consume the whole
+  /// monthly budget at once.
+  VITRINE_ANALYST_MAX_CANDIDATES_PER_RUN: z.coerce.number().int().positive().default(60),
   /// Same bind-mount pattern as PRODUCT_IMAGE_DIR above — a rebuild must
   /// never lose a generated creative (real money was spent on it).
   VITRINE_CREATIVE_DIR: z.string().default("data/vitrine-creatives"),

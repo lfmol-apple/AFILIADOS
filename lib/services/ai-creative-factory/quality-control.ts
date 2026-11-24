@@ -76,14 +76,52 @@ function checkStructural(imageBuffer: Buffer, expectedWidth: number, expectedHei
  *    gráfica") is checked separately and ALWAYS rejects outright,
  *    regardless of the other three outcomes — a real, serious defect
  *    class the old prompt never checked for at all. */
+/** Real data this specific ad_overlay generation was told to render —
+ * owner's directive ("padrão aprovado somente, não esqueça"): the fix
+ * for ad_overlay false-rejections is never to stop checking for
+ * invented content, only to tell the checker what REAL content was
+ * authorized to be drawn, so it can tell "real price rendered as
+ * designed" apart from "a price/benefit that doesn't match reality".
+ * Omit entirely for catalog_clean, which must keep the original
+ * stricter rule: nothing commercial added, period. */
+export interface ExpectedOverlay {
+  currentPriceBrl: number;
+  /** Only when a real, confirmed discount is being shown — never the
+   * catalog's generic "original price" guess. */
+  referencePriceBrl: number | null;
+  /** Real benefit bullets, exactly as sent to the generator — never
+   * paraphrased here, so the checker can match them literally. */
+  benefits: string[];
+}
+
+function formatBRL(value: number): string {
+  return value.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
 async function checkVisualFidelity(input: {
   originalPhotoBase64: string;
   generatedImageBase64: string;
   title: string;
+  expectedOverlay?: ExpectedOverlay;
 }): Promise<{ approved: boolean | null; note: string; costUsd: number | null; classification: VisualFidelityClassification | null }> {
   if (!env.OPENAI_API_KEY) {
     return { approved: null, note: "OPENAI_API_KEY não configurada — checagem visual não executada.", costUsd: null, classification: null };
   }
+
+  const overlay = input.expectedOverlay;
+  const discountPercent = overlay?.referencePriceBrl
+    ? Math.round((1 - overlay.currentPriceBrl / overlay.referencePriceBrl) * 100)
+    : null;
+  const overlaySection = overlay
+    ? `
+
+Esta segunda imagem é uma peça publicitária do padrão aprovado (one-shot) — ela DEVE adicionar, por cima da foto, estes elementos reais que foram explicitamente autorizados para esta geração:
+- Preço: ${formatBRL(overlay.currentPriceBrl)}${overlay.referencePriceBrl ? ` (de ${formatBRL(overlay.referencePriceBrl)})` : ""}
+${discountPercent !== null ? `- Um selo de desconto mostrando aproximadamente ${discountPercent}% OFF — esse percentual é calculado a partir dos dois preços reais acima, nunca um número inventado, mesmo que não apareça escrito na foto original.\n` : ""}- Benefícios reais: ${overlay.benefits.length > 0 ? overlay.benefits.join("; ") : "(nenhum benefício específico informado)"}
+- Uma barra de call-to-action do Mercado Livre ("Compre agora no Mercado Livre" ou equivalente)
+
+A presença desses elementos listados acima — preço, percentual de desconto calculado a partir dos preços reais, os benefícios citados, e a barra de CTA — é ESPERADA e CORRETA nesta imagem, e NUNCA conta como "conteudo_comercial_inventado". Só marque "conteudo_comercial_inventado": true se a segunda imagem mostrar um preço OU percentual DIFERENTE do calculado acima, um benefício que NÃO está na lista acima, ou qualquer especificação/característica do produto que seja factualmente falsa — nunca pela simples presença de preço/selo de desconto/CTA que já era esperada.`
+    : "";
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -105,7 +143,7 @@ IMPORTANTE — isto é esperado e NUNCA deve contar como defeito:
 
 O que REALMENTE conta como defeito (alteração factual do produto):
 - A marca, o modelo, a cor ou os acessórios/componentes reais e físicos do produto são diferentes entre as duas imagens.
-- A segunda imagem contém qualquer texto, preço, especificação ou benefício comercial desenhado pela IA que não existe fisicamente no produto.
+- A segunda imagem contém qualquer texto, preço, especificação ou benefício comercial desenhado pela IA que não existe fisicamente no produto e não foi explicitamente autorizado abaixo.${overlaySection}
 
 Responda em JSON estrito:
 {
@@ -229,6 +267,7 @@ export async function runQualityControl(input: {
   expectedHeight: number;
   originalPhotoBase64: string;
   title: string;
+  expectedOverlay?: ExpectedOverlay;
 }): Promise<QualityCheckResult> {
   const structural = checkStructural(input.generatedImageBuffer, input.expectedWidth, input.expectedHeight);
   if (!structural.ok) {
@@ -239,6 +278,7 @@ export async function runQualityControl(input: {
     originalPhotoBase64: input.originalPhotoBase64,
     generatedImageBase64: input.generatedImageBuffer.toString("base64"),
     title: input.title,
+    expectedOverlay: input.expectedOverlay,
   });
 
   if (vision.approved === true) {

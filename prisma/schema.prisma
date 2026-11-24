@@ -299,7 +299,7 @@ model MerchantListing {
   /// VitrineSelection's own doc comment) — real-time cross-vitrine
   /// exclusivity for ACTIVE rows is enforced separately, by a partial
   /// unique index on canonicalProductId (migration-only raw SQL).
-  vitrineSelections                VitrineSelection[]
+  vitrineSelections               VitrineSelection[]
   trend                           MerchantListingTrend?
   commercialCandidateRegistryRows CommercialCandidateRegistry[]
   vitrineCreatives                VitrineCreative[]
@@ -757,6 +757,32 @@ model VitrineSelection {
   reason         String
 
   activatedAt   DateTime?
+  /// Owner's authorization, 2026-11-23 ("Operação Cérebro Comercial" —
+  /// correção do orçamento de rotação): real root cause found — the
+  /// weekly rotation budget (VITRINE_MAX_WEEKLY_REPLACEMENTS) counts
+  /// EVERY row with a recent `activatedAt`, with no way to tell a real
+  /// commercial swap decision apart from a burst of development/testing
+  /// runs. Confirmed live: 8 real VITRINE_RENEW executions inside a
+  /// ~20h window (2026-11-19 21:47 to 2026-11-20 17:01, cross-referenced
+  /// against real AutomationRun rows) were the initial build/test of the
+  /// multi-vitrine feature, not 8 weeks of real rotation — yet they
+  /// exhausted the real budget for a human approving a real decision
+  /// today. Not a migration artifact (the 2026-11-22 multi-vitrine
+  /// migration never touches activatedAt — confirmed by reading its SQL).
+  /// "engine_commercial_swap": a real newcomer created by
+  /// jobs/vitrine-renew.ts's own rotation logic — cron-triggered or
+  /// admin-approved, same code path, always counts toward the budget.
+  /// "pre_production_testing": the 36 rows above, confirmed via
+  /// AutomationRun timestamps to be development-time iteration, not a
+  /// real weekly decision — backfilled ONCE, with real evidence, never
+  /// counts toward the budget. "manual_data_correction": reserved for a
+  /// future direct admin edit outside the engine — never implemented
+  /// yet, never counts. Nullable/additive: a row from before this field
+  /// existed that was never backfilled stays null and is treated the
+  /// same as "pre_production_testing" (excluded) by the counting query,
+  /// never silently treated as a real swap just because the field is
+  /// missing.
+  activationSource String?
   retiredAt     DateTime?
   /// Owner's directive, 2026-11-21 ("Registrar motivos de retirada"):
   /// `reason` is reused from the ORIGINAL selection and jobs/vitrine-
@@ -1625,4 +1651,65 @@ model CommercialSelectionCheckpoint {
 
   @@index([snapshotId, checkpointDays])
   @@index([dueAt, completedAt])
+}
+
+/// AI Commercial Analyst (owner's authorization, 2026-11-22, "Motor de
+/// Inteligência Comercial com IA"). One row per real evaluation actually
+/// performed — cached by (merchantListingId, evidenceFingerprint) so a
+/// candidate whose real evidence hasn't changed is NEVER re-evaluated
+/// (owner's explicit cost rule: "reavaliação somente quando houver
+/// mudança relevante"). `evidenceFingerprint` is a deterministic hash of
+/// the exact real evidence object sent to the model — never the model's
+/// own output — so a cache hit is provably "the same real inputs",
+/// never a stale guess.
+model CommercialAnalystEvaluation {
+  id                  String   @id @default(cuid())
+  merchantListingId   String
+  evidenceFingerprint String
+  /// The exact real evidence object sent to the model — kept so a human
+  /// (or a future audit) can always see precisely what the AI did and
+  /// did not have access to.
+  evidenceSnapshot    Json
+  /// "priorizar" | "observar" | "rejeitar" — never anything else.
+  recommendation      String
+  commercialScore     Int
+  confidence          Float
+  favorableArguments  Json
+  risks               Json
+  evidenceUsed        Json
+  missingData         Json
+  /// The literal model response text, kept verbatim for audit — a
+  /// prompt/parsing change must never silently rewrite history.
+  rawResponseText     String?
+  model               String
+  promptTokens        Int?
+  completionTokens    Int?
+  costUsd             Decimal? @db.Decimal(8, 4)
+  /// Set when this row is a deterministic fallback (budget exceeded /
+  /// API not configured / response failed validation) rather than a
+  /// real model call — never silently indistinguishable from a real
+  /// evaluation.
+  isFallback          Boolean  @default(false)
+  createdAt           DateTime @default(now())
+
+  @@unique([merchantListingId, evidenceFingerprint])
+  @@index([merchantListingId])
+  @@index([createdAt])
+}
+
+/// Real, metered spend ledger for the AI Commercial Analyst — a SEPARATE
+/// ledger from VitrineCreativeSpend (different budget, different purpose:
+/// text evaluation of candidates, never image generation). Same pattern
+/// as lib/services/ai-creative-factory/budget.ts, owner's explicit rule
+/// unchanged: "implemente limites configuráveis de gasto... bloqueio de
+/// chamadas acima do orçamento."
+model CommercialAnalystSpend {
+  id           String   @id @default(cuid())
+  spentOn      DateTime
+  amountUsd    Decimal  @db.Decimal(8, 4)
+  evaluationId String?
+  note         String?
+  recordedAt   DateTime @default(now())
+
+  @@index([spentOn])
 }

@@ -400,6 +400,11 @@ export async function runVitrineCreativeFactoryJob() {
         expectedHeight: 1536,
         originalPhotoBase64: photoBuffer.toString("base64"),
         title: product.title,
+        expectedOverlay: {
+          currentPriceBrl: product.currentPrice,
+          referencePriceBrl: hasConfirmedDiscount ? product.referencePrice : null,
+          benefits: realBenefitTexts,
+        },
       });
       if (qc.visionCheckCostUsd) {
         await recordCreativeSpend({ amountUsd: qc.visionCheckCostUsd, note: "Checagem visual de qualidade" });

@@ -10,6 +10,20 @@ afterEach(async () => {
   });
 });
 
+/** Deterministic replacement for a fixed-delay guess — runJob()'s own lock
+ * check+create isn't atomic (findFirst then create, two separate awaits),
+ * so a fixed setTimeout guess can race it under load/GC pauses. Polling
+ * the real row removes that race instead of lengthening the guess. */
+async function waitForRunning(job: string, timeoutMs = 5000): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    const run = await prisma.automationRun.findFirst({ where: { job, status: "RUNNING" }, orderBy: { startedAt: "desc" } });
+    if (run) return;
+    await new Promise((r) => setTimeout(r, 5));
+  }
+  throw new Error(`Timed out waiting for AutomationRun ${job} to reach RUNNING`);
+}
+
 describe("runJob locking", () => {
   it("blocks a second concurrent run of the same job", async () => {
     const jobName = `${TEST_JOB_PREFIX}CONCURRENT`;
@@ -23,7 +37,7 @@ describe("runJob locking", () => {
     });
 
     // Let the first run actually create its RUNNING row before racing the second.
-    await new Promise((r) => setTimeout(r, 50));
+    await waitForRunning(jobName);
 
     await expect(runJob(jobName, async () => {})).rejects.toThrow(
       /already running/,

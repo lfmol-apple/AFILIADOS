@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { evaluatePublicationGate, MAX_OBSERVATION_AGE_MS } from "@/lib/services/publication-gate";
+import {
+  evaluateCommercialEligibility,
+  evaluatePublicationGate,
+  MAX_OBSERVATION_AGE_MS,
+} from "@/lib/services/publication-gate";
 import type { MerchantListingFacts } from "@/lib/services/merchant-listing-facts";
 
 const NOW = new Date();
@@ -122,7 +126,7 @@ describe("evaluatePublicationGate", () => {
     const result = evaluatePublicationGate(baseFacts({ rating: 4.8, affiliateLinkStatus: "DISABLED", affiliateUrl: null }));
     expect(result.ctaEligible).toBe(false);
     expect(result.indexable).toBe(false);
-    expect(result.missing).toContain("AffiliateLinkRegistry não está ACTIVE (sem link comercial real)");
+    expect(result.missing).toContain("Link de afiliado não está ACTIVE (sem link comercial real)");
   });
 
   it("10. nenhuma queda inventada: um único ponto de preço nunca produz menção a queda", () => {
@@ -142,5 +146,65 @@ describe("evaluatePublicationGate", () => {
     const stale = evaluatePublicationGate(baseFacts({ lastObservedAt: STALE, rating: 4.8 }));
     expect(stale.indexable).toBe(false);
     expect(stale.missing).toContain("Nenhuma observação real recente (última observação ausente ou obsoleta)");
+  });
+
+  it("13. commercial x seoValueAdd: comercialmente elegível mas sem valor editorial não é a mesma coisa que inelegível", () => {
+    // Tudo comercial OK (ativo, preço válido, link ACTIVE, observação recente),
+    // mas nenhum evento de preço/demanda/qualidade/identidade -> indexable=false
+    // deve significar "sem valor de SEO ainda", nunca "comercialmente inelegível".
+    const result = evaluatePublicationGate(baseFacts());
+    expect(result.commercial.eligible).toBe(true);
+    expect(result.commercial.missing).toEqual([]);
+    expect(result.seoValueAdd.present).toBe(false);
+    expect(result.indexable).toBe(false);
+  });
+
+  it("14. commercial x seoValueAdd: comercialmente inelegível aparece em commercial.missing, não em seoValueAdd", () => {
+    const result = evaluatePublicationGate(baseFacts({ active: false, rating: 4.8 }));
+    expect(result.commercial.eligible).toBe(false);
+    expect(result.commercial.missing).toContain("Listing inativo");
+    // O evento de qualidade real continua presente como valor de SEO —
+    // as duas camadas nunca se misturam.
+    expect(result.seoValueAdd.present).toBe(true);
+    expect(result.indexable).toBe(false);
+  });
+});
+
+describe("evaluateCommercialEligibility (critério único reutilizado pelos dois destinos)", () => {
+  const baseInput = {
+    active: true,
+    title: "Produto Real",
+    externalId: "ext-1",
+    currentPrice: 49.9,
+    lastObservedAt: new Date(),
+    linkStatus: "ACTIVE",
+    linkUrl: "https://example.com/real-affiliate-link",
+  };
+
+  it("elegível quando ativo, com preço válido, link ACTIVE com URL e observação recente", () => {
+    const result = evaluateCommercialEligibility(baseInput);
+    expect(result.eligible).toBe(true);
+    expect(result.missing).toEqual([]);
+  });
+
+  it("inelegível sem link ACTIVE, qualquer que seja a tabela de origem (AffiliateLinkRegistry ou VitrineLink)", () => {
+    const pending = evaluateCommercialEligibility({ ...baseInput, linkStatus: "PENDING", linkUrl: null });
+    expect(pending.eligible).toBe(false);
+    expect(pending.missing).toContain("Link de afiliado não está ACTIVE (sem link comercial real)");
+
+    const activeNoUrl = evaluateCommercialEligibility({ ...baseInput, linkStatus: "ACTIVE", linkUrl: null });
+    expect(activeNoUrl.eligible).toBe(false);
+  });
+
+  it("inelegível quando inativo, sem preço válido ou com observação obsoleta — mesmo critério, independente do destino", () => {
+    expect(evaluateCommercialEligibility({ ...baseInput, active: false }).eligible).toBe(false);
+    expect(evaluateCommercialEligibility({ ...baseInput, currentPrice: null }).eligible).toBe(false);
+    expect(evaluateCommercialEligibility({ ...baseInput, currentPrice: 0 }).eligible).toBe(false);
+    expect(
+      evaluateCommercialEligibility({
+        ...baseInput,
+        lastObservedAt: new Date(Date.now() - MAX_OBSERVATION_AGE_MS - 1000),
+      }).eligible,
+    ).toBe(false);
   });
 });

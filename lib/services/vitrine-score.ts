@@ -8,6 +8,7 @@ import type { TrendDirection } from "@/lib/services/listing-trend";
 import type { SalesEvidence } from "@/lib/services/commercial-intelligence/sales-evidence";
 import type { CommissionEvidence } from "@/lib/services/commercial-intelligence/commission-evidence";
 import type { PriceCompetitivenessEvidence } from "@/lib/services/commercial-intelligence/price-competitiveness";
+import { COMMISSION_CONFIDENCE_TIER } from "@/lib/services/commercial-intelligence/commission-evidence-labels";
 
 /**
  * Vitrine Inteligente score v3 (owner's authorization, 2026-11-19,
@@ -104,13 +105,26 @@ export interface VitrineScoreInput {
 
 export function calculateVitrineScore(input: VitrineScoreInput): VitrineScoreResult {
   // Owner's authorization, 2026-11-19 ("Ordem de Execução", section 4,
-  // repeated after the first review): a commission observation older
+  // repeated after the first review), refined 2026-11-23 ("corrigir o
+  // tratamento da comissão histórica"): a commission observation older
   // than evaluateCommissionEvidence's 45-day freshness window (type
   // "historical") is still real data — never hidden — but must never
-  // carry the SAME weight as a confirmed-current one. Halved rather than
-  // zeroed: an old R$80 commission is still weaker evidence than no data
-  // at all would be, just not as strong as a fresh one.
+  // carry the SAME weight as a confirmed-current one. The multiplier now
+  // comes from the single shared COMMISSION_CONFIDENCE_TIER table (one
+  // of 4 explicit tiers: confirmed_individual/promotional_temporary/
+  // historical/category_tier — see that table's own doc comment for why
+  // category_tier sits below historical rather than sharing its 0.5),
+  // instead of a binary stale-or-not cut. `degradedDimensions`
+  // classification (what counts toward evidence-sufficiency) is
+  // DELIBERATELY left keyed on `stale` alone, unchanged — this only
+  // makes the SCORE more finely graded; it never newly excludes a
+  // promotional_temporary candidate from "we have enough real signal"
+  // (owner's explicit rule: "não elimine automaticamente produtos
+  // promissores só porque a comissão está desatualizada").
   const commissionStale = input.commissionEvidence?.stale ?? false;
+  const commissionMultiplier = input.commissionEvidence
+    ? COMMISSION_CONFIDENCE_TIER[input.commissionEvidence.type].scoreMultiplier
+    : 1;
   const degradedDimensions: string[] = [];
   if (commissionStale && input.commissionEvidence?.estimatedValueBrl != null) degradedDimensions.push("commissionValue");
 
@@ -123,7 +137,7 @@ export function calculateVitrineScore(input: VitrineScoreInput): VitrineScoreRes
     commissionValue: {
       value:
         input.commissionEvidence?.estimatedValueBrl != null
-          ? Math.round(commissionValueToScore(input.commissionEvidence.estimatedValueBrl) * (commissionStale ? 0.5 : 1))
+          ? Math.round(commissionValueToScore(input.commissionEvidence.estimatedValueBrl) * commissionMultiplier)
           : null,
       weight: VITRINE_SCORE_WEIGHTS.commissionValue,
       detail: input.commissionEvidence?.source ?? "Sem evidência de comissão.",
@@ -180,8 +194,12 @@ export function calculateVitrineScore(input: VitrineScoreInput): VitrineScoreRes
       "comissão: SEM EVIDÊNCIA — a API de descoberta do Mercado Livre não divulga comissão (confirmado: GET /items/{id} retorna 403 para itens de outros vendedores). Reduz a confiança, nunca escondido.",
     );
   }
-  if (commissionStale) {
-    reasons.push("comissão: evidência DESATUALIZADA (>45 dias) — valor contado pela metade no score, nunca tratada como vigente.");
+  if (input.commissionEvidence?.type === "historical") {
+    reasons.push(`comissão: evidência DESATUALIZADA (>45 dias) — valor contado a ${Math.round(commissionMultiplier * 100)}% no score, nunca tratada como vigente.`);
+  } else if (input.commissionEvidence?.type === "category_tier") {
+    reasons.push(`comissão: ESTIMATIVA POR CATEGORIA (nunca confirmada individualmente) — valor contado a ${Math.round(commissionMultiplier * 100)}% no score, menos confiável que uma observação individual antiga.`);
+  } else if (input.commissionEvidence?.type === "promotional_temporary") {
+    reasons.push(`comissão: CAMPANHA PROMOCIONAL TEMPORÁRIA — real e individual, mas pode expirar sem aviso; valor contado a ${Math.round(commissionMultiplier * 100)}% no score.`);
   }
 
   const score = weightPresent > 0 ? Math.round(weightedSum / weightPresent) : 0;
