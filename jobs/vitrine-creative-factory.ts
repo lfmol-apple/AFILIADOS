@@ -11,6 +11,8 @@ import {
   isBakedPriceStale,
   shouldRegenerateAdOverlay,
   shouldAttemptPriceRegenerationNow,
+  shouldSkipDueToRejectionCooldown,
+  promptFieldChanged,
   OneShotReferenceMissingError,
   OneShotMigrationNotAuthorizedError,
   ONE_SHOT_MECHANISM_TAG,
@@ -18,8 +20,20 @@ import {
 import { runQualityControl } from "@/lib/services/ai-creative-factory/quality-control";
 import { renderCatalogClean, toBuffer } from "@/lib/services/ai-creative-factory/compositor";
 import type { ImpulseFitHypothesis } from "@/lib/services/commercial-intelligence/ad-potential-hypothesis";
-import { saveAiBase, saveFinalRender } from "@/lib/services/ai-creative-factory/creative-image-store";
+import { saveAiBase, saveFinalRender, finalRenderExists } from "@/lib/services/ai-creative-factory/creative-image-store";
 import { interpretProduct } from "@/lib/services/ai-creative-factory/product-interpretation";
+
+/** Owner's directive, 2026-11-24 ("solicitação manual explícita" as one of
+ * the only legitimate reasons to force a regeneration): same allowlist
+ * shape as VITRINE_ONE_SHOT_MIGRATION_ALLOWLIST — comma-separated real
+ * merchantListingIds. Bypasses every skip/cooldown check below for
+ * exactly the listed products; empty (the default) bypasses nothing. */
+function isManuallyForced(merchantListingId: string): boolean {
+  return env.VITRINE_CREATIVE_FORCE_REGENERATE_IDS.split(",")
+    .map((id) => id.trim())
+    .filter(Boolean)
+    .includes(merchantListingId);
+}
 
 /**
  * Fábrica Inteligente de Criativos — orchestration job.
@@ -136,15 +150,38 @@ export async function runVitrineCreativeFactoryJob() {
       const realBenefitTexts = creativeProfile.benefits.map((b) => b.text);
 
       // ==================== catalog_clean (unchanged mechanism) ====================
-      const latestCatalogClean = await prisma.vitrineCreative.findFirst({
+      const forced = isManuallyForced(selection.merchantListingId);
+      const recentCatalogClean = await prisma.vitrineCreative.findMany({
         where: { merchantListingId: selection.merchantListingId, kind: "catalog_clean" },
         orderBy: { version: "desc" },
+        take: env.VITRINE_CREATIVE_REJECTION_MAX_CONSECUTIVE,
       });
+      const latestCatalogClean = recentCatalogClean[0] ?? null;
       const catalogPromptInputsPrev = latestCatalogClean?.promptInputs as Record<string, unknown> | undefined;
-      const catalogCategoryChanged = catalogPromptInputsPrev && catalogPromptInputsPrev.categoryHint !== categoryHint;
-      const catalogEventChanged = catalogPromptInputsPrev && catalogPromptInputsPrev.isSeasonalEvent !== eventName;
-      const catalogNeedsFullGeneration =
-        !latestCatalogClean || latestCatalogClean.qualityStatus === "rejected" || catalogCategoryChanged || catalogEventChanged;
+      // Real root cause, 2026-11-24: promptFieldChanged treats "field was
+      // never recorded" (undefined — e.g. a row created by tooling other
+      // than this job) as unknown, never as "changed". A raw `!==` here
+      // previously forced a full regeneration of every such row on every
+      // single run, regardless of whether anything real changed.
+      const catalogCategoryChanged = promptFieldChanged(catalogPromptInputsPrev?.categoryHint, categoryHint);
+      const catalogEventChanged = promptFieldChanged(catalogPromptInputsPrev?.isSeasonalEvent, eventName);
+      const catalogFileMissing =
+        !!latestCatalogClean && latestCatalogClean.qualityStatus === "approved" && !finalRenderExists(selection.merchantListingId, "catalog_clean", latestCatalogClean.version);
+      const catalogObjectiveTriggerFired =
+        !latestCatalogClean || latestCatalogClean.qualityStatus === "rejected" || catalogCategoryChanged || catalogEventChanged || catalogFileMissing;
+      const catalogInCooldown =
+        !forced &&
+        latestCatalogClean?.qualityStatus === "rejected" &&
+        shouldSkipDueToRejectionCooldown({
+          recentAttempts: recentCatalogClean.map((c) => ({ qualityStatus: c.qualityStatus as "approved" | "rejected" | "pending", generatedAt: c.generatedAt })),
+          maxConsecutive: env.VITRINE_CREATIVE_REJECTION_MAX_CONSECUTIVE,
+          cooldownHours: env.VITRINE_CREATIVE_REJECTION_COOLDOWN_HOURS,
+          now: new Date(),
+        });
+      const catalogNeedsFullGeneration = forced || (catalogObjectiveTriggerFired && !catalogInCooldown);
+      if (catalogInCooldown) {
+        logger.info("vitrine_creative_factory.catalog_clean_rejection_cooldown", { merchantListingId: selection.merchantListingId });
+      }
 
       if (catalogNeedsFullGeneration) {
         const budget = await checkCreativeBudget();
@@ -264,14 +301,20 @@ export async function runVitrineCreativeFactoryJob() {
       }
 
       // ==================== ad_overlay (one-shot mechanism, owner-approved) ====================
-      const latestAdOverlay = await prisma.vitrineCreative.findFirst({
+      const recentAdOverlay = await prisma.vitrineCreative.findMany({
         where: { merchantListingId: selection.merchantListingId, kind: "ad_overlay" },
         orderBy: { version: "desc" },
+        take: env.VITRINE_CREATIVE_REJECTION_MAX_CONSECUTIVE,
       });
+      const latestAdOverlay = recentAdOverlay[0] ?? null;
       const adPromptInputsPrev = latestAdOverlay?.promptInputs as Partial<AdOverlayPromptInputs> | undefined;
       const adMechanismMismatch = !!latestAdOverlay && adPromptInputsPrev?.mechanism !== ONE_SHOT_MECHANISM_TAG;
-      const adCategoryChanged = !!adPromptInputsPrev && adPromptInputsPrev.categoryHint !== categoryHint;
-      const adEventChanged = !!adPromptInputsPrev && adPromptInputsPrev.isSeasonalEvent !== eventName;
+      // Real root cause, 2026-11-24: see promptFieldChanged's own doc
+      // comment — a row whose promptInputs never recorded categoryHint/
+      // isSeasonalEvent (written by something other than this job) must
+      // never be treated as "changed" just because the field is absent.
+      const adCategoryChanged = promptFieldChanged(adPromptInputsPrev?.categoryHint, categoryHint);
+      const adEventChanged = promptFieldChanged(adPromptInputsPrev?.isSeasonalEvent, eventName);
       const adPriceStale =
         !!latestAdOverlay && !adMechanismMismatch && typeof adPromptInputsPrev?.bakedCurrentPrice === "number"
           ? isBakedPriceStale({
@@ -281,16 +324,45 @@ export async function runVitrineCreativeFactoryJob() {
               liveReferencePrice: product.referencePrice,
             })
           : false;
-      const adNeedsFullGeneration = shouldRegenerateAdOverlay({
-        hasExistingRow: !!latestAdOverlay,
-        existingQualityStatus: (latestAdOverlay?.qualityStatus as "approved" | "rejected" | "pending" | null) ?? null,
-        existingMechanism: (adPromptInputsPrev?.mechanism as string | undefined) ?? null,
-        categoryChanged: adCategoryChanged,
-        eventChanged: adEventChanged,
-        priceStale: adPriceStale,
-      });
+      const adFileMissing =
+        !!latestAdOverlay && latestAdOverlay.qualityStatus === "approved" && !finalRenderExists(selection.merchantListingId, "ad_overlay", latestAdOverlay.version);
+      const adObjectiveTriggerFired =
+        shouldRegenerateAdOverlay({
+          hasExistingRow: !!latestAdOverlay,
+          existingQualityStatus: (latestAdOverlay?.qualityStatus as "approved" | "rejected" | "pending" | null) ?? null,
+          existingMechanism: (adPromptInputsPrev?.mechanism as string | undefined) ?? null,
+          categoryChanged: adCategoryChanged,
+          eventChanged: adEventChanged,
+          priceStale: adPriceStale,
+        }) || adFileMissing;
+      // Rejection cooldown applies ONLY when the sole reason pointing to
+      // a regeneration is "the last attempt was rejected" — never when a
+      // mechanism/category/event/price/file trigger also fired, since
+      // those are each already a deliberate, one-time, objective reason
+      // (owner's directive: those keep working exactly as before).
+      const rejectionIsOnlyTrigger =
+        !!latestAdOverlay &&
+        latestAdOverlay.qualityStatus === "rejected" &&
+        !adMechanismMismatch &&
+        !adCategoryChanged &&
+        !adEventChanged &&
+        !adPriceStale &&
+        !adFileMissing;
+      const adInCooldown =
+        !forced &&
+        rejectionIsOnlyTrigger &&
+        shouldSkipDueToRejectionCooldown({
+          recentAttempts: recentAdOverlay.map((c) => ({ qualityStatus: c.qualityStatus as "approved" | "rejected" | "pending", generatedAt: c.generatedAt })),
+          maxConsecutive: env.VITRINE_CREATIVE_REJECTION_MAX_CONSECUTIVE,
+          cooldownHours: env.VITRINE_CREATIVE_REJECTION_COOLDOWN_HOURS,
+          now: new Date(),
+        });
+      const adNeedsFullGeneration = forced || (adObjectiveTriggerFired && !adInCooldown);
 
       if (!adNeedsFullGeneration) {
+        if (adInCooldown) {
+          logger.info("vitrine_creative_factory.ad_overlay_rejection_cooldown", { merchantListingId: selection.merchantListingId });
+        }
         counters.adSkipped += 1;
         continue;
       }
@@ -302,7 +374,10 @@ export async function runVitrineCreativeFactoryJob() {
       // wrong-priced image comes down immediately regardless; only the
       // real paid attempt to replace it waits for the product's price to
       // settle for a bit.
-      const priceStaleOnly = adPriceStale && !adMechanismMismatch && !adCategoryChanged && !adEventChanged && latestAdOverlay?.qualityStatus !== "rejected";
+      // A manual force (owner's explicit request) always bypasses the
+      // price-regeneration debounce too — "solicitação manual explícita"
+      // means now, not "wait for the debounce window".
+      const priceStaleOnly = !forced && adPriceStale && !adMechanismMismatch && !adCategoryChanged && !adEventChanged && latestAdOverlay?.qualityStatus !== "rejected";
       if (priceStaleOnly && latestAdOverlay) {
         const canAttemptNow = shouldAttemptPriceRegenerationNow({
           lastAttemptAt: latestAdOverlay.generatedAt,

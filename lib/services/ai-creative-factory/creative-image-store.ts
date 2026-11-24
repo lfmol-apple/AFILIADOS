@@ -43,6 +43,26 @@ export function saveFinalRender(merchantListingId: string, kind: "catalog_clean"
   return `${env.NEXT_PUBLIC_SITE_URL}/api/vitrine/creative-asset/${name}`;
 }
 
+/** Owner's directive, 2026-11-24 ("arquivo ausente, corrompido ou
+ * inválido" as one of the only legitimate reasons to force a
+ * regeneration): the cheapest real validity check — does the exact file
+ * this row's version claims to have saved actually exist on disk, with
+ * non-zero size? This is precisely the thing that broke once already
+ * (an ad-hoc `docker run` without the host bind mount lost a batch of
+ * "approved" rows' real files — see scripts/run-vitrine-cron.sh's own
+ * incident note) — a DB row saying "approved" is not proof the bytes are
+ * actually there. Deliberately NOT a deeper validity check (image
+ * decode, dimension re-verification, etc.) — the owner asked for the
+ * cheapest real check, not a new architecture. */
+export function finalRenderExists(merchantListingId: string, kind: "catalog_clean" | "ad_overlay", version: number): boolean {
+  try {
+    const stats = fs.statSync(path.join(dir(), fileName(merchantListingId, kind, version, "png")));
+    return stats.isFile() && stats.size > 0;
+  } catch {
+    return false;
+  }
+}
+
 export function readAssetByFileName(name: string): Buffer | null {
   // Defends against path traversal — a served route calls this with a
   // raw URL segment, never trusted as a safe path by construction.

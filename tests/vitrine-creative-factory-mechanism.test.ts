@@ -16,8 +16,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 const oneShotMock = vi.fn();
 const generateCreativeBaseMock = vi.fn();
 const createMock = vi.fn();
-const findFirstMock = vi.fn();
+const findManyCreativeMock = vi.fn();
 const updateManyMock = vi.fn();
+const finalRenderExistsMock = vi.fn(() => true); // default: files are always present unless a test says otherwise
 
 vi.mock("@/lib/jobs/automation-run", () => ({
   runJob: async (_name: string, fn: (ctx: { counters: Record<string, number>; metadata: Record<string, unknown> }) => Promise<void>) => {
@@ -41,7 +42,11 @@ vi.mock("@/lib/db", () => ({
       ]),
     },
     vitrineCreative: {
-      findFirst: findFirstMock,
+      // Real job code (jobs/vitrine-creative-factory.ts, fixed 2026-11-24)
+      // reads the last N rows via findMany (take: the consecutive-
+      // rejection limit), newest-first — never findFirst alone — so a
+      // rejection-streak cooldown can be computed from real history.
+      findMany: findManyCreativeMock,
       create: createMock,
       updateMany: updateManyMock,
     },
@@ -97,24 +102,27 @@ vi.mock("@/lib/services/ai-creative-factory/compositor", () => ({
 vi.mock("@/lib/services/ai-creative-factory/creative-image-store", () => ({
   saveAiBase: vi.fn(() => "fake-ai-base.png"),
   saveFinalRender: vi.fn(() => "https://precocaindo.com.br/api/vitrine/creative-asset/fake-final.png"),
+  finalRenderExists: finalRenderExistsMock,
 }));
 
 beforeEach(() => {
   vi.stubGlobal("fetch", vi.fn(async () => ({ ok: true, headers: { get: () => "image/jpeg" }, arrayBuffer: async () => new ArrayBuffer(8) })));
-  findFirstMock.mockReset();
+  findManyCreativeMock.mockReset();
   createMock.mockReset();
   updateManyMock.mockReset();
   oneShotMock.mockReset();
   generateCreativeBaseMock.mockReset();
+  finalRenderExistsMock.mockReset();
+  finalRenderExistsMock.mockReturnValue(true);
 
   // catalog_clean: pretend an approved row already exists so that path is
   // skipped — this test isolates proof for ad_overlay specifically.
   // ad_overlay: no existing row at all — forces full (one-shot) generation.
-  findFirstMock.mockImplementation(async (args: { where: { kind: string } }) => {
+  findManyCreativeMock.mockImplementation(async (args: { where: { kind: string } }) => {
     if (args.where.kind === "catalog_clean") {
-      return { version: 1, qualityStatus: "approved", promptInputs: { categoryHint: null, isSeasonalEvent: null } };
+      return [{ version: 1, qualityStatus: "approved", promptInputs: { categoryHint: null, isSeasonalEvent: null }, generatedAt: new Date() }];
     }
-    return null; // no ad_overlay row yet
+    return []; // no ad_overlay row yet
   });
 
   oneShotMock.mockResolvedValue({
@@ -180,16 +188,19 @@ describe("runVitrineCreativeFactoryJob — ad_overlay really uses the one-shot m
 
     // An existing, already-published one-shot row whose baked price (200)
     // no longer matches the live price (228.90) mocked in beforeEach.
-    findFirstMock.mockImplementation(async (args: { where: { kind: string } }) => {
+    findManyCreativeMock.mockImplementation(async (args: { where: { kind: string } }) => {
       if (args.where.kind === "catalog_clean") {
-        return { version: 1, qualityStatus: "approved", promptInputs: { categoryHint: null, isSeasonalEvent: null } };
+        return [{ version: 1, qualityStatus: "approved", promptInputs: { categoryHint: null, isSeasonalEvent: null }, generatedAt: new Date() }];
       }
-      return {
-        id: "ad-overlay-old-row",
-        version: 1,
-        qualityStatus: "approved",
-        promptInputs: { mechanism: "one_shot_v1", bakedCurrentPrice: 200, bakedReferencePrice: null, categoryHint: null, isSeasonalEvent: null },
-      };
+      return [
+        {
+          id: "ad-overlay-old-row",
+          version: 1,
+          qualityStatus: "approved",
+          generatedAt: new Date(),
+          promptInputs: { mechanism: "one_shot_v1", bakedCurrentPrice: 200, bakedReferencePrice: null, categoryHint: null, isSeasonalEvent: null },
+        },
+      ];
     });
 
     const { runVitrineCreativeFactoryJob } = await import("@/jobs/vitrine-creative-factory");
@@ -202,17 +213,19 @@ describe("runVitrineCreativeFactoryJob — ad_overlay really uses the one-shot m
 
   it("debounces a price-only staleness trigger — unpublishes immediately but never spends money again inside the minimum interval", async () => {
     const recentAttempt = new Date(Date.now() - 2 * 60 * 60 * 1000); // 2h ago
-    findFirstMock.mockImplementation(async (args: { where: { kind: string } }) => {
+    findManyCreativeMock.mockImplementation(async (args: { where: { kind: string } }) => {
       if (args.where.kind === "catalog_clean") {
-        return { version: 1, qualityStatus: "approved", promptInputs: { categoryHint: null, isSeasonalEvent: null } };
+        return [{ version: 1, qualityStatus: "approved", promptInputs: { categoryHint: null, isSeasonalEvent: null }, generatedAt: new Date() }];
       }
-      return {
-        id: "ad-overlay-price-stale-row",
-        version: 1,
-        qualityStatus: "approved",
-        generatedAt: recentAttempt, // last real attempt only 2h ago
-        promptInputs: { mechanism: "one_shot_v1", bakedCurrentPrice: 200, bakedReferencePrice: null, categoryHint: null, isSeasonalEvent: null },
-      };
+      return [
+        {
+          id: "ad-overlay-price-stale-row",
+          version: 1,
+          qualityStatus: "approved",
+          generatedAt: recentAttempt, // last real attempt only 2h ago
+          promptInputs: { mechanism: "one_shot_v1", bakedCurrentPrice: 200, bakedReferencePrice: null, categoryHint: null, isSeasonalEvent: null },
+        },
+      ];
     });
 
     const { runVitrineCreativeFactoryJob } = await import("@/jobs/vitrine-creative-factory");
@@ -224,5 +237,169 @@ describe("runVitrineCreativeFactoryJob — ad_overlay really uses the one-shot m
     );
     // Cost control: the default minimum interval (24h) hasn't elapsed — no paid attempt yet.
     expect(oneShotMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("runVitrineCreativeFactoryJob — idempotency fix, 2026-11-24 (real incident this closes)", () => {
+  it("never regenerates an approved, valid, unchanged ad_overlay — the exact bug that wasted money on 6 already-good creatives", async () => {
+    // Real incident reproduced here: an existing row whose promptInputs
+    // never recorded categoryHint/isSeasonalEvent (e.g. written by
+    // tooling other than this job) used to be mistaken for "changed"
+    // because `undefined !== null` is true. This row is approved,
+    // unchanged (no price/category/event delta), and the file genuinely
+    // exists (finalRenderExistsMock defaults to true) — must be skipped.
+    findManyCreativeMock.mockImplementation(async (args: { where: { kind: string } }) => {
+      if (args.where.kind === "catalog_clean") {
+        return [{ version: 1, qualityStatus: "approved", promptInputs: { categoryHint: null, isSeasonalEvent: null }, generatedAt: new Date() }];
+      }
+      return [
+        {
+          id: "ad-overlay-already-good",
+          version: 1,
+          qualityStatus: "approved",
+          generatedAt: new Date(),
+          // Deliberately missing categoryHint/isSeasonalEvent, same shape
+          // an ad-hoc script (not this job) would have written.
+          promptInputs: { mechanism: "one_shot_v1", bakedCurrentPrice: 228.9, bakedReferencePrice: 376.7 },
+        },
+      ];
+    });
+
+    const { runVitrineCreativeFactoryJob } = await import("@/jobs/vitrine-creative-factory");
+    await runVitrineCreativeFactoryJob();
+
+    expect(oneShotMock).not.toHaveBeenCalled();
+    expect(createMock.mock.calls.some((call) => call[0].data.kind === "ad_overlay")).toBe(false);
+  });
+
+  it("still regenerates when the category genuinely changed to a different RECORDED value (a real objective trigger, not a false positive)", async () => {
+    findManyCreativeMock.mockImplementation(async (args: { where: { kind: string } }) => {
+      if (args.where.kind === "catalog_clean") {
+        return [{ version: 1, qualityStatus: "approved", promptInputs: { categoryHint: null, isSeasonalEvent: null }, generatedAt: new Date() }];
+      }
+      return [
+        {
+          id: "ad-overlay-category-changed",
+          version: 1,
+          qualityStatus: "approved",
+          generatedAt: new Date(),
+          promptInputs: { mechanism: "one_shot_v1", bakedCurrentPrice: 228.9, bakedReferencePrice: 376.7, categoryHint: "some-other-category", isSeasonalEvent: null },
+        },
+      ];
+    });
+
+    const { runVitrineCreativeFactoryJob } = await import("@/jobs/vitrine-creative-factory");
+    await runVitrineCreativeFactoryJob();
+
+    expect(oneShotMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("regenerates when the approved row's file is missing from disk, even though the DB says approved", async () => {
+    finalRenderExistsMock.mockReturnValue(false);
+    findManyCreativeMock.mockImplementation(async (args: { where: { kind: string } }) => {
+      if (args.where.kind === "catalog_clean") {
+        return [{ version: 1, qualityStatus: "approved", promptInputs: { categoryHint: null, isSeasonalEvent: null }, generatedAt: new Date() }];
+      }
+      return [
+        {
+          id: "ad-overlay-file-missing",
+          version: 1,
+          qualityStatus: "approved",
+          generatedAt: new Date(),
+          promptInputs: { mechanism: "one_shot_v1", bakedCurrentPrice: 228.9, bakedReferencePrice: 376.7 },
+        },
+      ];
+    });
+
+    const { runVitrineCreativeFactoryJob } = await import("@/jobs/vitrine-creative-factory");
+    await runVitrineCreativeFactoryJob();
+
+    expect(oneShotMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("stops auto-retrying after the consecutive-rejection limit, within the cooldown window", async () => {
+    const recent = new Date(Date.now() - 1 * 60 * 60 * 1000); // 1h ago
+    const older = new Date(Date.now() - 5 * 60 * 60 * 1000); // 5h ago
+    findManyCreativeMock.mockImplementation(async (args: { where: { kind: string } }) => {
+      if (args.where.kind === "catalog_clean") {
+        return [{ version: 1, qualityStatus: "approved", promptInputs: { categoryHint: null, isSeasonalEvent: null }, generatedAt: new Date() }];
+      }
+      // Default VITRINE_CREATIVE_REJECTION_MAX_CONSECUTIVE is 2 — two
+      // rejected attempts in a row, most recent 1h ago (well inside the
+      // default 24h cooldown).
+      return [
+        { id: "v2", version: 2, qualityStatus: "rejected", generatedAt: recent, promptInputs: { mechanism: "one_shot_v1", bakedCurrentPrice: 228.9, bakedReferencePrice: 376.7 } },
+        { id: "v1", version: 1, qualityStatus: "rejected", generatedAt: older, promptInputs: { mechanism: "one_shot_v1", bakedCurrentPrice: 228.9, bakedReferencePrice: 376.7 } },
+      ];
+    });
+
+    const { runVitrineCreativeFactoryJob } = await import("@/jobs/vitrine-creative-factory");
+    await runVitrineCreativeFactoryJob();
+
+    // Would otherwise regenerate forever (existingQualityStatus ===
+    // "rejected" always triggered a regen before this fix) — now blocked
+    // by the cooldown instead of spending money on a 3rd doomed attempt.
+    expect(oneShotMock).not.toHaveBeenCalled();
+  });
+
+  it("VITRINE_CREATIVE_FORCE_REGENERATE_IDS bypasses every skip/cooldown check for exactly the listed product", async () => {
+    vi.stubEnv("VITRINE_CREATIVE_FORCE_REGENERATE_IDS", "listing-tssaper-1");
+    findManyCreativeMock.mockImplementation(async (args: { where: { kind: string } }) => {
+      if (args.where.kind === "catalog_clean") {
+        return [{ version: 1, qualityStatus: "approved", promptInputs: { categoryHint: null, isSeasonalEvent: null }, generatedAt: new Date() }];
+      }
+      // Approved, valid, unchanged AND file present — normally skipped.
+      return [
+        {
+          id: "ad-overlay-force",
+          version: 1,
+          qualityStatus: "approved",
+          generatedAt: new Date(),
+          promptInputs: { mechanism: "one_shot_v1", bakedCurrentPrice: 228.9, bakedReferencePrice: 376.7 },
+        },
+      ];
+    });
+
+    const { runVitrineCreativeFactoryJob } = await import("@/jobs/vitrine-creative-factory");
+    await runVitrineCreativeFactoryJob();
+
+    expect(oneShotMock).toHaveBeenCalledTimes(1);
+    vi.unstubAllEnvs();
+  });
+
+  it("a rejected attempt never overwrites/unpublishes the prior approved version when the trigger was NOT a confirmed price change", async () => {
+    // Category genuinely changed (a real trigger) but the regeneration
+    // attempt gets rejected by QC — the prior approved row must stay
+    // published exactly as it was (owner's rule: a failed attempt never
+    // substitutes a good one). This is distinct from the price-stale
+    // case (tested above), where unpublishing on rejection IS correct.
+    const qualityControl = await import("@/lib/services/ai-creative-factory/quality-control");
+    vi.mocked(qualityControl.runQualityControl).mockResolvedValueOnce({
+      status: "rejected",
+      notes: "defeito real (mock)",
+      visionCheckCostUsd: null,
+      classification: "alteracao_factual",
+    });
+    findManyCreativeMock.mockImplementation(async (args: { where: { kind: string } }) => {
+      if (args.where.kind === "catalog_clean") {
+        return [{ version: 1, qualityStatus: "approved", promptInputs: { categoryHint: null, isSeasonalEvent: null }, generatedAt: new Date() }];
+      }
+      return [
+        {
+          id: "ad-overlay-category-changed-then-rejected",
+          version: 1,
+          qualityStatus: "approved",
+          generatedAt: new Date(),
+          promptInputs: { mechanism: "one_shot_v1", bakedCurrentPrice: 228.9, bakedReferencePrice: 376.7, categoryHint: "some-other-category", isSeasonalEvent: null },
+        },
+      ];
+    });
+
+    const { runVitrineCreativeFactoryJob } = await import("@/jobs/vitrine-creative-factory");
+    await runVitrineCreativeFactoryJob();
+
+    expect(updateManyMock).not.toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: "ad-overlay-category-changed-then-rejected" } }),
+    );
   });
 });

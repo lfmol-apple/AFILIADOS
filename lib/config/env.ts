@@ -420,6 +420,30 @@ const envSchema = z.object({
   /// rejected/category/event-driven regeneration — those are already
   /// deliberate, one-time events, never a repeating price chase.
   VITRINE_PRICE_REGENERATION_MIN_INTERVAL_HOURS: z.coerce.number().positive().default(24),
+  /// Owner's directive, 2026-11-24 ("implemente um limite de tentativas e
+  /// um período de espera para impedir que o mesmo criativo reprovado
+  /// consuma dinheiro repetidamente"): real incident this closes — a run
+  /// of jobs/vitrine-creative-factory.ts retried a rejected ad_overlay
+  /// unconditionally every single cycle, forever, with no limit. Once
+  /// this many CONSECUTIVE rejected attempts have piled up for the same
+  /// (merchantListingId, kind), auto-retry stops until
+  /// VITRINE_CREATIVE_REJECTION_COOLDOWN_HOURS has passed since the last
+  /// attempt — surfaced as "needs manual review" rather than silently
+  /// retried. A single approved attempt resets the streak.
+  VITRINE_CREATIVE_REJECTION_MAX_CONSECUTIVE: z.coerce.number().int().positive().default(2),
+  /// Paired with VITRINE_CREATIVE_REJECTION_MAX_CONSECUTIVE above — once
+  /// the streak limit is hit, how long to wait before trying again. Same
+  /// order of magnitude as VITRINE_PRICE_REGENERATION_MIN_INTERVAL_HOURS
+  /// (this project's existing debounce convention), not a new policy.
+  VITRINE_CREATIVE_REJECTION_COOLDOWN_HOURS: z.coerce.number().positive().default(24),
+  /// Owner's directive, 2026-11-24 ("solicitação manual explícita" as one
+  /// of the only legitimate reasons to force a regeneration): comma-
+  /// separated real merchantListingIds that bypass every skip/cooldown
+  /// check below and always regenerate on the next run, regardless of
+  /// approved/valid state — the explicit manual override, same
+  /// allowlist-of-real-ids shape as VITRINE_ONE_SHOT_MIGRATION_ALLOWLIST.
+  /// Empty (the default) forces nothing — fail closed.
+  VITRINE_CREATIVE_FORCE_REGENERATE_IDS: z.string().default(""),
 });
 
 export type Env = z.infer<typeof envSchema>;

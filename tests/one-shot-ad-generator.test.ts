@@ -5,6 +5,8 @@ import {
   isBakedPriceStale,
   shouldRegenerateAdOverlay,
   shouldAttemptPriceRegenerationNow,
+  shouldSkipDueToRejectionCooldown,
+  promptFieldChanged,
   prioritizeRegenerationCandidates,
   ONE_SHOT_MECHANISM_TAG,
 } from "@/lib/services/ai-creative-factory/one-shot-ad-generator";
@@ -66,7 +68,7 @@ describe("buildOneShotPrompt — preserves real product information, never inven
     expect(prompt).toContain("R$ 150,00");
   });
 
-  it("never fabricates a crossed-out price when no discount is confirmed", () => {
+  it("never fabricates a crossed-out price when no discount is confirmed, and loudly warns against inventing one", () => {
     const prompt = buildOneShotPrompt({
       externalId: "MLB-TEST",
       title: "Produto Y",
@@ -79,8 +81,32 @@ describe("buildOneShotPrompt — preserves real product information, never inven
       benefits: [],
     });
     expect(prompt).toContain("R$ 72,90");
-    expect(prompt).toContain("Não inclua nenhum preço anterior riscado");
-    expect(prompt).not.toMatch(/R\$ 72,90[\s\S]*de R\$/);
+    // Scoped to the actual price-badge bullet line, not the whole prompt —
+    // the new critical warning paragraph legitimately mentions the literal
+    // placeholder text 'de R$X' as an example of what NOT to draw, which
+    // would otherwise false-positive a broader whole-prompt regex.
+    const priceLine = prompt.split("\n").find((line) => line.includes("Selo de preço"));
+    expect(priceLine).not.toMatch(/de R\$\d/);
+    // Real failure, 2026-11-24: a single mid-list bullet wasn't enough to
+    // stop the model inventing a discount badge — this is the loud,
+    // standalone warning that replaced/reinforced it.
+    expect(prompt).toContain("AVISO CRÍTICO — ESTE PRODUTO NÃO TEM DESCONTO");
+    expect(prompt).toContain('NENHUM selo "% OFF"');
+  });
+
+  it("includes NO discount warning at all when a real discount IS confirmed", () => {
+    const prompt = buildOneShotPrompt({
+      externalId: "MLB-TEST",
+      title: "Produto Y2",
+      brand: null,
+      productPhoto: Buffer.alloc(0),
+      productPhotoContentType: "image/jpeg",
+      currentPrice: 72.9,
+      referencePrice: 100,
+      hasConfirmedDiscount: true,
+      benefits: [],
+    });
+    expect(prompt).not.toContain("AVISO CRÍTICO — ESTE PRODUTO NÃO TEM DESCONTO");
   });
 
   it("never fabricates a benefit icon when no real benefit was extracted", () => {
@@ -115,7 +141,16 @@ describe("buildOneShotPrompt — preserves real product information, never inven
     expect(prompt).toContain("Não adicione nenhum objeto");
   });
 
-  it("keeps the proven 18% crop-safety margin instruction", () => {
+  it("requires the CTA bar to fully fit both lines of logo and button text, never asks for an empty margin below it", () => {
+    // Real root cause, 2026-11-24 (corrected twice): the bar touching the
+    // bottom edge is the CORRECT, approved style (confirmed by direct
+    // comparison against the real Henrique reference) — the actual
+    // defect was content (the second text line) getting clipped because
+    // the bar wasn't sized to fit it. An earlier fix (commit 405fd17)
+    // wrongly diagnosed this as a missing-margin problem and asked for
+    // empty space instead, which a real production test confirmed did
+    // NOT fix anything. This asserts the corrected, fit-based instruction
+    // is present and that no "leave an empty margin" framing remains.
     const prompt = buildOneShotPrompt({
       externalId: "MLB-TEST",
       title: "Produto V",
@@ -127,8 +162,87 @@ describe("buildOneShotPrompt — preserves real product information, never inven
       hasConfirmedDiscount: false,
       benefits: [],
     });
-    expect(prompt).toContain("18% superiores");
-    expect(prompt).toContain("18% inferiores");
+    expect(prompt).toContain("DUAS linhas do logotipo do Mercado Livre");
+    expect(prompt).toContain("DUAS linhas do texto do botão");
+    expect(prompt).toContain("encostada na borda de baixo é o padrão correto e esperado");
+    expect(prompt).not.toMatch(/margem (vazia|real)/);
+    expect(prompt).not.toContain("espaço vazio");
+  });
+});
+
+describe("promptFieldChanged — treats a never-recorded field as unknown, never as 'changed'", () => {
+  it("is false when the field was never recorded (undefined), regardless of the current value", () => {
+    expect(promptFieldChanged(undefined, null)).toBe(false);
+    expect(promptFieldChanged(undefined, "Black Friday")).toBe(false);
+    expect(promptFieldChanged(undefined, undefined)).toBe(false);
+  });
+
+  it("is false when the recorded value matches the current value", () => {
+    expect(promptFieldChanged("eletronicos", "eletronicos")).toBe(false);
+    expect(promptFieldChanged(null, null)).toBe(false);
+  });
+
+  it("is true only when a previously-RECORDED value genuinely differs", () => {
+    expect(promptFieldChanged("Natal", "Black Friday")).toBe(true);
+    expect(promptFieldChanged(null, "Black Friday")).toBe(true);
+    expect(promptFieldChanged("Natal", null)).toBe(true);
+  });
+});
+
+describe("shouldSkipDueToRejectionCooldown — stops burning money on a creative that keeps failing", () => {
+  const now = new Date("2026-11-24T12:00:00Z");
+
+  it("never blocks when there are fewer attempts than the consecutive-rejection threshold", () => {
+    expect(
+      shouldSkipDueToRejectionCooldown({
+        recentAttempts: [{ qualityStatus: "rejected", generatedAt: now }],
+        maxConsecutive: 2,
+        cooldownHours: 24,
+        now,
+      }),
+    ).toBe(false);
+  });
+
+  it("never blocks when the streak includes an approved attempt", () => {
+    expect(
+      shouldSkipDueToRejectionCooldown({
+        recentAttempts: [
+          { qualityStatus: "rejected", generatedAt: now },
+          { qualityStatus: "approved", generatedAt: new Date("2026-11-23T12:00:00Z") },
+        ],
+        maxConsecutive: 2,
+        cooldownHours: 24,
+        now,
+      }),
+    ).toBe(false);
+  });
+
+  it("blocks once the consecutive-rejection streak is reached and the cooldown window hasn't elapsed", () => {
+    expect(
+      shouldSkipDueToRejectionCooldown({
+        recentAttempts: [
+          { qualityStatus: "rejected", generatedAt: now },
+          { qualityStatus: "rejected", generatedAt: new Date("2026-11-24T01:00:00Z") },
+        ],
+        maxConsecutive: 2,
+        cooldownHours: 24,
+        now,
+      }),
+    ).toBe(true);
+  });
+
+  it("allows another attempt once the cooldown window has fully elapsed since the last attempt", () => {
+    expect(
+      shouldSkipDueToRejectionCooldown({
+        recentAttempts: [
+          { qualityStatus: "rejected", generatedAt: new Date("2026-11-22T00:00:00Z") }, // 60h before `now`
+          { qualityStatus: "rejected", generatedAt: new Date("2026-11-21T00:00:00Z") },
+        ],
+        maxConsecutive: 2,
+        cooldownHours: 24,
+        now,
+      }),
+    ).toBe(false);
   });
 });
 

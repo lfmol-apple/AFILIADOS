@@ -126,18 +126,23 @@ function loadHenriqueStyleReference(): StyleReference {
   return { buffer: readFileSync(resolved), contentType: "image/png" };
 }
 
-/** Bottom-edge safety margin — real bug found live, 2026-11-24: the
- * prompt used to tell the model "this will be cropped to 4:5 afterward,
- * leave the top/bottom empty", a premise from an earlier architecture
- * that no longer applies (confirmed by reading this file and
- * openai-image-client.ts end to end: neither calls any image-processing
- * library — there is no crop step, the raw 1080x1350 generation IS the
- * final asset). Telling the model about a crop that never happens made
- * it place the Mercado Livre banner right at the literal bottom edge
- * (own observation: the CTA button text was visibly cut off in the
- * delivered asset), since it had no reason to think the edge mattered.
- * Fixed to ask for a real, modest margin instead of a false premise. */
-const BOTTOM_SAFE_MARGIN_PERCENT = 6;
+/** Real root cause, 2026-11-24, corrected version (commit 405fd17's own
+ * diagnosis was WRONG and its fix didn't hold on a real paid generation
+ * tested the same day): this is NOT a missing-margin problem. Direct
+ * visual comparison against the real owner-approved reference
+ * (data/vitrine-creative-reference/henrique-style-reference.png,
+ * 1122×1402, and the original approved pilot-result-3.png) shows the
+ * CTA bar flush against the literal bottom edge, zero margin below it —
+ * that IS the approved style, not a defect. The real difference: the
+ * approved reference's bar is TALL ENOUGH to fully render both lines of
+ * the Mercado Livre logo ("mercado"/"livre") and both lines of the
+ * button text ("Compre agora no"/"Mercado Livre") entirely within the
+ * canvas; the broken generations don't allocate enough height for that
+ * two-line content, so the second line gets genuinely clipped — missing
+ * content, not missing breathing room. Asking for an empty margin (as
+ * commit 405fd17 did) was solving the wrong problem, which is exactly
+ * why it didn't fix anything. The fix is a fit/sizing requirement
+ * instead — see the prompt text below. */
 
 /** Mirrors `pilot-henrique-style.ts`'s real, owner-approved prompt
  * structure, but every product-specific line is now built from real
@@ -155,10 +160,25 @@ export function buildOneShotPrompt(input: OneShotAdInput): string {
           .join(", ")}. Rótulo curto de 2-4 palavras ao lado de cada ícone.`
       : "- Não inclua ícones de benefício — nenhum benefício real e verificado está disponível para este produto; não invente um.";
 
-  const priceLine =
-    input.hasConfirmedDiscount && input.referencePrice !== null && input.referencePrice > input.currentPrice
-      ? `- Selo de preço vermelho e amarelo bem legível: "Por apenas" + preço real "R$ ${input.currentPrice.toFixed(2).replace(".", ",")}", e menor e riscado o preço anterior real "R$ ${input.referencePrice.toFixed(2).replace(".", ",")}".`
-      : `- Selo de preço vermelho e amarelo bem legível: "Por apenas" + preço real "R$ ${input.currentPrice.toFixed(2).replace(".", ",")}". Não inclua nenhum preço anterior riscado — não há desconto real confirmado para este produto.`;
+  const hasRealDrop = input.hasConfirmedDiscount && input.referencePrice !== null && input.referencePrice > input.currentPrice;
+  const priceLine = hasRealDrop
+    ? `- Selo de preço vermelho e amarelo bem legível: "Por apenas" + preço real "R$ ${input.currentPrice.toFixed(2).replace(".", ",")}", e menor e riscado o preço anterior real "R$ ${input.referencePrice!.toFixed(2).replace(".", ",")}".`
+    : `- Selo de preço vermelho e amarelo bem legível: "Por apenas" + preço real "R$ ${input.currentPrice.toFixed(2).replace(".", ",")}". Preço normal, sem nenhuma indicação de desconto (ver aviso crítico abaixo).`;
+
+  /** Real failure, 2026-11-24 (confirmed via quality-control rejection
+   * notes on a live production run): the single bullet point above
+   * telling the model "não inclua preço riscado" was NOT enough — the
+   * model invented a discount badge/percentage for a product with no
+   * confirmed discount anyway. A bullet buried mid-list is easy for an
+   * image model to deprioritize against its own trained instinct to draw
+   * a discount next to a price (a near-universal ad convention it has
+   * seen far more of in training than this specific prohibition). Fixed
+   * by promoting this into its own loud, repeated, standalone warning
+   * paragraph instead of one bullet among many — never softened, never
+   * removed even if it reads as repetitive. */
+  const noDiscountWarning = !hasRealDrop
+    ? `AVISO CRÍTICO — ESTE PRODUTO NÃO TEM DESCONTO: não existe desconto real confirmado para este produto. Isso significa, sem exceção: NENHUM selo "% OFF", NENHUMA porcentagem de desconto, NENHUM preço riscado/anterior, NENHUMA palavra "antes" ou "de R$X" com valor diferente do preço atual, NENHUM selo ou faixa de "promoção"/"oferta"/"liquidação". O preço R$ ${input.currentPrice.toFixed(2).replace(".", ",")} é o preço normal do produto, mostrado sozinho, sem nenhum elemento visual de desconto ao redor dele.`
+    : null;
 
   // Owner's directive, 2026-11-21: the approved pilot's dark, textured,
   // professional-looking background is part of what made it look like a
@@ -186,8 +206,22 @@ export function buildOneShotPrompt(input: OneShotAdInput): string {
     `Não invente avaliação, quantidade vendida ou certificação — não há dado real disponível para isso, então NÃO inclua nenhuma menção a nota ou vendas. Não use "últimas unidades" ou qualquer urgência artificial. Não adicione nenhum objeto, produto, embalagem, acessório, brinde ou item extra que não esteja fisicamente presente na foto original do produto.`,
     ``,
     `Linguagem do texto do anúncio: nunca escreva no anúncio palavras ou expressões que soem como processo de validação interna — por exemplo "real", "reais no anúncio", "confirmado", "verificado", "extraído do título", "validado", "comprovado". Escreva como um anúncio comercial de verdade, direto e atraente (ex.: "550 W de potência", "Reservatório de 800 ml", "39% OFF", "Economize R$ 147,80"). Os valores numéricos devem ser exatamente os fornecidos acima — nunca calcule, arredonde de forma diferente ou invente um novo número.`,
+    noDiscountWarning,
     ``,
-    `IMPORTANTE sobre enquadramento: esta é a imagem FINAL, ela NÃO será cortada depois — tudo que você desenhar permanece exatamente como está. Por isso, é essencial que NENHUM elemento toque ou ultrapasse a borda da imagem. Deixe uma margem vazia real de pelo menos ${BOTTOM_SAFE_MARGIN_PERCENT}% da altura total, sem nenhum elemento, entre a parte de baixo da faixa amarela do Mercado Livre e a borda inferior da imagem — a faixa inteira, incluindo o texto completo do botão "Compre agora no Mercado Livre", deve estar 100% visível, com folga real abaixo dela, nunca encostada ou cortada na borda. O mesmo vale pra borda superior: deixe uma margem real acima do título.`,
+    /** Corrected, 2026-11-24 (see this module's doc comment above for the
+     * full diagnosis): this is a FIT requirement, never a margin request.
+     * The bar touching the literal bottom edge is correct and expected —
+     * the real defect was content (the second line of the logo/button
+     * text) getting clipped because the bar wasn't allocated enough
+     * height for two full lines of each. Not verified yet against a real
+     * paid generation (none made during this fix, per the owner's
+     * explicit instruction not to spend money while implementing this) —
+     * if a real generation still clips the text, the next step is
+     * compositing the CTA bar as a separate deterministic layer instead
+     * of asking the image model to size it correctly on its own (see
+     * this module's own evaluation notes on deterministic overlay,
+     * compositor.tsx's renderAdOverlay). */
+    `IMPORTANTE sobre a faixa do Mercado Livre: ela deve terminar exatamente na borda inferior da imagem (encostada na borda de baixo é o padrão correto e esperado, igual à referência aprovada). O que NUNCA pode acontecer é conteúdo sendo cortado: a faixa precisa ser alta o suficiente para conter, inteiros e completamente legíveis do início ao fim, as DUAS linhas do logotipo do Mercado Livre ("mercado" e "livre", uma embaixo da outra) E as DUAS linhas do texto do botão ("Compre agora no" e "Mercado Livre", uma embaixo da outra) — nenhuma palavra, letra ou linha pode ficar cortada pela borda inferior da imagem. Se for preciso, aumente a altura da própria faixa amarela para caber as duas linhas de cada elemento por completo, em vez de cortar texto.`,
   ].join("\n");
 }
 
@@ -282,6 +316,58 @@ export function shouldAttemptPriceRegenerationNow(input: {
   if (!input.lastAttemptAt) return true;
   const hoursSinceLastAttempt = (input.now.getTime() - input.lastAttemptAt.getTime()) / (1000 * 60 * 60);
   return hoursSinceLastAttempt >= input.minIntervalHours;
+}
+
+/** Real root cause, 2026-11-24 (confirmed by reading this exact
+ * comparison in jobs/vitrine-creative-factory.ts against a row the
+ * owner's own ad-hoc scratch script had created earlier the same week):
+ * a row whose `promptInputs` never recorded a given field (because it
+ * was written by something other than this factory job) stores that
+ * field as `undefined`. A raw `previous !== current` comparison then
+ * reads `undefined !== null` (or `undefined !== "some real value"`) as
+ * TRUE — "changed" — for every single row like that, forever, even
+ * though nothing about the product actually changed. That falsely
+ * triggered a full paid regeneration for 6 already-approved, perfectly
+ * good creatives in one real production run (~part of a $1.63 round).
+ * This treats "the field was never recorded" as genuinely unknown —
+ * never evidence of change — which is what "a simples passagem do tempo
+ * não deve justificar nova geração" (owner's directive) really requires:
+ * silence isn't a signal. Only a previously-RECORDED, concretely
+ * different value counts as an objective trigger. */
+export function promptFieldChanged(previous: unknown, current: unknown): boolean {
+  return previous !== undefined && previous !== current;
+}
+
+export interface RejectionCooldownCheckInput {
+  /** `generatedAt`/`qualityStatus` of the most recent attempts for this
+   * exact (merchantListingId, kind), newest first — only as many as
+   * `maxConsecutive` need to be inspected by the caller. */
+  recentAttempts: Array<{ qualityStatus: "approved" | "rejected" | "pending"; generatedAt: Date }>;
+  maxConsecutive: number;
+  cooldownHours: number;
+  now: Date;
+}
+
+/** Owner's directive, 2026-11-24 ("implemente um limite de tentativas e
+ * um período de espera para impedir que o mesmo criativo reprovado
+ * consuma dinheiro repetidamente"): before today's fix, a rejected
+ * ad_overlay was retried unconditionally on every single cron cycle,
+ * forever — `existingQualityStatus === "rejected"` alone always forced a
+ * new paid attempt. This counts how many of the most recent attempts, in
+ * a row, were rejected; once that streak reaches `maxConsecutive`,
+ * further auto-retries are blocked until `cooldownHours` have passed
+ * since the LAST attempt in the streak. A single approved attempt (or
+ * fewer than `maxConsecutive` existing rows) never blocks anything — the
+ * streak must be unbroken and the caller is expected to pass attempts in
+ * newest-first order. Pure/testable, no DB access. */
+export function shouldSkipDueToRejectionCooldown(input: RejectionCooldownCheckInput): boolean {
+  const streak = input.recentAttempts.slice(0, input.maxConsecutive);
+  if (streak.length < input.maxConsecutive) return false;
+  const allRejected = streak.every((a) => a.qualityStatus === "rejected");
+  if (!allRejected) return false;
+  const lastAttemptAt = streak[0].generatedAt;
+  const hoursSinceLastAttempt = (input.now.getTime() - lastAttemptAt.getTime()) / (1000 * 60 * 60);
+  return hoursSinceLastAttempt < input.cooldownHours;
 }
 
 export interface RegenerationCandidate {
