@@ -109,15 +109,18 @@ async function checkVisualFidelity(input: {
   }
 
   const overlay = input.expectedOverlay;
+  const discountPercent = overlay?.referencePriceBrl
+    ? Math.round((1 - overlay.currentPriceBrl / overlay.referencePriceBrl) * 100)
+    : null;
   const overlaySection = overlay
     ? `
 
 Esta segunda imagem é uma peça publicitária do padrão aprovado (one-shot) — ela DEVE adicionar, por cima da foto, estes elementos reais que foram explicitamente autorizados para esta geração:
 - Preço: ${formatBRL(overlay.currentPriceBrl)}${overlay.referencePriceBrl ? ` (de ${formatBRL(overlay.referencePriceBrl)})` : ""}
-- Benefícios reais: ${overlay.benefits.length > 0 ? overlay.benefits.join("; ") : "(nenhum benefício específico informado)"}
+${discountPercent !== null ? `- Um selo de desconto mostrando aproximadamente ${discountPercent}% OFF — esse percentual é calculado a partir dos dois preços reais acima, nunca um número inventado, mesmo que não apareça escrito na foto original.\n` : ""}- Benefícios reais: ${overlay.benefits.length > 0 ? overlay.benefits.join("; ") : "(nenhum benefício específico informado)"}
 - Uma barra de call-to-action do Mercado Livre ("Compre agora no Mercado Livre" ou equivalente)
 
-A presença desses elementos listados acima — preço, selo de desconto quando houver, os benefícios citados, e a barra de CTA — é ESPERADA e CORRETA nesta imagem, e NUNCA conta como "conteudo_comercial_inventado". Só marque "conteudo_comercial_inventado": true se a segunda imagem mostrar um preço DIFERENTE do informado acima, um benefício que NÃO está na lista acima, ou qualquer especificação/característica do produto que seja factualmente falsa — nunca pela simples presença de preço/selo/CTA que já era esperada.`
+A presença desses elementos listados acima — preço, percentual de desconto calculado a partir dos preços reais, os benefícios citados, e a barra de CTA — é ESPERADA e CORRETA nesta imagem, e NUNCA conta como "conteudo_comercial_inventado". Só marque "conteudo_comercial_inventado": true se a segunda imagem mostrar um preço OU percentual DIFERENTE do calculado acima, um benefício que NÃO está na lista acima, ou qualquer especificação/característica do produto que seja factualmente falsa — nunca pela simples presença de preço/selo de desconto/CTA que já era esperada.`
     : "";
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
