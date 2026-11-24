@@ -1,0 +1,95 @@
+import Link from "next/link";
+import { HeaderCategoriesMenu } from "@/components/header-categories-menu";
+import { HeaderSearch } from "@/components/header-search";
+import { HeaderShortcuts } from "@/components/header-shortcuts";
+import { OFFER_CATEGORIES } from "@/lib/offers/categories";
+
+const NAV_CATEGORIES = OFFER_CATEGORIES.filter((c) => c.slug !== "outros");
+
+/**
+ * Site header, in two parts that render as siblings so the first can be
+ * sticky for the whole page (a sticky element only sticks within its
+ * parent):
+ *
+ * 1. A compact sticky bar — logo, and on wide screens the search and the
+ *    Categorias menu. "Ofertas" is the one loud element (.cta-offers in
+ *    globals.css) and is always in this bar.
+ * 2. Phones only: a non-sticky strip with the search box and (off /ofertas,
+ *    which has its own sticky category bar) a scrollable row of category
+ *    chips — everything is one thumb-swipe away without a hidden menu.
+ *
+ * The Categorias dropdown (HeaderCategoriesMenu) is CSS-only (group-hover /
+ * focus-within) and hidden on /ofertas, which lists the categories itself.
+ */
+export function SiteHeader() {
+  return (
+    <>
+      <header className="glass-bar sticky top-0 z-40">
+        <div className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 py-2 sm:gap-5 sm:px-6 sm:py-2.5">
+          <Link
+            href="/"
+            aria-label="PreçoCaindo — página inicial"
+            className="flex shrink-0 items-center gap-2 sm:gap-3"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logo-icon.png"
+              alt=""
+              width={64}
+              height={64}
+              className="h-9 w-9 min-[360px]:h-10 min-[360px]:w-10 sm:h-12 sm:w-12"
+            />
+            <span className="text-base font-extrabold tracking-tight min-[360px]:text-lg sm:text-xl">
+              PreçoCaindo
+            </span>
+          </Link>
+
+          <HeaderSearch
+            id="header-search"
+            className="ml-auto hidden max-w-sm flex-1 lg:block"
+          />
+
+          <nav
+            aria-label="Principal"
+            className="ml-auto flex items-center gap-3 text-sm sm:gap-5"
+          >
+            <HeaderCategoriesMenu categories={NAV_CATEGORIES} />
+            <Link
+              href="/ofertas"
+              className="cta-offers text-[0.95rem] sm:text-base"
+            >
+              <svg
+                viewBox="0 0 20 20"
+                fill="none"
+                className="h-4 w-4 sm:h-5 sm:w-5"
+                aria-hidden
+              >
+                <path
+                  d="M10.6 2.5H16a1.5 1.5 0 0 1 1.5 1.5v5.4a1.5 1.5 0 0 1-.44 1.06l-6.6 6.6a1.5 1.5 0 0 1-2.12 0L3.4 12.66a1.5 1.5 0 0 1 0-2.12l6.14-6.6a1.5 1.5 0 0 1 1.06-.44Z"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinejoin="round"
+                />
+                <circle cx="13.4" cy="6.6" r="1.1" fill="currentColor" />
+              </svg>
+              Ofertas
+            </Link>
+          </nav>
+        </div>
+      </header>
+
+      <div className="border-border-subtle border-b sm:hidden">
+        <div className="mx-auto w-full max-w-6xl px-4 py-2.5">
+          <div className="flex items-center gap-2">
+            <HeaderSearch
+              id="header-search-mobile"
+              className="min-w-0 flex-1"
+              placeholder="Buscar produtos"
+            />
+          </div>
+          <HeaderShortcuts categories={NAV_CATEGORIES} />
+        </div>
+      </div>
+    </>
+  );
+}

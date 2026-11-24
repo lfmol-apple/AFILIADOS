@@ -8,3 +8,4 @@ docs
 .github
 coverage
 npm-debug.log*
+wakeup

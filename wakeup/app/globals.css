@@ -1,0 +1,228 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #0f1720;
+  --brand: #0f766e;
+  --brand-foreground: #ffffff;
+  --surface-muted: #f6f7f6;
+  --border-subtle: #e4e7e5;
+  /* Liquid glass: translucent surfaces for what floats over the page
+   * (header, category bar, filter sheet, cookie banner). Product cards and
+   * their photos stay solid. */
+  --glass-bg: rgb(255 255 255 / 0.62);
+  --glass-border: rgb(15 23 32 / 0.1);
+  --glass-highlight: rgb(255 255 255 / 0.75);
+  --glass-shadow: 0 10px 30px -16px rgb(6 46 42 / 0.4);
+  --tint-1: rgb(15 118 110 / 0.14);
+  --tint-2: rgb(249 115 22 / 0.07);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-surface-muted: var(--surface-muted);
+  --color-border-subtle: var(--border-subtle);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+*,
+::before,
+::after {
+  box-sizing: border-box;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0d0c;
+    --foreground: #edf1ef;
+    --brand: #2dd4bf;
+    --brand-foreground: #04201c;
+    --surface-muted: #131817;
+    --border-subtle: #232b29;
+    --glass-bg: rgb(19 24 23 / 0.6);
+    --glass-border: rgb(255 255 255 / 0.1);
+    --glass-highlight: rgb(255 255 255 / 0.12);
+    --glass-shadow: 0 10px 30px -16px rgb(0 0 0 / 0.7);
+    --tint-1: rgb(45 212 191 / 0.15);
+    --tint-2: rgb(99 102 241 / 0.1);
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+  overflow-wrap: break-word;
+}
+
+/* Soft color behind everything, so the glass has something to blur. One fixed
+ * layer (no background-attachment: fixed, which repaints on scroll). */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(60rem 34rem at 92% -8%, var(--tint-1), transparent 70%),
+    radial-gradient(46rem 30rem at -10% 32%, var(--tint-2), transparent 70%);
+}
+
+/* Utilities (border-*, rounded-*) still win over these: they live in a lower
+ * cascade layer. */
+@layer components {
+  .glass,
+  .glass-bar,
+  .glass-nav {
+    background: var(--glass-bg);
+    box-shadow:
+      inset 0 1px 0 var(--glass-highlight),
+      var(--glass-shadow);
+  }
+  .glass {
+    border: 1px solid var(--glass-border);
+  }
+  .glass-bar {
+    border-bottom: 1px solid var(--glass-border);
+  }
+  /* Category bar: a full-width bar on phones, a floating card from lg up. */
+  .glass-nav {
+    border-bottom: 1px solid var(--glass-border);
+  }
+  @media (min-width: 1024px) {
+    .glass-nav {
+      border: 1px solid var(--glass-border);
+    }
+  }
+  @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+    .glass,
+    .glass-bar,
+    .glass-nav {
+      -webkit-backdrop-filter: blur(18px) saturate(1.6);
+      backdrop-filter: blur(18px) saturate(1.6);
+    }
+  }
+  @supports not (
+    (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))
+  ) {
+    .glass,
+    .glass-bar,
+    .glass-nav {
+      background: color-mix(in srgb, var(--background) 96%, transparent);
+    }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    .glass,
+    .glass-bar,
+    .glass-nav {
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      background: var(--background);
+    }
+  }
+}
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* `hidden` turns <body> into a scroll container, which silently breaks
+ * position: sticky for the site header. `clip` stops horizontal overflow
+ * without creating one. */
+@supports (overflow: clip) {
+  html,
+  body {
+    overflow-x: clip;
+  }
+}
+
+/* Header "Ofertas" call to action — deliberately loud (the site's main
+ * destination). Two layered effects: the button breathes (scale + brightness)
+ * and a ring radiates from it. Both stop for people who ask for reduced
+ * motion, and while hovered/focused so it never dodges a click. */
+.cta-offers {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.6rem 1.15rem;
+  border-radius: 9999px;
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  white-space: nowrap;
+  background-image: linear-gradient(135deg, #d9480f 0%, #e11d48 100%);
+  box-shadow: 0 8px 20px -8px rgba(225, 29, 72, 0.75);
+  animation: offers-breathe 1.8s ease-in-out infinite;
+}
+
+.cta-offers::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  animation: offers-ring 1.8s ease-out infinite;
+}
+
+.cta-offers:hover,
+.cta-offers:focus-visible {
+  animation-play-state: paused;
+  transform: scale(1.06);
+  filter: brightness(1.1);
+}
+
+.cta-offers:hover::after,
+.cta-offers:focus-visible::after {
+  animation: none;
+}
+
+.cta-offers:focus-visible {
+  outline: 3px solid var(--foreground);
+  outline-offset: 3px;
+}
+
+@keyframes offers-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.06);
+    filter: brightness(1.2);
+  }
+}
+
+@keyframes offers-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.6);
+  }
+  70%,
+  100% {
+    box-shadow: 0 0 0 10px rgba(225, 29, 72, 0);
+  }
+}
+
+/* 320px-wide phones: keep logo + name + button on one row without overflow. */
+@media (max-width: 359px) {
+  .cta-offers {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.875rem;
+    gap: 0.3rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta-offers,
+  .cta-offers::after {
+    animation: none;
+  }
+}

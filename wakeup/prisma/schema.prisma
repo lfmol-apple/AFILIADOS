@@ -1,0 +1,1715 @@
+// PreçoCaindo — core data model.
+// See docs/ARCHITECTURE.md for how these entities fit into the automation cycle.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CommerceProviderName {
+  AMAZON
+  MERCADO_LIVRE
+  SHOPEE
+}
+
+/// How confident a ProductMatchEvidence row is, in priority order (project
+/// brief: GTIN/EAN -> manufacturer/model id -> brand+model -> textual
+/// candidate). TEXTUAL_CANDIDATE alone never promotes a match to CONFIRMED —
+/// see MatchStatus below.
+enum MatchMethod {
+  GTIN
+  MANUFACTURER_ID
+  BRAND_MODEL
+  TEXTUAL_CANDIDATE
+}
+
+/// CANDIDATE: logged, not applied (MerchantListing.canonicalProductId
+/// untouched). CONFIRMED: strong enough evidence that the match was applied.
+/// REJECTED: explicitly reviewed and ruled out, kept so ProductMatcher never
+/// re-proposes the same pair. See lib/services/product-matcher.ts.
+enum MatchStatus {
+  CANDIDATE
+  CONFIRMED
+  REJECTED
+}
+
+/// How an AffiliateLinkRegistry row's affiliateUrl was obtained.
+/// MANUAL_ADMIN: a human pasted it via the /admin "Pendências de receita"
+/// queue (the original Mercado Livre flow — see
+/// docs/AFFILIATE_LINK_REGISTRY.md). API: generated programmatically
+/// through an official affiliate API (today, Shopee's generateShortLink).
+/// LEGACY: pre-existing link recorded during a backfill, source not
+/// tracked at generation time. MANUAL_ADMIN_CATEGORY: a human pasted it via
+/// the newer /admin/fila-links queue (2026-09-22), built from products read
+/// off the affiliate panel category by category — added so the 1,280 rows
+/// already ACTIVE before this value existed (all MANUAL_ADMIN/API/LEGACY)
+/// stay the clean "old" batch, and everything registered this way from now
+/// on is queryably "new" without touching a single existing row. See
+/// lib/services/ml-panel-register.ts.
+enum AffiliateLinkSource {
+  API
+  MANUAL_ADMIN
+  LEGACY
+  MANUAL_ADMIN_CATEGORY
+}
+
+enum AffiliateLinkStatus {
+  /// No affiliateUrl yet — a PENDING row can exist to represent "this
+  /// listing was queued for a human to generate a link", or the absence of
+  /// a row at all can mean the same thing; the admin queue query checks both.
+  PENDING
+  ACTIVE
+  /// Failed validation (wrong host, expired) or a marketplace signaled the
+  /// link no longer resolves — never auto-deleted, kept for audit.
+  INVALID
+  DISABLED
+}
+
+enum MerchantCode {
+  AMAZON
+  MERCADO_LIVRE
+  SHOPEE
+  AWIN
+  GENERIC_AFFILIATE
+}
+
+enum ExternalIdType {
+  ASIN
+  SKU
+  URL
+  MERCHANT_PRODUCT_ID
+}
+
+/// Kept intentionally small — see lib/config/marketplaces.ts for the
+/// runtime config each code maps to (host, currency, enabled, tag).
+enum Marketplace {
+  BR
+  US
+}
+
+/// Where a Product row's facts actually came from — the single source of
+/// truth for "is this safe to show a real visitor" (project brief Sprint
+/// 6, section 12). Independent of AMAZON_PROVIDER: a MANUAL_VERIFIED
+/// product's facts were entered and checked by a human, not fetched from
+/// any provider, so it is never gated by the mock-provider safety switch
+/// that protects MOCK data. See lib/config/public-catalog.ts.
+enum DataSource {
+  /// Demo/development data — lib/providers/mock-catalog.ts or the seed
+  /// script. Never publicly visible in production, unconditionally.
+  MOCK
+  /// A human entered and verified these facts by hand (title, ASIN,
+  /// category — never a fabricated price/rating/spec). Gated by
+  /// MANUAL_PRODUCTS_ENABLED, independent of AMAZON_PROVIDER.
+  MANUAL_VERIFIED
+  /// Reserved for when the real Creators API integration exists. Not
+  /// implemented yet — see docs/AMAZON.md. Gated the same way MOCK is
+  /// today (isPublicCatalogSafeToShow()).
+  AMAZON_API
+}
+
+enum Availability {
+  IN_STOCK
+  OUT_OF_STOCK
+  UNKNOWN
+}
+
+enum ContentType {
+  PRODUCT
+  BEST_OF
+  COMPARISON
+  CATEGORY
+  DEAL_SUMMARY
+}
+
+enum ContentStatus {
+  DRAFT
+  VALIDATING
+  APPROVED
+  REJECTED
+  PUBLISHED
+  STALE
+}
+
+enum DemandIntent {
+  PRODUCT_RESEARCH
+  PRICE
+  DEAL
+  BEST_OF
+  COMPARISON
+  CATEGORY
+  INFORMATIONAL
+}
+
+enum OpportunityStatus {
+  PENDING
+  IN_PROGRESS
+  DONE
+  DISCARDED
+}
+
+enum AutomationStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+  PARTIAL
+}
+
+enum UpdatePriority {
+  HOT
+  WARM
+  COLD
+}
+
+enum AlertChannel {
+  EMAIL
+}
+
+enum CreativeType {
+  PRICE_DROP
+  OPPORTUNITY
+  BEST_OF
+}
+
+enum CreativeFormat {
+  OG_IMAGE
+  INSTAGRAM_FEED
+  INSTAGRAM_STORY
+  PINTEREST
+}
+
+enum CreativeStatus {
+  DRAFT
+  READY
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ConsentChoice {
+  GRANTED
+  DENIED
+  UNSET
+}
+
+model Category {
+  id       String     @id @default(cuid())
+  name     String
+  slug     String     @unique
+  parentId String?
+  parent   Category?  @relation("CategoryToCategory", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryToCategory")
+  active   Boolean    @default(true)
+
+  products          Product[]
+  canonicalProducts CanonicalProduct[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([parentId])
+}
+
+model CanonicalProduct {
+  id             String    @id @default(cuid())
+  slug           String    @unique
+  /// Public-facing SEO slug for the Acquisition Engine product page
+  /// (/produto/[slug]), distinct from `slug` above — which stays the
+  /// internal upsert key ml-enrichment-collector.ts keys off of every 4h
+  /// cycle and must never change. Generated lazily (human-readable, from
+  /// real title/brand/model) the first time the page is resolved; null
+  /// until then. See lib/queries/public-product.ts.
+  publicSlug     String?   @unique
+  title          String
+  brand          String?
+  model          String?
+  gtin           String?
+  description    String?
+  imageUrl       String?
+  categoryId     String?
+  category       Category? @relation(fields: [categoryId], references: [id])
+  specifications Json?
+  active         Boolean   @default(true)
+
+  legacyProducts  Product[]
+  listings        MerchantListing[]
+  affiliateClicks AffiliateClick[]
+  matchEvidence   ProductMatchEvidence[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([categoryId])
+  @@index([active])
+}
+
+model Merchant {
+  id               String       @id @default(cuid())
+  code             MerchantCode @unique
+  name             String
+  homepageUrl      String?
+  active           Boolean      @default(false)
+  affiliateEnabled Boolean      @default(false)
+  metadata         Json?
+
+  listings        MerchantListing[]
+  affiliateClicks AffiliateClick[]
+  affiliateLinks  AffiliateLinkRegistry[]
+  vitrineLinks    VitrineLink[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MerchantListing {
+  id                 String            @id @default(cuid())
+  canonicalProductId String?
+  canonicalProduct   CanonicalProduct? @relation(fields: [canonicalProductId], references: [id])
+  merchantId         String
+  merchant           Merchant          @relation(fields: [merchantId], references: [id])
+  legacyProductId    String?
+  legacyProduct      Product?          @relation(fields: [legacyProductId], references: [id])
+  externalId         String
+  externalIdType     ExternalIdType
+  marketplace        Marketplace?
+  productUrl         String
+  source             DataSource        @default(MANUAL_VERIFIED)
+  availability       Availability      @default(UNKNOWN)
+  active             Boolean           @default(true)
+  /// Public-facing SEO slug for the Acquisition Engine product page
+  /// (/produto/[slug]) — only used for listings with no CanonicalProduct
+  /// (Shopee today). Generated lazily from the real title, never by
+  /// jobs/shopee-refresh.ts. See lib/queries/public-product.ts.
+  slug               String?           @unique
+
+  affiliateClicks                 AffiliateClick[]
+  signals                         MerchantListingSignal[]
+  monetizationScore               MonetizationScore?
+  matchEvidenceAsA                ProductMatchEvidence[]        @relation("MatchListingA")
+  matchEvidenceAsB                ProductMatchEvidence[]        @relation("MatchListingB")
+  affiliateLink                   AffiliateLinkRegistry?
+  vitrineLink                     VitrineLink?
+  /// Owner's authorization, 2026-11-22 ("Gerenciador de Vitrines
+  /// Inteligentes"): was a one-to-one relation (a listing could only
+  /// ever be in ONE VitrineSelection row, period). Now a list — the SAME
+  /// listing can have independent rows across different vitrines over
+  /// time (a paused/ended vitrine releases its products — see
+  /// VitrineSelection's own doc comment) — real-time cross-vitrine
+  /// exclusivity for ACTIVE rows is enforced separately, by a partial
+  /// unique index on canonicalProductId (migration-only raw SQL).
+  vitrineSelections               VitrineSelection[]
+  trend                           MerchantListingTrend?
+  commercialCandidateRegistryRows CommercialCandidateRegistry[]
+  vitrineCreatives                VitrineCreative[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  amazonMatch AmazonMatch?
+  priceAlerts PriceAlert[]
+
+  @@unique([merchantId, marketplace, externalId])
+  @@index([canonicalProductId])
+  @@index([legacyProductId])
+  @@index([merchantId, active])
+}
+
+enum AmazonMatchStatus {
+  MATCHED
+  NO_MATCH
+}
+
+/// One human decision per ML/Shopee MerchantListing: "does this exact
+/// product also exist on Amazon BR?" (owner's request, 2026-11-09 — every
+/// active listing, not just already-clicked ones, since a product with
+/// zero clicks today can still get one tomorrow). NO_MATCH is recorded
+/// just as deliberately as MATCHED, so the review queue (/admin's Amazon
+/// matching tool) never asks about the same listing twice. MATCHED always
+/// points at a real Product row (dataSource=MANUAL_VERIFIED, never price/
+/// image — see lib/services/manual-product-registration.ts) so the "Ver na
+/// Amazon" CTA on the original ML/Shopee page can reuse the exact same
+/// /go/amazon/[asin] redirect every other Amazon link already uses.
+model AmazonMatch {
+  id                String            @id @default(cuid())
+  merchantListingId String            @unique
+  merchantListing   MerchantListing   @relation(fields: [merchantListingId], references: [id], onDelete: Cascade)
+  status            AmazonMatchStatus
+  amazonProductId   String?
+  amazonProduct     Product?          @relation(fields: [amazonProductId], references: [id])
+  reviewedAt        DateTime          @default(now())
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@index([amazonProductId])
+}
+
+/// One decision the ProductMatcher made (or is proposing) about whether two
+/// MerchantListing rows represent the same real-world product. Every
+/// candidate is logged here, not just confirmed matches — project brief:
+/// "matching textual isolado nunca deve produzir associação definitiva
+/// silenciosa". Only CONFIRMED rows should ever cause
+/// MerchantListing.canonicalProductId to be set; CANDIDATE/REJECTED rows
+/// exist purely as an audit trail and to stop re-proposing the same pair.
+model ProductMatchEvidence {
+  id                 String            @id @default(cuid())
+  listingAId         String
+  listingA           MerchantListing   @relation("MatchListingA", fields: [listingAId], references: [id], onDelete: Cascade)
+  listingBId         String
+  listingB           MerchantListing   @relation("MatchListingB", fields: [listingBId], references: [id], onDelete: Cascade)
+  method             MatchMethod
+  confidence         Float
+  status             MatchStatus       @default(CANDIDATE)
+  /// What actually supported this decision — e.g. the compared GTIN values,
+  /// or the normalized brand/model tokens, or the textual similarity score
+  /// and the two titles compared. Never opaque — always enough to audit the
+  /// decision without re-running the matcher.
+  evidence           Json
+  canonicalProductId String?
+  canonicalProduct   CanonicalProduct? @relation(fields: [canonicalProductId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([listingAId, listingBId])
+  @@index([status])
+  @@index([canonicalProductId])
+}
+
+/// A time-stamped observation of commercial/demand signals for one listing
+/// — mirrors the Offer -> PriceHistory split already used for Product: this
+/// table is the append-only history, never overwritten in place. Every
+/// field is optional; a source that doesn't provide a given signal simply
+/// leaves it null, never a fabricated 0. `raw` keeps the source payload
+/// that produced this row, for audit and future reprocessing.
+model MerchantListingSignal {
+  id                String          @id @default(cuid())
+  merchantListingId String
+  merchantListing   MerchantListing @relation(fields: [merchantListingId], references: [id], onDelete: Cascade)
+  /// e.g. "mercado_livre_highlights", "mercado_livre_trends" — matches
+  /// DemandSource.name / provider naming, never a bare marketplace literal.
+  source            String
+
+  commissionRate            Float?
+  estimatedCommissionAmount Decimal? @db.Decimal(10, 2)
+  sellerExtraCommission     Decimal? @db.Decimal(10, 2)
+  soldQuantity              Int?
+  trendRank                 Int?
+  bestsellerRank            Int?
+  rating                    Float?
+  reviewCount               Int?
+
+  raw Json?
+
+  observedAt DateTime @default(now())
+
+  @@index([merchantListingId, observedAt])
+  @@index([source, observedAt])
+}
+
+/// Vitrine Inteligente Fase 2 — closes the gap the audit found: no 24h/7d/
+/// 30d/90d rank-trend rollup existed for ML/Shopee (unlike Amazon's
+/// PriceStats, computed by jobs/calculate-price-stats.ts from PriceHistory
+/// — this is the same idea applied to MerchantListingSignal.bestsellerRank
+/// instead of price). jobs/ml-trend-rollup.ts is the only writer. Scoped to
+/// the Vitrine's own scoring (lib/services/vitrine-score.ts) — deliberately
+/// NOT fed into the shared MonetizationScore the public /ofertas ranking
+/// uses, to keep that ranking's existing, already-tested behavior
+/// untouched.
+model MerchantListingTrend {
+  id                String          @id @default(cuid())
+  merchantListingId String          @unique
+  merchantListing   MerchantListing @relation(fields: [merchantListingId], references: [id], onDelete: Cascade)
+
+  rankLatest Int?
+  rank7dAgo  Int?
+  rank30dAgo Int?
+  rank90dAgo Int?
+
+  /// "rising" | "falling" | "stable" | "new" | "unknown" — "new" means no
+  /// sample old enough to compare against yet (never guessed as "stable").
+  direction String
+
+  /// Commercial-intelligence engine (owner's authorization, 2026-11-19,
+  /// section 1): real entry/exit/permanence tracking from the official
+  /// bestseller ranking, never confused with units-sold evolution (ML's
+  /// API never discloses units sold or sales growth — see
+  /// MercadoLivreProvider.getCatalogProductItems's own doc comment,
+  /// GET /items/{id} confirmed 403 for other sellers' items, re-verified
+  /// live 2026-11-19).
+  firstSeenInRankingAt DateTime?
+  /// Null while still appearing in the latest scan; set the first time a
+  /// listing that WAS ranked no longer appears for its category.
+  lastSeenInRankingAt  DateTime?
+  daysInRanking        Int?
+  bestRankEver         Int?
+  worstRankEver        Int?
+
+  computedAt DateTime @default(now())
+
+  @@index([direction])
+}
+
+/// Real GET /trends/{site} observations, persisted over time — previously
+/// "collected for observability only, never persisted" (see
+/// mercado-livre-trends-demand-source.ts's own doc comment, a real signal
+/// going to waste). Builds PreçoCaindo's own trending-keyword history, so
+/// lib/services/commercial-intelligence/trends-history.ts can classify a
+/// term as rising/falling/stable/new ONCE enough real observations exist
+/// — on day 1 of this table there's only ever one data point per keyword,
+/// by construction, never backfilled or guessed.
+model TrendKeywordObservation {
+  id         String   @id @default(cuid())
+  keyword    String
+  /// Mercado Livre's own rank position in that week's trends list (1 =
+  /// most searched) — real, never inverted/rescaled here.
+  rank       Int
+  categoryId String?
+  observedAt DateTime @default(now())
+
+  @@index([keyword, observedAt])
+}
+
+/// "Vale a pena investirmos tráfego/conteúdo neste listing?" — for
+/// PreçoCaindo internally, never the consumer. Deliberately NOT related to
+/// Product or OpportunityScore by any FK (project brief rule #10: never mix
+/// them). Scoped to one MerchantListing, not CanonicalProduct, because
+/// commission/demand are merchant-specific — the "same" canonical product
+/// can score differently per store. score/confidence are nullable on
+/// purpose: insufficient evidence must produce null, never a fabricated
+/// number (see lib/services/monetization-score.ts).
+model MonetizationScore {
+  id                String          @id @default(cuid())
+  merchantListingId String          @unique
+  merchantListing   MerchantListing @relation(fields: [merchantListingId], references: [id], onDelete: Cascade)
+
+  score          Int?
+  confidence     Float?
+  /// Per-dimension breakdown, each tagged with its EvidenceQuality
+  /// (OBSERVED / DERIVED_FROM_OBSERVED / HISTORICAL_INTERNAL / UNKNOWN) —
+  /// see types/monetization.ts for the exact shape.
+  components     Json
+  reasons        Json
+  missingSignals Json
+
+  calculatedAt DateTime @default(now())
+
+  @@index([score])
+}
+
+/// The one commercial (monetizable) link PreçoCaindo has for a listing —
+/// separate from MerchantListing.productUrl (that's the plain public
+/// product page; this is what actually earns commission). 1:1 with
+/// MerchantListing rather than fields bolted onto it: MerchantListing
+/// answers "what listing is this", this table answers "do we have a real,
+/// working commercial link for it, and where did it come from" — the same
+/// separation-of-concerns already used for MonetizationScore/
+/// MerchantListingSignal. See docs/AFFILIATE_LINK_REGISTRY.md.
+///
+/// Never stores a secret (no API key/token here — those live only in env).
+model AffiliateLinkRegistry {
+  id                String          @id @default(cuid())
+  merchantListingId String          @unique
+  merchantListing   MerchantListing @relation(fields: [merchantListingId], references: [id], onDelete: Cascade)
+  /// Denormalized for direct filtering (matches the AffiliateClick
+  /// convention of also carrying merchantId alongside merchantListingId).
+  merchantId        String
+  merchant          Merchant        @relation(fields: [merchantId], references: [id])
+
+  /// The listing's plain public URL, no tracking — same value as
+  /// MerchantListing.productUrl at the time this row was created/updated,
+  /// kept here too so the admin queue and any consumer of this table never
+  /// needs to join back to MerchantListing just to show "here's the link
+  /// to go generate an affiliate URL for".
+  publicUrl String
+
+  /// Null while status=PENDING — a human/API hasn't produced a real
+  /// commercial link yet. Never a placeholder/guessed value.
+  affiliateUrl String?
+
+  /// Always "PRECOCAINDO" today (single project) — kept as a field, not a
+  /// hardcoded assumption, because the whole point is distinguishing this
+  /// project's revenue from other revenue moving through the same shared
+  /// Shopee/Mercado Livre account.
+  attributionProject String @default("PRECOCAINDO")
+  /// The actual label/tag/sub_id root that carries that attribution at the
+  /// marketplace: for Mercado Livre, the manual tag "precocaindo" chosen in
+  /// their link generator; for Shopee, sub_id1 ("precocaindo").
+  attributionTag     String
+
+  source AffiliateLinkSource
+  status AffiliateLinkStatus @default(PENDING)
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  lastValidatedAt DateTime?
+
+  @@index([merchantId, status])
+  @@index([status])
+}
+
+/// The Vitrine Inteligente's OWN commercial link for a listing — deliberately
+/// a separate table from AffiliateLinkRegistry, not a second row in it:
+/// AffiliateLinkRegistry is @unique per MerchantListing (the "precocaindo"
+/// site tag) and every existing reader (merchant-redirect.ts, ml-panel-*)
+/// assumes exactly one row per listing. Adding a second tag there would mean
+/// touching every one of those call sites; a dedicated table is zero-risk to
+/// the existing tag and queue. Carries the "vitrinedinamica" tag only — see
+/// docs/AFFILIATE_LINK_REGISTRY.md for the attributionTag convention this
+/// mirrors.
+/// Fábrica Inteligente de Criativos (owner's authorization, 2026-11-19,
+/// "Prioridade imediata — Fábrica Inteligente de Criativos
+/// Publicitários"). Append-only, versioned: a new row per generation,
+/// never an overwrite — "implemente armazenamento permanente, cache e
+/// versionamento." `kind` distinguishes the two renders the hybrid
+/// architecture produces from the SAME AI base composition: the catalog
+/// field needs a clean image (Meta's own Advantage+ "Add Dynamic
+/// Overlays" feature draws price on top, confirmed via Meta's developer
+/// docs, 2026-11-19 — a custom image for the catalog's cover-media
+/// position is explicitly supported); a manual/non-catalog ad needs the
+/// price/CTA baked in, since no automatic overlay exists there.
+model VitrineCreative {
+  id                String          @id @default(cuid())
+  merchantListingId String
+  merchantListing   MerchantListing @relation(fields: [merchantListingId], references: [id], onDelete: Cascade)
+
+  /// "catalog_clean" (no price/text — Meta's own dynamic overlay adds
+  /// price) | "ad_overlay" (price/CTA/logo baked in by this project's own
+  /// programmatic layer — for manual/Collection ads with no native
+  /// overlay).
+  kind    String
+  version Int
+
+  /// The real, unmodified product photo this generation started from —
+  /// kept so a reviewed/rejected AI composition can always fall back to
+  /// it, and so re-generation never loses the original source.
+  originalPhotoUrl String
+  /// The AI-generated base composition (gpt-image-2/Sunburst/Flare
+  /// "edit" output), before this row's own programmatic overlay (if
+  /// kind="ad_overlay") is applied on top.
+  aiBaseImageUrl   String?
+  /// The final, served image for this kind/version.
+  finalImageUrl    String
+
+  /// Real inputs this generation's prompt was built from — owner's
+  /// explicit rule: "nunca invente preços, avaliações, benefícios,
+  /// descontos ou quantidades vendidas." Every field here must trace to
+  /// a real, already-verified source (VitrineScoreResult, MerchantListingFacts),
+  /// never fabricated for the prompt's sake.
+  promptInputs Json
+  /// The literal prompt text sent to the model — kept for audit/debug,
+  /// never regenerated from promptInputs at read time (a prompt-builder
+  /// code change must never silently rewrite history).
+  promptText   String?
+  model        String
+
+  /// Real, metered cost for the API call(s) that produced this row —
+  /// never estimated after the fact. Null only if this row predates cost
+  /// tracking (should not happen for any row created from 2026-11-19 on).
+  costUsd Decimal? @db.Decimal(8, 4)
+
+  /// "pending" | "approved" | "rejected" — owner's explicit rule:
+  /// "criativos reprovados não deverão ser publicados automaticamente."
+  qualityStatus String  @default("pending")
+  qualityNotes  String?
+
+  /// Null until this exact row is the one actually served by the XML
+  /// catalog / admin preview — never two rows "published" for the same
+  /// (merchantListingId, kind) at once (enforced in code, not a DB
+  /// constraint, since "approved but not yet promoted" is a valid state).
+  publishedAt DateTime?
+
+  generatedAt DateTime @default(now())
+
+  @@index([merchantListingId, kind, version])
+  @@index([qualityStatus])
+}
+
+/// Real, metered OpenAI image-API spend — owner's explicit rule:
+/// "não comprometa despesas com geração de imagens sem minha autorização
+/// financeira" + "implemente limites configuráveis de gasto." A separate
+/// ledger from VitrineCreative.costUsd (which is per-row) so a budget
+/// check is one cheap aggregate query, never a join across every
+/// creative ever generated.
+model VitrineCreativeSpend {
+  id         String   @id @default(cuid())
+  spentOn    DateTime
+  amountUsd  Decimal  @db.Decimal(8, 4)
+  creativeId String?
+  note       String?
+  recordedAt DateTime @default(now())
+
+  @@index([spentOn])
+}
+
+model VitrineLink {
+  id                String          @id @default(cuid())
+  merchantListingId String          @unique
+  merchantListing   MerchantListing @relation(fields: [merchantListingId], references: [id], onDelete: Cascade)
+  merchantId        String
+  merchant          Merchant        @relation(fields: [merchantId], references: [id])
+
+  publicUrl String
+
+  /// Null while status=PENDING, same convention as AffiliateLinkRegistry.
+  affiliateUrl String?
+
+  attributionTag String @default("vitrinedinamica")
+
+  source AffiliateLinkSource
+  status AffiliateLinkStatus @default(PENDING)
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  lastValidatedAt DateTime?
+
+  @@index([merchantId, status])
+  @@index([status])
+}
+
+/// Owner's authorization, 2026-11-22 ("Gerenciador de Vitrines
+/// Inteligentes"): one row per real vitrine the admin creates — a
+/// campaign, an audience, or a commercial opportunity, never a hardcoded
+/// category/quota. The ORIGINAL (and, before this migration, only)
+/// Vitrine Inteligente becomes exactly one real row here (slug
+/// "vitrine-geral" — see the migration's own backfill), never a second,
+/// duplicate "general" vitrine created alongside it.
+model Vitrine {
+  id      String  @id @default(cuid())
+  /// Stable, human-chosen URL key (e.g. "casa-inteligente") — independent
+  /// of this row's own cuid `id`, so a public URL never has to expose or
+  /// depend on it.
+  slug    String  @unique
+  name    String
+  /// Free-text commercial focus, shown to the admin — never used as a
+  /// hard filter; the real candidate pool and scoring are the same
+  /// shared engine (lib/services/vitrine-selection.ts) for every vitrine.
+  purpose String?
+
+  /// Configurable per vitrine (owner's explicit rule: "não existe número
+  /// fixo obrigatório... a quantidade será configurável"). Never forced
+  /// to be reached — see pickGlobalVitrineSelection's own "diversidade
+  /// nunca obriga vaga" rule, which already applies per vitrine.
+  maxProducts Int @default(30)
+
+  /// "DRAFT" (being configured, never shown publicly, never claims
+  /// products) | "ACTIVE" (live, participates in cross-vitrine
+  /// exclusivity) | "PAUSED" (temporarily off; owner's rule: "regras
+  /// explícitas para liberar seus produtos" — see
+  /// lib/services/vitrine-manager.ts's releaseProductsFrom()) | "ENDED"
+  /// (permanently closed, same release rule, never reactivated).
+  status String @default("DRAFT")
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  pausedAt  DateTime?
+  endedAt   DateTime?
+
+  selections VitrineSelection[]
+
+  @@index([status])
+}
+
+/// Which listings a given Vitrine currently shows (ACTIVE), keeps as
+/// backup candidates (RESERVE), or has dropped (RETIRED) — separate from
+/// the public /ofertas ranking (MonetizationScore), since each Vitrine's
+/// selection criteria (seasonal weight, daily replacement limits, group
+/// balance) are its own and must never affect the public site's ranking.
+model VitrineSelection {
+  id                String          @id @default(cuid())
+  merchantListingId String
+  merchantListing   MerchantListing @relation(fields: [merchantListingId], references: [id], onDelete: Cascade)
+
+  /// Owner's authorization, 2026-11-22 ("Gerenciador de Vitrines
+  /// Inteligentes"): every real row (including the original Vitrine's
+  /// 37 real rows, backfilled by this same migration into a real
+  /// "Vitrine Geral" row — never left null) belongs to exactly one
+  /// Vitrine. @@unique([vitrineId, merchantListingId]) below replaces
+  /// the old global-per-listing uniqueness: the SAME listing can now
+  /// have independent rows in different vitrines over time (a vitrine
+  /// that pauses/ends must release its products back to the shared
+  /// pool — owner's explicit rule, section 4), while the SEPARATE
+  /// partial unique index on canonicalProductId (migration-only SQL,
+  /// Prisma has no native partial-index syntax) is what actually
+  /// enforces real-time cross-vitrine exclusivity for ACTIVE rows.
+  vitrineId String
+  vitrine   Vitrine @relation(fields: [vitrineId], references: [id])
+
+  /// Owner's authorization, same date ("a exclusividade deve considerar
+  /// produtos equivalentes, não apenas IDs de anúncios diferentes"):
+  /// denormalized from MerchantListing.canonicalProductId at selection
+  /// time (every real candidate already has one — confirmed by reading
+  /// buildCommercialCandidatePool, which only ever pools listings with
+  /// canonicalProductId set) so the cross-vitrine exclusivity index can
+  /// be a plain column index, not a join. Nullable only because
+  /// pre-migration rows predate this field — never left null for any
+  /// row this code creates going forward.
+  canonicalProductId String?
+
+  /// "sazonal" | "recorrente" | "emergente" — see lib/services/vitrine-selection.ts.
+  groupType String
+  /// "ACTIVE" | "RESERVE" | "RETIRED"
+  status    String
+
+  score          Float
+  scoreBreakdown Json
+  reason         String
+
+  activatedAt   DateTime?
+  /// Owner's authorization, 2026-11-23 ("Operação Cérebro Comercial" —
+  /// correção do orçamento de rotação): real root cause found — the
+  /// weekly rotation budget (VITRINE_MAX_WEEKLY_REPLACEMENTS) counts
+  /// EVERY row with a recent `activatedAt`, with no way to tell a real
+  /// commercial swap decision apart from a burst of development/testing
+  /// runs. Confirmed live: 8 real VITRINE_RENEW executions inside a
+  /// ~20h window (2026-11-19 21:47 to 2026-11-20 17:01, cross-referenced
+  /// against real AutomationRun rows) were the initial build/test of the
+  /// multi-vitrine feature, not 8 weeks of real rotation — yet they
+  /// exhausted the real budget for a human approving a real decision
+  /// today. Not a migration artifact (the 2026-11-22 multi-vitrine
+  /// migration never touches activatedAt — confirmed by reading its SQL).
+  /// "engine_commercial_swap": a real newcomer created by
+  /// jobs/vitrine-renew.ts's own rotation logic — cron-triggered or
+  /// admin-approved, same code path, always counts toward the budget.
+  /// "pre_production_testing": the 36 rows above, confirmed via
+  /// AutomationRun timestamps to be development-time iteration, not a
+  /// real weekly decision — backfilled ONCE, with real evidence, never
+  /// counts toward the budget. "manual_data_correction": reserved for a
+  /// future direct admin edit outside the engine — never implemented
+  /// yet, never counts. Nullable/additive: a row from before this field
+  /// existed that was never backfilled stays null and is treated the
+  /// same as "pre_production_testing" (excluded) by the counting query,
+  /// never silently treated as a real swap just because the field is
+  /// missing.
+  activationSource String?
+  retiredAt     DateTime?
+  /// Owner's directive, 2026-11-21 ("Registrar motivos de retirada"):
+  /// `reason` is reused from the ORIGINAL selection and jobs/vitrine-
+  /// renew.ts never touched it on retirement, so a retired row's `reason`
+  /// stayed frozen with "why it was picked", never "why it left" — real
+  /// root cause confirmed via jobs/vitrine-renew.ts:249-253. Nullable and
+  /// additive on purpose: existing RETIRED rows get `null` here (never
+  /// backfilled/guessed) and the admin panel must show that explicitly as
+  /// "motivo não registrado antes desta mudança" — only retirements from
+  /// this change forward get a real value.
+  retiredReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([vitrineId, merchantListingId])
+  @@index([status, groupType])
+  @@index([vitrineId, status])
+  @@index([canonicalProductId])
+}
+
+/// Owner's directive, 2026-11-21 ("Persistir o pool avaliado"): one row
+/// per VITRINE_RENEW real production run (never the simulation page or
+/// the Commercial Intelligence Lab's comparison tool — both call
+/// selectVitrineCandidates()/buildCommercialCandidatePool() directly and
+/// never touch this table; only jobs/vitrine-renew.ts writes here, by
+/// construction, not a flag that could be left unset). Parent row holds
+/// cheap aggregate funnel stats forever; the detailed per-candidate rows
+/// (VitrineSelectionRoundCandidate below) are pruned by retention.
+model VitrineSelectionRound {
+  id                  String   @id @default(cuid())
+  /// Added 2026-11-21 (PR #17 review, "persistência do histórico —
+  /// projete uma identidade estável por execução real"): the real
+  /// AutomationRun.id for the exact VITRINE_RENEW execution that produced
+  /// this round (lib/jobs/automation-run.ts's runJob() creates that row,
+  /// and exposes it as ctx.runId, BEFORE the job body runs). `@unique`
+  /// means this round can only ever be attributed to ONE real execution —
+  /// a retry of a crashed run gets its own fresh AutomationRun.id (the
+  /// job-level lock in runJob() already prevents two concurrent attempts
+  /// of the same job), so this can never be silently duplicated under the
+  /// same identity. Deliberately NOT a `@relation`/foreign key: AutomationRun
+  /// has its own, already-active 90-day retention (jobs/cleanup.ts) —
+  /// an FK with cascade delete would silently tie this round's retention
+  /// to THAT schedule instead of its own separate, disabled-by-default
+  /// one (jobs/vitrine-selection-round-cleanup.ts). A human auditing
+  /// "did this round's underlying run actually finish, or was it only
+  /// partial/failed afterward" joins on this id manually; a round whose
+  /// AutomationRun has already aged out of its own 90-day retention and a
+  /// round created by a run that is still RUNNING are both visible this
+  /// way, never silently presented as certainly-complete.
+  automationRunId     String?  @unique
+  runAt               DateTime @default(now())
+  /// Real funnel counts for this round — same shape as
+  /// CandidatePoolFunnel, kept here even after candidate rows are pruned.
+  foundInDatabase     Int
+  afterDedup          Int
+  discardedNoPrice    Int
+  discardedIneligible Int
+  evaluated           Int
+  selected            Int
+
+  candidates VitrineSelectionRoundCandidate[]
+
+  createdAt DateTime @default(now())
+
+  @@index([runAt])
+}
+
+/// One row per candidate that reached real evaluation in a given round
+/// (selectVitrineCandidates()'s `allScored`, plus `discarded`) — lets a
+/// human compare the 30 selected against who almost made it, something
+/// that was previously impossible to audit after the fact (owner's
+/// finding, 2026-11-21 audit: "a lista completa de candidatos avaliados
+/// não é persistida"). Retention is enforced by a SEPARATE cleanup job
+/// (jobs/vitrine-selection-round-cleanup.ts) — left DISABLED until the
+/// owner authorizes running it (see that file's own doc comment).
+model VitrineSelectionRoundCandidate {
+  id                String                @id @default(cuid())
+  roundId           String
+  round             VitrineSelectionRound @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  merchantListingId String
+
+  groupType      String?
+  /// 0..100 when the candidate reached scoring; null for a candidate
+  /// discarded before scoring (no price, ineligible, duplicate, etc.).
+  score          Float?
+  scoreBreakdown Json?
+
+  commissionType              String?
+  commissionFresh             Boolean?
+  commissionEstimatedValueBrl Float?
+
+  salesEvidenceType String?
+  demandScore       Int?
+
+  trendDirection String?
+
+  eligible      Boolean
+  discardReason String?
+  discardDetail String?
+
+  rankInGroup   Int?
+  /// "SELECTED" | "RESERVE" | "DISCARDED_BY_QUOTA" | "DISCARDED"
+  finalDecision String
+  justification String
+
+  createdAt DateTime @default(now())
+
+  @@index([roundId])
+  @@index([merchantListingId, roundId])
+  @@index([roundId, finalDecision])
+}
+
+/// Owner's directive, 2026-11-21 ("Produtos Philco — não faça fusão
+/// automática... se houver ambiguidade, mantenha os produtos separados e
+/// registre o caso para revisão"). Purely an advisory log — NEVER mutates
+/// CanonicalProduct/MerchantListing itself. Written by
+/// lib/services/ml-enrichment-collector.ts whenever a newly-seen real ML
+/// catalogProductId shares brand+model with an existing CanonicalProduct
+/// but the two could not be confirmed equivalent with confidence (either
+/// a variant attribute like VOLTAGE/COLOR genuinely differs — confirmed
+/// distinct — or there isn't enough shared attribute data to decide —
+/// ambiguous). A human reviews this list; nothing here is auto-applied.
+model CanonicalProductMergeReview {
+  id                         String    @id @default(cuid())
+  existingCanonicalProductId String
+  newCatalogProductId        String
+  brand                      String?
+  model                      String?
+  /// "ambiguous_no_attribute_overlap" | "ambiguous_incomplete_attribute_coverage" | "confirmed_distinct_variant"
+  /// (the middle value added 2026-11-21, PR #17 review: some shared
+  /// attributes DID match, but a real variant-relevant attribute is
+  /// known on only one of the two products — still never equivalent).
+  verdict                    String
+  matchedAttributes          Json
+  conflictingAttributes      Json
+  /// Added 2026-11-21 (PR #17 review, "equivalência canônica"): attribute
+  /// ids known on only one side — see canonical-product-equivalence.ts's
+  /// own doc comment for why this alone blocks "equivalent".
+  asymmetricAttributes       Json
+  reviewedAt                 DateTime?
+  reviewDecision             String?
+
+  createdAt DateTime @default(now())
+
+  /// One review row per (existing canonical, new catalogProductId) pair —
+  /// ml-enrichment-collector.ts re-evaluates equivalence every ingestion
+  /// cycle (cheap, deterministic), so this is an upsert target to avoid
+  /// writing a fresh duplicate row every 4h for a still-unresolved case.
+  @@unique([existingCanonicalProductId, newCatalogProductId])
+  @@index([existingCanonicalProductId])
+  @@index([reviewedAt])
+}
+
+/// Vitrine Inteligente Fase 3 — real ad spend has no automated source (no
+/// Meta Ads API integration exists in this codebase); Henrique records
+/// what he actually spent, same trusted-human-input pattern as
+/// recordManualPriceObservation elsewhere in this project. Never estimated
+/// or defaulted — lib/services/vitrine-financials.ts treats a period with
+/// no entry as "no spend recorded", never as zero spend.
+model VitrineAdSpend {
+  id         String   @id @default(cuid())
+  spentOn    DateTime
+  amountBrl  Decimal  @db.Decimal(10, 2)
+  /// "manual" (Henrique typed it) | "meta_api" (jobs/vitrine-meta-spend-
+  /// sync.ts, Meta Marketing API's own Insights endpoint — real spend for
+  /// Henrique's own ad account, no estimate). Kept apart so a day with
+  /// both an API pull AND a manual correction is never silently summed
+  /// twice — lib/services/vitrine-financials.ts always upserts by
+  /// (spentOn, source), never blind-inserts.
+  source     String   @default("manual")
+  note       String?
+  recordedAt DateTime @default(now())
+
+  /// Real daily impressions/clicks from Meta's own Insights API (owner's
+  /// authorization, 2026-11-19, "Indicadores de rentabilidade": CTR/CPC
+  /// need real impressions, which only Meta has). Null for manual rows
+  /// (Henrique never types these) and for any day Meta's API genuinely
+  /// returns nothing — never defaulted to 0.
+  impressions Int?
+  metaClicks  Int?
+
+  @@unique([spentOn, source])
+  @@index([spentOn])
+}
+
+/// Real commission data has no automated source either (confirmed gap,
+/// see docs/AFFILIATE_LINK_REGISTRY.md and this module's own audit): no ML
+/// reconciliation API, and Shopee's conversionReport is documented but
+/// never implemented. Henrique periodically reads the real numbers off
+/// Mercado Livre's own affiliate panel (which DOES separate direct from
+/// indirect commission, per the project brief's own attribution rules) and
+/// records them here — direct/indirect kept as separate fields because
+/// that split is real data from the panel, never estimated by this code.
+model VitrineCommissionReport {
+  id                String   @id @default(cuid())
+  periodStart       DateTime
+  periodEnd         DateTime
+  directAmountBrl   Decimal  @db.Decimal(10, 2)
+  indirectAmountBrl Decimal  @db.Decimal(10, 2)
+  /// "PENDING" | "APPROVED" | "CANCELLED" — Mercado Livre's own 60-day
+  /// validation window (confirmed via the Meta/ML compliance research,
+  /// 2026-11-19) means a figure read off the panel today may still move;
+  /// never treated as final money until the owner marks it APPROVED.
+  /// CANCELLED added 2026-11-19 (owner's authorization, "Integração
+  /// financeira": "diferencie comissões pendentes, aprovadas e
+  /// canceladas") — a reversed/returned sale, real money that was never
+  /// actually earned, kept as its own row (never deleted) so the
+  /// cancellation itself stays auditable.
+  status            String
+  source            String   @default("manual_ml_panel")
+  note              String?
+  recordedAt        DateTime @default(now())
+
+  @@index([periodStart, periodEnd])
+}
+
+/// Audit trail for any change to VITRINE_SCORE_WEIGHTS (lib/config/
+/// vitrine-score-weights.ts) — project brief section 19: "manter histórico
+/// das alterações de metodologia, permitindo reversão caso uma nova
+/// estratégia apresente desempenho inferior." Written only by
+/// lib/services/vitrine-weight-learning.ts, and only above its minimum-
+/// evidence threshold — most of the time there is nothing to write yet.
+model VitrineWeightHistory {
+  id        String   @id @default(cuid())
+  weights   Json
+  reason    String
+  changedAt DateTime @default(now())
+}
+
+/// Motor Central de Inteligência Comercial — unified, source-agnostic entry
+/// point for every commercial opportunity any source discovers (owner's
+/// authorization, 2026-11-19, "Aprovação condicionada — Motor Central de
+/// Inteligência Comercial", section 2: "cada fonte de inteligência deverá
+/// possuir autonomia para introduzir oportunidades no universo de
+/// candidatos"). Append-only: each row is one source's one observation of
+/// one external product, never overwritten. Cross-source corroboration is
+/// computed by counting DISTINCT sourceType per externalId, never by row
+/// count — the owner's explicit rule: "não contabilize informações
+/// provenientes da mesma fonte original como evidências independentes."
+/// Deliberately allows merchantListingId to be null — an id a source finds
+/// but this catalog can never resolve into a title (e.g. a real
+/// USER_PRODUCT/MLBU id owned by another seller — confirmed live,
+/// 2026-11-19, via GET /user-products/{id}: "caller is not allowed to
+/// access this user product", a permission restriction by design, not a
+/// bug) is still recorded here with unresolvedReason set, never silently
+/// dropped (owner's explicit rule, section 5).
+model CommercialCandidateRegistry {
+  id String @id @default(cuid())
+
+  externalId  String
+  marketplace Marketplace @default(BR)
+
+  merchantListingId String?
+  merchantListing   MerchantListing? @relation(fields: [merchantListingId], references: [id], onDelete: SetNull)
+
+  /// One of CandidateSourceType (lib/services/commercial-intelligence/
+  /// candidate-registry.ts) as a plain string, same convention already
+  /// used by VitrineSelection.groupType/status — kept as a string (not a
+  /// Prisma enum) so a new source never needs a migration to add. Each
+  /// distinct value is one INDEPENDENT source for corroboration — never
+  /// split the same underlying API/page into two source strings just to
+  /// inflate the corroboration count.
+  sourceType   String
+  sourceDetail Json
+
+  categoryId String?
+
+  /// Set only when this exact external id could not be resolved into a
+  /// real title/MerchantListing — e.g. "user_product_private_catalog",
+  /// "catalog_name_fetch_failed". Null means fully resolved.
+  unresolvedReason String?
+
+  discoveredAt DateTime @default(now())
+
+  @@index([externalId, marketplace])
+  @@index([merchantListingId])
+  @@index([sourceType, discoveredAt])
+  @@index([categoryId])
+}
+
+/// A Product is a listing within ONE marketplace — the BR listing and a
+/// future US listing for "the same" real-world item are two separate
+/// Product rows, each with their own full set of Offer/PriceHistory/
+/// PriceStats/OpportunityScore children. This is what makes price/currency
+/// isolation automatic: there is no shared row for cross-marketplace data
+/// to leak through. See docs/ARCHITECTURE.md and docs/AMAZON.md.
+model Product {
+  id                 String               @id @default(cuid())
+  asin               String
+  provider           CommerceProviderName @default(AMAZON)
+  marketplace        Marketplace          @default(BR)
+  /// See the DataSource doc comment above. Every public query filters on
+  /// this — never remove that filter to "temporarily" show something.
+  dataSource         DataSource           @default(MOCK)
+  slug               String               @unique
+  title              String
+  brand              String?
+  description        String?
+  imageUrl           String?
+  categoryId         String?
+  category           Category?            @relation(fields: [categoryId], references: [id])
+  canonicalProductId String?
+  canonicalProduct   CanonicalProduct?    @relation(fields: [canonicalProductId], references: [id])
+  specifications     Json?
+  rating             Float?
+  reviewCount        Int?
+  active             Boolean              @default(true)
+  updatePriority     UpdatePriority       @default(COLD)
+  /// Set whenever ProductPriorityService changes updatePriority. Used both
+  /// for hysteresis (avoid flapping HOT/WARM on noisy signals) and for
+  /// admin observability ("idade da última mudança de prioridade").
+  priorityUpdatedAt  DateTime             @default(now())
+
+  firstSeenAt DateTime @default(now())
+  lastSeenAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  offers              Offer[]
+  priceHistory        PriceHistory[]
+  priceStats          PriceStats?
+  opportunityScore    OpportunityScore?
+  affiliateClicks     AffiliateClick[]
+  priceAlerts         PriceAlert[]
+  creatives           Creative[]
+  searchOpportunities SearchOpportunity[]
+  pageViews           PageView[]
+  candidate           ProductCandidate?
+  merchantListings    MerchantListing[]
+  amazonMatches       AmazonMatch[]
+
+  @@unique([provider, marketplace, asin])
+  @@index([categoryId])
+  @@index([canonicalProductId])
+  @@index([updatePriority])
+  @@index([active])
+  @@index([marketplace, active])
+  @@index([dataSource, active])
+}
+
+enum CandidateStatus {
+  CANDIDATE
+  APPROVED
+  REJECTED
+  PROMOTED
+}
+
+/// The internal cohort-selection workspace (project brief Sprint 6,
+/// sections 7-8) — deliberately a separate model from Product, never
+/// joined into any public query, so internal rationale/heuristic scores
+/// can never leak onto a public page (project brief: "não misturar
+/// rationale interno com conteúdo público"). scripts/cohort/*.ts is the
+/// only intended way to read/write this table. See docs/COHORT.md.
+model ProductCandidate {
+  id           String      @id @default(cuid())
+  asin         String
+  marketplace  Marketplace @default(BR)
+  workingTitle String
+  categoryHint String?
+  slugHint     String?
+
+  /// Internal-only justification for considering this ASIN — never shown
+  /// to a visitor, never copied into Product.description.
+  rationale String
+
+  /// Manual heuristic scores, 0-100, documented in docs/COHORT.md — never
+  /// machine-learned, never inferred from real traffic, never shown to a
+  /// visitor. All optional: score only the dimensions you actually have
+  /// an opinion on.
+  searchPotential     Int?
+  purchaseIntent      Int?
+  ticketSize          Int?
+  commissionEstimate  Int?
+  longTailOpportunity Int?
+  seoCompetitiveness  Int?
+  valuePropositionFit Int?
+  clickProbability    Int?
+  /// Computed by lib/services/cohort-ranking.ts — a documented weighted
+  /// average of the scores above, never edited by hand.
+  internalScore       Int?
+
+  status    CandidateStatus @default(CANDIDATE)
+  productId String?         @unique
+  product   Product?        @relation(fields: [productId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([asin, marketplace])
+  @@index([status])
+  @@index([internalScore])
+}
+
+model Offer {
+  id                 String               @id @default(cuid())
+  productId          String
+  product            Product              @relation(fields: [productId], references: [id], onDelete: Cascade)
+  provider           CommerceProviderName @default(AMAZON)
+  price              Decimal              @db.Decimal(10, 2)
+  currency           String               @default("BRL")
+  originalPrice      Decimal?             @db.Decimal(10, 2)
+  discountPercentage Float?
+  affiliateUrl       String
+  availability       Availability         @default(UNKNOWN)
+  observedAt         DateTime             @default(now())
+
+  @@index([productId, observedAt])
+}
+
+model PriceHistory {
+  id         String               @id @default(cuid())
+  productId  String
+  product    Product              @relation(fields: [productId], references: [id], onDelete: Cascade)
+  provider   CommerceProviderName @default(AMAZON)
+  price      Decimal              @db.Decimal(10, 2)
+  observedAt DateTime             @default(now())
+
+  @@index([productId, observedAt])
+}
+
+model PriceStats {
+  id String @id @default(cuid())
+
+  productId String  @unique
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  currentPrice       Decimal  @db.Decimal(10, 2)
+  lowestPrice        Decimal  @db.Decimal(10, 2)
+  highestPrice       Decimal  @db.Decimal(10, 2)
+  avg7d              Decimal? @db.Decimal(10, 2)
+  avg30d             Decimal? @db.Decimal(10, 2)
+  avg90d             Decimal? @db.Decimal(10, 2)
+  dropPercentage     Float?
+  distanceFromLow    Float?
+  historicalPosition Float?
+  dataPointCount     Int      @default(0)
+  coverageDays       Int      @default(0)
+
+  calculatedAt DateTime @default(now())
+}
+
+model OpportunityScore {
+  id String @id @default(cuid())
+
+  productId String  @unique
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  score           Int
+  priceScore      Int
+  discountScore   Int
+  popularityScore Int
+  ratingScore     Int
+  historicalScore Int
+  confidence      Float
+
+  calculatedAt DateTime @default(now())
+
+  @@index([score])
+}
+
+model AffiliateClick {
+  id                 String               @id @default(cuid())
+  /// Nullable as of 2026-09-07: was required, which made it impossible to
+  /// log a click for a Mercado Livre/Shopee listing that has no legacy
+  /// Product row (by design — see docs/MULTI_MERCHANT.md, Product stays
+  /// Amazon-only). Every Amazon click still always sets this — see
+  /// lib/services/merchant-redirect.ts's amazon branch (unchanged) and its
+  /// explicit regression test.
+  productId          String?
+  product            Product?             @relation(fields: [productId], references: [id], onDelete: Cascade)
+  canonicalProductId String?
+  canonicalProduct   CanonicalProduct?    @relation(fields: [canonicalProductId], references: [id])
+  merchantId         String?
+  merchant           Merchant?            @relation(fields: [merchantId], references: [id])
+  merchantListingId  String?
+  merchantListing    MerchantListing?     @relation(fields: [merchantListingId], references: [id])
+  provider           CommerceProviderName @default(AMAZON)
+  pageType           String
+  pageSlug           String
+  source             String?
+  /// e.g. "organic", "admin_queue", "widget" — kept alongside source/campaign
+  /// so future reconciliation against a marketplace's own conversion report
+  /// (project brief: "clique interno -> pedido -> comissão -> relatório
+  /// oficial") has the standard source/medium/campaign triad, not just two
+  /// of the three. No "project" column: this table is exclusively
+  /// PreçoCaindo's own click log already (single-tenant DB) — the actual
+  /// cross-account revenue separation happens at the marketplace side, via
+  /// AffiliateLinkRegistry.attributionTag (Shopee sub_id1, ML manual tag).
+  medium             String?
+  campaign           String?
+
+  createdAt DateTime @default(now())
+
+  @@index([productId, createdAt])
+  @@index([canonicalProductId, createdAt])
+  @@index([merchantId, createdAt])
+  @@index([merchantListingId, createdAt])
+  @@index([createdAt])
+}
+
+/// A first-party pageview, used as a demand/traffic signal and for the
+/// admin dashboard. No IP, no fingerprinting — `sessionId` is a
+/// pseudonymous, client-generated identifier (see lib/analytics).
+model PageView {
+  id             String   @id @default(cuid())
+  pageType       String
+  pageSlug       String
+  productId      String?
+  product        Product? @relation(fields: [productId], references: [id])
+  referrerDomain String?
+  utmSource      String?
+  utmMedium      String?
+  utmCampaign    String?
+  sessionId      String
+
+  createdAt DateTime @default(now())
+
+  @@index([pageType, pageSlug, createdAt])
+  @@index([sessionId])
+  @@index([createdAt])
+}
+
+/// Internal site search, used as a demand signal by DemandEngine. No IP.
+model SearchEvent {
+  id               String  @id @default(cuid())
+  query            String
+  normalizedQuery  String
+  resultCount      Int
+  clickedProductId String?
+
+  createdAt DateTime @default(now())
+
+  @@index([normalizedQuery, createdAt])
+  @@index([createdAt])
+}
+
+model GeneratedContent {
+  id                      String        @id @default(cuid())
+  contentType             ContentType
+  entityId                String?
+  slug                    String
+  title                   String
+  metaTitle               String
+  metaDescription         String
+  body                    String
+  model                   String
+  promptVersion           String
+  status                  ContentStatus @default(DRAFT)
+  qualityScore            Int?
+  qualityReasons          Json?
+  /// Multi-dimensional ContentQualityGate breakdown: originality,
+  /// dataSupport, usefulness, duplicationRisk, commercialTransparency.
+  qualityBreakdown        Json?
+  /// Hash of the normalized body, used by the duplication/similarity check
+  /// in ContentQualityGate to flag near-identical scaled content.
+  contentHash             String?
+  /// True when PublicationDecisionEngine decided NOINDEX: the page may
+  /// still be served, but must not be indexed or listed in the sitemap.
+  noindex                 Boolean       @default(false)
+  /// SearchOpportunity.overallScore at the time content was generated, kept
+  /// for decision transparency/audit, not recalculated after the fact.
+  demandScoreAtGeneration Float?
+
+  generatedAt DateTime  @default(now())
+  reviewedAt  DateTime?
+  publishedAt DateTime?
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([contentType, slug])
+  @@index([status])
+  @@index([entityId])
+  @@index([contentHash])
+}
+
+model SearchOpportunity {
+  id                String            @id @default(cuid())
+  keyword           String
+  normalizedKeyword String
+  intent            DemandIntent      @default(PRODUCT_RESEARCH)
+  category          String?
+  productId         String?
+  product           Product?          @relation(fields: [productId], references: [id])
+  /// Where this opportunity was discovered — e.g. "internal_search",
+  /// "product_catalog", "manual_seed". See lib/demand/sources.
+  source            String
+  demandScore       Float?
+  commercialScore   Float?
+  freshnessScore    Float?
+  contentGapScore   Float?
+  overallScore      Float?
+  priority          Int               @default(0)
+  status            OpportunityStatus @default(PENDING)
+
+  discoveredAt    DateTime  @default(now())
+  lastEvaluatedAt DateTime?
+
+  @@index([status, priority])
+  @@index([normalizedKeyword])
+}
+
+model AutomationRun {
+  id          String           @id @default(cuid())
+  job         String
+  /// Which marketplace this run processed, when the job is scoped to one
+  /// (product discovery/refresh/scoring). Null for jobs that aren't
+  /// marketplace-scoped (content validation/publish, cleanup, sitemap
+  /// refresh). See lib/jobs/automation-run.ts runJob() `options.marketplace`.
+  marketplace Marketplace?
+  startedAt   DateTime         @default(now())
+  finishedAt  DateTime?
+  status      AutomationStatus @default(RUNNING)
+  processed   Int              @default(0)
+  created     Int              @default(0)
+  updated     Int              @default(0)
+  errors      Int              @default(0)
+  metadata    Json?
+
+  @@index([job, startedAt])
+  @@index([job, status])
+  @@index([job, marketplace, startedAt])
+}
+
+model PriceAlert {
+  id                String           @id @default(cuid())
+  /// Exactly one of productId (Amazon's legacy Product) or
+  /// merchantListingId (Mercado Livre/Shopee) is set — enforced in
+  /// lib/services/price-alert.ts, not at the DB level, same convention as
+  /// AmazonMatch's single-decision-per-listing rule. Both nullable so one
+  /// alert never needs two FKs satisfied at once; added 2026-11-10 — this
+  /// model originally only covered Product, before ML/Shopee listings
+  /// existed as a distinct alert target.
+  productId         String?
+  product           Product?         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  merchantListingId String?
+  merchantListing   MerchantListing? @relation(fields: [merchantListingId], references: [id], onDelete: Cascade)
+  targetPrice       Decimal          @db.Decimal(10, 2)
+  channel           AlertChannel     @default(EMAIL)
+  /// The contact itself (e.g. email address). Stored only because a price
+  /// alert is functionally impossible to deliver without it — this is data
+  /// minimization *for the stated purpose*, not maximization. Never reused
+  /// for marketing without a separate MARKETING consent (see
+  /// docs/PRIVACY.md).
+  contact           String
+  /// Deterministic hash of the normalized contact, used to detect/prevent
+  /// duplicate alerts without needing to compare plaintext in ordinary
+  /// queries.
+  contactHash       String
+  /// Double opt-in: an alert is not active until the confirmation link
+  /// (using this token) has been used. PRICE_ALERTS=false today, so no
+  /// email is actually sent yet — see docs/AUTOMATION.md.
+  confirmationToken String?
+  confirmedAt       DateTime?
+  active            Boolean          @default(true)
+
+  createdAt   DateTime  @default(now())
+  triggeredAt DateTime?
+
+  @@index([productId, active])
+  @@index([merchantListingId, active])
+  @@index([contactHash])
+}
+
+model Creative {
+  id             String         @id @default(cuid())
+  productId      String
+  product        Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  type           CreativeType
+  format         CreativeFormat
+  headline       String
+  subtitle       String?
+  price          Decimal        @db.Decimal(10, 2)
+  previousPrice  Decimal?       @db.Decimal(10, 2)
+  discount       Float?
+  imageUrl       String?
+  destinationUrl String
+  status         CreativeStatus @default(DRAFT)
+
+  createdAt DateTime @default(now())
+
+  @@index([productId, status])
+}
+
+/// Permanent redirect registered whenever a published slug changes.
+/// oldPath/newPath are full site paths (e.g. "/produto/antigo-slug").
+model SlugRedirect {
+  id         String @id @default(cuid())
+  oldPath    String @unique
+  newPath    String
+  statusCode Int    @default(301)
+
+  createdAt DateTime @default(now())
+
+  @@index([newPath])
+}
+
+/// A logged-in /admin session. Only tokenHash is stored — the raw session
+/// token lives solely in the HttpOnly cookie, so a database leak alone
+/// can never be replayed as a live session. See lib/admin/auth.ts.
+model AdminSession {
+  id         String   @id @default(cuid())
+  tokenHash  String   @unique
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+  lastSeenAt DateTime @default(now())
+
+  @@index([expiresAt])
+}
+
+/// A long-lived, opt-in marker so the owner's own everyday browsing (not
+/// only while logged into /admin, whose session lasts 12h) never counts as
+/// real traffic. Created only from an already-authenticated /admin request
+/// (lib/admin/owner-traffic.ts) — this table grants no admin access itself,
+/// it only says "skip this visitor in the reports". Same shape as
+/// AdminSession: only the hash is stored.
+model OwnerTrafficMark {
+  id         String   @id @default(cuid())
+  tokenHash  String   @unique
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+  lastSeenAt DateTime @default(now())
+
+  @@index([expiresAt])
+}
+
+/// The owner's own browser(s), subscribed to Web Push for the
+/// "site was accessed" alert (lib/push/send.ts, /admin/notificacoes). One row
+/// per subscribed browser/device. `endpoint`, `p256dh` and `auth` are exactly
+/// what the browser's PushSubscription gives back — nothing here identifies
+/// a visitor, only the owner's own receiving device.
+model PushSubscription {
+  id         String   @id @default(cuid())
+  endpoint   String   @unique
+  p256dh     String
+  auth       String
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  lastSeenAt DateTime @default(now())
+}
+
+/// Basic login rate limiting for /admin — see lib/admin/auth.ts.
+/// ipHash is a SHA-256 hash of the client IP, never the raw address
+/// (data minimization principle applied the same way as PriceAlert.contactHash).
+model AdminLoginAttempt {
+  id        String   @id @default(cuid())
+  ipHash    String
+  success   Boolean
+  createdAt DateTime @default(now())
+
+  @@index([ipHash, createdAt])
+}
+
+/// LGPD consent, keyed by a pseudonymous subject id (a client-generated,
+/// non-personal identifier stored in a first-party cookie — never an email
+/// or account id). One row per subject; choices are overwritten in place so
+/// there is always exactly one current answer, never a growing log of a
+/// person's consent history.
+model ConsentRecord {
+  id        String        @id @default(cuid())
+  subjectId String        @unique
+  analytics ConsentChoice @default(UNSET)
+  marketing ConsentChoice @default(UNSET)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Persisted OAuth token for a provider whose access token expires and must
+/// be refreshed — today only Mercado Livre (~6h expiry, no refresh
+/// automation existed before this). `env` vars alone can't back this: a
+/// long-running Node process never re-reads `process.env` after startup, so
+/// a refresh that only mutated the env var would be invisible to the
+/// running app (see lib/services/ml-token-store.ts's doc comment). One row
+/// per provider (`provider` is the natural key — @unique, not a composite
+/// PK, so a plain `upsert` on it is always race-safe at the DB level).
+/// Same trust boundary as the rest of this database (and the .env files
+/// this project already stores the same values in) — not encrypted at
+/// rest; never logged, never returned to a client, by contract of every
+/// reader of this table.
+model IntegrationCredential {
+  id           String               @id @default(cuid())
+  provider     CommerceProviderName @unique
+  accessToken  String
+  refreshToken String
+  expiresAt    DateTime
+  updatedAt    DateTime             @updatedAt
+  createdAt    DateTime             @default(now())
+}
+
+/// A row of the Mercado Livre panel list (lib/config/ml-panel-picks.ts) that
+/// cannot be turned into a link and must leave the /admin/fila-links queue:
+/// the same catalog product is already live through another row, the product
+/// has no catalog id (the site can only publish catalog products), or the
+/// Linkbuilder refused it. Learned automatically from failed batches so the
+/// owner never generates the same dead end twice. Keyed by the row id (title).
+model MlPanelPickIssue {
+  panelId   String   @id
+  /// same_product_live | no_catalog | program_refused | manual
+  reason    String
+  detail    String?
+  createdAt DateTime @default(now())
+}
+
+/// Commercial Intelligence Lab (owner's authorization, 2026-11-19) — a
+/// permanent, methodology-tagged record of every comparative selection
+/// run, shared infrastructure for the Vitrine Inteligente and (later) the
+/// Combo Inteligente. Never overwritten: each run creates a NEW snapshot,
+/// so the lab can compare today's multifactor_v3 against both historical
+/// runs of itself (after a future weight change) and the other three
+/// methodologies, permanently.
+model CommercialSelectionSnapshot {
+  id                      String   @id @default(cuid())
+  /// "official_rank_only" | "commission_only" | "legacy_v2" | "multifactor_v3"
+  methodology             String
+  algorithmVersion        String
+  referenceDate           DateTime
+  candidateUniverseSize   Int
+  /// How many of this run's own items came from a discovery mechanism
+  /// unique to this methodology (e.g. the keyword/category-broadened
+  /// sweep) — null when the methodology has no discovery mechanism of
+  /// its own (commission_only: a pure ranking criterion over whatever
+  /// universe already exists, never a discovery method by itself).
+  discoveredNewCandidates Int?
+  notes                   String?
+  createdAt               DateTime @default(now())
+
+  items       CommercialSelectionItem[]
+  checkpoints CommercialSelectionCheckpoint[]
+
+  @@index([methodology, referenceDate])
+}
+
+model CommercialSelectionItem {
+  id                String                      @id @default(cuid())
+  snapshotId        String
+  snapshot          CommercialSelectionSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  merchantListingId String
+  title             String
+  rank              Int
+  scoreAtSelection  Float?
+  /// Frozen copy of whatever real evidence existed AT SELECTION TIME —
+  /// never re-derived later, so a retrospective check never leaks
+  /// hindsight/future data into what "was known" on referenceDate.
+  evidenceSnapshot  Json
+
+  @@index([snapshotId])
+  @@index([merchantListingId])
+}
+
+/// Prospective observation point for a snapshot (owner's requirement:
+/// 7/15/30/60/90 days after selection). Created up front with dueAt set
+/// and completedAt null; a scheduled job fills `results` once dueAt has
+/// passed and never before — this file's own job must never backfill a
+/// checkpoint with data from a date other than when it actually ran.
+model CommercialSelectionCheckpoint {
+  id             String                      @id @default(cuid())
+  snapshotId     String
+  snapshot       CommercialSelectionSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  checkpointDays Int
+  dueAt          DateTime
+  completedAt    DateTime?
+  /// { officialRankEvolution, stillInOfficialRanking, priceCompetitiveness,
+  ///   availability, commissionEvidence, notes } — only ever written once,
+  /// at or after dueAt.
+  results        Json?
+
+  @@index([snapshotId, checkpointDays])
+  @@index([dueAt, completedAt])
+}
+
+/// AI Commercial Analyst (owner's authorization, 2026-11-22, "Motor de
+/// Inteligência Comercial com IA"). One row per real evaluation actually
+/// performed — cached by (merchantListingId, evidenceFingerprint) so a
+/// candidate whose real evidence hasn't changed is NEVER re-evaluated
+/// (owner's explicit cost rule: "reavaliação somente quando houver
+/// mudança relevante"). `evidenceFingerprint` is a deterministic hash of
+/// the exact real evidence object sent to the model — never the model's
+/// own output — so a cache hit is provably "the same real inputs",
+/// never a stale guess.
+model CommercialAnalystEvaluation {
+  id                  String   @id @default(cuid())
+  merchantListingId   String
+  evidenceFingerprint String
+  /// The exact real evidence object sent to the model — kept so a human
+  /// (or a future audit) can always see precisely what the AI did and
+  /// did not have access to.
+  evidenceSnapshot    Json
+  /// "priorizar" | "observar" | "rejeitar" — never anything else.
+  recommendation      String
+  commercialScore     Int
+  confidence          Float
+  favorableArguments  Json
+  risks               Json
+  evidenceUsed        Json
+  missingData         Json
+  /// The literal model response text, kept verbatim for audit — a
+  /// prompt/parsing change must never silently rewrite history.
+  rawResponseText     String?
+  model               String
+  promptTokens        Int?
+  completionTokens    Int?
+  costUsd             Decimal? @db.Decimal(8, 4)
+  /// Set when this row is a deterministic fallback (budget exceeded /
+  /// API not configured / response failed validation) rather than a
+  /// real model call — never silently indistinguishable from a real
+  /// evaluation.
+  isFallback          Boolean  @default(false)
+  createdAt           DateTime @default(now())
+
+  @@unique([merchantListingId, evidenceFingerprint])
+  @@index([merchantListingId])
+  @@index([createdAt])
+}
+
+/// Real, metered spend ledger for the AI Commercial Analyst — a SEPARATE
+/// ledger from VitrineCreativeSpend (different budget, different purpose:
+/// text evaluation of candidates, never image generation). Same pattern
+/// as lib/services/ai-creative-factory/budget.ts, owner's explicit rule
+/// unchanged: "implemente limites configuráveis de gasto... bloqueio de
+/// chamadas acima do orçamento."
+model CommercialAnalystSpend {
+  id           String   @id @default(cuid())
+  spentOn      DateTime
+  amountUsd    Decimal  @db.Decimal(8, 4)
+  evaluationId String?
+  note         String?
+  recordedAt   DateTime @default(now())
+
+  @@index([spentOn])
+}

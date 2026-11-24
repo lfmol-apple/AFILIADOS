@@ -23,6 +23,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Frozen archival snapshot of the pre-pivot project (owner's directive,
+    // 2026-11-24) — inert reference copy, never compiled, linted or built.
+    "wakeup/**",
   ]),
 ]);
 

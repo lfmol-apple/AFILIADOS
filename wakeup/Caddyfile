@@ -1,0 +1,5 @@
+# Automatic HTTPS via Let's Encrypt — Caddy handles certificate issuance
+# and renewal on its own, no certbot/cron needed. See docs/DEPLOYMENT.md.
+precocaindo.com.br {
+	reverse_proxy app:3000
+}

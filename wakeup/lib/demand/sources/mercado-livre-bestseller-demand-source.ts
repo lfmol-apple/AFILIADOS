@@ -1,0 +1,180 @@
+import { env } from "@/lib/config/env";
+import { logger } from "@/lib/observability/logger";
+import type { DemandSignal, DemandSource } from "../types";
+
+const API_BASE = "https://api.mercadolibre.com";
+
+export interface ResolvedHighlight {
+  itemId: string;
+  position: number;
+  title: string;
+}
+
+export interface UnresolvedHighlight {
+  itemId: string;
+  position: number;
+  type: string;
+  /** Owner's authorization, 2026-11-19, section 5: "registre todos os
+   * produtos identificados nos rankings oficiais, inclusive os
+   * identificadores que não puderem ser resolvidos" — real, specific
+   * reasons, never a generic catch-all. */
+  reason: "user_product_private_catalog" | "name_resolution_failed";
+}
+
+/**
+ * GET /highlights/{site_id}/category/{category_id} — path/shape confirmed
+ * via developers.mercadolibre.com research (2026-09-07), corrected against
+ * a REAL response the same day: returns
+ * `{ content: [{ id, position, type }] }`, but `type` is `"PRODUCT"`
+ * (catalog-level canonical product — e.g. "Samsung Galaxy A17"), not
+ * `"ITEM"` as first assumed from the docs. `id` is a catalog product id,
+ * resolved via GET /products/{id} (MercadoLivreProvider.getCatalogProductName),
+ * NOT GET /items/{id} — the two are different resources that both use
+ * "MLB..." ids, confirmed by GET /items/{highlightId} 404ing on a real
+ * highlighted id while GET /products/{highlightId} resolved it correctly.
+ * Accepts both "PRODUCT" and "ITEM" as a type, in case a category ever
+ * highlights an item-type entry instead — never silently drops a type this
+ * file hasn't seen without at least trying to resolve it. Requires
+ * Authorization: Bearer, same as trends.
+ *
+ * `collectRaw()` is the source of truth (real item id + real position +
+ * resolved title); `collect()` maps it to the DemandSignal shape the wider
+ * DemandEngine expects (keyword-only — see lib/demand/types.ts, a shared
+ * interface this file must not change just for its own convenience). Any
+ * caller that needs the actual item id (e.g. to persist a
+ * MerchantListing/MerchantListingSignal row — see
+ * scripts/ml-demand-e2e-check.ts) must use `collectRaw()`, not `collect()`.
+ *
+ * Each entry's title is resolved via `resolveTitle` (inject
+ * `MercadoLivreProvider.getCatalogProductName` in real use; a fake resolver
+ * in tests) rather than using the raw id as a fabricated "keyword". An
+ * entry that fails to resolve is skipped, never given a placeholder title.
+ *
+ * `observedCount`/position-derived weight: rank-inverted from the real
+ * `position` field, never a fabricated volume. Also not wired into
+ * lib/demand/index.ts's DEFAULT_SOURCES — see that file's sibling trends
+ * source for why.
+ */
+export class MercadoLivreBestsellerDemandSource implements DemandSource {
+  readonly name = "mercado_livre_highlights";
+
+  constructor(
+    private readonly categoryId: string,
+    private readonly resolveTitle: (itemId: string) => Promise<string | null>,
+    /** Same rationale as MercadoLivreTrendsDemandSource's sibling
+     * parameter — defaults to the static env token (unchanged behavior),
+     * overridden by the automated job with the auto-refreshing token
+     * store so an unattended run doesn't die after ~6h. */
+    private readonly getAccessToken: () => Promise<string> | string = () =>
+      env.MERCADO_LIVRE_ACCESS_TOKEN,
+  ) {}
+
+  async collect(): Promise<DemandSignal[]> {
+    const highlights = await this.collectRaw();
+    const total = highlights.length;
+    return highlights.map((h) => ({
+      keyword: h.title,
+      intent: "BEST_OF",
+      source: this.name,
+      category: this.categoryId,
+      observedCount: Math.max(1, total - h.position + 1),
+    }));
+  }
+
+  async collectRaw(): Promise<ResolvedHighlight[]> {
+    return (await this.collectRawWithUnresolved()).resolved;
+  }
+
+  /** Same real API call as collectRaw(), but also surfaces every entry
+   * that could NOT be resolved into a title, with a real, specific
+   * reason — never silently dropped (owner's authorization, 2026-11-19,
+   * section 5). USER_PRODUCT ids are identified by `type` alone, before
+   * even attempting resolution — confirmed live the same day that
+   * `GET /user-products/{id}` (the officially correct endpoint for this
+   * id type, not `/products/{id}`) returns "caller is not allowed to
+   * access this user product": a private-catalog restriction by design,
+   * not a bug, and not something more scope/permission would fix. */
+  async collectRawWithUnresolved(): Promise<{ resolved: ResolvedHighlight[]; unresolved: UnresolvedHighlight[] }> {
+    if (!env.MERCADO_LIVRE_ENABLED || !env.MERCADO_LIVRE_API_ENABLED) {
+      throw new Error(
+        "MercadoLivreBestsellerDemandSource requires MERCADO_LIVRE_ENABLED and MERCADO_LIVRE_API_ENABLED. " +
+          "See docs/MONETIZATION_SCORE.md.",
+      );
+    }
+    const accessToken = await this.getAccessToken();
+    if (!accessToken) {
+      throw new Error(
+        "MercadoLivreBestsellerDemandSource has no access token available. See docs/MONETIZATION_SCORE.md.",
+      );
+    }
+
+    const path = `/highlights/${env.MERCADO_LIVRE_SITE_ID}/category/${this.categoryId}`;
+    const response = await fetch(`${API_BASE}${path}`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    if (!response.ok) {
+      logger.error("mercado_livre.highlights_failed", {
+        categoryId: this.categoryId,
+        status: response.status,
+      });
+      throw new Error(
+        `MercadoLivreBestsellerDemandSource failed: HTTP ${response.status}`,
+      );
+    }
+
+    const body = (await response.json()) as {
+      content: Array<{ id: string; position: number; type: string }>;
+    };
+
+    const outcomes = await Promise.all(
+      body.content
+        // "USER_PRODUCT" confirmed real (General Market Scanner V1,
+        // 2026-09-08 — live in the Beleza e Cuidado Pessoal category,
+        // MLB1246) alongside "PRODUCT" — same GET /products/{id}
+        // resolution attempt applies; an id that doesn't resolve there
+        // is reported as unresolved below, never a crash.
+        .filter((entry) => entry.type === "PRODUCT" || entry.type === "ITEM" || entry.type === "USER_PRODUCT")
+        .map(async (entry): Promise<{ resolved?: ResolvedHighlight; unresolved?: UnresolvedHighlight }> => {
+          // USER_PRODUCT ids are known-unresolvable by design (confirmed
+          // live, 2026-11-19, via the officially correct endpoint
+          // GET /user-products/{id}: "caller is not allowed to access
+          // this user product") — reported immediately, never even
+          // attempting the wrong endpoint.
+          if (entry.type === "USER_PRODUCT") {
+            return {
+              unresolved: {
+                itemId: entry.id,
+                position: entry.position,
+                type: entry.type,
+                reason: "user_product_private_catalog",
+              },
+            };
+          }
+          // A rejection here must only skip THIS entry, never the whole
+          // Promise.all — found live, 2026-11-15: resolveTitle throwing
+          // (not returning null) on a single real 403 was silently
+          // discarding every OTHER entry in the same category too,
+          // contradicting this file's own "never a crash" doc comment
+          // above.
+          let title: string | null;
+          try {
+            title = await this.resolveTitle(entry.id);
+          } catch {
+            title = null;
+          }
+          if (!title) {
+            return {
+              unresolved: { itemId: entry.id, position: entry.position, type: entry.type, reason: "name_resolution_failed" },
+            };
+          }
+          return { resolved: { itemId: entry.id, position: entry.position, title } };
+        }),
+    );
+
+    return {
+      resolved: outcomes.map((o) => o.resolved).filter((h): h is ResolvedHighlight => h !== undefined),
+      unresolved: outcomes.map((o) => o.unresolved).filter((h): h is UnresolvedHighlight => h !== undefined),
+    };
+  }
+}

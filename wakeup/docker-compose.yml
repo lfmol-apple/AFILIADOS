@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: precocaindo
+      POSTGRES_PASSWORD: precocaindo
+      POSTGRES_DB: precocaindo
+    ports:
+      - "5433:5432"
+    volumes:
+      - precocaindo_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U precocaindo"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  precocaindo_db_data:

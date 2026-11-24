@@ -1,0 +1,336 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { AnalyticsBeacon } from "@/components/analytics-beacon";
+import { recordSearchEvent } from "@/lib/analytics/search-event";
+import { currentlyVisibleDataSources } from "@/lib/config/public-catalog";
+import type { PagePropsWithSearch } from "@/lib/next-route-types";
+import { isOffersPageIndexable } from "@/lib/seo/offers-indexability";
+import { UnifiedOfferCard } from "@/components/unified-offer-card";
+import { OffersCategoryNav } from "@/components/offers-category-nav";
+import { OffersInfiniteList } from "@/components/offers-infinite-list";
+import { OffersToolbar } from "@/components/offers-toolbar";
+import { OfferCategoryTile } from "@/components/offer-category-icon";
+import { SearchPageForm } from "@/components/search-page-form";
+import { parseOffersView } from "@/lib/offers/view";
+import {
+  FEED_PAGE_SIZE,
+  getOfferCategoryCounts,
+  getOffersPool,
+  listOffers,
+  searchOffers,
+} from "@/lib/queries/offers-feed";
+import { offerCategoryLabel } from "@/lib/offers/categories";
+import { buildOffersMetadata } from "@/lib/offers/seo";
+import { MAX_FEED_PAGE, offersHref, type OffersView } from "@/lib/offers/view";
+
+export const revalidate = 300;
+
+/** Where an empty search sends people: the categories with the most offers. */
+const SEARCH_EMPTY_CATEGORIES = [
+  "beleza",
+  "casa",
+  "eletrodomesticos",
+  "ferramentas",
+  "esporte-suplementos",
+  "moda",
+  "celulares",
+  "pet",
+];
+
+// The default (no search) view is an infinite-scroll feed over one cached,
+// ranked cross-merchant pool (lib/queries/offers-feed.ts) — the first page
+// is rendered here, later pages come from /api/ofertas. Search (a query is
+// present) still uses Amazon's own real pagination unchanged — see the
+// comment further down for why.
+
+export async function generateMetadata(
+  props: PagePropsWithSearch,
+): Promise<Metadata> {
+  // /ofertas must stay indexable whenever real Mercado Livre/Shopee offers
+  // are showing, regardless of the Amazon gate (isOffersPageIndexable), and
+  // never while nothing real is visible. The view-specific rules (category
+  // landing pages, pagination, sort/store variants, search) live in
+  // lib/offers/seo.ts.
+  const searchParams = await props.searchParams;
+  const indexable = await isOffersPageIndexable();
+  return buildOffersMetadata({
+    view: parseOffersView(searchParams ?? {}),
+    indexable,
+    hasQuery: typeof searchParams?.q === "string" && searchParams.q.length > 0,
+  });
+}
+
+export default async function OfertasPage(props: PagePropsWithSearch) {
+  const searchParams = await props.searchParams;
+  const page = Number(searchParams?.page ?? 1) || 1;
+  const query =
+    typeof searchParams?.q === "string" ? searchParams.q : undefined;
+
+  const catalogSafe = currentlyVisibleDataSources().length > 0;
+
+  if (query) {
+    // Busca Cross-Merchant V1 (2026-09-08) — pesquisa a base já observada
+    // (Product Amazon + MerchantListing Shopee/ML com AffiliateLink
+    // ACTIVE), nunca uma API externa durante o request. Ver
+    // lib/queries/unified-offers.ts's searchUnifiedOffers() doc comment
+    // para o porquê disso não agrupar por produto ainda (ProductMatcher
+    // nunca rodou sobre dado real).
+    // Bug real corrigido em 2026-09-08: `catalogSafe` só reflete a
+    // visibilidade da Amazon (PUBLIC_CATALOG_ENABLED/MANUAL_PRODUCTS_ENABLED)
+    // — nunca deve envolver a chamada inteira, senão Shopee/ML (que têm
+    // sua própria regra fail-closed via AffiliateLinkRegistry ACTIVE,
+    // aplicada dentro de searchUnifiedOffers/getUnifiedMerchantOffers)
+    // desaparecem da busca sempre que a Amazon estiver com o catálogo
+    // público fechado — exatamente o que já foi corrigido antes na Home e
+    // na grade padrão de /ofertas (ver getUnifiedMerchantOffers acima).
+    const {
+      items,
+      page: currentPage,
+      totalPages,
+      total,
+      partial,
+    } = await searchOffers({ query, page });
+
+    await recordSearchEvent(query, items.length);
+
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6 sm:py-8">
+        <AnalyticsBeacon pageType="ofertas" pageSlug={`busca:${query}`} />
+        <Breadcrumbs
+          items={[{ label: "Início", href: "/" }, { label: "Ofertas" }]}
+        />
+        <h1 className="mt-4 text-xl font-semibold sm:text-2xl">
+          Resultados para &quot;{query}&quot;
+        </h1>
+        <SearchPageForm query={query} />
+        {items.length > 0 && (
+          <p className="text-foreground/60 mt-3 text-sm">
+            <strong className="text-foreground">{total ?? items.length}</strong>{" "}
+            {(total ?? items.length) === 1 ? "oferta" : "ofertas"}
+            {partial
+              ? ". Nenhuma tem todas as palavras; estas têm o máximo delas."
+              : ", as mais relevantes primeiro."}
+          </p>
+        )}
+        {items.length === 0 ? (
+          <div className="mt-8 flex flex-col gap-4">
+            <p className="text-foreground/70 text-sm">
+              Nenhum produto encontrado para &quot;{query}&quot;. Tente uma
+              palavra só (por exemplo: tênis, whey, panela) ou escolha uma
+              categoria.
+            </p>
+            <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {SEARCH_EMPTY_CATEGORIES.map((slug) => (
+                <li key={slug}>
+                  <Link
+                    href={`/ofertas?categoria=${slug}`}
+                    className="border-border-subtle hover:border-brand/50 bg-background flex min-h-12 items-center gap-2.5 rounded-2xl border px-3 text-sm font-medium"
+                  >
+                    <OfferCategoryTile slug={slug} />
+                    {offerCategoryLabel(slug)}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : (
+          <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4">
+            {items.map((item) => (
+              <UnifiedOfferCard
+                key={`${item.merchant}-${item.id}`}
+                item={item}
+              />
+            ))}
+          </div>
+        )}
+        {totalPages > 1 && (
+          <nav
+            aria-label="Páginas de resultados"
+            className="mt-8 flex flex-wrap justify-center gap-2 text-sm"
+          >
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+              <Link
+                key={p}
+                href={`/ofertas?${new URLSearchParams({ q: query, page: String(p) })}`}
+                aria-current={p === currentPage ? "page" : undefined}
+                className={`flex min-h-11 min-w-11 items-center justify-center rounded-full px-3 ${p === currentPage ? "bg-brand text-brand-foreground font-semibold" : "border-border-subtle hover:border-brand border"}`}
+              >
+                {p}
+              </Link>
+            ))}
+          </nav>
+        )}
+      </div>
+    );
+  }
+
+  // Default (no search) — the real cross-merchant vitrine: Amazon (when
+  // it has real products) + Shopee + Mercado Livre, ONE feed, sorted by
+  // each merchant's own real, commission-free opportunity signal. Never
+  // three separate "Achados X" sections (project brief). The category
+  // column filters that same feed; it never re-ranks it.
+  const view = parseOffersView(searchParams ?? {});
+  const category = view.category;
+
+  const [firstPage, categories, pool] = await Promise.all([
+    listOffers({
+      category,
+      sort: view.sort,
+      store: view.store,
+      page: view.page,
+    }),
+    getOfferCategoryCounts(view.store),
+    getOffersPool(),
+  ]);
+  const visibleTotal = categories.reduce((sum, c) => sum + c.count, 0);
+
+  const title = category
+    ? offerCategoryLabel(category)
+    : "Melhores oportunidades agora";
+  const merchantsPresent = Array.from(new Set(pool.map((c) => c.merchant))).map(
+    (m) => MERCHANT_NAMES[m],
+  );
+
+  return (
+    <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6 sm:py-8">
+      <AnalyticsBeacon
+        pageType="ofertas"
+        pageSlug={category ? `ofertas:${category}` : "ofertas"}
+      />
+      <Breadcrumbs
+        items={[{ label: "Início", href: "/" }, { label: "Ofertas" }]}
+      />
+
+      <header className="relative mt-3 overflow-hidden rounded-2xl bg-linear-to-br from-teal-700 to-teal-950 p-4 text-white sm:mt-4 sm:p-8">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-16 -right-10 h-56 w-56 rounded-full bg-white/10"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute right-28 -bottom-24 h-44 w-44 rounded-full bg-white/5"
+        />
+        <div className="relative max-w-2xl">
+          <h1 className="text-xl font-bold tracking-tight text-balance sm:text-4xl">
+            {title}
+          </h1>
+          <p className="mt-2 hidden text-sm leading-relaxed text-white/85 sm:block sm:text-base">
+            Priorizamos por demanda, preço e evidência real, sem olhar a
+            comissão. Atualizado automaticamente.
+          </p>
+        </div>
+        {pool.length > 0 && (
+          <ul className="relative mt-3 flex flex-wrap gap-2 text-xs font-semibold sm:mt-5 sm:text-sm">
+            <li className="rounded-full border border-white/25 bg-white/15 px-3 py-1.5 shadow-[inset_0_1px_0_rgb(255_255_255/0.3)] backdrop-blur-md">
+              {firstPage.total} {firstPage.total === 1 ? "oferta" : "ofertas"}
+              {category ? " nesta categoria" : ""}
+            </li>
+            {merchantsPresent.length > 0 && (
+              <li className="rounded-full border border-white/25 bg-white/15 px-3 py-1.5 shadow-[inset_0_1px_0_rgb(255_255_255/0.3)] backdrop-blur-md">
+                {merchantsPresent.join(" · ")}
+              </li>
+            )}
+          </ul>
+        )}
+      </header>
+
+      {!catalogSafe && pool.length === 0 ? (
+        <PreLaunchNotice />
+      ) : pool.length === 0 ? (
+        <p className="text-foreground/60 mt-10 text-sm">
+          Nenhuma oferta real disponível agora.
+        </p>
+      ) : (
+        // Flex on phones, not a 2-row grid: the sticky category bar then
+        // sticks for the whole list (a grid item is confined to its own row).
+        <div className="mt-3 flex flex-col gap-3 lg:mt-6 lg:grid lg:grid-cols-[17rem_minmax(0,1fr)] lg:gap-8">
+          <OffersCategoryNav
+            categories={categories}
+            view={view}
+            total={visibleTotal}
+          />
+          <div className="min-w-0">
+            <OffersToolbar
+              view={view}
+              total={firstPage.total}
+              stores={Array.from(new Set(pool.map((c) => c.merchant)))}
+            />
+            <OffersInfiniteList
+              key={`${category ?? "todas"}|${view.sort}|${view.store ?? "todas"}|${view.page}`}
+              initialItems={firstPage.items}
+              initialHasMore={firstPage.hasMore}
+              initialPage={view.page}
+              category={category}
+              sort={view.sort}
+              store={view.store}
+            />
+            <CrawlablePager view={view} total={firstPage.total} />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Plain numbered links to ?pagina=N. Visitors scroll (infinite list) and never
+ * need them, but a crawler does not scroll: this is how it walks the whole
+ * list and finds every product link. It sits in <noscript> — real fallback
+ * content for a client without JavaScript, not hidden text.
+ */
+function CrawlablePager({ view, total }: { view: OffersView; total: number }) {
+  const pages = Math.min(
+    MAX_FEED_PAGE,
+    Math.max(1, Math.ceil(total / FEED_PAGE_SIZE)),
+  );
+  if (pages <= 1) return null;
+  const shown = new Set<number>([1, pages]);
+  for (let p = view.page - 2; p <= view.page + 2; p++)
+    if (p >= 1 && p <= pages) shown.add(p);
+  const list = Array.from(shown).sort((a, b) => a - b);
+  return (
+    <noscript>
+      <nav aria-label="Páginas de ofertas" className="mt-8 text-center text-sm">
+        <ul className="flex flex-wrap justify-center gap-2">
+          {list.map((p) => (
+            <li key={p}>
+              {p === view.page ? (
+                <span
+                  aria-current="page"
+                  className="bg-brand text-brand-foreground rounded-full px-3 py-1.5 font-semibold"
+                >
+                  {p}
+                </span>
+              ) : (
+                <a
+                  href={offersHref(view, { page: p })}
+                  className="border-border-subtle rounded-full border px-3 py-1.5"
+                >
+                  {p}
+                </a>
+              )}
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </noscript>
+  );
+}
+
+const MERCHANT_NAMES = {
+  AMAZON: "Amazon",
+  SHOPEE: "Shopee",
+  MERCADO_LIVRE: "Mercado Livre",
+} as const;
+
+function PreLaunchNotice() {
+  return (
+    <div className="border-border-subtle bg-surface-muted mt-10 rounded-lg border p-6 text-sm">
+      <p className="font-semibold">Estamos em fase de pré-lançamento.</p>
+      <p className="text-foreground/70 mt-1">
+        As ofertas ainda não estão disponíveis publicamente. Volte em breve.
+      </p>
+    </div>
+  );
+}

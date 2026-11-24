@@ -1,0 +1,342 @@
+"use client";
+
+// Deliberately imports nothing beyond next/navigation + react. This is a
+// client component — anything it imports gets bundled for the browser.
+// See lib/services/monetization-score.ts's sibling incident (2026-09-03):
+// a client component that pulled in AffiliateDisclosure's env-reading
+// import chain crashed hydration in production. Never repeat that here.
+import { useState } from "react";
+import type { MarketDemandEvidence } from "@/lib/services/market-demand-evidence";
+
+// Real URL confirmed by the user (2026-09-08) — the Linkbuilder tool
+// itself takes a real Mercado Livre product URL pasted into it and
+// resolves/generates the affiliate link, which is the actual practical
+// path here: this app never confirms navigability of a third-party
+// item's URL (permalinkVerified stays false — see below), but ML's own
+// Linkbuilder is exactly the tool built to resolve one authoritatively.
+const ML_LINK_GENERATOR_URL = "https://www.mercadolivre.com.br/afiliados/linkbuilder#hub";
+
+export interface MlAffiliateQueueItemProps {
+  merchantListingId: string;
+  /** Countdown within the currently displayed batch — the top card shows
+   * the batch size, the last one shows 1, so "quanto falta" is legible at
+   * a glance without counting cards. Fixed for the whole session (this is
+   * a server-computed prop, never recalculated client-side) — matches the
+   * queue-stability fix: numbers only shift on a real page reload, never
+   * mid-session as cards above are processed. */
+  remaining: number;
+  title: string;
+  publicUrl: string;
+  brand: string | null;
+  monetizationScore: number | null;
+  monetizationConfidence: number;
+  monetizationReasons: string[];
+  latestSignal: {
+    soldQuantity: number | null;
+    trendRank: number | null;
+    bestsellerRank: number | null;
+    commissionRate: number | null;
+    estimatedCommissionAmount: string | null;
+  } | null;
+  bestOffer: {
+    price: number;
+    originalPrice: number | null;
+    discountPercent: number | null;
+    condition: string | null;
+    freeShipping: boolean | null;
+    sellerNickname: string | null;
+    sellerReputationLevel: string | null;
+    sellerPowerSellerStatus: string | null;
+    /** ALWAYS false today — no Mercado Livre endpoint this app can reach
+     * confirms a real permalink for a third-party item (see
+     * scripts/ml-enrich-offers.ts's doc comment for the full
+     * investigation, 2026-09-07). Drives the caveat below — publicUrl must
+     * never be presented as a confirmed clickable link while this is
+     * false. */
+    permalinkVerified: boolean;
+  } | null;
+  marketDemandEvidence: MarketDemandEvidence | null;
+}
+
+export function MlAffiliateQueueItem(props: MlAffiliateQueueItemProps) {
+  const [affiliateUrl, setAffiliateUrl] = useState("");
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  async function handleCopy(text: string) {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard API can fail (permissions, insecure context) — the URL
+      // is still visible in the field below, so this is a soft failure.
+    }
+  }
+
+  // The item's own title + seller nickname — the recommended search terms
+  // for the official affiliate portal (proven, working flow), used because
+  // publicUrl is not a confirmed clickable link (permalinkVerified: false
+  // today — see MlAffiliateQueueItemProps.bestOffer's doc comment).
+  const searchTerms = [props.title, props.bestOffer?.sellerNickname].filter(Boolean).join(" — ");
+
+  // Confirmed generated-link path shapes (docs/AFFILIATE_LINK_REGISTRY.md) —
+  // distinct from a plain product page URL, which shares the same hosts.
+  // Used only to decide whether a paste can be trusted to auto-submit; the
+  // server re-validates the host/format regardless (assertAllowedMerchantDestination).
+  function looksLikeGeneratedLink(value: string): boolean {
+    return /\/(sec|social)\//i.test(value);
+  }
+
+  async function handleSave(urlOverride?: string) {
+    const urlToSave = urlOverride ?? affiliateUrl;
+    setPending(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/admin/ml-affiliate-links", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          merchantListingId: props.merchantListingId,
+          affiliateUrl: urlToSave,
+        }),
+      });
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        setError(body.error ?? "Falha ao salvar.");
+        return;
+      }
+      // Deliberately no router.refresh() here — that would re-fetch and
+      // re-sort the whole queue from the server mid-session, shifting every
+      // other card's position while the human is mid-flow on another item
+      // (copy URL, tab away to Linkbuilder, come back — wrong card by then).
+      // Removing just this card from local state is enough; the list only
+      // needs to resync on a real page reload.
+      setSaved(true);
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function handleDismiss() {
+    setPending(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/admin/ml-affiliate-links/dismiss", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ merchantListingId: props.merchantListingId }),
+      });
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        setError(body.error ?? "Falha ao descartar.");
+        return;
+      }
+      setSaved(true); // reuses the same "hide this card" state as a save
+    } finally {
+      setPending(false);
+    }
+  }
+
+  if (saved) return null;
+
+  return (
+    <div className="border-border-subtle relative rounded-lg border p-4">
+      <span
+        title="Quantos itens faltam nesta leva, contando este"
+        className="bg-brand text-brand-foreground absolute -top-2 -left-2 flex h-6 min-w-6 items-center justify-center rounded-full px-1 text-xs font-bold"
+      >
+        {props.remaining}
+      </span>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-semibold">{props.title}</p>
+          {props.brand && (
+            <p className="text-foreground/50 text-xs">{props.brand}</p>
+          )}
+        </div>
+        <div className="text-right text-xs">
+          <p className="font-semibold">
+            MonetizationScore:{" "}
+            {props.monetizationScore ?? "—"}{" "}
+            <span className="text-foreground/50 font-normal">
+              (confiança {(props.monetizationConfidence * 100).toFixed(0)}%)
+            </span>
+          </p>
+        </div>
+      </div>
+
+      <div className="border-border-subtle bg-surface mt-3 rounded-md border px-3 py-2">
+        <p className="text-xs font-semibold">Demanda ML</p>
+        {props.marketDemandEvidence ? (
+          <>
+            <p className="text-foreground/70 mt-1 text-xs">
+              {formatDemandEvidenceSummary(props.marketDemandEvidence)}
+            </p>
+            <p className="text-foreground/50 mt-1 text-xs">
+              {props.marketDemandEvidence.explanation}
+            </p>
+          </>
+        ) : (
+          <p className="text-foreground/50 mt-1 text-xs">
+            Evidência indisponível para este item da fila.
+          </p>
+        )}
+      </div>
+
+      {props.bestOffer ? (
+        <dl className="text-foreground/60 mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+          <div>
+            Preço:{" "}
+            {props.bestOffer.price.toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })}
+            {props.bestOffer.discountPercent !== null &&
+              ` (−${Math.round(props.bestOffer.discountPercent * 100)}%)`}
+          </div>
+          <div>Condição: {props.bestOffer.condition ?? "—"}</div>
+          <div>Frete grátis: {props.bestOffer.freeShipping ? "sim" : "não"}</div>
+          <div>
+            Vendedor: {props.bestOffer.sellerNickname ?? "—"}
+            {props.bestOffer.sellerReputationLevel &&
+              ` (reputação: ${props.bestOffer.sellerReputationLevel})`}
+          </div>
+        </dl>
+      ) : null}
+
+      {props.bestOffer && !props.bestOffer.permalinkVerified && (
+        <p className="mt-2 text-xs font-medium text-amber-700 dark:text-amber-400">
+          ⚠️ Esta API não confirma sozinha que a URL abaixo abre a oferta
+          (investigado — ver docs/MONETIZATION_SCORE.md) — mas o Linkbuilder
+          da própria Mercado Livre resolve isso: copie a URL, cole lá, e ele
+          confirma e já gera o link.
+        </p>
+      )}
+
+      {!props.bestOffer && (
+        <p className="text-foreground/50 mt-2 text-xs">
+          Ainda sem oferta de vendedor enriquecida — mostrando apenas o sinal
+          de demanda. Rode scripts/ml-enrich-offers.ts para investigar ofertas
+          reais.
+        </p>
+      )}
+
+      {props.monetizationReasons.length > 0 && (
+        <ul className="text-foreground/60 mt-2 list-disc pl-4 text-xs">
+          {props.monetizationReasons.map((reason, i) => (
+            <li key={i}>{reason}</li>
+          ))}
+        </ul>
+      )}
+
+      {props.latestSignal && (
+        <dl className="text-foreground/60 mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+          {props.latestSignal.soldQuantity !== null && (
+            <div>Vendidos: {props.latestSignal.soldQuantity}</div>
+          )}
+          {props.latestSignal.trendRank !== null && (
+            <div>Trend rank: {props.latestSignal.trendRank}</div>
+          )}
+          {props.latestSignal.bestsellerRank !== null && (
+            <div>Bestseller rank: {props.latestSignal.bestsellerRank}</div>
+          )}
+          {props.latestSignal.commissionRate !== null && (
+            <div>
+              Comissão: {(props.latestSignal.commissionRate * 100).toFixed(1)}%
+            </div>
+          )}
+        </dl>
+      )}
+
+      <div className="mt-3 flex flex-wrap items-center gap-2">
+        <a
+          href={ML_LINK_GENERATOR_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => handleCopy(props.publicUrl)}
+          className="bg-brand text-brand-foreground min-h-9 rounded-full px-4 text-xs font-semibold hover:opacity-90"
+        >
+          {copied ? "URL copiada — Linkbuilder aberto" : "1. Copiar URL + abrir Linkbuilder →"}
+        </a>
+        {props.bestOffer && !props.bestOffer.permalinkVerified && (
+          <button
+            type="button"
+            onClick={() => handleCopy(searchTerms)}
+            className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
+          >
+            {copied ? "Copiado!" : "URL não resolveu? Copiar termo de busca"}
+          </button>
+        )}
+      </div>
+
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          void handleSave();
+        }}
+        className="mt-3 flex flex-wrap items-center gap-2"
+      >
+        <input
+          type="url"
+          value={affiliateUrl}
+          onChange={(e) => setAffiliateUrl(e.target.value)}
+          onPaste={(e) => {
+            const pasted = e.clipboardData.getData("text").trim();
+            if (looksLikeGeneratedLink(pasted)) {
+              // A confirmed shortlink shape needs no confirmation click —
+              // save immediately so pasting is the entire remaining step.
+              setAffiliateUrl(pasted);
+              void handleSave(pasted);
+            }
+          }}
+          placeholder="2. Cole aqui o link gerado (mercadolivre.com/sec/... ou .../social/...) — salva sozinho ao colar"
+          className="border-border-subtle min-h-9 min-w-64 flex-1 rounded-md border px-3 text-xs"
+        />
+        <button
+          type="submit"
+          disabled={pending || affiliateUrl.trim().length === 0}
+          className="bg-brand text-brand-foreground min-h-9 rounded-full px-4 text-xs font-semibold disabled:opacity-50"
+        >
+          {pending ? "Salvando..." : "Salvar"}
+        </button>
+        <button
+          type="button"
+          onClick={handleDismiss}
+          disabled={pending}
+          title="Não achei uma oferta correspondente real no Mercado Livre — tirar da fila"
+          className="text-foreground/50 hover:text-rose-600 dark:hover:text-rose-400 min-h-9 rounded-full px-3 text-xs font-medium disabled:opacity-50"
+        >
+          Descartar (sem correspondência)
+        </button>
+      </form>
+      {error && (
+        <p className="mt-2 text-xs font-medium text-rose-600 dark:text-rose-400">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function formatDemandEvidenceSummary(evidence: MarketDemandEvidence): string {
+  const confidenceLabel = {
+    LOW: "baixa",
+    MEDIUM: "média",
+    HIGH: "alta",
+  }[evidence.confidence];
+  const repeatedLabel = {
+    NONE: "isolada",
+    LOW: "baixa",
+    MEDIUM: "média",
+    HIGH: "alta",
+  }[evidence.repeatedEvidence];
+
+  if (evidence.top3Observations >= 5) {
+    return `Melhor #${evidence.bestObservedRank} · ${evidence.totalBestsellerObservations} observações · Top 3: ${evidence.top3Observations}x · evidência ${repeatedLabel} · confiança ${confidenceLabel}`;
+  }
+
+  return `#${evidence.latestObservedBestsellerRank} · observado ${evidence.totalBestsellerObservations}x · Top 10: ${evidence.top10Observations}x · evidência ${repeatedLabel} · confiança ${confidenceLabel}`;
+}

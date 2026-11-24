@@ -1,0 +1,205 @@
+import {
+  describe,
+  expect,
+  it,
+  beforeAll,
+  afterAll,
+  afterEach,
+  vi,
+} from "vitest";
+import { prisma } from "@/lib/db";
+
+const sendPushToOwner = vi.hoisted(() => vi.fn().mockResolvedValue(undefined));
+vi.mock("@/lib/push/send", () => ({ sendPushToOwner }));
+
+const { resolveMerchantRedirect } =
+  await import("@/lib/services/merchant-redirect");
+
+let merchantId: string;
+let listingId: string;
+const runId = Date.now();
+
+beforeAll(async () => {
+  const merchant = await prisma.merchant.upsert({
+    where: { code: "SHOPEE" },
+    create: { code: "SHOPEE", name: "Shopee", active: true },
+    update: {},
+  });
+  merchantId = merchant.id;
+
+  const listing = await prisma.merchantListing.create({
+    data: {
+      merchantId,
+      externalId: `TEST-REDIRECT-${runId}`,
+      externalIdType: "MERCHANT_PRODUCT_ID",
+      marketplace: "BR",
+      productUrl: "https://shopee.com.br/product/1/123456",
+    },
+  });
+  listingId = listing.id;
+});
+
+afterAll(async () => {
+  await prisma.merchantListing.delete({ where: { id: listingId } });
+});
+
+afterEach(async () => {
+  await prisma.affiliateClick.deleteMany({
+    where: { merchantListingId: listingId },
+  });
+  await prisma.affiliateLinkRegistry.deleteMany({
+    where: { merchantListingId: listingId },
+  });
+  sendPushToOwner.mockClear();
+});
+
+describe("resolveMerchantRedirect — generic (non-Amazon) merchants", () => {
+  it("404s when the listing has no affiliate link at all", async () => {
+    const result = await resolveMerchantRedirect({
+      merchant: "shopee",
+      externalId: `TEST-REDIRECT-${runId}`,
+      searchParams: new URLSearchParams(),
+    });
+    expect(result.status).toBe("error");
+    if (result.status === "error") expect(result.errorStatus).toBe(404);
+  });
+
+  it("redirects and records an AffiliateClick (with null productId) once an ACTIVE link exists", async () => {
+    await prisma.affiliateLinkRegistry.create({
+      data: {
+        merchantListingId: listingId,
+        merchantId,
+        publicUrl: "https://shopee.com.br/product/1/123456",
+        affiliateUrl: "https://s.shopee.com.br/testlink123",
+        attributionTag: "precocaindo",
+        source: "API",
+        status: "ACTIVE",
+      },
+    });
+
+    const result = await resolveMerchantRedirect({
+      merchant: "shopee",
+      externalId: `TEST-REDIRECT-${runId}`,
+      searchParams: new URLSearchParams({
+        pageType: "ofertas",
+        source: "test",
+      }),
+      notifyOwner: true,
+    });
+
+    expect(result.status).toBe("redirect");
+    if (result.status === "redirect") {
+      expect(result.destination).toBe("https://s.shopee.com.br/testlink123");
+    }
+
+    const clicks = await prisma.affiliateClick.findMany({
+      where: { merchantListingId: listingId },
+    });
+    expect(clicks).toHaveLength(1);
+    expect(clicks[0]!.productId).toBeNull();
+    expect(clicks[0]!.provider).toBe("SHOPEE");
+    expect(clicks[0]!.merchantId).toBe(merchantId);
+
+    expect(sendPushToOwner).toHaveBeenCalledTimes(1);
+    expect(sendPushToOwner).toHaveBeenCalledWith(
+      expect.objectContaining({ title: "🔔 Clique para Shopee" }),
+    );
+  });
+
+  it("never notifies the owner for their own click (isOwner: true)", async () => {
+    await prisma.affiliateLinkRegistry.create({
+      data: {
+        merchantListingId: listingId,
+        merchantId,
+        publicUrl: "https://shopee.com.br/product/1/123456",
+        affiliateUrl: "https://s.shopee.com.br/ownerlink",
+        attributionTag: "precocaindo",
+        source: "API",
+        status: "ACTIVE",
+      },
+    });
+
+    const result = await resolveMerchantRedirect({
+      merchant: "shopee",
+      externalId: `TEST-REDIRECT-${runId}`,
+      searchParams: new URLSearchParams(),
+      isOwner: true,
+    });
+
+    expect(result.status).toBe("redirect");
+    expect(sendPushToOwner).not.toHaveBeenCalled();
+  });
+
+  it("still redirects for a prefetch (next/link warming up the link, not a real click) but never records a click or notifies — found live 2026-10-01", async () => {
+    await prisma.affiliateLinkRegistry.create({
+      data: {
+        merchantListingId: listingId,
+        merchantId,
+        publicUrl: "https://shopee.com.br/product/1/123456",
+        affiliateUrl: "https://s.shopee.com.br/prefetchlink",
+        attributionTag: "precocaindo",
+        source: "API",
+        status: "ACTIVE",
+      },
+    });
+
+    const result = await resolveMerchantRedirect({
+      merchant: "shopee",
+      externalId: `TEST-REDIRECT-${runId}`,
+      searchParams: new URLSearchParams({ _rsc: "abc123" }),
+      isPrefetch: true,
+    });
+
+    expect(result.status).toBe("redirect");
+    if (result.status === "redirect") {
+      expect(result.destination).toBe("https://s.shopee.com.br/prefetchlink");
+    }
+    expect(sendPushToOwner).not.toHaveBeenCalled();
+    const clicks = await prisma.affiliateClick.count({
+      where: { merchantListingId: listingId },
+    });
+    expect(clicks).toBe(0);
+  });
+
+  it("404s (never redirects) when the link exists but isn't ACTIVE", async () => {
+    await prisma.affiliateLinkRegistry.create({
+      data: {
+        merchantListingId: listingId,
+        merchantId,
+        publicUrl: "https://shopee.com.br/product/1/123456",
+        affiliateUrl: "https://s.shopee.com.br/pending",
+        attributionTag: "precocaindo",
+        source: "API",
+        status: "PENDING",
+      },
+    });
+
+    const result = await resolveMerchantRedirect({
+      merchant: "shopee",
+      externalId: `TEST-REDIRECT-${runId}`,
+      searchParams: new URLSearchParams(),
+    });
+    expect(result.status).toBe("error");
+    if (result.status === "error") expect(result.errorStatus).toBe(404);
+  });
+
+  it("fails closed for merchants with no legitimate provider mapping (awin, generic-affiliate)", async () => {
+    const result = await resolveMerchantRedirect({
+      merchant: "awin",
+      externalId: "anything",
+      searchParams: new URLSearchParams(),
+    });
+    expect(result.status).toBe("error");
+    if (result.status === "error") expect(result.errorStatus).toBe(404);
+  });
+
+  it("400s for an unknown merchant code entirely", async () => {
+    const result = await resolveMerchantRedirect({
+      merchant: "not-a-real-merchant",
+      externalId: "anything",
+      searchParams: new URLSearchParams(),
+    });
+    expect(result.status).toBe("error");
+    if (result.status === "error") expect(result.errorStatus).toBe(400);
+  });
+});

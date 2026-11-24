@@ -1,0 +1,61 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+!.env.example
+
+# vercel
+.vercel
+
+# WhatsApp session credentials (private keys — never commit, never deploy
+# via the image; the production directory is bind-mounted instead)
+/data/whatsapp-session/
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+# Vitrine Inteligente — Henrique visual-reference preservation (owner's
+# directive, 2026-11-21: "os arquivos de referência preservados não serão
+# incluídos acidentalmente em commits"). The real reference PNG is
+# intentionally NOT committed yet — committing it is a separate, explicit
+# decision once the one-shot architecture itself is authorized for real
+# use. Until then this stays structurally un-stageable by a broad `git
+# add`, not just a habit to remember.
+/docs/henrique-visual-reference/
+# Real root cause fixed, 2026-11-21 (PR #17 review, "referência visual no
+# deploy"): moved from lib/services/ai-creative-factory/assets/ (inside
+# the app source tree, lost on every image rebuild) to this host-bind-
+# mounted path (see docker-compose.prod.yml + docs/DEPLOYMENT.md) — still
+# never committed, now also never silently lost on deploy.
+/data/vitrine-creative-reference/

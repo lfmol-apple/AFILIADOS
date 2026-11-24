@@ -1,0 +1,119 @@
+import { prisma } from "@/lib/db";
+import { calculateMonetizationScore } from "@/lib/services/monetization-score";
+import { getHistoricalClickSignal } from "@/lib/services/historical-click-signal";
+import type { MonetizationScoreInput } from "@/types/monetization";
+
+/**
+ * Shared persistence logic for a single Mercado Livre highlight, extracted
+ * from scripts/ml-demand-e2e-check.ts (Automação Operacional V1,
+ * 2026-09-08) so the manual diagnostic script and the automated job
+ * (jobs/ml-demand.ts) run the exact same code — never two copies that can
+ * silently drift apart. Behavior is unchanged from the original script.
+ */
+export async function ensureMercadoLivreMerchant() {
+  return prisma.merchant.upsert({
+    where: { code: "MERCADO_LIVRE" },
+    create: { code: "MERCADO_LIVRE", name: "Mercado Livre", active: true },
+    update: {},
+  });
+}
+
+// Rank 1 (top highlight) -> 100, decaying linearly to a floor of 40 by
+// rank 20+ — a highlighted product is never "low demand" (it's already
+// among a category's best), so the floor is deliberately not near 0.
+export function bestsellerRankToScore(position: number): number {
+  return Math.max(40, 100 - (position - 1) * 3);
+}
+
+/** Idempotent: MerchantListing is upserted by its unique
+ * (merchantId, marketplace, externalId) key — a rerun updates productUrl,
+ * never duplicates the row. MerchantListingSignal rows accumulate over
+ * time by design (latest wins via observedAt desc), same convention as
+ * every other signal source in this codebase. */
+export async function persistHighlightSignal(input: {
+  merchantId: string;
+  itemId: string;
+  position: number;
+  /** Which real ML category this highlight came from, and which scan
+   * produced it — General Market Scanner V1 (2026-09-08). Stored inside
+   * the signal's existing free-form `raw` column (no migration): every
+   * MerchantListingSignal already reuses `raw` this way (Shopee's own
+   * payload, ML catalog_items' payload) — this is the same pattern,
+   * applied to a signal that previously set no `raw` at all. Optional so
+   * the manual script (scripts/ml-demand-e2e-check.ts) keeps working
+   * unchanged when it doesn't have this context. */
+  categoryId?: string;
+  discoverySource?: "ML_GENERAL" | "ML_DEMAND" | "VITRINE_SEASONAL" | "VITRINE_TRENDING";
+  /** Which commercial-calendar event and search keyword actually found
+   * this item (jobs/vitrine-discovery.ts's keyword-driven seasonal sweep)
+   * — real evidence of event relevance, kept separate from categoryId
+   * (which only says "this category is associated with some event," not
+   * that THIS item was found because of it). */
+  matchedEventId?: string;
+  matchedKeyword?: string;
+}) {
+  const listing = await prisma.merchantListing.upsert({
+    where: {
+      merchantId_marketplace_externalId: {
+        merchantId: input.merchantId,
+        marketplace: "BR",
+        externalId: input.itemId,
+      },
+    },
+    create: {
+      merchantId: input.merchantId,
+      externalId: input.itemId,
+      externalIdType: "MERCHANT_PRODUCT_ID",
+      marketplace: "BR",
+      productUrl: `https://produto.mercadolivre.com.br/${input.itemId}`,
+      source: "MANUAL_VERIFIED",
+    },
+    update: { productUrl: `https://produto.mercadolivre.com.br/${input.itemId}` },
+  });
+
+  await prisma.merchantListingSignal.create({
+    data: {
+      merchantListingId: listing.id,
+      source: "mercado_livre_highlights",
+      bestsellerRank: input.position,
+      raw:
+        input.categoryId || input.discoverySource || input.matchedEventId || input.matchedKeyword
+          ? {
+              categoryId: input.categoryId,
+              discoverySource: input.discoverySource,
+              matchedEventId: input.matchedEventId,
+              matchedKeyword: input.matchedKeyword,
+            }
+          : undefined,
+    },
+  });
+
+  const scoreInput: MonetizationScoreInput = {
+    demandSignal: { value: bestsellerRankToScore(input.position), quality: "OBSERVED" },
+    commissionSignal: null,
+    trendSignal: null,
+    historicalConversionSignal: await getHistoricalClickSignal(listing.id),
+    offerQualitySignal: null,
+  };
+  const score = calculateMonetizationScore(scoreInput);
+  await prisma.monetizationScore.upsert({
+    where: { merchantListingId: listing.id },
+    create: {
+      merchantListingId: listing.id,
+      score: score.score,
+      confidence: score.confidence,
+      components: score.components as unknown as object,
+      reasons: score.reasons,
+      missingSignals: score.missingSignals,
+    },
+    update: {
+      score: score.score,
+      confidence: score.confidence,
+      components: score.components as unknown as object,
+      reasons: score.reasons,
+      missingSignals: score.missingSignals,
+    },
+  });
+
+  return listing;
+}

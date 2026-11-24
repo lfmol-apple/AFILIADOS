@@ -1,0 +1,129 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import {
+  readCachedConsent,
+  submitConsent,
+  type CachedConsent,
+} from "@/lib/privacy/consent-client";
+import { COOKIE_PREFERENCES_REOPEN_EVENT } from "@/components/cookie-preferences-button";
+
+/**
+ * LGPD consent banner. All three choices (Aceitar / Recusar / Configurar)
+ * are equally sized and equally reachable — no dark pattern where "Aceitar"
+ * is a button and "Recusar" is a small link (project brief Part M).
+ */
+export function ConsentBanner() {
+  const [visible, setVisible] = useState(false);
+  const [configuring, setConfiguring] = useState(false);
+  const [analytics, setAnalytics] = useState(true);
+  const [marketing, setMarketing] = useState(false);
+
+  useEffect(() => {
+    // Reading a browser-only cookie: this must happen post-mount to stay
+    // hydration-safe (server has no cookie access), so this is exactly the
+    // "synchronize with an external system" case effects are for.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setVisible(readCachedConsent() === null);
+
+    // Owner's authorization, 2026-11-22 ("Frente B — Pixel Meta do
+    // Henrique", B8: "alterar posteriormente a preferência") — reopens
+    // the SAME banner on demand (components/cookie-preferences-button.tsx),
+    // pre-filled with the visitor's current real choice, never a second
+    // duplicate banner.
+    const reopen = () => {
+      const current = readCachedConsent();
+      setAnalytics(current ? current.analytics === "GRANTED" : true);
+      setMarketing(current ? current.marketing === "GRANTED" : false);
+      setConfiguring(true);
+      setVisible(true);
+    };
+    window.addEventListener(COOKIE_PREFERENCES_REOPEN_EVENT, reopen);
+    return () => window.removeEventListener(COOKIE_PREFERENCES_REOPEN_EVENT, reopen);
+  }, []);
+
+  if (!visible) return null;
+
+  async function choose(consent: CachedConsent) {
+    await submitConsent(consent);
+    setVisible(false);
+  }
+
+  return (
+    <div className="glass border-border-subtle fixed inset-x-0 bottom-0 z-50 max-w-[100vw] rounded-t-2xl border-x-0 border-b-0 p-3 sm:p-4">
+      <div className="mx-auto w-full max-w-3xl">
+        <p className="text-foreground/80 text-xs leading-snug sm:text-sm sm:leading-normal">
+          Usamos cookies essenciais para o site funcionar. Com sua permissão,
+          também usamos cookies de análise para entender o que é útil no
+          PreçoCaindo. Veja detalhes na{" "}
+          <a href="/privacidade" className="text-brand underline">
+            Política de privacidade
+          </a>
+          .
+        </p>
+
+        {configuring && (
+          <div className="border-border-subtle mt-3 space-y-2 rounded-lg border p-3 text-sm">
+            <label className="flex items-center justify-between gap-4">
+              <span>Analytics (entender uso do site)</span>
+              <input
+                type="checkbox"
+                checked={analytics}
+                onChange={(e) => setAnalytics(e.target.checked)}
+              />
+            </label>
+            <label className="flex items-center justify-between gap-4">
+              <span>Marketing (usado para medir anúncios da Vitrine Inteligente no Facebook/Instagram)</span>
+              <input
+                type="checkbox"
+                checked={marketing}
+                onChange={(e) => setMarketing(e.target.checked)}
+              />
+            </label>
+          </div>
+        )}
+
+        <div className="mt-2 grid grid-cols-3 gap-2 sm:mt-4 sm:flex sm:flex-wrap">
+          <button
+            type="button"
+            onClick={() =>
+              choose({ analytics: "GRANTED", marketing: "GRANTED" })
+            }
+            className="bg-brand text-brand-foreground min-h-11 max-w-full rounded-full px-2 py-2 text-center text-xs leading-tight font-semibold whitespace-normal sm:px-5 sm:text-sm"
+          >
+            Aceitar
+          </button>
+          <button
+            type="button"
+            onClick={() => choose({ analytics: "DENIED", marketing: "DENIED" })}
+            className="border-border-subtle min-h-11 max-w-full rounded-full border px-2 py-2 text-center text-xs leading-tight font-semibold whitespace-normal sm:px-5 sm:text-sm"
+          >
+            Recusar não essenciais
+          </button>
+          {configuring ? (
+            <button
+              type="button"
+              onClick={() =>
+                choose({
+                  analytics: analytics ? "GRANTED" : "DENIED",
+                  marketing: marketing ? "GRANTED" : "DENIED",
+                })
+              }
+              className="border-border-subtle min-h-11 max-w-full rounded-full border px-2 py-2 text-center text-xs leading-tight font-semibold whitespace-normal sm:px-5 sm:text-sm"
+            >
+              Salvar preferências
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setConfiguring(true)}
+              className="border-border-subtle min-h-11 max-w-full rounded-full border px-2 py-2 text-center text-xs leading-tight font-semibold whitespace-normal sm:px-5 sm:text-sm"
+            >
+              Configurar
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
