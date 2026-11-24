@@ -126,11 +126,18 @@ function loadHenriqueStyleReference(): StyleReference {
   return { buffer: readFileSync(resolved), contentType: "image/png" };
 }
 
-/** Crop-safety margin, confirmed in the real pilot work (commit
- * e252139): the AI draws at 1024x1536 but the final asset is cropped to
- * 1080x1350 (4:5) — critical elements must stay out of the top/bottom
- * strips that get removed. */
-const CROP_SAFE_MARGIN_PERCENT = 18;
+/** Bottom-edge safety margin — real bug found live, 2026-11-24: the
+ * prompt used to tell the model "this will be cropped to 4:5 afterward,
+ * leave the top/bottom empty", a premise from an earlier architecture
+ * that no longer applies (confirmed by reading this file and
+ * openai-image-client.ts end to end: neither calls any image-processing
+ * library — there is no crop step, the raw 1080x1350 generation IS the
+ * final asset). Telling the model about a crop that never happens made
+ * it place the Mercado Livre banner right at the literal bottom edge
+ * (own observation: the CTA button text was visibly cut off in the
+ * delivered asset), since it had no reason to think the edge mattered.
+ * Fixed to ask for a real, modest margin instead of a false premise. */
+const BOTTOM_SAFE_MARGIN_PERCENT = 6;
 
 /** Mirrors `pilot-henrique-style.ts`'s real, owner-approved prompt
  * structure, but every product-specific line is now built from real
@@ -180,7 +187,7 @@ export function buildOneShotPrompt(input: OneShotAdInput): string {
     ``,
     `Linguagem do texto do anúncio: nunca escreva no anúncio palavras ou expressões que soem como processo de validação interna — por exemplo "real", "reais no anúncio", "confirmado", "verificado", "extraído do título", "validado", "comprovado". Escreva como um anúncio comercial de verdade, direto e atraente (ex.: "550 W de potência", "Reservatório de 800 ml", "39% OFF", "Economize R$ 147,80"). Os valores numéricos devem ser exatamente os fornecidos acima — nunca calcule, arredonde de forma diferente ou invente um novo número.`,
     ``,
-    `IMPORTANTE sobre enquadramento: esta imagem será cortada posteriormente para a proporção 4:5 (a borda superior e a borda inferior serão removidas). Deixe uma margem vazia, neutra, SEM NENHUM elemento (sem logotipo, sem texto, sem o banner) ocupando os ${CROP_SAFE_MARGIN_PERCENT}% superiores e os ${CROP_SAFE_MARGIN_PERCENT}% inferiores da altura total da imagem. Todo elemento crítico — título, logotipo, selo de preço, banner do Mercado Livre — deve estar inteiramente dentro dos ${100 - 2 * CROP_SAFE_MARGIN_PERCENT}% centrais da altura.`,
+    `IMPORTANTE sobre enquadramento: esta é a imagem FINAL, ela NÃO será cortada depois — tudo que você desenhar permanece exatamente como está. Por isso, é essencial que NENHUM elemento toque ou ultrapasse a borda da imagem. Deixe uma margem vazia real de pelo menos ${BOTTOM_SAFE_MARGIN_PERCENT}% da altura total, sem nenhum elemento, entre a parte de baixo da faixa amarela do Mercado Livre e a borda inferior da imagem — a faixa inteira, incluindo o texto completo do botão "Compre agora no Mercado Livre", deve estar 100% visível, com folga real abaixo dela, nunca encostada ou cortada na borda. O mesmo vale pra borda superior: deixe uma margem real acima do título.`,
   ].join("\n");
 }
 
