@@ -145,8 +145,16 @@ export async function GET() {
     // row somehow isn't approved, this falls back to the real original
     // marketplace photo (product.imageUrl) rather than serving nothing
     // or a stale/rejected render.
+    // Owner's reversal, 2026-11-24 ("preciso do criativo e não da foto
+    // limpa"): explicit override of the 2026-11-19 decision above — the
+    // feed now prefers the full branded "ad_overlay" render (price/selo/
+    // CTA baked in, approved one-shot template) over "catalog_clean".
+    // Real tradeoff, disclosed to the owner before this change: an image
+    // with baked-in text can get reduced reach under Meta's ad policies
+    // versus a clean photo relying on Meta's own native Dynamic Overlay —
+    // accepted knowingly, not a default to revisit without being asked.
     const creative = await prisma.vitrineCreative.findFirst({
-      where: { merchantListingId: selection.merchantListingId, kind: "catalog_clean", publishedAt: { not: null }, qualityStatus: "approved" },
+      where: { merchantListingId: selection.merchantListingId, kind: "ad_overlay", publishedAt: { not: null }, qualityStatus: "approved" },
       orderBy: { version: "desc" },
       select: { finalImageUrl: true },
     });
