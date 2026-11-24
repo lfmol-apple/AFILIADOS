@@ -141,16 +141,15 @@ describe("buildOneShotPrompt — preserves real product information, never inven
     expect(prompt).toContain("Não adicione nenhum objeto");
   });
 
-  it("requires the CTA bar to fully fit both lines of logo and button text, never asks for an empty margin below it", () => {
-    // Real root cause, 2026-11-24 (corrected twice): the bar touching the
-    // bottom edge is the CORRECT, approved style (confirmed by direct
-    // comparison against the real Henrique reference) — the actual
-    // defect was content (the second text line) getting clipped because
-    // the bar wasn't sized to fit it. An earlier fix (commit 405fd17)
-    // wrongly diagnosed this as a missing-margin problem and asked for
-    // empty space instead, which a real production test confirmed did
-    // NOT fix anything. This asserts the corrected, fit-based instruction
-    // is present and that no "leave an empty margin" framing remains.
+  it("tells the model NOT to draw the Mercado Livre CTA bar at all — it's composited deterministically afterward", () => {
+    // Final fix, 2026-11-24 (after two prompt-only attempts the owner
+    // explicitly rejected as not definitive — a margin-based fix, then a
+    // fit-based fix, neither verified against a real generation): the AI
+    // no longer has any geometric or content control over the bottom CTA
+    // bar region at all. It is composited from a real, measured approved
+    // asset (compositor.ts's compositeDeterministicCtaBar) regardless of
+    // what the model draws there, so the prompt now explicitly tells it
+    // to leave that job to the pipeline.
     const prompt = buildOneShotPrompt({
       externalId: "MLB-TEST",
       title: "Produto V",
@@ -162,11 +161,15 @@ describe("buildOneShotPrompt — preserves real product information, never inven
       hasConfirmedDiscount: false,
       benefits: [],
     });
-    expect(prompt).toContain("DUAS linhas do logotipo do Mercado Livre");
-    expect(prompt).toContain("DUAS linhas do texto do botão");
-    expect(prompt).toContain("encostada na borda de baixo é o padrão correto e esperado");
+    expect(prompt).toContain("NÃO desenhe nenhuma faixa, logotipo, botão ou menção ao Mercado Livre");
+    expect(prompt).toContain("adicionado automaticamente por cima da imagem depois, de forma determinística");
+    // Real side-effect found reviewing the first corrected batch: the AI's
+    // own price badge sometimes extended into the bar's reserved band.
+    expect(prompt).toContain("87% superiores da altura da imagem");
+    expect(prompt).toContain("13% inferiores são reservados exclusivamente");
+    // No remaining trace of either superseded prompt-only attempt.
     expect(prompt).not.toMatch(/margem (vazia|real)/);
-    expect(prompt).not.toContain("espaço vazio");
+    expect(prompt).not.toContain("DUAS linhas");
   });
 });
 

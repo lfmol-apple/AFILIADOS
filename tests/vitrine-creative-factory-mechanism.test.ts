@@ -91,12 +91,17 @@ vi.mock("@/lib/services/ai-creative-factory/quality-control", () => ({
   runQualityControl: vi.fn(async () => ({ status: "approved", notes: "ok (mock)", visionCheckCostUsd: null, classification: "ambientacao_legitima" })),
 }));
 
+const compositeDeterministicCtaBarMock = vi.fn(async () => Buffer.from("fake-png-bytes-with-bar"));
+
 vi.mock("@/lib/services/ai-creative-factory/compositor", () => ({
   renderCatalogClean: vi.fn(() => ({})),
   renderAdOverlay: vi.fn(() => {
     throw new Error("renderAdOverlay must never be called by the one-shot ad_overlay path");
   }),
   toBuffer: vi.fn(async () => Buffer.from("fake-png-bytes")),
+  compositeDeterministicCtaBar: compositeDeterministicCtaBarMock,
+  CtaBarAssetMissingError: class CtaBarAssetMissingError extends Error {},
+  CREATIVE_FINAL_DIMENSIONS: { width: 1080, height: 1350 },
 }));
 
 vi.mock("@/lib/services/ai-creative-factory/creative-image-store", () => ({
@@ -114,6 +119,8 @@ beforeEach(() => {
   generateCreativeBaseMock.mockReset();
   finalRenderExistsMock.mockReset();
   finalRenderExistsMock.mockReturnValue(true);
+  compositeDeterministicCtaBarMock.mockReset();
+  compositeDeterministicCtaBarMock.mockResolvedValue(Buffer.from("fake-png-bytes-with-bar"));
 
   // catalog_clean: pretend an approved row already exists so that path is
   // skipped — this test isolates proof for ad_overlay specifically.
@@ -401,5 +408,53 @@ describe("runVitrineCreativeFactoryJob — idempotency fix, 2026-11-24 (real inc
     expect(updateManyMock).not.toHaveBeenCalledWith(
       expect.objectContaining({ where: { id: "ad-overlay-category-changed-then-rejected" } }),
     );
+  });
+});
+
+describe("runVitrineCreativeFactoryJob — deterministic CTA bar compositing, 2026-11-24", () => {
+  it("composites the real approved CTA bar onto every new ad_overlay generation (never lets the AI draw it)", async () => {
+    const { runVitrineCreativeFactoryJob } = await import("@/jobs/vitrine-creative-factory");
+    await runVitrineCreativeFactoryJob();
+
+    expect(compositeDeterministicCtaBarMock).toHaveBeenCalledTimes(1);
+    expect(compositeDeterministicCtaBarMock).toHaveBeenCalledWith(
+      expect.objectContaining({ width: 1080, height: 1350 }),
+    );
+    const adOverlayCreateCall = createMock.mock.calls.find((call) => call[0].data.kind === "ad_overlay");
+    // The saved final image is whatever compositeDeterministicCtaBar
+    // produced — proof the composited (not the raw AI) bytes are what
+    // actually gets published.
+    expect(adOverlayCreateCall![0].data.finalImageUrl).toBe("https://precocaindo.com.br/api/vitrine/creative-asset/fake-final.png");
+  });
+
+  it("never publishes and never touches the prior approved version when the CTA bar asset is missing", async () => {
+    const { CtaBarAssetMissingError } = await import("@/lib/services/ai-creative-factory/compositor");
+    compositeDeterministicCtaBarMock.mockRejectedValueOnce(new CtaBarAssetMissingError("faixa ausente (mock)"));
+    findManyCreativeMock.mockImplementation(async (args: { where: { kind: string } }) => {
+      if (args.where.kind === "catalog_clean") {
+        return [{ version: 1, qualityStatus: "approved", promptInputs: { categoryHint: null, isSeasonalEvent: null }, generatedAt: new Date() }];
+      }
+      return [
+        {
+          id: "ad-overlay-bar-missing",
+          version: 1,
+          qualityStatus: "approved",
+          generatedAt: new Date(),
+          promptInputs: { mechanism: "one_shot_v1", bakedCurrentPrice: 228.9, bakedReferencePrice: 376.7, categoryHint: "some-other-category", isSeasonalEvent: null },
+        },
+      ];
+    });
+
+    const { runVitrineCreativeFactoryJob } = await import("@/jobs/vitrine-creative-factory");
+    const counters = await runVitrineCreativeFactoryJob();
+
+    expect(createMock.mock.calls.some((call) => call[0].data.kind === "ad_overlay")).toBe(false);
+    expect(updateManyMock).not.toHaveBeenCalledWith(expect.objectContaining({ where: { id: "ad-overlay-bar-missing" } }));
+    // The mocked runJob() only surfaces the generic processed/created/
+    // updated/errors counters (the job's own named counters go into
+    // ctx.metadata, asserted indirectly above via the create/updateMany
+    // calls) — errors being incremented is the weaker, available signal
+    // that this path was treated as a real failure, not a silent no-op.
+    expect(counters.errors).toBeGreaterThan(0);
   });
 });

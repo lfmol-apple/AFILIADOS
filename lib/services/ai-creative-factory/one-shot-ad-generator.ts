@@ -2,6 +2,7 @@ import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { env } from "@/lib/config/env";
 import { generateCreativeBase, type GenerateCreativeResult } from "@/lib/services/ai-creative-factory/openai-image-client";
+import { CTA_BAR_HEIGHT_FRACTION } from "@/lib/services/ai-creative-factory/compositor";
 
 /**
  * Generalization of `scripts/pilot-henrique-style.ts` (owner's directive,
@@ -126,23 +127,27 @@ function loadHenriqueStyleReference(): StyleReference {
   return { buffer: readFileSync(resolved), contentType: "image/png" };
 }
 
-/** Real root cause, 2026-11-24, corrected version (commit 405fd17's own
- * diagnosis was WRONG and its fix didn't hold on a real paid generation
- * tested the same day): this is NOT a missing-margin problem. Direct
- * visual comparison against the real owner-approved reference
- * (data/vitrine-creative-reference/henrique-style-reference.png,
- * 1122×1402, and the original approved pilot-result-3.png) shows the
- * CTA bar flush against the literal bottom edge, zero margin below it —
- * that IS the approved style, not a defect. The real difference: the
- * approved reference's bar is TALL ENOUGH to fully render both lines of
- * the Mercado Livre logo ("mercado"/"livre") and both lines of the
- * button text ("Compre agora no"/"Mercado Livre") entirely within the
- * canvas; the broken generations don't allocate enough height for that
- * two-line content, so the second line gets genuinely clipped — missing
- * content, not missing breathing room. Asking for an empty margin (as
- * commit 405fd17 did) was solving the wrong problem, which is exactly
- * why it didn't fix anything. The fix is a fit/sizing requirement
- * instead — see the prompt text below. */
+/** Real root cause history, CTA bar clipping, 2026-11-24 — three attempts
+ * before landing on the real fix:
+ *  1. Commit 405fd17 diagnosed it as "the model thinks this gets cropped,
+ *     tell it the truth" and asked for an empty bottom margin. Wrong
+ *     diagnosis: direct comparison against the real owner-approved
+ *     reference (data/vitrine-creative-reference/henrique-style-
+ *     reference.png) shows the bar flush against the literal bottom
+ *     edge, zero margin — that IS the approved style. Confirmed NOT
+ *     fixed on a real production asset the same day.
+ *  2. A same-day rewrite asked for a FIT guarantee instead (bar tall
+ *     enough for both lines of logo + both lines of button text) — a
+ *     correct diagnosis, but still just a prompt request, which the
+ *     owner explicitly rejected as a definitive fix ("não apenas um
+ *     texto de prompt") after seeing it applied to no real generation.
+ *  3. The actual fix: the bar is no longer drawn by the AI at all. It is
+ *     composited deterministically from the real, measured approved
+ *     asset (compositor.ts's compositeDeterministicCtaBar(),
+ *     CTA_BAR_HEIGHT_FRACTION = 0.12625, wired into jobs/vitrine-
+ *     creative-factory.ts) — pixel-identical every time, zero geometric
+ *     or content freedom for the model over that region. The prompt
+ *     below now tells the model NOT to draw this element at all. */
 
 /** Mirrors `pilot-henrique-style.ts`'s real, owner-approved prompt
  * structure, but every product-specific line is now built from real
@@ -201,27 +206,35 @@ export function buildOneShotPrompt(input: OneShotAdInput): string {
     benefitLines,
     `- Produto grande e centralizado, ocupando a maior parte da composição.`,
     priceLine,
-    `- No rodapé, uma faixa amarela horizontal com o logotipo real do Mercado Livre (ícone de aperto de mãos) e um botão azul-marinho arredondado "Compre agora no Mercado Livre".`,
+    /** Owner's directive, 2026-11-24 ("quer um corte determinístico, não
+     * apenas um texto de prompt"): the Mercado Livre CTA bar is no longer
+     * the AI's job at all — it's composited afterward, pixel-identical
+     * every time, from the real approved asset (compositor.ts's
+     * compositeDeterministicCtaBar, wired in jobs/vitrine-creative-
+     * factory.ts). Two prompt attempts to get the AI to draw this bar
+     * correctly (commit 405fd17's margin-based fix, then a fit-based
+     * rewrite the same day) both failed on a real production asset — the
+     * geometrically reliable fix is to stop asking the model to draw it
+     * at all, never to keep refining the request. This replaces the old
+     * "draw the ML bar" bullet.
+     */
+    `- NÃO desenhe nenhuma faixa, logotipo, botão ou menção ao Mercado Livre no rodapé da imagem — esse elemento é adicionado automaticamente por cima da imagem depois, de forma determinística (não é seu trabalho).`,
+    /** Real side-effect found, 2026-11-24, while visually reviewing the
+     * first batch of corrected images (owner's own standard: "quero ver",
+     * so this was checked, not assumed): the deterministic bar occupies a
+     * FIXED bottom band (CTA_BAR_HEIGHT_FRACTION of the canvas height)
+     * regardless of what the AI draws there — painted on top, fully
+     * opaque. Without this instruction, the AI sometimes still extends
+     * its own price-badge card down into that same band (it has no
+     * reason to know the band is reserved now that it isn't drawing the
+     * bar itself), and the composited bar then covers the bottom of that
+     * card. Fixed by telling it explicitly where its own canvas ends. */
+    `- Todo o conteúdo que você desenhar (título, ícones, produto, selo de preço) deve ficar inteiramente dentro dos ${Math.round((1 - CTA_BAR_HEIGHT_FRACTION) * 100)}% superiores da altura da imagem — os ${Math.round(CTA_BAR_HEIGHT_FRACTION * 100)}% inferiores são reservados exclusivamente para o elemento adicionado depois; nada seu pode se estender para dentro dessa área reservada.`,
     ``,
     `Não invente avaliação, quantidade vendida ou certificação — não há dado real disponível para isso, então NÃO inclua nenhuma menção a nota ou vendas. Não use "últimas unidades" ou qualquer urgência artificial. Não adicione nenhum objeto, produto, embalagem, acessório, brinde ou item extra que não esteja fisicamente presente na foto original do produto.`,
     ``,
     `Linguagem do texto do anúncio: nunca escreva no anúncio palavras ou expressões que soem como processo de validação interna — por exemplo "real", "reais no anúncio", "confirmado", "verificado", "extraído do título", "validado", "comprovado". Escreva como um anúncio comercial de verdade, direto e atraente (ex.: "550 W de potência", "Reservatório de 800 ml", "39% OFF", "Economize R$ 147,80"). Os valores numéricos devem ser exatamente os fornecidos acima — nunca calcule, arredonde de forma diferente ou invente um novo número.`,
     noDiscountWarning,
-    ``,
-    /** Corrected, 2026-11-24 (see this module's doc comment above for the
-     * full diagnosis): this is a FIT requirement, never a margin request.
-     * The bar touching the literal bottom edge is correct and expected —
-     * the real defect was content (the second line of the logo/button
-     * text) getting clipped because the bar wasn't allocated enough
-     * height for two full lines of each. Not verified yet against a real
-     * paid generation (none made during this fix, per the owner's
-     * explicit instruction not to spend money while implementing this) —
-     * if a real generation still clips the text, the next step is
-     * compositing the CTA bar as a separate deterministic layer instead
-     * of asking the image model to size it correctly on its own (see
-     * this module's own evaluation notes on deterministic overlay,
-     * compositor.tsx's renderAdOverlay). */
-    `IMPORTANTE sobre a faixa do Mercado Livre: ela deve terminar exatamente na borda inferior da imagem (encostada na borda de baixo é o padrão correto e esperado, igual à referência aprovada). O que NUNCA pode acontecer é conteúdo sendo cortado: a faixa precisa ser alta o suficiente para conter, inteiros e completamente legíveis do início ao fim, as DUAS linhas do logotipo do Mercado Livre ("mercado" e "livre", uma embaixo da outra) E as DUAS linhas do texto do botão ("Compre agora no" e "Mercado Livre", uma embaixo da outra) — nenhuma palavra, letra ou linha pode ficar cortada pela borda inferior da imagem. Se for preciso, aumente a altura da própria faixa amarela para caber as duas linhas de cada elemento por completo, em vez de cortar texto.`,
   ].join("\n");
 }
 

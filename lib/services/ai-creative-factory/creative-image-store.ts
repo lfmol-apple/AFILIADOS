@@ -63,6 +63,18 @@ export function finalRenderExists(merchantListingId: string, kind: "catalog_clea
   }
 }
 
+/** Owner's directive, 2026-11-24 ("não assuma que todas as imagens são
+ * exatamente 1080×1350, leia as dimensões reais de cada uma"): reads a
+ * PNG's real width/height straight from its IHDR chunk — no decoding of
+ * pixel data, no new dependency, just the 8 bytes every valid PNG
+ * guarantees are there right after the signature + chunk header. */
+export function readPngDimensions(buffer: Buffer): { width: number; height: number } {
+  if (buffer.length < 24 || buffer.toString("ascii", 12, 16) !== "IHDR") {
+    throw new Error("Not a valid PNG (missing IHDR) or a truncated buffer.");
+  }
+  return { width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20) };
+}
+
 export function readAssetByFileName(name: string): Buffer | null {
   // Defends against path traversal — a served route calls this with a
   // raw URL segment, never trusted as a safe path by construction.

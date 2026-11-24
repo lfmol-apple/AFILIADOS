@@ -59,3 +59,7 @@ next-env.d.ts
 # mounted path (see docker-compose.prod.yml + docs/DEPLOYMENT.md) — still
 # never committed, now also never silently lost on deploy.
 /data/vitrine-creative-reference/
+# Host-bind-mounted real generated creative files (docker-compose.prod.yml)
+# — never committed, same reasoning as vitrine-creative-reference above.
+# Noticed untracked during local (non-Docker) test runs on 2026-11-24.
+/data/vitrine-creatives/

@@ -1,4 +1,7 @@
 import { ImageResponse } from "next/og";
+import { readFileSync, existsSync } from "node:fs";
+import path from "node:path";
+import { env } from "@/lib/config/env";
 
 /**
  * Programmatic precision layer (owner's authorization, 2026-11-19,
@@ -257,4 +260,91 @@ export const CREATIVE_FINAL_DIMENSIONS = { width: FINAL_WIDTH, height: FINAL_HEI
  * just makes the call sites read cleanly as "give me real PNG bytes". */
 export async function toBuffer(response: ImageResponse): Promise<Buffer> {
   return Buffer.from(await response.arrayBuffer());
+}
+
+export class CtaBarAssetMissingError extends Error {}
+
+/** Real, measured proportion of the approved reference's CTA bar height
+ * relative to its total image height — data/vitrine-creative-reference/
+ * classification.json's own measurement (scanned near-left/near-right
+ * edge columns bottom-up for the first non-yellow row): bar_height_px
+ * 177 / total_height 1402 = 0.12625. Applied to the OUTPUT canvas's own
+ * real height (not hardcoded to 1350) so this stays correct even for an
+ * image that isn't exactly today's default size — e.g. the batch
+ * corrector reads each existing file's real dimensions rather than
+ * assuming they all match. */
+export const CTA_BAR_HEIGHT_FRACTION = 0.12625;
+
+/** Pure, DB-free, render-free — just the arithmetic, so it's unit-
+ * testable without decoding a single pixel. */
+export function computeCtaBarPlacement(canvasWidth: number, canvasHeight: number): { barWidth: number; barHeight: number; barY: number } {
+  const barHeight = Math.round(canvasHeight * CTA_BAR_HEIGHT_FRACTION);
+  return { barWidth: canvasWidth, barHeight, barY: canvasHeight - barHeight };
+}
+
+function loadCtaBarAsset(): { buffer: Buffer; contentType: string } {
+  const configuredPath = env.VITRINE_CTA_BAR_ASSET_PATH;
+  const resolved = path.isAbsolute(configuredPath) ? configuredPath : path.join(process.cwd(), configuredPath);
+  if (!existsSync(resolved)) {
+    throw new CtaBarAssetMissingError(
+      `Faixa CTA do Mercado Livre (aprovada) não encontrada em "${resolved}" (VITRINE_CTA_BAR_ASSET_PATH). ` +
+        "Nunca cai de volta para deixar a IA desenhar a faixa de novo — isto é intencional.",
+    );
+  }
+  return { buffer: readFileSync(resolved), contentType: "image/png" };
+}
+
+export interface CompositeCtaBarInput {
+  /** The already-composed base image (product/price/background, drawn
+   * by the AI, already cropped/resized to the final canvas size) as a
+   * data URI. Its bottom CTA_BAR_HEIGHT_FRACTION is fully occluded by
+   * this call regardless of what the AI drew there — the AI no longer
+   * has any content or geometric control over that region. */
+  baseImageDataUri: string;
+  width: number;
+  height: number;
+}
+
+/** Owner's directive, 2026-11-24 ("quer um corte determinístico, não
+ * apenas um texto de prompt"): composites the real, approved Mercado
+ * Livre CTA bar (handshake icon, wordmark, button — see
+ * data/vitrine-creative-reference/cta-bar-1080w.png) onto the bottom of
+ * a generated image, pixel-identical every time, via the SAME Satori/
+ * next-og technology this file already uses for renderCatalogClean/
+ * renderAdOverlay — no new rendering dependency. The bar asset is
+ * opaque, so painting it on top fully replaces whatever (if anything)
+ * the AI drew in that same region; nothing needs to be cropped out of
+ * the base image first. Used both for brand-new generations
+ * (jobs/vitrine-creative-factory.ts) and for correcting already-existing
+ * defective files (scripts/fix-local-creative-cta-bars.ts) — same
+ * function, same guarantee, either way. */
+export async function compositeDeterministicCtaBar(input: CompositeCtaBarInput): Promise<Buffer> {
+  const bar = loadCtaBarAsset();
+  const barDataUri = `data:${bar.contentType};base64,${bar.buffer.toString("base64")}`;
+  const { barWidth, barHeight, barY } = computeCtaBarPlacement(input.width, input.height);
+
+  const response = new ImageResponse(
+    (
+      <div style={{ width: input.width, height: input.height, display: "flex", position: "relative" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={input.baseImageDataUri}
+          alt=""
+          width={input.width}
+          height={input.height}
+          style={{ position: "absolute", top: 0, left: 0, width: input.width, height: input.height, objectFit: "cover" }}
+        />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={barDataUri}
+          alt=""
+          width={barWidth}
+          height={barHeight}
+          style={{ position: "absolute", top: barY, left: 0, width: barWidth, height: barHeight, objectFit: "cover" }}
+        />
+      </div>
+    ),
+    { width: input.width, height: input.height },
+  );
+  return toBuffer(response);
 }

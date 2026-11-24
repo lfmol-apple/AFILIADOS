@@ -444,6 +444,23 @@ const envSchema = z.object({
   /// allowlist-of-real-ids shape as VITRINE_ONE_SHOT_MIGRATION_ALLOWLIST.
   /// Empty (the default) forces nothing — fail closed.
   VITRINE_CREATIVE_FORCE_REGENERATE_IDS: z.string().default(""),
+  /// Owner's directive, 2026-11-24 ("quer um corte determinístico, não
+  /// apenas um texto de prompt"; revisado no mesmo dia, item 3:
+  /// "não pode depender de... pasta gitignored ou caminho exclusivo do
+  /// meu Mac"): the approved Mercado Livre CTA bar (handshake icon,
+  /// wordmark, "Compre agora no Mercado Livre" button) is now composited
+  /// from this real, measured asset — pixel-identical every time — never
+  /// drawn/approximated by the AI model. Deliberately NOT the same
+  /// convention as VITRINE_HENRIQUE_STYLE_REFERENCE_PATH (that one is a
+  /// gitignored, host-bind-mounted manual QA reference, never read by
+  /// this live job): this asset is a hard runtime dependency of every
+  /// real creative generation, so it's a committed file under public/
+  /// (ships in the Docker image automatically via the existing `COPY
+  /// --from=builder /app/public ./public` step — no bind mount, no
+  /// manual step, no host-specific path). Missing file is still a hard
+  /// stop (CtaBarAssetMissingError) — fail closed, never silently falls
+  /// back to letting the AI draw the bar again.
+  VITRINE_CTA_BAR_ASSET_PATH: z.string().default("public/vitrine/cta-bar-1080w.png"),
 });
 
 export type Env = z.infer<typeof envSchema>;

@@ -18,7 +18,7 @@ import {
   ONE_SHOT_MECHANISM_TAG,
 } from "@/lib/services/ai-creative-factory/one-shot-ad-generator";
 import { runQualityControl } from "@/lib/services/ai-creative-factory/quality-control";
-import { renderCatalogClean, toBuffer } from "@/lib/services/ai-creative-factory/compositor";
+import { renderCatalogClean, toBuffer, compositeDeterministicCtaBar, CtaBarAssetMissingError, CREATIVE_FINAL_DIMENSIONS } from "@/lib/services/ai-creative-factory/compositor";
 import type { ImpulseFitHypothesis } from "@/lib/services/commercial-intelligence/ad-potential-hypothesis";
 import { saveAiBase, saveFinalRender, finalRenderExists } from "@/lib/services/ai-creative-factory/creative-image-store";
 import { interpretProduct } from "@/lib/services/ai-creative-factory/product-interpretation";
@@ -109,6 +109,7 @@ export async function runVitrineCreativeFactoryJob() {
       adRejected: 0,
       adUnpublishedStale: 0,
       adBlockedNoReference: 0,
+      adBlockedCtaBarAssetMissing: 0,
       adBlockedMigrationNotAuthorized: 0,
       adPriceRegenerationDebounced: 0,
     };
@@ -529,11 +530,39 @@ export async function runVitrineCreativeFactoryJob() {
         continue;
       }
 
-      // The one-shot image already has every commercial element drawn by
-      // the AI — the final asset is just the proven 4:5 crop, never a
-      // code-composed overlay on top (renderCatalogClean is reused here
-      // purely for its crop math, same as pilot-henrique-style.ts did).
-      const finalPng = await toBuffer(renderCatalogClean({ aiBaseImageDataUri: `data:image/png;base64,${oneShot.imageBuffer.toString("base64")}` }));
+      // The one-shot image has the product/price/background drawn by the
+      // AI, cropped to the final 4:5 canvas (renderCatalogClean, reused
+      // here purely for its crop math, same as pilot-henrique-style.ts
+      // did). Owner's directive, 2026-11-24 ("quer um corte
+      // determinístico, não apenas um texto de prompt"): the Mercado
+      // Livre CTA bar is no longer part of what the AI draws — it's
+      // composited on top afterward from the real, approved asset,
+      // pixel-identical every time, replacing whatever (if anything) the
+      // AI drew in that same bottom region.
+      const croppedBase = await toBuffer(renderCatalogClean({ aiBaseImageDataUri: `data:image/png;base64,${oneShot.imageBuffer.toString("base64")}` }));
+      let finalPng: Buffer;
+      try {
+        finalPng = await compositeDeterministicCtaBar({
+          baseImageDataUri: `data:image/png;base64,${croppedBase.toString("base64")}`,
+          width: CREATIVE_FINAL_DIMENSIONS.width,
+          height: CREATIVE_FINAL_DIMENSIONS.height,
+        });
+      } catch (err) {
+        if (!(err instanceof CtaBarAssetMissingError)) throw err;
+        logger.error("vitrine_creative_factory.cta_bar_asset_missing", { merchantListingId: selection.merchantListingId, message: String(err) });
+        counters.adBlockedCtaBarAssetMissing += 1;
+        ctx.counters.errors += 1;
+        // Same posture as every other failed-to-finish-safely attempt in
+        // this job: never publish a broken/incomplete result, and if the
+        // old image's price was already confirmed stale, it still comes
+        // down — a missing bar asset doesn't make a known-wrong price
+        // look acceptable again.
+        if (adPriceStale && latestAdOverlay) {
+          await prisma.vitrineCreative.updateMany({ where: { id: latestAdOverlay.id }, data: { publishedAt: null } });
+          counters.adUnpublishedStale += 1;
+        }
+        continue;
+      }
       const finalUrl = saveFinalRender(selection.merchantListingId, "ad_overlay", nextAdVersion, finalPng);
 
       await prisma.$transaction([
