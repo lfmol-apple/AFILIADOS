@@ -57,23 +57,55 @@ export async function getLegacyVitrineId(): Promise<string> {
 export interface CreateVitrineInput {
   slug: string;
   name: string;
+  /** This vitrine's own commercial attribution tag — owner's directive,
+   * 2026-11-25: "esse campo é estratégico para a implantação da segunda
+   * vitrine e para a separação comercial entre vitrines". Required, no
+   * generated/generic fallback — a deliberate business decision, same
+   * footing as `slug`/`name`, never inferred from them (a URL-cosmetic
+   * slug and a marketplace tracking label are different concerns, same
+   * separation AffiliateLinkRegistry's own attributionTag/attributionProject
+   * split already makes). Format validated at the HTTP boundary
+   * (app/api/admin/vitrines/route.ts), same convention as `slug` — this
+   * service layer trusts its caller, exactly like it already does for
+   * every other field here. */
+  attributionTag: string;
   purpose?: string;
   maxProducts?: number;
 }
+
+export class DuplicateAttributionTagError extends Error {}
 
 /** Owner's rule: "o administrador deverá poder criar novas vitrines...
  * sem precisar alterar código." Starts in DRAFT — never shown publicly,
  * never claims a single product — until explicitly activated. */
 export async function createVitrine(input: CreateVitrineInput) {
-  return prisma.vitrine.create({
-    data: {
-      slug: input.slug,
-      name: input.name,
-      purpose: input.purpose,
-      maxProducts: input.maxProducts ?? 30,
-      status: "DRAFT",
-    },
-  });
+  try {
+    return await prisma.vitrine.create({
+      data: {
+        slug: input.slug,
+        name: input.name,
+        attributionTag: input.attributionTag,
+        purpose: input.purpose,
+        maxProducts: input.maxProducts ?? 30,
+        status: "DRAFT",
+      },
+    });
+  } catch (err) {
+    // P2002 = unique constraint violation — same convention
+    // claimSelectionForVitrine already uses below. Vitrine has two
+    // unique columns (slug, attributionTag); Prisma's own error names
+    // which one in `meta.target`, so the message stays accurate instead
+    // of guessing.
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+      const target = Array.isArray(err.meta?.target) ? err.meta.target.join(", ") : String(err.meta?.target ?? "");
+      if (target.includes("attributionTag")) {
+        throw new DuplicateAttributionTagError(
+          `A tag de atribuição "${input.attributionTag}" já pertence a outra vitrine — cada vitrine precisa de uma tag comercial própria e única.`,
+        );
+      }
+    }
+    throw err;
+  }
 }
 
 export async function listVitrines() {
