@@ -9,6 +9,7 @@ import {
   promptFieldChanged,
   prioritizeRegenerationCandidates,
   ONE_SHOT_MECHANISM_TAG,
+  HYBRID_MECHANISM_TAG,
   HENRIQUE_STANDARD_VERSION,
 } from "@/lib/services/ai-creative-factory/one-shot-ad-generator";
 
@@ -424,9 +425,20 @@ describe("shouldRegenerateAdOverlay — mechanism selection, the exact thing tha
     expect(shouldRegenerateAdOverlay({ ...base, existingQualityStatus: "rejected" })).toBe(true);
   });
 
-  it("ALWAYS regenerates a legacy row (old hybrid compositor mechanism, or unknown) — this is the regression guard", () => {
+  it("ALWAYS regenerates a legacy row (old, rejected two-column compositor mechanism, or any other unknown string) — this is the regression guard", () => {
     expect(shouldRegenerateAdOverlay({ ...base, existingMechanism: null })).toBe(true);
     expect(shouldRegenerateAdOverlay({ ...base, existingMechanism: "hybrid_legacy" })).toBe(true);
+  });
+
+  it("does NOT regenerate a row already tagged with the NEW, approved hybrid_v1 mechanism — owner's directive, 2026-11-25", () => {
+    // hybrid_v1 (one-shot background + deterministic text overlay, see
+    // compositor.tsx's renderHybridTextOverlay) is a second APPROVED
+    // mechanism, never to be confused with the OLD, fully-programmatic,
+    // owner-rejected "hybrid" compositor (renderAdOverlay) the test above
+    // guards against — a row tagged with either current mechanism is
+    // fine, so flipping env.VITRINE_NEW_PRODUCT_MECHANISM can never, by
+    // itself, force a regeneration of an existing row.
+    expect(shouldRegenerateAdOverlay({ ...base, existingMechanism: HYBRID_MECHANISM_TAG })).toBe(false);
   });
 
   it("regenerates when a row genuinely RECORDED an older Henrique standard version — owner's directive, 2026-11-25", () => {

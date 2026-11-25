@@ -16,9 +16,11 @@ import {
   OneShotReferenceMissingError,
   OneShotMigrationNotAuthorizedError,
   ONE_SHOT_MECHANISM_TAG,
+  HYBRID_MECHANISM_TAG,
   HENRIQUE_STANDARD_VERSION,
   TOP_SAFE_MARGIN_PERCENT as HENRIQUE_TOP_MARGIN_PERCENT,
 } from "@/lib/services/ai-creative-factory/one-shot-ad-generator";
+import { generateHybridAdOverlay } from "@/lib/services/ai-creative-factory/hybrid-ad-generator";
 import { runQualityControl } from "@/lib/services/ai-creative-factory/quality-control";
 import { renderCatalogClean, toBuffer, compositeDeterministicCtaBar, CtaBarAssetMissingError, CREATIVE_FINAL_DIMENSIONS, CTA_BAR_HEIGHT_FRACTION } from "@/lib/services/ai-creative-factory/compositor";
 import { checkMarginSafety } from "@/lib/services/ai-creative-factory/margin-safety-check";
@@ -78,7 +80,7 @@ function isManuallyForced(merchantListingId: string): boolean {
  *    publicar uma arte com preço desatualizado").
  */
 interface AdOverlayPromptInputs {
-  mechanism: typeof ONE_SHOT_MECHANISM_TAG;
+  mechanism: typeof ONE_SHOT_MECHANISM_TAG | typeof HYBRID_MECHANISM_TAG;
   /** Owner's directive, 2026-11-25 ("cada criativo deverá possuir...
    * versão do padrão Henrique"): which version of the approved visual
    * standard (docs/henrique-visual-standard/SPEC.md) this row was
@@ -318,7 +320,15 @@ export async function runVitrineCreativeFactoryJob() {
       });
       const latestAdOverlay = recentAdOverlay[0] ?? null;
       const adPromptInputsPrev = latestAdOverlay?.promptInputs as Partial<AdOverlayPromptInputs> | undefined;
-      const adMechanismMismatch = !!latestAdOverlay && adPromptInputsPrev?.mechanism !== ONE_SHOT_MECHANISM_TAG;
+      // Owner's directive, 2026-11-25: hybrid_v1 is now a second approved
+      // mechanism (pending visual approval to become the default for NEW
+      // products, see VITRINE_NEW_PRODUCT_MECHANISM) — a row tagged with
+      // either is fine, never a forced regeneration. Absence is still a
+      // mismatch (real gap found this same day: a zero-cost CTA-bar
+      // recomposite script never re-stamped this field on otherwise-
+      // correct one-shot rows — tracked as a data fix, not a code one).
+      const adMechanismMismatch =
+        !!latestAdOverlay && adPromptInputsPrev?.mechanism !== ONE_SHOT_MECHANISM_TAG && adPromptInputsPrev?.mechanism !== HYBRID_MECHANISM_TAG;
       // Owner's directive, 2026-11-25: a SPEC.md version bump is exactly
       // as "this row is known-outdated" as a mechanism mismatch — same
       // treatment everywhere adMechanismMismatch already gates below.
@@ -434,164 +444,303 @@ export async function runVitrineCreativeFactoryJob() {
       const photoBuffer = Buffer.from(await photoResponse.arrayBuffer());
       const photoContentType = photoResponse.headers.get("content-type") ?? "image/jpeg";
 
-      let oneShot;
-      try {
-        oneShot = await generateOneShotAd({
-          externalId: selection.merchantListing.externalId,
-          title: product.title,
-          brand: product.brand,
-          productPhoto: photoBuffer,
-          productPhotoContentType: photoContentType,
-          currentPrice: product.currentPrice,
-          referencePrice: product.referencePrice,
-          hasConfirmedDiscount,
-          benefits: realBenefitTexts,
-          backgroundStyle: creativeProfile.backgroundStyle,
-          colorPalette: creativeProfile.colorPalette,
-          ambientation: creativeProfile.ambientation,
-        });
-      } catch (err) {
-        if (err instanceof OneShotMigrationNotAuthorizedError) {
-          // Owner's directive, 2026-11-21 ("migração progressiva,
-          // começando com um único produto autorizado"): this is an
-          // EXPECTED, deliberate block, not a failure — never counted as
-          // an error, and the existing (still correct, just not-yet-
-          // migrated) creative is left exactly as it was.
-          logger.info("vitrine_creative_factory.one_shot_migration_not_authorized", { merchantListingId: selection.merchantListingId, message: String(err) });
-          counters.adBlockedMigrationNotAuthorized += 1;
-          // Price correctness is never optional, though — if THIS specific
-          // product's price is genuinely stale, it still comes down even
-          // though we're not authorized to regenerate it yet.
+      // Owner's directive, 2026-11-25 ("prepare a composição híbrida como
+      // mecanismo preferencial para novos produtos, condicionada à minha
+      // aprovação visual... garanta que essa mudança não provoque
+      // regeneração dos 17 criativos existentes"): consulted ONLY when
+      // there is no existing row at all — an existing row's own
+      // mechanism never changes just because this default moves, and
+      // shouldRegenerateAdOverlay/adMechanismMismatch already treat
+      // ONE_SHOT_MECHANISM_TAG and HYBRID_MECHANISM_TAG as equally valid,
+      // so neither tag alone ever forces a regeneration of something
+      // already approved.
+      const useHybridMechanism = !latestAdOverlay && env.VITRINE_NEW_PRODUCT_MECHANISM === HYBRID_MECHANISM_TAG;
+      const mechanismForThisGeneration = useHybridMechanism ? HYBRID_MECHANISM_TAG : ONE_SHOT_MECHANISM_TAG;
+      const nextAdVersion = (latestAdOverlay?.version ?? 0) + 1;
+
+      let generationImageBuffer: Buffer;
+      let generationModel: string;
+      let generationCostUsd: number;
+      let generationPromptText: string;
+      let generationBakedCurrentPrice: number;
+      let generationBakedReferencePrice: number | null;
+      let finalPng: Buffer;
+
+      if (useHybridMechanism) {
+        let hybrid;
+        try {
+          hybrid = await generateHybridAdOverlay({
+            externalId: selection.merchantListing.externalId,
+            title: product.title,
+            brand: product.brand,
+            productPhoto: photoBuffer,
+            productPhotoContentType: photoContentType,
+            currentPrice: product.currentPrice,
+            referencePrice: product.referencePrice,
+            hasConfirmedDiscount,
+            benefits: realBenefitTexts,
+            backgroundStyle: creativeProfile.backgroundStyle,
+            colorPalette: creativeProfile.colorPalette,
+            ambientation: creativeProfile.ambientation,
+          });
+        } catch (err) {
+          // Note: unlike the one_shot branch below, there is no "existing
+          // row's stale price" fallback to unpublish here — hybrid is
+          // only ever chosen when `!latestAdOverlay` (a brand-new
+          // product), so there is structurally no prior row that could
+          // need unpublishing (TypeScript's aliased-condition narrowing
+          // confirms this: latestAdOverlay is provably null inside this
+          // branch, caught at compile time rather than left as dead code).
+          if (err instanceof OneShotMigrationNotAuthorizedError) {
+            logger.info("vitrine_creative_factory.one_shot_migration_not_authorized", { merchantListingId: selection.merchantListingId, message: String(err) });
+            counters.adBlockedMigrationNotAuthorized += 1;
+            continue;
+          }
+          if (err instanceof CtaBarAssetMissingError) {
+            logger.error("vitrine_creative_factory.cta_bar_asset_missing", { merchantListingId: selection.merchantListingId, message: String(err) });
+            counters.adBlockedCtaBarAssetMissing += 1;
+            ctx.counters.errors += 1;
+            continue;
+          }
+          if (err instanceof OneShotReferenceMissingError) {
+            logger.error("vitrine_creative_factory.one_shot_reference_missing", { merchantListingId: selection.merchantListingId, message: String(err) });
+            counters.adBlockedNoReference += 1;
+          } else if (err instanceof OpenAiImageNotConfiguredError) {
+            ctx.metadata.stoppedReason = "openai_not_configured";
+            break;
+          } else {
+            logger.error("vitrine_creative_factory.hybrid_generation_failed", { merchantListingId: selection.merchantListingId, message: String(err) });
+          }
+          ctx.counters.errors += 1;
+          continue;
+        }
+
+        await recordCreativeSpend({ amountUsd: hybrid.costUsd, note: `Geração híbrida (ad_overlay, fundo por IA + texto determinístico) — ${product.title.slice(0, 60)}` });
+        generationImageBuffer = hybrid.aiImageBuffer;
+        generationModel = hybrid.model;
+        generationCostUsd = hybrid.costUsd;
+        generationPromptText = hybrid.promptText;
+        generationBakedCurrentPrice = hybrid.bakedCurrentPrice;
+        generationBakedReferencePrice = hybrid.bakedReferencePrice;
+        finalPng = hybrid.finalImageBuffer;
+
+        // Hybrid's OWN gate (geometry on the real computed coordinates +
+        // the same bottom-reserved pixel check one_shot uses) — never
+        // the one_shot pixel TOP-margin gate, whose premise (unknown
+        // AI-drawn content near a crop edge) doesn't apply here. See
+        // hybrid-layout-check.ts's own doc comment, investigated and
+        // decided 2026-11-25.
+        if (!hybrid.marginCheck.safe) {
+          const violationNotes = [
+            ...hybrid.marginCheck.layoutViolations.map((v) => `geometria "${v.check}": ${v.detail}`),
+            ...hybrid.marginCheck.pixelViolations.map((v) => `zona "${v.zone}": densidade de borda ${v.edgeDensity.toFixed(4)} acima do limite ${v.threshold.toFixed(4)}`),
+          ].join("; ");
+          logger.warn("vitrine_creative_factory.hybrid_margin_safety_violation", { merchantListingId: selection.merchantListingId, violationNotes });
+          const aiBaseFileName = saveAiBase(selection.merchantListingId, nextAdVersion, generationImageBuffer);
+          await prisma.vitrineCreative.create({
+            data: {
+              merchantListingId: selection.merchantListingId,
+              kind: "ad_overlay",
+              version: nextAdVersion,
+              originalPhotoUrl: product.imageUrl,
+              aiBaseImageUrl: aiBaseFileName,
+              finalImageUrl: product.imageUrl,
+              promptInputs: {
+                mechanism: mechanismForThisGeneration,
+                henriqueStandardVersion: HENRIQUE_STANDARD_VERSION,
+                bakedCurrentPrice: generationBakedCurrentPrice,
+                bakedReferencePrice: generationBakedReferencePrice,
+                categoryHint,
+                isSeasonalEvent: eventName,
+              } satisfies AdOverlayPromptInputs,
+              promptText: generationPromptText,
+              model: generationModel,
+              costUsd: generationCostUsd,
+              qualityStatus: "rejected",
+              qualityNotes: `Reprovado pela checagem híbrida (geometria + faixa reservada, sem IA envolvida) — ${violationNotes}.`,
+              publishedAt: null,
+            },
+          });
+          // No prior row to unpublish here either — see the note above
+          // this branch's catch block for why.
+          counters.adRejected += 1;
+          ctx.counters.errors += 1;
+          continue;
+        }
+      } else {
+        let oneShot;
+        try {
+          oneShot = await generateOneShotAd({
+            externalId: selection.merchantListing.externalId,
+            title: product.title,
+            brand: product.brand,
+            productPhoto: photoBuffer,
+            productPhotoContentType: photoContentType,
+            currentPrice: product.currentPrice,
+            referencePrice: product.referencePrice,
+            hasConfirmedDiscount,
+            benefits: realBenefitTexts,
+            backgroundStyle: creativeProfile.backgroundStyle,
+            colorPalette: creativeProfile.colorPalette,
+            ambientation: creativeProfile.ambientation,
+          });
+        } catch (err) {
+          if (err instanceof OneShotMigrationNotAuthorizedError) {
+            // Owner's directive, 2026-11-21 ("migração progressiva,
+            // começando com um único produto autorizado"): this is an
+            // EXPECTED, deliberate block, not a failure — never counted as
+            // an error, and the existing (still correct, just not-yet-
+            // migrated) creative is left exactly as it was.
+            logger.info("vitrine_creative_factory.one_shot_migration_not_authorized", { merchantListingId: selection.merchantListingId, message: String(err) });
+            counters.adBlockedMigrationNotAuthorized += 1;
+            // Price correctness is never optional, though — if THIS specific
+            // product's price is genuinely stale, it still comes down even
+            // though we're not authorized to regenerate it yet.
+            if (adPriceStale && latestAdOverlay) {
+              await prisma.vitrineCreative.updateMany({ where: { id: latestAdOverlay.id }, data: { publishedAt: null } });
+              counters.adUnpublishedStale += 1;
+            }
+            continue;
+          }
+          if (err instanceof OneShotReferenceMissingError) {
+            logger.error("vitrine_creative_factory.one_shot_reference_missing", { merchantListingId: selection.merchantListingId, message: String(err) });
+            counters.adBlockedNoReference += 1;
+          } else if (err instanceof OpenAiImageNotConfiguredError) {
+            ctx.metadata.stoppedReason = "openai_not_configured";
+            break;
+          } else {
+            logger.error("vitrine_creative_factory.one_shot_generation_failed", { merchantListingId: selection.merchantListingId, message: String(err) });
+          }
+          ctx.counters.errors += 1;
+          // Never republish a stale-priced ad_overlay just because the
+          // replacement failed — fail safe, not silently stale.
           if (adPriceStale && latestAdOverlay) {
             await prisma.vitrineCreative.updateMany({ where: { id: latestAdOverlay.id }, data: { publishedAt: null } });
             counters.adUnpublishedStale += 1;
           }
           continue;
         }
-        if (err instanceof OneShotReferenceMissingError) {
-          logger.error("vitrine_creative_factory.one_shot_reference_missing", { merchantListingId: selection.merchantListingId, message: String(err) });
-          counters.adBlockedNoReference += 1;
-        } else if (err instanceof OpenAiImageNotConfiguredError) {
-          ctx.metadata.stoppedReason = "openai_not_configured";
-          break;
-        } else {
-          logger.error("vitrine_creative_factory.one_shot_generation_failed", { merchantListingId: selection.merchantListingId, message: String(err) });
+
+        await recordCreativeSpend({ amountUsd: oneShot.costUsd, note: `Geração one-shot (ad_overlay, padrão aprovado) — ${product.title.slice(0, 60)}` });
+        generationImageBuffer = oneShot.imageBuffer;
+        generationModel = oneShot.model;
+        generationCostUsd = oneShot.costUsd;
+        generationPromptText = oneShot.promptText;
+        generationBakedCurrentPrice = oneShot.bakedCurrentPrice;
+        generationBakedReferencePrice = oneShot.bakedReferencePrice;
+
+        // Owner's directive, 2026-11-24 ("a aprovação definitiva deve
+        // considerar a imagem FINAL, exatamente aquela que será
+        // disponibilizada no XML"): real bug this closes — quality control
+        // used to run against the RAW 1024x1536 generation, BEFORE this
+        // exact crop+composite step, so a creative could be approved and
+        // then come out defective once cropped (confirmed live, 2026-11-24:
+        // a test generation looked fine raw and had its title clipped only
+        // after the real crop ran). The crop and the deterministic bar are
+        // both free (no paid call, no new cost) — moved them BEFORE the
+        // (unchanged, single) paid vision check so that check inspects the
+        // literal bytes that would be published, not an earlier draft of
+        // them. Owner's directive, 2026-11-24 ("quer um corte
+        // determinístico, não apenas um texto de prompt"): the Mercado
+        // Livre CTA bar is no longer part of what the AI draws — it's
+        // composited on top afterward from the real, approved asset,
+        // pixel-identical every time, replacing whatever (if anything) the
+        // AI drew in that same bottom region.
+        const croppedBase = await toBuffer(renderCatalogClean({ aiBaseImageDataUri: `data:image/png;base64,${oneShot.imageBuffer.toString("base64")}` }));
+        try {
+          finalPng = await compositeDeterministicCtaBar({
+            baseImageDataUri: `data:image/png;base64,${croppedBase.toString("base64")}`,
+            width: CREATIVE_FINAL_DIMENSIONS.width,
+            height: CREATIVE_FINAL_DIMENSIONS.height,
+          });
+        } catch (err) {
+          if (!(err instanceof CtaBarAssetMissingError)) throw err;
+          logger.error("vitrine_creative_factory.cta_bar_asset_missing", { merchantListingId: selection.merchantListingId, message: String(err) });
+          counters.adBlockedCtaBarAssetMissing += 1;
+          ctx.counters.errors += 1;
+          // Same posture as every other failed-to-finish-safely attempt in
+          // this job: never publish a broken/incomplete result, and if the
+          // old image's price was already confirmed stale, it still comes
+          // down — a missing bar asset doesn't make a known-wrong price
+          // look acceptable again.
+          if (adPriceStale && latestAdOverlay) {
+            await prisma.vitrineCreative.updateMany({ where: { id: latestAdOverlay.id }, data: { publishedAt: null } });
+            counters.adUnpublishedStale += 1;
+          }
+          continue;
         }
-        ctx.counters.errors += 1;
-        // Never republish a stale-priced ad_overlay just because the
-        // replacement failed — fail safe, not silently stale.
-        if (adPriceStale && latestAdOverlay) {
-          await prisma.vitrineCreative.updateMany({ where: { id: latestAdOverlay.id }, data: { publishedAt: null } });
-          counters.adUnpublishedStale += 1;
+
+        // Owner's directive, 2026-11-25 ("avalie uma área de segurança que
+        // impeça tecnicamente o corte... conclua a integração do margin-
+        // safety-check.ts ao pipeline"): a real, free, deterministic gate
+        // runs BEFORE the one paid vision check — same posture as every
+        // other free check in this job (structural size check already ran
+        // inside runQualityControl; this one runs first here specifically
+        // because it needs the PRE-bar buffer, which only exists at this
+        // point in the pipeline). A violation here is exactly as fatal as
+        // a vision-check rejection — it means this image structurally
+        // cannot be published, with cited pixel evidence, never just a
+        // model's opinion. This is a COMPLEMENT to the vision check, never
+        // a replacement — margin-safety-check.ts cannot judge product
+        // fidelity, invented content, or Henrique-standard adherence; it
+        // only proves nothing drawn invades the two reserved zones. Only
+        // for one_shot — see hybrid branch above for why hybrid uses its
+        // own, different gate.
+        const marginCheck = checkMarginSafety({
+          preBarImageBuffer: croppedBase,
+          finalImageBuffer: finalPng,
+          topMarginPercent: HENRIQUE_TOP_MARGIN_PERCENT,
+          ctaBarHeightFraction: CTA_BAR_HEIGHT_FRACTION,
+        });
+        if (!marginCheck.safe) {
+          const violationNotes = marginCheck.violations
+            .map((v) => `zona "${v.zone}": densidade de borda ${v.edgeDensity.toFixed(4)} acima do limite ${v.threshold.toFixed(4)}`)
+            .join("; ");
+          logger.warn("vitrine_creative_factory.margin_safety_violation", { merchantListingId: selection.merchantListingId, violationNotes });
+          const aiBaseFileName = saveAiBase(selection.merchantListingId, nextAdVersion, generationImageBuffer);
+          await prisma.vitrineCreative.create({
+            data: {
+              merchantListingId: selection.merchantListingId,
+              kind: "ad_overlay",
+              version: nextAdVersion,
+              originalPhotoUrl: product.imageUrl,
+              aiBaseImageUrl: aiBaseFileName,
+              finalImageUrl: product.imageUrl,
+              promptInputs: {
+                mechanism: mechanismForThisGeneration,
+                henriqueStandardVersion: HENRIQUE_STANDARD_VERSION,
+                bakedCurrentPrice: generationBakedCurrentPrice,
+                bakedReferencePrice: generationBakedReferencePrice,
+                categoryHint,
+                isSeasonalEvent: eventName,
+              } satisfies AdOverlayPromptInputs,
+              promptText: generationPromptText,
+              model: generationModel,
+              costUsd: generationCostUsd,
+              qualityStatus: "rejected",
+              qualityNotes: `Reprovado pela checagem determinística de margem (sem IA envolvida) — ${violationNotes}.`,
+              publishedAt: null,
+            },
+          });
+          if (adPriceStale && latestAdOverlay) {
+            await prisma.vitrineCreative.updateMany({ where: { id: latestAdOverlay.id }, data: { publishedAt: null } });
+            counters.adUnpublishedStale += 1;
+          }
+          counters.adRejected += 1;
+          ctx.counters.errors += 1;
+          continue;
         }
-        continue;
       }
 
-      await recordCreativeSpend({ amountUsd: oneShot.costUsd, note: `Geração one-shot (ad_overlay, padrão aprovado) — ${product.title.slice(0, 60)}` });
-
-      const nextAdVersion = (latestAdOverlay?.version ?? 0) + 1;
-      const aiBaseFileName = saveAiBase(selection.merchantListingId, nextAdVersion, oneShot.imageBuffer);
+      const aiBaseFileName = saveAiBase(selection.merchantListingId, nextAdVersion, generationImageBuffer);
       const promptInputs = {
-        mechanism: ONE_SHOT_MECHANISM_TAG,
+        mechanism: mechanismForThisGeneration,
         henriqueStandardVersion: HENRIQUE_STANDARD_VERSION,
-        bakedCurrentPrice: oneShot.bakedCurrentPrice,
-        bakedReferencePrice: oneShot.bakedReferencePrice,
+        bakedCurrentPrice: generationBakedCurrentPrice,
+        bakedReferencePrice: generationBakedReferencePrice,
         categoryHint,
         isSeasonalEvent: eventName,
       } satisfies AdOverlayPromptInputs;
-
-      // Owner's directive, 2026-11-24 ("a aprovação definitiva deve
-      // considerar a imagem FINAL, exatamente aquela que será
-      // disponibilizada no XML"): real bug this closes — quality control
-      // used to run against the RAW 1024x1536 generation, BEFORE this
-      // exact crop+composite step, so a creative could be approved and
-      // then come out defective once cropped (confirmed live, 2026-11-24:
-      // a test generation looked fine raw and had its title clipped only
-      // after the real crop ran). The crop and the deterministic bar are
-      // both free (no paid call, no new cost) — moved them BEFORE the
-      // (unchanged, single) paid vision check so that check inspects the
-      // literal bytes that would be published, not an earlier draft of
-      // them. Owner's directive, 2026-11-24 ("quer um corte
-      // determinístico, não apenas um texto de prompt"): the Mercado
-      // Livre CTA bar is no longer part of what the AI draws — it's
-      // composited on top afterward from the real, approved asset,
-      // pixel-identical every time, replacing whatever (if anything) the
-      // AI drew in that same bottom region.
-      const croppedBase = await toBuffer(renderCatalogClean({ aiBaseImageDataUri: `data:image/png;base64,${oneShot.imageBuffer.toString("base64")}` }));
-      let finalPng: Buffer;
-      try {
-        finalPng = await compositeDeterministicCtaBar({
-          baseImageDataUri: `data:image/png;base64,${croppedBase.toString("base64")}`,
-          width: CREATIVE_FINAL_DIMENSIONS.width,
-          height: CREATIVE_FINAL_DIMENSIONS.height,
-        });
-      } catch (err) {
-        if (!(err instanceof CtaBarAssetMissingError)) throw err;
-        logger.error("vitrine_creative_factory.cta_bar_asset_missing", { merchantListingId: selection.merchantListingId, message: String(err) });
-        counters.adBlockedCtaBarAssetMissing += 1;
-        ctx.counters.errors += 1;
-        // Same posture as every other failed-to-finish-safely attempt in
-        // this job: never publish a broken/incomplete result, and if the
-        // old image's price was already confirmed stale, it still comes
-        // down — a missing bar asset doesn't make a known-wrong price
-        // look acceptable again.
-        if (adPriceStale && latestAdOverlay) {
-          await prisma.vitrineCreative.updateMany({ where: { id: latestAdOverlay.id }, data: { publishedAt: null } });
-          counters.adUnpublishedStale += 1;
-        }
-        continue;
-      }
-
-      // Owner's directive, 2026-11-25 ("avalie uma área de segurança que
-      // impeça tecnicamente o corte... conclua a integração do margin-
-      // safety-check.ts ao pipeline"): a real, free, deterministic gate
-      // runs BEFORE the one paid vision check — same posture as every
-      // other free check in this job (structural size check already ran
-      // inside runQualityControl; this one runs first here specifically
-      // because it needs the PRE-bar buffer, which only exists at this
-      // point in the pipeline). A violation here is exactly as fatal as
-      // a vision-check rejection — it means this image structurally
-      // cannot be published, with cited pixel evidence, never just a
-      // model's opinion. This is a COMPLEMENT to the vision check, never
-      // a replacement — margin-safety-check.ts cannot judge product
-      // fidelity, invented content, or Henrique-standard adherence; it
-      // only proves nothing drawn invades the two reserved zones.
-      const marginCheck = checkMarginSafety({
-        preBarImageBuffer: croppedBase,
-        finalImageBuffer: finalPng,
-        topMarginPercent: HENRIQUE_TOP_MARGIN_PERCENT,
-        ctaBarHeightFraction: CTA_BAR_HEIGHT_FRACTION,
-      });
-      if (!marginCheck.safe) {
-        const violationNotes = marginCheck.violations
-          .map((v) => `zona "${v.zone}": densidade de borda ${v.edgeDensity.toFixed(4)} acima do limite ${v.threshold.toFixed(4)}`)
-          .join("; ");
-        logger.warn("vitrine_creative_factory.margin_safety_violation", { merchantListingId: selection.merchantListingId, violationNotes });
-        await prisma.vitrineCreative.create({
-          data: {
-            merchantListingId: selection.merchantListingId,
-            kind: "ad_overlay",
-            version: nextAdVersion,
-            originalPhotoUrl: product.imageUrl,
-            aiBaseImageUrl: aiBaseFileName,
-            finalImageUrl: product.imageUrl,
-            promptInputs,
-            promptText: oneShot.promptText,
-            model: oneShot.model,
-            costUsd: oneShot.costUsd,
-            qualityStatus: "rejected",
-            qualityNotes: `Reprovado pela checagem determinística de margem (sem IA envolvida) — ${violationNotes}.`,
-            publishedAt: null,
-          },
-        });
-        if (adPriceStale && latestAdOverlay) {
-          await prisma.vitrineCreative.updateMany({ where: { id: latestAdOverlay.id }, data: { publishedAt: null } });
-          counters.adUnpublishedStale += 1;
-        }
-        counters.adRejected += 1;
-        ctx.counters.errors += 1;
-        continue;
-      }
 
       const qc = await runQualityControl({
         generatedImageBuffer: finalPng,
@@ -619,9 +768,9 @@ export async function runVitrineCreativeFactoryJob() {
             aiBaseImageUrl: aiBaseFileName,
             finalImageUrl: product.imageUrl,
             promptInputs,
-            promptText: oneShot.promptText,
-            model: oneShot.model,
-            costUsd: oneShot.costUsd,
+            promptText: generationPromptText,
+            model: generationModel,
+            costUsd: generationCostUsd,
             qualityStatus: qc.status,
             qualityNotes: qc.notes,
             publishedAt: null,
@@ -659,9 +808,9 @@ export async function runVitrineCreativeFactoryJob() {
             aiBaseImageUrl: aiBaseFileName,
             finalImageUrl: finalUrl,
             promptInputs,
-            promptText: oneShot.promptText,
-            model: oneShot.model,
-            costUsd: oneShot.costUsd,
+            promptText: generationPromptText,
+            model: generationModel,
+            costUsd: generationCostUsd,
             qualityStatus: "approved",
             qualityNotes: qc.notes,
             publishedAt: new Date(),

@@ -459,6 +459,18 @@ const envSchema = z.object({
   /// allowlist-of-real-ids shape as VITRINE_ONE_SHOT_MIGRATION_ALLOWLIST.
   /// Empty (the default) forces nothing — fail closed.
   VITRINE_CREATIVE_FORCE_REGENERATE_IDS: z.string().default(""),
+  /// Owner's directive, 2026-11-25 ("prepare a composição híbrida como
+  /// mecanismo preferencial para novos produtos, condicionada à minha
+  /// aprovação visual... garanta que essa mudança não provoque
+  /// regeneração dos 17 criativos existentes"): governs ONLY which
+  /// mechanism jobs/vitrine-creative-factory.ts uses for a BRAND NEW
+  /// product (no existing ad_overlay row at all) — never consulted for
+  /// an existing row, so flipping this can never, by itself, trigger a
+  /// regeneration of anything already approved. Defaults to the
+  /// currently-approved mechanism; change to "hybrid_v1" only after
+  /// visually approving the hybrid pilot (see docs/henrique-visual-
+  /// standard/SPEC.md and the Secador Philco pilot this session).
+  VITRINE_NEW_PRODUCT_MECHANISM: z.enum(["one_shot_v1", "hybrid_v1"]).default("one_shot_v1"),
   /// Owner's directive, 2026-11-24 ("quer um corte determinístico, não
   /// apenas um texto de prompt"; revisado no mesmo dia, item 3:
   /// "não pode depender de... pasta gitignored ou caminho exclusivo do

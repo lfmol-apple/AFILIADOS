@@ -416,7 +416,14 @@ export interface AdOverlayRegenerationCheckInput {
 export function shouldRegenerateAdOverlay(input: AdOverlayRegenerationCheckInput): boolean {
   if (!input.hasExistingRow) return true;
   if (input.existingQualityStatus === "rejected") return true;
-  if (input.existingMechanism !== ONE_SHOT_MECHANISM_TAG) return true;
+  // Owner's directive, 2026-11-25 ("prepare a composição híbrida como
+  // mecanismo preferencial para novos produtos"): hybrid_v1 is now a
+  // second APPROVED mechanism, not the old rejected compositor this
+  // check was built to catch — a row tagged with either current
+  // mechanism is fine. Absence (legacy/pre-migration rows, or the real
+  // gap found 2026-11-25 where a zero-cost CTA-bar recomposite script
+  // never re-stamped this field) still counts as a mismatch, unchanged.
+  if (input.existingMechanism !== ONE_SHOT_MECHANISM_TAG && input.existingMechanism !== HYBRID_MECHANISM_TAG) return true;
   // Real bug caught in this same session, before it ever shipped: unlike
   // `existingMechanism` above (which deliberately treats a legacy/absent
   // value as "always regenerate" — a one-time, intentional migration

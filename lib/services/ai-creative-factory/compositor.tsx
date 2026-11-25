@@ -320,6 +320,19 @@ const HYBRID_TOP_PADDING = 100;
 const HYBRID_TITLE_MAX_FONT = 64;
 const HYBRID_TITLE_MIN_FONT = 36;
 const HYBRID_ICON_SIZE = 64;
+/** Owner's directive, 2026-11-25 ("garanta o ajuste automático... de
+ * textos de benefícios excessivamente longos"): benefit lines used to
+ * estimate a wrapped line count and let the block grow taller for a long
+ * string — real gap, caught by hybrid-layout-check.ts's geometry check,
+ * that could in principle push the block into the price badge. Fixed
+ * the same way the title already handles this: shrink-to-fit a single
+ * line via `fitFontSize`, never wrap, so each benefit row's height is
+ * always exactly `HYBRID_ICON_SIZE` (the icon dominates at every font
+ * size in this range) — the overlap this check used to have to catch
+ * is now structurally impossible for benefits, the same guarantee the
+ * price badge already has via HYBRID_PRICE_TO_RESERVED_GAP. */
+const HYBRID_BENEFIT_MAX_FONT = 24;
+const HYBRID_BENEFIT_MIN_FONT = 14;
 const HYBRID_PRICE_BADGE_HEIGHT = 150;
 /** Real, enforced gap between the price badge's bottom edge and the
  * reserved CTA-bar band's top edge — this is what makes the Secador
@@ -349,7 +362,9 @@ export interface HybridLayout {
   title: HybridLayoutRect;
   /** Null when the product has no real benefit lines to show. */
   benefits: HybridLayoutRect | null;
-  benefitLines: number[];
+  /** Per-benefit shrink-to-fit font size — guarantees each renders on a
+   * single line, see HYBRID_BENEFIT_MAX_FONT's doc comment. */
+  benefitFontSizes: number[];
   price: HybridLayoutRect;
   /** The reserved band the deterministic CTA bar will occupy — this
    * function never draws into it, only computes where it starts. */
@@ -389,14 +404,13 @@ export function computeHybridLayout(input: {
   const benefits = input.benefits.slice(0, 3);
   const benefitsTop = HYBRID_TOP_PADDING + titleFontSize * 2.4 + 32;
   const benefitMaxTextWidth = contentWidth - HYBRID_ICON_SIZE - 14;
-  const benefitLines = benefits.map((benefit) => {
-    const estimatedWidth = benefit.length * 24 * AVG_CHAR_WIDTH_RATIO;
-    return Math.max(1, Math.ceil(estimatedWidth / benefitMaxTextWidth));
-  });
-  const benefitRowHeights = benefitLines.map((lines) => Math.max(HYBRID_ICON_SIZE, lines * 24 * 1.2));
+  const benefitFontSizes = benefits.map((benefit) => fitFontSize(benefit, benefitMaxTextWidth, HYBRID_BENEFIT_MAX_FONT, HYBRID_BENEFIT_MIN_FONT));
   const BENEFIT_ROW_GAP = 16;
-  const benefitsHeight =
-    benefitRowHeights.reduce((sum, h) => sum + h, 0) + Math.max(0, benefitRowHeights.length - 1) * BENEFIT_ROW_GAP;
+  // Every row is guaranteed single-line (shrink-to-fit, never wrap), so
+  // the icon's fixed size is always what sets the row height in this
+  // font range (24*1.2=28.8 < 64) — the block's total height no longer
+  // depends on how long any benefit string is.
+  const benefitsHeight = benefits.length * HYBRID_ICON_SIZE + Math.max(0, benefits.length - 1) * BENEFIT_ROW_GAP;
 
   const { barY } = computeCtaBarPlacement(input.canvasWidth, input.canvasHeight);
   // The price badge's position is computed backward from the reserved
@@ -422,7 +436,7 @@ export function computeHybridLayout(input: {
     titleLine2,
     title: { left: HYBRID_SIDE_PADDING, top: HYBRID_TOP_PADDING, width: contentWidth, height: titleHeight },
     benefits: benefits.length > 0 ? { left: HYBRID_SIDE_PADDING, top: benefitsTop, width: contentWidth, height: benefitsHeight } : null,
-    benefitLines,
+    benefitFontSizes,
     price: { left: HYBRID_SIDE_PADDING, top: priceBadgeTop, width: priceEstimatedWidth, height: HYBRID_PRICE_BADGE_HEIGHT },
     reservedZone: { left: 0, top: barY, width: input.canvasWidth, height: input.canvasHeight - barY },
   };
@@ -438,7 +452,7 @@ export function computeHybridLayout(input: {
 export function renderHybridTextOverlay(input: HybridTextOverlayInput) {
   const hasRealDrop = input.hasConfirmedDiscount && input.referencePrice !== null && input.referencePrice > input.currentPrice;
   const layout = computeHybridLayout({ ...input, canvasWidth: FINAL_WIDTH, canvasHeight: FINAL_HEIGHT });
-  const { titleLine1, titleLine2, titleFontSize } = layout;
+  const { titleLine1, titleLine2, titleFontSize, benefitFontSizes } = layout;
   const contentWidth = FINAL_WIDTH - HYBRID_SIDE_PADDING * 2;
   const benefits = input.benefits.slice(0, 3);
   const priceBadgeTop = layout.price.top;
@@ -508,7 +522,7 @@ export function renderHybridTextOverlay(input: HybridTextOverlayInput) {
                     background: "#0d9488",
                   }}
                 />
-                <div style={{ display: "flex", fontSize: 24, fontWeight: 700, color: "#ffffff", maxWidth: contentWidth - HYBRID_ICON_SIZE - 14, lineHeight: 1.2 }}>
+                <div style={{ display: "flex", fontSize: benefitFontSizes[i], fontWeight: 700, color: "#ffffff", maxWidth: contentWidth - HYBRID_ICON_SIZE - 14, lineHeight: 1.2, whiteSpace: "nowrap" }}>
                   {benefit}
                 </div>
               </div>

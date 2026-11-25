@@ -32,7 +32,7 @@ describe("checkHybridLayoutGeometry", () => {
     expect(result.layout.reservedZone.top - priceBottom).toBe(40);
   });
 
-  it("flags an overlap when a product has so many long benefits the block would collide with the price badge", () => {
+  it("never overlaps the price badge even with 3 extremely long benefit strings (auto-shrink, not wrap)", () => {
     const result = checkHybridLayoutGeometry({
       title: "Produto",
       currentPrice: 99.9,
@@ -46,12 +46,14 @@ describe("checkHybridLayoutGeometry", () => {
       canvasWidth: 1080,
       canvasHeight: 1350,
     });
-    // This is a real, previously-unverified gap this check exists to
-    // surface: benefits have no fitFontSize shrink-to-fit, so very long
-    // strings can push the block's real height past the price badge.
-    const overlap = result.violations.some((v) => v.check === "benefits_price_overlap");
-    expect(overlap).toBe(true);
-    expect(result.safe).toBe(false);
+    // Owner's directive, 2026-11-25 ("garanta o ajuste automático... de
+    // textos de benefícios excessivamente longos"): each benefit now
+    // shrinks to fit a single line (same mechanism as the title) instead
+    // of wrapping and growing the block's height — the overlap this
+    // check used to be able to force is now structurally unreachable.
+    expect(result.safe).toBe(true);
+    expect(result.violations).toEqual([]);
+    expect(result.layout.benefitFontSizes.every((size) => size >= 14 && size <= 24)).toBe(true);
   });
 
   it("never reports a violation for a product with zero benefits", () => {
