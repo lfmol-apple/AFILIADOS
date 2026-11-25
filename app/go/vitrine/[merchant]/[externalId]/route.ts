@@ -9,15 +9,17 @@ import { env } from "@/lib/config/env";
 
 /**
  * Owner's directive, 2026-11-25 ("PIXEL DA META – AJUSTE NA VITRINE
- * PRECOCAINDO"): this route used to be a pure server-side 302 — no HTML
- * ever reached the browser, so the Meta Pixel (a client-side script)
- * never had a chance to fire ViewContent/AddToCart for a Meta-catalog
- * click. Real humans now get a minimal, fast interstitial HTML page
+ * PRECOCAINDO", reaffirmed same day): this route used to be a pure
+ * server-side 302 — no HTML ever reached the browser, so the Meta Pixel
+ * (a client-side script) never had a chance to fire ViewContent/
+ * AffiliateOutboundClick for a Meta-catalog click. Real humans now get
+ * a minimal, fast interstitial HTML page
  * (lib/services/vitrine-redirect-interstitial.ts) that loads the Pixel,
  * fires both events with the REAL product identity (content_ids is the
  * exact merchantListingId the catalog feed publishes as `g:id` — see
  * lib/services/vitrine-redirect.ts's own doc comment), then forwards to
- * the real affiliate URL after ~400ms.
+ * the real affiliate URL after ~400ms. Never AddToCart — PreçoCaindo
+ * has no cart (see lib/analytics/meta-pixel-client.ts).
  *
  * Bots/prefetches/bursts (same detection this route already used) skip
  * the interstitial entirely and get the old plain 302 — there is no
@@ -25,7 +27,12 @@ import { env } from "@/lib/config/env";
  * already skips writing the AffiliateClick for them too.
  *
  * The AffiliateClick write happens exactly where it always did — inside
- * resolveVitrineRedirect, before this route ever runs — unchanged.
+ * resolveVitrineRedirect, before this route ever runs — unchanged. The
+ * real affiliate destination URL is never touched here either — it was
+ * already validated against the allowed-merchant-domain allowlist
+ * inside resolveVitrineRedirect (assertAllowedMerchantDestination,
+ * lib/merchants/config.ts) before this route ever sees it, so this
+ * interstitial can never become an open redirect to an arbitrary host.
  */
 
 export async function GET(

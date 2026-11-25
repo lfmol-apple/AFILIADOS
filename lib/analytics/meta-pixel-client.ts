@@ -44,38 +44,23 @@ export function trackViewContent(product: VitrineProductIdentity): void {
   });
 }
 
-/** Owner's directive, 2026-11-22: a custom event, NOT AddToCart —
- * PreçoCaindo has no cart, and this click only forwards the visitor to
- * the real Mercado Livre offer. Never alters the outbound href itself;
- * the caller attaches this purely as a side-effect on click.
- *
- * Owner's directive, 2026-11-25 ("PIXEL DA META – AJUSTE NA VITRINE
- * PRECOCAINDO"): the standard `AddToCart` event (trackAddToCart below)
- * now ALSO fires on the same click, alongside this one — added, not
- * replaced, so the catalog-ads signal Meta's dynamic retargeting
- * expects is present without losing this custom event's own history. */
+/** Owner's directive, 2026-11-22, REAFFIRMED 2026-11-25 ("não dispare
+ * AddToCart artificialmente, pois o PreçoCaindo não possui carrinho"):
+ * a custom event, NEVER the standard AddToCart — this click only
+ * forwards the visitor to the real Mercado Livre offer, it never adds
+ * anything to a cart that doesn't exist. Never alters the outbound href
+ * itself; the caller attaches this purely as a side-effect on click.
+ * This is the one and only event this project fires for "the visitor is
+ * now leaving toward the merchant" — on product pages (via
+ * AffiliateOutboundLink's onClick) AND on the Vitrine interstitial (via
+ * lib/services/vitrine-redirect-interstitial.ts) alike, so both surfaces
+ * report the same, single, real commercial-intent signal to Meta.
+ * Owner's note, 2026-11-25: evaluate registering this as a Custom
+ * Conversion in Meta Events Manager — see docs/henrique-pixel-integration.md. */
 export function trackAffiliateOutboundClick(product: VitrineProductIdentity): void {
   if (!fbqAvailableWithConsent()) return;
   if (product.price === null) return;
   window.fbq!("trackCustom", "AffiliateOutboundClick", {
-    content_ids: [product.merchantListingId],
-    content_name: product.title,
-    value: product.price,
-    currency: "BRL",
-    content_type: "product",
-  });
-}
-
-/** Owner's directive, 2026-11-25 ("PIXEL DA META – AJUSTE NA VITRINE
- * PRECOCAINDO", item 4: "disparar... o AddToCart no clique do botão de
- * compra"): the STANDARD Meta event — deliberately distinct from
- * trackAffiliateOutboundClick above, which stays a custom event for the
- * reason its own comment gives. Same consent gate, same shape, same
- * never-a-null-price rule as every other event here. */
-export function trackAddToCart(product: VitrineProductIdentity): void {
-  if (!fbqAvailableWithConsent()) return;
-  if (product.price === null) return;
-  window.fbq!("track", "AddToCart", {
     content_ids: [product.merchantListingId],
     content_name: product.title,
     value: product.price,

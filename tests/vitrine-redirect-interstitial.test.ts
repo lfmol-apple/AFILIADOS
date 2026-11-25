@@ -3,11 +3,15 @@ import { renderVitrineRedirectInterstitial, escapeHtml } from "@/lib/services/vi
 
 /**
  * Owner's directive, 2026-11-25 ("PIXEL DA META – AJUSTE NA VITRINE
- * PRECOCAINDO"): proves the generated page carries the real Pixel
- * base snippet, fires ViewContent + AddToCart with content_ids equal to
- * the exact merchantListingId (never the ML externalId), gates both on
- * real consent read from the real cookie this project already uses,
- * never fires with an unknown price, and ALWAYS redirects regardless.
+ * PRECOCAINDO", reaffirmed same day: "não dispare AddToCart
+ * artificialmente... preserve AffiliateOutboundClick como evento
+ * oficial de intenção comercial de saída"): proves the generated page
+ * carries the real Pixel base snippet, fires ViewContent + the custom
+ * AffiliateOutboundClick event (never the standard AddToCart — no cart
+ * exists) with content_ids equal to the exact merchantListingId (never
+ * the ML externalId), gates both on real consent read from the real
+ * cookie this project already uses, never fires with an unknown price,
+ * and ALWAYS redirects regardless.
  */
 describe("renderVitrineRedirectInterstitial", () => {
   const baseInput = {
@@ -24,12 +28,17 @@ describe("renderVitrineRedirectInterstitial", () => {
     expect(html).toContain("fbq('track', 'PageView')");
   });
 
-  it("fires ViewContent and AddToCart with content_ids equal to the exact merchantListingId, never the ML id", () => {
+  it("fires ViewContent and the custom AffiliateOutboundClick with content_ids equal to the exact merchantListingId, never the ML id", () => {
     const html = renderVitrineRedirectInterstitial(baseInput);
     expect(html).toContain("fbq('track', 'ViewContent', eventPayload)");
-    expect(html).toContain("fbq('track', 'AddToCart', eventPayload)");
+    expect(html).toContain("fbq('trackCustom', 'AffiliateOutboundClick', eventPayload)");
     expect(html).toContain('"content_ids":["cmwjnyrpl0008pf01cyhwi12o"]');
     expect(html).not.toContain("MLB");
+  });
+
+  it("never fires the standard AddToCart event — PreçoCaindo has no cart", () => {
+    const html = renderVitrineRedirectInterstitial(baseInput);
+    expect(html).not.toContain("AddToCart");
   });
 
   it("carries the real price and currency, never a placeholder", () => {
@@ -80,5 +89,19 @@ describe("renderVitrineRedirectInterstitial", () => {
   it("marks the page noindex,nofollow — this is a tracking redirect, never meant to be indexed", () => {
     const html = renderVitrineRedirectInterstitial(baseInput);
     expect(html).toContain('<meta name="robots" content="noindex,nofollow">');
+  });
+
+  it("carries a head-level meta-refresh fallback that works even if a blocker strips the inline <script> while JS stays enabled", () => {
+    const html = renderVitrineRedirectInterstitial(baseInput);
+    expect(html).toContain('<meta http-equiv="refresh" content="1.2;url=https://mercadolivre.com/sec/abc123">');
+    // It must never win the race against the normal path: strictly
+    // slower than the 400ms JS timer.
+    const metaRefreshSeconds = parseFloat(html.match(/content="([\d.]+);url=/)![1]);
+    expect(metaRefreshSeconds * 1000).toBeGreaterThan(400);
+  });
+
+  it("the noscript fallback still redirects immediately (0s) for fully JS-disabled browsers", () => {
+    const html = renderVitrineRedirectInterstitial(baseInput);
+    expect(html).toContain(`<noscript><meta http-equiv="refresh" content="0;url=${baseInput.destination}"></noscript>`);
   });
 });

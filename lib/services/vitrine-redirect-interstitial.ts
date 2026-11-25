@@ -1,12 +1,24 @@
 /**
  * Owner's directive, 2026-11-25 ("PIXEL DA META – AJUSTE NA VITRINE
- * PRECOCAINDO"). Pure HTML string builder — extracted from
- * app/go/vitrine/[merchant]/[externalId]/route.ts so it's unit-testable
- * without a request/DB (same reasoning every other pure-logic extraction
- * in this project already uses). The real redirect ALWAYS happens after
- * ~400ms regardless of consent/price; the Pixel events are gated inside
- * the generated page's own script, never server-side, since consent is
- * a client-side cookie this handler never reads itself.
+ * PRECOCAINDO", reaffirmed same day: "não dispare AddToCart
+ * artificialmente... preserve AffiliateOutboundClick como evento
+ * oficial de intenção comercial de saída"). Pure HTML string builder —
+ * extracted from app/go/vitrine/[merchant]/[externalId]/route.ts so
+ * it's unit-testable without a request/DB (same reasoning every other
+ * pure-logic extraction in this project already uses). The real
+ * redirect ALWAYS happens after ~400ms regardless of consent/price; the
+ * Pixel events are gated inside the generated page's own script, never
+ * server-side, since consent is a client-side cookie this handler never
+ * reads itself.
+ *
+ * Fires exactly two events, the SAME two this project already fires on
+ * a product page (ViewContent on open, AffiliateOutboundClick on the
+ * buy click, lib/analytics/meta-pixel-client.ts) — compressed into one
+ * page because viewing and clicking happen together on a Meta-catalog
+ * click. Never AddToCart (no cart exists) and never a duplicate of
+ * either event — each fires at most once per real page load, and a
+ * visitor who lands here never also triggers the product page's own
+ * beacons for the same click (different routes, no shared state).
  */
 
 export function escapeHtml(value: string): string {
@@ -35,8 +47,9 @@ export interface VitrineRedirectInterstitialInput {
   merchantListingId: string;
   title: string;
   /** Null only when genuinely unknown — the generated page then never
-   * fires ViewContent/AddToCart, same "never send a guessed value" rule
-   * every other Pixel event in this project follows. */
+   * fires ViewContent/AffiliateOutboundClick, same "never send a
+   * guessed value" rule every other Pixel event in this project
+   * follows. */
   price: number | null;
   destination: string;
 }
@@ -52,12 +65,23 @@ export function renderVitrineRedirectInterstitial(input: VitrineRedirectIntersti
     content_type: "product",
   });
 
+  // Owner's directive, 2026-11-25 ("o redirecionamento deve funcionar
+  // mesmo quando... o navegador bloquear scripts"): a <meta
+  // http-equiv="refresh"> in <head> is pure HTML, parsed and acted on
+  // by the browser regardless of whether ANY script on the page runs —
+  // unlike the <noscript> fallback below (which only helps when
+  // scripting is fully disabled), this also covers a blocker that
+  // strips or kills just this page's inline <script> tag while leaving
+  // JS enabled generally. Set to 1200ms specifically so it NEVER wins
+  // the race against the normal 400ms JS redirect in the common case —
+  // it only ever fires as the fallback for that one scenario.
   return `<!doctype html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
+<meta http-equiv="refresh" content="1.2;url=${safeDestination}">
 <title>Redirecionando…</title>
 <style>body{font-family:system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;background:#fafafa;color:#333}p{font-size:.95rem}</style>
 </head>
@@ -87,7 +111,7 @@ export function renderVitrineRedirectInterstitial(input: VitrineRedirectIntersti
       fbq('track', 'PageView');
       var eventPayload = ${eventPayload};
       fbq('track', 'ViewContent', eventPayload);
-      fbq('track', 'AddToCart', eventPayload);
+      fbq('trackCustom', 'AffiliateOutboundClick', eventPayload);
     }
   } catch (e) {
     // Never let a Pixel/consent-parsing error block the real redirect.
