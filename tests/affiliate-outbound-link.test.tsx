@@ -13,9 +13,10 @@ import { isValidElement } from "react";
 
 vi.mock("@/lib/analytics/meta-pixel-client", () => ({
   trackAffiliateOutboundClick: vi.fn(),
+  trackAddToCart: vi.fn(),
 }));
 
-import { trackAffiliateOutboundClick } from "@/lib/analytics/meta-pixel-client";
+import { trackAffiliateOutboundClick, trackAddToCart } from "@/lib/analytics/meta-pixel-client";
 import { AffiliateOutboundLink } from "@/components/affiliate-outbound-link";
 
 const REAL_HREF = "/go/vitrine/mercado-livre/MLB123456?pageType=product&pageSlug=secador-philco";
@@ -36,6 +37,14 @@ describe("AffiliateOutboundLink — never alters the real affiliate link, only a
     onClick(fakeEvent);
     expect(trackAffiliateOutboundClick).toHaveBeenCalledWith(product);
     expect(fakeEvent.preventDefault).not.toHaveBeenCalled();
+  });
+
+  it("also fires the standard trackAddToCart on the same click, alongside the custom event (2026-11-25 directive)", () => {
+    const element = AffiliateOutboundLink({ product, href: REAL_HREF, children: "Ver no Mercado Livre →" });
+    const onClick = (element.props as { onClick: (e: unknown) => void }).onClick;
+    onClick({ preventDefault: vi.fn() });
+    expect(trackAddToCart).toHaveBeenCalledWith(product);
+    expect(trackAffiliateOutboundClick).toHaveBeenCalledWith(product);
   });
 
   it("never forces a new tab (no target='_blank' added) and never appends anything to the href via rel/query", () => {

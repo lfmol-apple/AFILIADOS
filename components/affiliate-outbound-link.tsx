@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode, AnchorHTMLAttributes } from "react";
-import { trackAffiliateOutboundClick, type VitrineProductIdentity } from "@/lib/analytics/meta-pixel-client";
+import { trackAffiliateOutboundClick, trackAddToCart, type VitrineProductIdentity } from "@/lib/analytics/meta-pixel-client";
 
 /**
  * Owner's authorization, 2026-11-22 ("Frente B — Pixel Meta do
@@ -15,6 +15,12 @@ import { trackAffiliateOutboundClick, type VitrineProductIdentity } from "@/lib/
  * absent, or consent was denied, trackAffiliateOutboundClick is already
  * a silent no-op (lib/analytics/meta-pixel-client.ts) — the link always
  * works exactly as it did before this wrapper existed.
+ *
+ * Owner's directive, 2026-11-25 ("PIXEL DA META – AJUSTE NA VITRINE
+ * PRECOCAINDO", item 4): the standard `AddToCart` event now also fires
+ * on this same click, alongside the custom one above — see
+ * trackAddToCart's own doc comment for why it stays a second, separate
+ * call rather than replacing the custom event.
  */
 export function AffiliateOutboundLink({
   product,
@@ -30,6 +36,7 @@ export function AffiliateOutboundLink({
       {...anchorProps}
       onClick={(e) => {
         trackAffiliateOutboundClick(product);
+        trackAddToCart(product);
         onClick?.(e);
       }}
     >
