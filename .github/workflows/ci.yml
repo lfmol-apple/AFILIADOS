@@ -32,6 +32,32 @@ jobs:
       AMAZON_ASSOCIATE_TAG: precocaindo-ci-20
       AMAZON_ASSOCIATE_DISCLOSURE: "Como participante do Programa de Associados da Amazon, sou remunerado pelas compras qualificadas efetuadas."
       AMAZON_POLICY_REVIEW_DATE: "2026-08-17"
+      # Real root cause found 2026-11-25 (investigating 7 CI-only test
+      # failures, reproduced locally against a truly fresh database with
+      # this exact minimal env set, fixed by adding these 4 lines, 0
+      # changes to test logic): this block was missing several variables
+      # .env.example documents as the standard DEVELOPMENT/mock
+      # configuration (see its own "THREE ENVIRONMENT SHAPES" header),
+      # which several tests' fixtures implicitly assume are set.
+      # PUBLIC_CATALOG_ENABLED/MANUAL_PRODUCTS_ENABLED control which
+      # dataSource rows lib/queries/products.ts treats as publicly
+      # visible (lib/config/public-catalog.ts) — without them, fixture
+      # products created by tests/marketplace-data-isolation.test.ts and
+      # tests/search-unified-offers.test.ts are invisible to the very
+      # queries being tested. ADMIN_PASSWORD_HASH is a dummy,
+      # never-a-real-password value (isAdminAuthConfigured() only checks
+      # it starts with "scrypt:") — without it, tests/owner-traffic.test.ts
+      # and tests/pageview-owner-notify.test.ts silently skip the entire
+      # admin-session branch of isOwnerRequest(). AMAZON_BR_ENABLED/
+      # AMAZON_BR_ASSOCIATE_TAG are public affiliate-tag config (same
+      # category as AMAZON_ASSOCIATE_TAG above, never a secret) that
+      # tests/merchant-redirect-amazon-regression.test.ts's fallback-to-
+      # Special-Link path needs configured to build a URL at all.
+      PUBLIC_CATALOG_ENABLED: "true"
+      MANUAL_PRODUCTS_ENABLED: "true"
+      ADMIN_PASSWORD_HASH: "scrypt:ci-dummy-salt-never-real:ci-dummy-hash-never-a-real-password"
+      AMAZON_BR_ENABLED: "true"
+      AMAZON_BR_ASSOCIATE_TAG: precocaindo-ci-20
 
     steps:
       - uses: actions/checkout@v4
