@@ -1,8 +1,8 @@
 import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { env } from "@/lib/config/env";
-import { generateCreativeBase, type GenerateCreativeResult } from "@/lib/services/ai-creative-factory/openai-image-client";
-import { CTA_BAR_HEIGHT_FRACTION } from "@/lib/services/ai-creative-factory/compositor";
+import { generateCreativeBase, AI_GENERATION_SIZE, type GenerateCreativeResult } from "@/lib/services/ai-creative-factory/openai-image-client";
+import { CTA_BAR_HEIGHT_FRACTION, CREATIVE_FINAL_DIMENSIONS } from "@/lib/services/ai-creative-factory/compositor";
 
 /**
  * Generalization of `scripts/pilot-henrique-style.ts` (owner's directive,
@@ -147,7 +147,51 @@ function loadHenriqueStyleReference(): StyleReference {
  *     CTA_BAR_HEIGHT_FRACTION = 0.12625, wired into jobs/vitrine-
  *     creative-factory.ts) — pixel-identical every time, zero geometric
  *     or content freedom for the model over that region. The prompt
- *     below now tells the model NOT to draw this element at all. */
+ *     below now tells the model NOT to draw this element at all.
+ *  4. Owner's directive, 2026-11-24 ("siga o exemplo do Henrique"),
+ *     found on a SEPARATE branch the same day: step 1's "no crop
+ *     happens" claim was itself wrong, discovered by actually validating
+ *     with two real paid generations and replaying the real pipeline on
+ *     each. jobs/vitrine-creative-factory.ts always runs the raw
+ *     AI_GENERATION_SIZE (1024x1536) output through `renderCatalogClean`
+ *     BEFORE this deterministic bar is ever composited — a real,
+ *     automatic, centered `object-fit: cover` crop into
+ *     CREATIVE_FINAL_DIMENSIONS (1080x1350). The two fixes compose: the
+ *     crop removes real content from the top and bottom of whatever the
+ *     model draws; the deterministic bar then separately overwrites the
+ *     bottom CTA_BAR_HEIGHT_FRACTION of what SURVIVES that crop. Both
+ *     real constraints are computed below from the actual constants
+ *     (never a hand-typed guess) so this can never again silently drift
+ *     out of sync with the real pipeline the way 405fd17 did. */
+
+/** Deterministic derivation of the real safety margins, expressed in RAW
+ * generation-canvas percent (what the prompt actually asks the model to
+ * reason about) — never a hand-typed number, so a future change to
+ * AI_GENERATION_SIZE, CREATIVE_FINAL_DIMENSIONS or CTA_BAR_HEIGHT_FRACTION
+ * automatically keeps these margins correct instead of silently going
+ * stale like the 405fd17 regression did. */
+const [RAW_GENERATION_WIDTH, RAW_GENERATION_HEIGHT] = AI_GENERATION_SIZE.split("x").map(Number) as [number, number];
+/** `object-fit: cover` scales by the LARGER of the two ratios so the
+ * final box is fully covered with no letterboxing — confirmed by reading
+ * compositor.tsx's actual renderCatalogClean, not assumed. */
+const COVER_SCALE = Math.max(CREATIVE_FINAL_DIMENSIONS.width / RAW_GENERATION_WIDTH, CREATIVE_FINAL_DIMENSIONS.height / RAW_GENERATION_HEIGHT);
+const SCALED_RAW_HEIGHT = RAW_GENERATION_HEIGHT * COVER_SCALE;
+/** Fraction of the RAW canvas's height the cover-crop removes from EACH
+ * edge (top and bottom equally, since the crop is centered). */
+const CROP_FRACTION_PER_EDGE = (SCALED_RAW_HEIGHT - CREATIVE_FINAL_DIMENSIONS.height) / 2 / COVER_SCALE / RAW_GENERATION_HEIGHT;
+/** Fraction of the RAW canvas's height the deterministic Mercado Livre
+ * bar's reserved band occupies, once that band (measured against the
+ * FINAL cropped canvas) is converted back into raw-canvas terms. */
+const RESERVED_BAR_FRACTION_OF_RAW = (CTA_BAR_HEIGHT_FRACTION * CREATIVE_FINAL_DIMENSIONS.height) / COVER_SCALE / RAW_GENERATION_HEIGHT;
+/** Top edge only ever loses the crop — reuse the exact 18% the owner's
+ * own approved reference (pilot-result-3) was generated with (comfortably
+ * above the real ~8.3% crop) rather than inventing a new "minimum". */
+const TOP_SAFE_MARGIN_PERCENT = 18;
+/** Bottom edge loses BOTH the crop AND the reserved bar band — real
+ * minimum is CROP_FRACTION_PER_EDGE + RESERVED_BAR_FRACTION_OF_RAW
+ * (≈18.9% today). Rounded up plus a real safety buffer, same spirit as
+ * the top margin rather than shipping a bare minimum. */
+const BOTTOM_SAFE_MARGIN_PERCENT = Math.ceil((CROP_FRACTION_PER_EDGE + RESERVED_BAR_FRACTION_OF_RAW) * 100) + 6;
 
 /** Mirrors `pilot-henrique-style.ts`'s real, owner-approved prompt
  * structure, but every product-specific line is now built from real
@@ -219,22 +263,22 @@ export function buildOneShotPrompt(input: OneShotAdInput): string {
      * "draw the ML bar" bullet.
      */
     `- NÃO desenhe nenhuma faixa, logotipo, botão ou menção ao Mercado Livre no rodapé da imagem — esse elemento é adicionado automaticamente por cima da imagem depois, de forma determinística (não é seu trabalho).`,
-    /** Real side-effect found, 2026-11-24, while visually reviewing the
-     * first batch of corrected images (owner's own standard: "quero ver",
-     * so this was checked, not assumed): the deterministic bar occupies a
-     * FIXED bottom band (CTA_BAR_HEIGHT_FRACTION of the canvas height)
-     * regardless of what the AI draws there — painted on top, fully
-     * opaque. Without this instruction, the AI sometimes still extends
-     * its own price-badge card down into that same band (it has no
-     * reason to know the band is reserved now that it isn't drawing the
-     * bar itself), and the composited bar then covers the bottom of that
-     * card. Fixed by telling it explicitly where its own canvas ends. */
-    `- Todo o conteúdo que você desenhar (título, ícones, produto, selo de preço) deve ficar inteiramente dentro dos ${Math.round((1 - CTA_BAR_HEIGHT_FRACTION) * 100)}% superiores da altura da imagem — os ${Math.round(CTA_BAR_HEIGHT_FRACTION * 100)}% inferiores são reservados exclusivamente para o elemento adicionado depois; nada seu pode se estender para dentro dessa área reservada.`,
+    ``,
+    `Não adicione nenhum ícone, selo ou badge além dos exatamente listados acima (os ícones de benefício e o selo de preço). Em especial, NÃO desenhe um selo ou ícone separado de desconto em percentual (como um círculo ou quadrado com "X% OFF" ou "economize R$ ...") mesmo quando o produto tem desconto real — essa informação já existe dentro do próprio selo de preço, como o preço riscado, e não deve virar um segundo elemento visual. Um elemento a mais do que o pedido é exatamente o tipo de erro que espreme o resto da composição contra as bordas.`,
     ``,
     `Não invente avaliação, quantidade vendida ou certificação — não há dado real disponível para isso, então NÃO inclua nenhuma menção a nota ou vendas. Não use "últimas unidades" ou qualquer urgência artificial. Não adicione nenhum objeto, produto, embalagem, acessório, brinde ou item extra que não esteja fisicamente presente na foto original do produto.`,
     ``,
-    `Linguagem do texto do anúncio: nunca escreva no anúncio palavras ou expressões que soem como processo de validação interna — por exemplo "real", "reais no anúncio", "confirmado", "verificado", "extraído do título", "validado", "comprovado". Escreva como um anúncio comercial de verdade, direto e atraente (ex.: "550 W de potência", "Reservatório de 800 ml", "39% OFF", "Economize R$ 147,80"). Os valores numéricos devem ser exatamente os fornecidos acima — nunca calcule, arredonde de forma diferente ou invente um novo número.`,
+    `Linguagem do texto do anúncio: nunca escreva no anúncio palavras ou expressões que soem como processo de validação interna — por exemplo "real", "reais no anúncio", "confirmado", "verificado", "extraído do título", "validado", "comprovado". Escreva como um anúncio comercial de verdade, direto e atraente (ex.: "550 W de potência", "Reservatório de 800 ml"). Os valores numéricos devem ser exatamente os fornecidos acima — nunca calcule, arredonde de forma diferente ou invente um novo número.`,
     noDiscountWarning,
+    ``,
+    /** The real, combined crop-safety instruction — replaces the old
+     * single-fraction "fique dentro dos X% superiores" bullet, which only
+     * accounted for the reserved bar band and silently assumed the raw
+     * generation IS the final asset (step 4 above: that assumption was
+     * false, confirmed by two real validated generations the same day).
+     * Both numbers are derived constants, never hand-typed — see their
+     * definitions above for the exact math. */
+    `IMPORTANTE sobre enquadramento: esta imagem será cortada posteriormente para a proporção final 4:5 (a borda superior e a borda inferior serão removidas antes de qualquer outro processamento). Deixe uma margem vazia, neutra, SEM NENHUM elemento (sem título, sem ícone, sem produto, sem selo de preço) ocupando os ${TOP_SAFE_MARGIN_PERCENT}% superiores da altura total da imagem. Na borda inferior, deixe uma margem vazia ainda maior, de pelo menos ${BOTTOM_SAFE_MARGIN_PERCENT}% da altura total — essa margem maior combina a área que será cortada com a área reservada para o elemento do Mercado Livre adicionado depois (ver instrução acima); nenhum título, ícone, produto ou selo de preço pode se estender para dentro dela.`,
   ].join("\n");
 }
 

@@ -85,6 +85,11 @@ vi.mock("@/lib/services/ai-creative-factory/one-shot-ad-generator", async () => 
 vi.mock("@/lib/services/ai-creative-factory/openai-image-client", () => ({
   generateCreativeBase: generateCreativeBaseMock,
   OpenAiImageNotConfiguredError: class OpenAiImageNotConfiguredError extends Error {},
+  // Real value, not a mock-specific one — one-shot-ad-generator.ts derives
+  // its real crop-safety margins from this at import time (2026-11-24 fix,
+  // "siga o exemplo do Henrique"), so a stub value here would silently
+  // test different math than what actually ships.
+  AI_GENERATION_SIZE: "1024x1536",
 }));
 
 vi.mock("@/lib/services/ai-creative-factory/quality-control", () => ({
@@ -102,6 +107,9 @@ vi.mock("@/lib/services/ai-creative-factory/compositor", () => ({
   compositeDeterministicCtaBar: compositeDeterministicCtaBarMock,
   CtaBarAssetMissingError: class CtaBarAssetMissingError extends Error {},
   CREATIVE_FINAL_DIMENSIONS: { width: 1080, height: 1350 },
+  // Real value, not a mock-specific one — see the AI_GENERATION_SIZE
+  // comment above for why this must match the real constant exactly.
+  CTA_BAR_HEIGHT_FRACTION: 0.12625,
 }));
 
 vi.mock("@/lib/services/ai-creative-factory/creative-image-store", () => ({

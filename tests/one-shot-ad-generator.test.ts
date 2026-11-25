@@ -163,13 +163,70 @@ describe("buildOneShotPrompt — preserves real product information, never inven
     });
     expect(prompt).toContain("NÃO desenhe nenhuma faixa, logotipo, botão ou menção ao Mercado Livre");
     expect(prompt).toContain("adicionado automaticamente por cima da imagem depois, de forma determinística");
-    // Real side-effect found reviewing the first corrected batch: the AI's
-    // own price badge sometimes extended into the bar's reserved band.
-    expect(prompt).toContain("87% superiores da altura da imagem");
-    expect(prompt).toContain("13% inferiores são reservados exclusivamente");
-    // No remaining trace of either superseded prompt-only attempt.
-    expect(prompt).not.toMatch(/margem (vazia|real)/);
     expect(prompt).not.toContain("DUAS linhas");
+  });
+
+  it("tells the truth about the real post-generation crop, with margins that also protect the bar's reserved band", () => {
+    // Real finding, 2026-11-24, on a SEPARATE branch the same day
+    // ("siga o exemplo do Henrique"): this test used to assert the prompt
+    // never mentions a margin at all (/margem (vazia|real)/), on the
+    // premise that full determinism for the CTA bar made every margin
+    // concern obsolete. That premise was wrong — jobs/vitrine-creative-
+    // factory.ts runs the raw AI_GENERATION_SIZE output through
+    // renderCatalogClean's real object-fit: cover crop BEFORE the
+    // deterministic bar is ever composited, and that crop still removes
+    // real content (confirmed live: a test generation under the old,
+    // margin-free prompt came out with the title clipped once the real
+    // crop was replayed on it). A margin is still required for the parts
+    // of the canvas the deterministic mechanism does not and cannot
+    // cover (the title, benefit icons, product, price badge) — the bar
+    // itself remains fully deterministic either way.
+    const prompt = buildOneShotPrompt({
+      externalId: "MLB-TEST",
+      title: "Produto V",
+      brand: null,
+      productPhoto: Buffer.alloc(0),
+      productPhotoContentType: "image/jpeg",
+      currentPrice: 10,
+      referencePrice: null,
+      hasConfirmedDiscount: false,
+      benefits: [],
+    });
+    expect(prompt).toContain("será cortada posteriormente");
+    expect(prompt).toContain("18% superiores da altura total");
+    // Bottom margin is derived (crop + the bar's reserved band + a real
+    // buffer), never a hand-typed number — asserting the real computed
+    // value keeps this test honest if the underlying constants ever
+    // change, rather than hard-coding a number nothing re-derives.
+    expect(prompt).toContain("pelo menos 25% da altura total");
+  });
+
+  it("forbids inventing an extra badge even when the product has a real confirmed discount", () => {
+    // Real bug found live, 2026-11-24, with a real confirmed discount in
+    // play (hasConfirmedDiscount: true) — the existing AVISO CRÍTICO only
+    // fires for the NO-discount case, so it would not have caught this:
+    // the model drew its own "39% OFF / economize R$147,80" icon badge,
+    // not requested anywhere and absent from the approved reference. It
+    // copied the literal example numbers this prompt used to give under
+    // "Linguagem do texto do anúncio" as if they licensed a new visual
+    // element — that dangerous example is gone, and a direct, general
+    // prohibition (covering the has-a-real-discount case too) takes its
+    // place alongside the existing no-discount-specific warning.
+    const prompt = buildOneShotPrompt({
+      externalId: "MLB-TEST",
+      title: "Produto V",
+      brand: null,
+      productPhoto: Buffer.alloc(0),
+      productPhotoContentType: "image/jpeg",
+      currentPrice: 228.9,
+      referencePrice: 376.7,
+      hasConfirmedDiscount: true,
+      benefits: ["550W DE POTÊNCIA"],
+    });
+    expect(prompt).toContain("Não adicione nenhum ícone, selo ou badge além dos exatamente listados acima");
+    expect(prompt).toMatch(/desconto em percentual/);
+    expect(prompt).not.toContain("39% OFF");
+    expect(prompt).not.toContain("Economize R$ 147,80");
   });
 });
 
