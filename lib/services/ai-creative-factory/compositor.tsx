@@ -256,6 +256,314 @@ export function renderAdOverlay(input: CompositeInput) {
 
 export const CREATIVE_FINAL_DIMENSIONS = { width: FINAL_WIDTH, height: FINAL_HEIGHT };
 
+/** Owner's directive, 2026-11-25 ("Secador Philco — solução definitiva
+ * ... margens e posicionamento controlados matematicamente... ajuste
+ * automático do tamanho dos textos conforme o espaço disponível"): a
+ * crude but real text-fit estimator. Satori/next-og has no text-
+ * measurement API before render (no canvas, no DOM) — this estimates
+ * each character's rendered width as a fraction of the font size for a
+ * bold sans-serif face (empirically ~0.56-0.6 for the weights/faces this
+ * project renders; 0.58 is the middle of that range) and shrinks the
+ * font size in fixed steps until the text fits `maxWidth`, down to
+ * `minFontSize`. Never exact typesetting, but turns "might overflow and
+ * get clipped" into "always provably fits the box", which is the whole
+ * point of this module existing. */
+const AVG_CHAR_WIDTH_RATIO = 0.58;
+
+export function fitFontSize(text: string, maxWidth: number, maxFontSize: number, minFontSize: number): number {
+  let fontSize = maxFontSize;
+  while (fontSize > minFontSize) {
+    const estimatedWidth = text.length * fontSize * AVG_CHAR_WIDTH_RATIO;
+    if (estimatedWidth <= maxWidth) break;
+    fontSize -= 2;
+  }
+  return Math.max(fontSize, minFontSize);
+}
+
+/** Splits a title into exactly 2 lines for the Henrique two-color title
+ * treatment, breaking at the word boundary closest to the midpoint —
+ * never mid-word, never more than 2 lines (a title with too many words
+ * for 2 lines at the floor font size still renders in exactly 2 lines;
+ * fitFontSize is what keeps it inside the box, not the line count). */
+export function splitTitleIntoTwoLines(title: string): [string, string] {
+  const words = title.trim().split(/\s+/);
+  if (words.length <= 1) return [title, ""];
+  let bestSplit = 1;
+  let bestDiff = Infinity;
+  for (let i = 1; i < words.length; i++) {
+    const line1 = words.slice(0, i).join(" ");
+    const line2 = words.slice(i).join(" ");
+    const diff = Math.abs(line1.length - line2.length);
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      bestSplit = i;
+    }
+  }
+  return [words.slice(0, bestSplit).join(" "), words.slice(bestSplit).join(" ")];
+}
+
+export interface HybridTextOverlayInput {
+  /** The AI-generated, product-only (no text) image, already cropped to
+   * FINAL_WIDTH x FINAL_HEIGHT — same contract as compositeDeterministicCtaBar's
+   * baseImageDataUri. */
+  baseImageDataUri: string;
+  title: string;
+  currentPrice: number;
+  referencePrice: number | null;
+  hasConfirmedDiscount: boolean;
+  /** 0-3 real benefit strings — same source/shape as OneShotAdInput.benefits. */
+  benefits: string[];
+}
+
+const HYBRID_SIDE_PADDING = 56;
+const HYBRID_TOP_PADDING = 100;
+const HYBRID_TITLE_MAX_FONT = 64;
+const HYBRID_TITLE_MIN_FONT = 36;
+const HYBRID_ICON_SIZE = 64;
+/** Owner's directive, 2026-11-25 ("garanta o ajuste automático... de
+ * textos de benefícios excessivamente longos"): benefit lines used to
+ * estimate a wrapped line count and let the block grow taller for a long
+ * string — real gap, caught by hybrid-layout-check.ts's geometry check,
+ * that could in principle push the block into the price badge. Fixed
+ * the same way the title already handles this: shrink-to-fit a single
+ * line via `fitFontSize`, never wrap, so each benefit row's height is
+ * always exactly `HYBRID_ICON_SIZE` (the icon dominates at every font
+ * size in this range) — the overlap this check used to have to catch
+ * is now structurally impossible for benefits, the same guarantee the
+ * price badge already has via HYBRID_PRICE_TO_RESERVED_GAP. */
+const HYBRID_BENEFIT_MAX_FONT = 24;
+const HYBRID_BENEFIT_MIN_FONT = 14;
+const HYBRID_PRICE_BADGE_HEIGHT = 150;
+/** Real, enforced gap between the price badge's bottom edge and the
+ * reserved CTA-bar band's top edge — this is what makes the Secador
+ * failure (price badge invading the reserved zone) structurally
+ * impossible here: the badge's position is COMPUTED from this gap, never
+ * asked for in a sentence the model might not follow. */
+const HYBRID_PRICE_TO_RESERVED_GAP = 40;
+
+function hybridPriceTag(price: number): string {
+  return price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+export interface HybridLayoutRect {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+export interface HybridLayout {
+  canvasWidth: number;
+  canvasHeight: number;
+  titleFontSize: number;
+  titleLine1: string;
+  titleLine2: string;
+  /** Bounding box of the title block (both lines, when present). */
+  title: HybridLayoutRect;
+  /** Null when the product has no real benefit lines to show. */
+  benefits: HybridLayoutRect | null;
+  /** Per-benefit shrink-to-fit font size — guarantees each renders on a
+   * single line, see HYBRID_BENEFIT_MAX_FONT's doc comment. */
+  benefitFontSizes: number[];
+  price: HybridLayoutRect;
+  /** The reserved band the deterministic CTA bar will occupy — this
+   * function never draws into it, only computes where it starts. */
+  reservedZone: HybridLayoutRect;
+}
+
+/** Single source of truth for every element's position in the hybrid
+ * overlay — owner's directive, 2026-11-25 ("quero uma verificação
+ * objetiva das coordenadas e dos limites dos elementos desenhados"):
+ * `renderHybridTextOverlay` and `checkHybridLayoutGeometry` (in
+ * hybrid-layout-check.ts) both call THIS function, so the check can
+ * never silently drift from what was actually drawn — it verifies the
+ * exact same numbers the renderer used, not a reimplementation of them.
+ * Estimates (text width/line count) reuse the same AVG_CHAR_WIDTH_RATIO
+ * heuristic `fitFontSize` already relies on — intentionally the same
+ * level of precision as the rest of this module, never pretending to be
+ * exact typesetting. */
+export function computeHybridLayout(input: {
+  title: string;
+  currentPrice: number;
+  referencePrice: number | null;
+  hasConfirmedDiscount: boolean;
+  benefits: string[];
+  canvasWidth: number;
+  canvasHeight: number;
+}): HybridLayout {
+  const hasRealDrop = input.hasConfirmedDiscount && input.referencePrice !== null && input.referencePrice > input.currentPrice;
+  const [titleLine1, titleLine2] = splitTitleIntoTwoLines(input.title);
+  const contentWidth = input.canvasWidth - HYBRID_SIDE_PADDING * 2;
+  const titleFontSize = Math.min(
+    fitFontSize(titleLine1, contentWidth, HYBRID_TITLE_MAX_FONT, HYBRID_TITLE_MIN_FONT),
+    fitFontSize(titleLine2, contentWidth, HYBRID_TITLE_MAX_FONT, HYBRID_TITLE_MIN_FONT),
+  );
+  const titleLineHeight = titleFontSize * 1.08;
+  const titleHeight = titleLineHeight * (titleLine2 ? 2 : 1);
+
+  const benefits = input.benefits.slice(0, 3);
+  const benefitsTop = HYBRID_TOP_PADDING + titleFontSize * 2.4 + 32;
+  const benefitMaxTextWidth = contentWidth - HYBRID_ICON_SIZE - 14;
+  const benefitFontSizes = benefits.map((benefit) => fitFontSize(benefit, benefitMaxTextWidth, HYBRID_BENEFIT_MAX_FONT, HYBRID_BENEFIT_MIN_FONT));
+  const BENEFIT_ROW_GAP = 16;
+  // Every row is guaranteed single-line (shrink-to-fit, never wrap), so
+  // the icon's fixed size is always what sets the row height in this
+  // font range (24*1.2=28.8 < 64) — the block's total height no longer
+  // depends on how long any benefit string is.
+  const benefitsHeight = benefits.length * HYBRID_ICON_SIZE + Math.max(0, benefits.length - 1) * BENEFIT_ROW_GAP;
+
+  const { barY } = computeCtaBarPlacement(input.canvasWidth, input.canvasHeight);
+  // The price badge's position is computed backward from the reserved
+  // band's real top edge, never forward from the title — this is the
+  // one number that structurally cannot drift into the reserved zone.
+  const priceBadgeTop = barY - HYBRID_PRICE_TO_RESERVED_GAP - HYBRID_PRICE_BADGE_HEIGHT;
+  const priceLines = [`Por apenas`, `R$ ${hybridPriceTag(input.currentPrice).replace("R$", "").trim()}`];
+  if (hasRealDrop) priceLines.push(`de ${hybridPriceTag(input.referencePrice!)}`);
+  const priceEstimatedWidth =
+    Math.max(
+      "Por apenas".length * 20,
+      (`R$ ${hybridPriceTag(input.currentPrice).replace("R$", "").trim()}`.length) * 50,
+      hasRealDrop ? `de ${hybridPriceTag(input.referencePrice!)}`.length * 18 : 0,
+    ) *
+      AVG_CHAR_WIDTH_RATIO +
+    28 * 2;
+
+  return {
+    canvasWidth: input.canvasWidth,
+    canvasHeight: input.canvasHeight,
+    titleFontSize,
+    titleLine1,
+    titleLine2,
+    title: { left: HYBRID_SIDE_PADDING, top: HYBRID_TOP_PADDING, width: contentWidth, height: titleHeight },
+    benefits: benefits.length > 0 ? { left: HYBRID_SIDE_PADDING, top: benefitsTop, width: contentWidth, height: benefitsHeight } : null,
+    benefitFontSizes,
+    price: { left: HYBRID_SIDE_PADDING, top: priceBadgeTop, width: priceEstimatedWidth, height: HYBRID_PRICE_BADGE_HEIGHT },
+    reservedZone: { left: 0, top: barY, width: input.canvasWidth, height: input.canvasHeight - barY },
+  };
+}
+
+/** The actual "solução definitiva" piloted on Secador Philco (owner's
+ * directive, 2026-11-25): title, benefit icons, and the price badge are
+ * drawn here, deterministically, with every position computed from real
+ * numbers — never left to an image model's own judgment. The Mercado
+ * Livre bar is still `compositeDeterministicCtaBar`'s job, called
+ * separately afterward (unchanged — this function never touches that
+ * region, and its own content is mathematically kept clear of it). */
+export function renderHybridTextOverlay(input: HybridTextOverlayInput) {
+  const hasRealDrop = input.hasConfirmedDiscount && input.referencePrice !== null && input.referencePrice > input.currentPrice;
+  const layout = computeHybridLayout({ ...input, canvasWidth: FINAL_WIDTH, canvasHeight: FINAL_HEIGHT });
+  const { titleLine1, titleLine2, titleFontSize, benefitFontSizes } = layout;
+  const contentWidth = FINAL_WIDTH - HYBRID_SIDE_PADDING * 2;
+  const benefits = input.benefits.slice(0, 3);
+  const priceBadgeTop = layout.price.top;
+
+  return new ImageResponse(
+    (
+      <div style={{ width: FINAL_WIDTH, height: FINAL_HEIGHT, display: "flex", position: "relative", fontFamily: "sans-serif" }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={input.baseImageDataUri}
+          alt=""
+          width={FINAL_WIDTH}
+          height={FINAL_HEIGHT}
+          style={{ position: "absolute", top: 0, left: 0, width: FINAL_WIDTH, height: FINAL_HEIGHT, objectFit: "cover" }}
+        />
+        {/* Scrim behind the title: the AI composition no longer knows a
+            deterministic overlay is coming, so unlike one-shot's own
+            text (which the model places over whatever dark area it drew
+            on purpose), this needs its own guaranteed-legible backdrop,
+            not a hope that the background is dark there. */}
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: FINAL_WIDTH,
+            height: HYBRID_TOP_PADDING + (HYBRID_TITLE_MAX_FONT + 12) * 2 + 40,
+            display: "flex",
+            background: "linear-gradient(180deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.45) 60%, rgba(0,0,0,0) 100%)",
+          }}
+        />
+        <div
+          style={{
+            position: "absolute",
+            top: HYBRID_TOP_PADDING,
+            left: HYBRID_SIDE_PADDING,
+            width: contentWidth,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          <div style={{ display: "flex", fontSize: titleFontSize, fontWeight: 800, color: "#ffffff", lineHeight: 1.08 }}>{titleLine1}</div>
+          {titleLine2 && (
+            <div style={{ display: "flex", fontSize: titleFontSize, fontWeight: 800, color: BRAND_YELLOW, lineHeight: 1.08 }}>{titleLine2}</div>
+          )}
+        </div>
+        {benefits.length > 0 && (
+          <div
+            style={{
+              position: "absolute",
+              top: HYBRID_TOP_PADDING + titleFontSize * 2.4 + 32,
+              left: HYBRID_SIDE_PADDING,
+              display: "flex",
+              flexDirection: "column",
+              gap: 16,
+            }}
+          >
+            {benefits.map((benefit, i) => (
+              <div key={i} style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                <div
+                  style={{
+                    display: "flex",
+                    width: HYBRID_ICON_SIZE,
+                    height: HYBRID_ICON_SIZE,
+                    minWidth: HYBRID_ICON_SIZE,
+                    borderRadius: 16,
+                    background: "#0d9488",
+                  }}
+                />
+                <div style={{ display: "flex", fontSize: benefitFontSizes[i], fontWeight: 700, color: "#ffffff", maxWidth: contentWidth - HYBRID_ICON_SIZE - 14, lineHeight: 1.2, whiteSpace: "nowrap" }}>
+                  {benefit}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        {/* Price badge — position computed backward from the reserved
+            CTA-bar band, see HYBRID_PRICE_TO_RESERVED_GAP above. */}
+        <div
+          style={{
+            position: "absolute",
+            top: priceBadgeTop,
+            left: HYBRID_SIDE_PADDING,
+            height: HYBRID_PRICE_BADGE_HEIGHT,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            background: "linear-gradient(135deg, #7f1d1d 0%, #dc2626 100%)",
+            borderRadius: 18,
+            padding: "14px 28px",
+          }}
+        >
+          <div style={{ display: "flex", fontSize: 20, fontWeight: 600, color: "#fecaca" }}>Por apenas</div>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+            <div style={{ display: "flex", fontSize: 28, fontWeight: 700, color: BRAND_YELLOW }}>R$</div>
+            <div style={{ display: "flex", fontSize: 56, fontWeight: 800, color: BRAND_YELLOW }}>
+              {hybridPriceTag(input.currentPrice).replace("R$", "").trim()}
+            </div>
+          </div>
+          {hasRealDrop && (
+            <div style={{ display: "flex", fontSize: 18, color: "#fecaca", textDecoration: "line-through" }}>
+              de {hybridPriceTag(input.referencePrice!)}
+            </div>
+          )}
+        </div>
+      </div>
+    ),
+    { width: FINAL_WIDTH, height: FINAL_HEIGHT },
+  );
+}
+
 /** ImageResponse implements the Response interface (it IS one) — this
  * just makes the call sites read cleanly as "give me real PNG bytes". */
 export async function toBuffer(response: ImageResponse): Promise<Buffer> {

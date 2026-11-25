@@ -9,6 +9,8 @@ import {
   promptFieldChanged,
   prioritizeRegenerationCandidates,
   ONE_SHOT_MECHANISM_TAG,
+  HYBRID_MECHANISM_TAG,
+  HENRIQUE_STANDARD_VERSION,
 } from "@/lib/services/ai-creative-factory/one-shot-ad-generator";
 
 /**
@@ -139,6 +141,28 @@ describe("buildOneShotPrompt — preserves real product information, never inven
     });
     expect(prompt).toContain("NÃO inclua nenhuma menção a nota ou vendas");
     expect(prompt).toContain("Não adicione nenhum objeto");
+  });
+
+  it("tells the model to remove a human model from the source photo if one is present", () => {
+    // Real gap found live, 2026-11-24 ("resolva tudo"): a product whose
+    // source photo included a human model (common in fitness/beauty
+    // seller stock photos) kept that model in the generated ad, landing
+    // on an off-template lifestyle layout. quality-control.ts has always
+    // treated a model's removal as a legitimate, expected change — this
+    // was the missing instruction that actually asks for it.
+    const prompt = buildOneShotPrompt({
+      externalId: "MLB-TEST",
+      title: "Kit Halteres Barra E Anilhas Musculação Kettlebell Ajustáveis Peso Academia 15kg",
+      brand: "Knack",
+      productPhoto: Buffer.alloc(0),
+      productPhotoContentType: "image/jpeg",
+      currentPrice: 278.99,
+      referencePrice: 397.58,
+      hasConfirmedDiscount: true,
+      benefits: ["ATÉ 15KG", "KETTLEBELL AJUSTÁVEL"],
+    });
+    expect(prompt).toMatch(/NÃO inclua essa pessoa na composição final/);
+    expect(prompt).toMatch(/remoção deliberada e esperada, não um erro/);
   });
 
   it("tells the model NOT to draw the Mercado Livre CTA bar at all — it's composited deterministically afterward", () => {
@@ -387,6 +411,7 @@ describe("shouldRegenerateAdOverlay — mechanism selection, the exact thing tha
     hasExistingRow: true,
     existingQualityStatus: "approved" as const,
     existingMechanism: ONE_SHOT_MECHANISM_TAG,
+    existingHenriqueStandardVersion: HENRIQUE_STANDARD_VERSION,
     categoryChanged: false,
     eventChanged: false,
     priceStale: false,
@@ -400,9 +425,39 @@ describe("shouldRegenerateAdOverlay — mechanism selection, the exact thing tha
     expect(shouldRegenerateAdOverlay({ ...base, existingQualityStatus: "rejected" })).toBe(true);
   });
 
-  it("ALWAYS regenerates a legacy row (old hybrid compositor mechanism, or unknown) — this is the regression guard", () => {
+  it("ALWAYS regenerates a legacy row (old, rejected two-column compositor mechanism, or any other unknown string) — this is the regression guard", () => {
     expect(shouldRegenerateAdOverlay({ ...base, existingMechanism: null })).toBe(true);
     expect(shouldRegenerateAdOverlay({ ...base, existingMechanism: "hybrid_legacy" })).toBe(true);
+  });
+
+  it("does NOT regenerate a row already tagged with the NEW, approved hybrid_v1 mechanism — owner's directive, 2026-11-25", () => {
+    // hybrid_v1 (one-shot background + deterministic text overlay, see
+    // compositor.tsx's renderHybridTextOverlay) is a second APPROVED
+    // mechanism, never to be confused with the OLD, fully-programmatic,
+    // owner-rejected "hybrid" compositor (renderAdOverlay) the test above
+    // guards against — a row tagged with either current mechanism is
+    // fine, so flipping env.VITRINE_NEW_PRODUCT_MECHANISM can never, by
+    // itself, force a regeneration of an existing row.
+    expect(shouldRegenerateAdOverlay({ ...base, existingMechanism: HYBRID_MECHANISM_TAG })).toBe(false);
+  });
+
+  it("regenerates when a row genuinely RECORDED an older Henrique standard version — owner's directive, 2026-11-25", () => {
+    // Real case this covers: SPEC.md bumps from v1 to v2 after a real,
+    // owner-authorized visual-standard change — every existing row that
+    // actually recorded v1 must be treated as needing review, never
+    // silently served as if it already followed v2.
+    expect(shouldRegenerateAdOverlay({ ...base, existingHenriqueStandardVersion: "v0-pre-standard" })).toBe(true);
+  });
+
+  it("does NOT regenerate solely because the version was never recorded (every pre-existing row, the day this field ships)", () => {
+    // Real bug caught in this same session, before it ever shipped: this
+    // field is brand new — every row in production today genuinely
+    // lacks it. Treating that absence as a mismatch would force a full-
+    // catalog regeneration wave the moment this deploys — exactly what
+    // "impeça ciclos infinitos de regeneração e gastos descontrolados"
+    // prohibits. Same "absence is unknown" treatment promptFieldChanged
+    // already uses for categoryHint/isSeasonalEvent.
+    expect(shouldRegenerateAdOverlay({ ...base, existingHenriqueStandardVersion: null })).toBe(false);
   });
 
   it("regenerates when category changed", () => {

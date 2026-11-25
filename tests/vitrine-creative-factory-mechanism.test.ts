@@ -96,6 +96,19 @@ vi.mock("@/lib/services/ai-creative-factory/quality-control", () => ({
   runQualityControl: vi.fn(async () => ({ status: "approved", notes: "ok (mock)", visionCheckCostUsd: null, classification: "ambientacao_legitima" })),
 }));
 
+// Real decodePng would reject these mocked fake buffers ("fake-png-
+// bytes...") as invalid PNGs — margin-safety-check.ts is a pure,
+// already-unit-tested module (tests/margin-safety-check.test.tsx) in
+// its own right; this job only needs to prove it WIRES the result in
+// correctly (see the dedicated "margin safety gate" describe block
+// below, which overrides this default per-test).
+const checkMarginSafetyMock = vi.fn(
+  (): { safe: boolean; violations: Array<{ zone: string; edgeDensity: number; threshold: number }> } => ({ safe: true, violations: [] }),
+);
+vi.mock("@/lib/services/ai-creative-factory/margin-safety-check", () => ({
+  checkMarginSafety: checkMarginSafetyMock,
+}));
+
 const compositeDeterministicCtaBarMock = vi.fn(async () => Buffer.from("fake-png-bytes-with-bar"));
 
 vi.mock("@/lib/services/ai-creative-factory/compositor", () => ({
@@ -492,5 +505,54 @@ describe("runVitrineCreativeFactoryJob — deterministic CTA bar compositing, 20
     // calls) — errors being incremented is the weaker, available signal
     // that this path was treated as a real failure, not a silent no-op.
     expect(counters.errors).toBeGreaterThan(0);
+  });
+});
+
+describe("runVitrineCreativeFactoryJob — deterministic margin-safety gate, 2026-11-25", () => {
+  it("rejects and never publishes when the pixel-level margin check reports a violation — runs BEFORE the paid vision check", async () => {
+    // Owner's directive, 2026-11-25 ("o sistema deve impedir que uma
+    // imagem reprovada substitua uma imagem aprovada em produção"): this
+    // is the real incident the gate exists for — Secador Philco's price
+    // badge invaded the reserved CTA-bar band on two separate real
+    // generations (see margin-safety-check.ts's calibration note). Here
+    // the mock stands in for that real violation to prove the WIRING
+    // rejects correctly, never relying on the real pixel math (already
+    // proven independently in tests/margin-safety-check.test.tsx).
+    // mockReturnValue (not Once): this fixture run processes more than
+    // one ad_overlay candidate, so every one of them must see the
+    // violation for the "zero paid calls" assertion below to be real
+    // proof, not an artifact of only the first candidate being checked.
+    checkMarginSafetyMock.mockReturnValue({
+      safe: false,
+      violations: [{ zone: "bottom_reserved", edgeDensity: 0.02, threshold: 0.009 }],
+    });
+    const qualityControl = await import("@/lib/services/ai-creative-factory/quality-control");
+    // Call history on this mock accumulates across every test in this
+    // file (nothing clears it in the shared beforeEach) — clear it here
+    // so this test's own "never called" assertion reflects only this
+    // run, not every earlier test's calls too.
+    vi.mocked(qualityControl.runQualityControl).mockClear();
+    const { runVitrineCreativeFactoryJob } = await import("@/jobs/vitrine-creative-factory");
+    const counters = await runVitrineCreativeFactoryJob();
+
+    // The free, deterministic check short-circuits BEFORE the paid one —
+    // no money spent on an image already known to be unpublishable.
+    expect(qualityControl.runQualityControl).not.toHaveBeenCalled();
+
+    const adOverlayCreateCall = createMock.mock.calls.find((call) => call[0].data.kind === "ad_overlay");
+    expect(adOverlayCreateCall![0].data.qualityStatus).toBe("rejected");
+    expect(adOverlayCreateCall![0].data.publishedAt).toBeNull();
+    expect(adOverlayCreateCall![0].data.qualityNotes).toMatch(/bottom_reserved/);
+    expect(adOverlayCreateCall![0].data.finalImageUrl).not.toBe("https://precocaindo.com.br/api/vitrine/creative-asset/fake-final.png");
+    expect(counters.errors).toBeGreaterThan(0);
+  });
+
+  it("proceeds to the paid vision check when the margin-safety gate passes", async () => {
+    checkMarginSafetyMock.mockReturnValue({ safe: true, violations: [] });
+    const qualityControl = await import("@/lib/services/ai-creative-factory/quality-control");
+    const { runVitrineCreativeFactoryJob } = await import("@/jobs/vitrine-creative-factory");
+    await runVitrineCreativeFactoryJob();
+
+    expect(qualityControl.runQualityControl).toHaveBeenCalled();
   });
 });

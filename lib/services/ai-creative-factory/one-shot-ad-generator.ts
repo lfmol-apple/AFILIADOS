@@ -186,7 +186,7 @@ const RESERVED_BAR_FRACTION_OF_RAW = (CTA_BAR_HEIGHT_FRACTION * CREATIVE_FINAL_D
 /** Top edge only ever loses the crop — reuse the exact 18% the owner's
  * own approved reference (pilot-result-3) was generated with (comfortably
  * above the real ~8.3% crop) rather than inventing a new "minimum". */
-const TOP_SAFE_MARGIN_PERCENT = 18;
+export const TOP_SAFE_MARGIN_PERCENT = 18;
 /** Bottom edge loses BOTH the crop AND the reserved bar band — real
  * minimum is CROP_FRACTION_PER_EDGE + RESERVED_BAR_FRACTION_OF_RAW
  * (≈18.9% today). Rounded up plus a real safety buffer, same spirit as
@@ -245,6 +245,18 @@ export function buildOneShotPrompt(input: OneShotAdInput): string {
     ``,
     `O produto real está na PRIMEIRA imagem fornecida: "${input.title}"${input.brand ? `, marca ${input.brand}` : ""}. Preserve o produto exatamente como aparece na foto — mesma cor, formato e proporções reais. Não redesenhe nem altere o produto.`,
     ``,
+    /** Real gap found live, 2026-11-24 (owner's directive, "resolva
+     * tudo"): a product whose own source photo includes a human model
+     * (seller stock photos for fitness/beauty categories commonly do)
+     * kept that model in the generated ad, producing a lifestyle-photo
+     * layout that diverges from the approved product-still template — no
+     * instruction here ever told the model to remove it. This is not a
+     * new rule: quality-control.ts's vision check has always treated a
+     * human model's removal as a legitimate, expected ambientation
+     * change, never a defect ("regra deliberada deste projeto, nunca um
+     * erro") — the generation prompt just never actually asked for it. */
+    `Se a foto original do produto incluir uma pessoa ou modelo humano segurando, vestindo ou demonstrando o produto, NÃO inclua essa pessoa na composição final — mostre apenas o produto em si, isolado ou em um cenário de contexto (sem gente), mesmo que a foto original tenha uma pessoa. Esta é uma remoção deliberada e esperada, não um erro.`,
+    ``,
     `${ambientationLine} Inclua:`,
     `- Título do produto em destaque, bold, duas linhas, duas cores.`,
     benefitLines,
@@ -282,6 +294,82 @@ export function buildOneShotPrompt(input: OneShotAdInput): string {
   ].join("\n");
 }
 
+/** Tag stored in `VitrineCreative.promptInputs.mechanism` for a row
+ * produced by the hybrid pipeline (see `renderHybridTextOverlay` in
+ * compositor.tsx) — distinct from ONE_SHOT_MECHANISM_TAG so the factory
+ * job and any future audit can always tell which real mechanism drew a
+ * given row's text elements: the AI (one_shot_v1) or deterministic code
+ * (hybrid_v1). */
+export const HYBRID_MECHANISM_TAG = "hybrid_v1";
+
+/** Owner's directive, 2026-11-25 ("Secador Philco — solução
+ * definitiva... IA responsável pelo fundo e pela apresentação visual do
+ * produto. Código determinístico responsável pelo título, preço, faixa
+ * do Mercado Livre e demais elementos comerciais obrigatórios"): real
+ * root cause of the Secador failures (two real generations, two real
+ * price-badge/reserved-zone violations, see margin-safety-check.ts's
+ * calibration data) is that asking an image model to both compose a
+ * photo AND typeset commercial text with pixel-perfect margins is two
+ * different skills bundled into one unreliable request. This prompt
+ * asks for ONLY the first skill — a real product photo, ambientation,
+ * nothing else — the text (title/icons/price) is drawn afterward by
+ * `renderHybridTextOverlay`, with positions computed from real numbers,
+ * never asked for in a sentence.
+ *
+ * Never a replacement for buildOneShotPrompt — that mechanism still
+ * produces the approved, higher-quality result for every product that
+ * doesn't need this fallback (the owner's own rejection of the OLD,
+ * fully-programmatic hybrid architecture, 2026-11-21, was specifically
+ * about assembling the FULL layout from scratch in code — not about
+ * code ever touching typography at all). Piloted on one product
+ * (Secador Philco) before any wider use. */
+export function buildBackgroundOnlyPrompt(input: Pick<OneShotAdInput, "title" | "brand" | "backgroundStyle" | "colorPalette" | "ambientation">): string {
+  const ambientationLine =
+    input.backgroundStyle && input.colorPalette && input.ambientation
+      ? `Fundo e ambientação: ${input.backgroundStyle}. Paleta de cores: ${input.colorPalette}. Sensação geral: ${input.ambientation}. O fundo deve ter profundidade real (textura, iluminação, contexto) — nunca um fundo liso e genérico de "estúdio plano" sem contexto.`
+      : `Escolha uma paleta de cores e ambientação adequadas à categoria real deste produto, combinando com as cores reais vistas na foto, com sensação prática e profissional e com profundidade real de fundo (textura, iluminação, contexto) — nunca um fundo liso e genérico de "estúdio plano" sem contexto algum.`;
+
+  return [
+    `Crie uma fotografia publicitária de produto, vertical, para Instagram/Facebook. Use a segunda imagem fornecida (uma arte real já aprovada do Henrique) apenas como referência de CLIMA/QUALIDADE FOTOGRÁFICA — nunca copie o produto, a marca, texto ou layout dela.`,
+    ``,
+    `O produto real está na PRIMEIRA imagem fornecida: "${input.title}"${input.brand ? `, marca ${input.brand}` : ""}. Preserve o produto exatamente como aparece na foto — mesma cor, formato e proporções reais. Não redesenhe nem altere o produto. Se a foto original incluir uma pessoa ou modelo humano, NÃO a inclua na composição final — mostre apenas o produto.`,
+    ``,
+    `${ambientationLine}`,
+    ``,
+    `Produto grande e centralizado, ocupando a maior parte da composição, com espaço real de respiro ao redor (não precisa encostar nas bordas).`,
+    ``,
+    `IMPORTANTE — isto é uma peça puramente fotográfica: NÃO desenhe absolutamente nenhum texto, número, palavra, letra, título, preço, ícone, selo, badge, logotipo, faixa ou qualquer elemento gráfico de interface nesta imagem. Nenhum elemento comercial de qualquer tipo. Apenas o produto real e o fundo/ambientação — todo o texto e os elementos comerciais são adicionados depois, de forma determinística, por código, não por você. Qualquer letra ou número que aparecer nesta imagem (além do que já existe fisicamente escrito no próprio produto, como uma marca gravada) é um defeito grave.`,
+    ``,
+    `Não invente nem adicione nenhum objeto, produto, embalagem, acessório, brinde ou item extra que não esteja fisicamente presente na foto original do produto.`,
+  ].join("\n");
+}
+
+export async function generateBackgroundOnly(input: {
+  externalId: string;
+  title: string;
+  brand: string | null;
+  productPhoto: Buffer;
+  productPhotoContentType: string;
+  backgroundStyle?: string;
+  colorPalette?: string;
+  ambientation?: string;
+}): Promise<GenerateCreativeResult & { promptText: string }> {
+  // Same real safety gates as generateOneShotAd — a new mechanism is
+  // never an excuse to skip the migration allowlist or the financial
+  // gate.
+  assertMigrationAuthorized(input.externalId);
+  const styleRef = loadHenriqueStyleReference();
+  const promptText = buildBackgroundOnlyPrompt(input);
+  const generation = await generateCreativeBase({
+    productPhoto: input.productPhoto,
+    productPhotoContentType: input.productPhotoContentType,
+    prompt: promptText,
+    styleReferencePhoto: styleRef.buffer,
+    styleReferencePhotoContentType: styleRef.contentType,
+  });
+  return { ...generation, promptText };
+}
+
 /** Tag stored in `VitrineCreative.promptInputs.mechanism` for every row
  * this module produces — lets the factory job tell a one-shot row apart
  * from one produced by the old "AI scenario + compositor.tsx overlay"
@@ -290,12 +378,31 @@ export function buildOneShotPrompt(input: OneShotAdInput): string {
  * serving the old, rejected visual style). */
 export const ONE_SHOT_MECHANISM_TAG = "one_shot_v1";
 
+/** Owner's directive, 2026-11-25 ("cada criativo deverá possuir...
+ * versão do padrão Henrique"): a single source-of-truth version tag for
+ * the APPROVED VISUAL STANDARD itself (docs/henrique-visual-standard/
+ * SPEC.md), independent of `mechanism` above (which tracks HOW the
+ * pixels were produced — one-shot vs. hybrid — not whether the result
+ * follows the approved spec). Bump this, and update SPEC.md to a new
+ * version, only on a real, owner-authorized change to the visual
+ * standard itself ("nenhuma alteração futura nesse padrão poderá ser
+ * feita sem minha autorização expressa e apresentação de comparativo
+ * visual") — never silently alongside an unrelated code change. */
+export const HENRIQUE_STANDARD_VERSION = "v1";
+
 export interface AdOverlayRegenerationCheckInput {
   hasExistingRow: boolean;
   existingQualityStatus: "approved" | "rejected" | "pending" | null;
   /** `promptInputs.mechanism` of the latest existing row, or null for a
    * legacy/pre-one-shot row (or no row at all). */
   existingMechanism: string | null;
+  /** `promptInputs.henriqueStandardVersion` of the latest existing row,
+   * or null for a row predating this field (owner's directive,
+   * 2026-11-25: version-tag every creative against the approved visual
+   * standard). A mismatch here means SPEC.md moved on since this row
+   * was drawn — treated exactly like a mechanism mismatch: always worth
+   * a real regeneration, never silently served as if still current. */
+  existingHenriqueStandardVersion: string | null;
   categoryChanged: boolean;
   eventChanged: boolean;
   priceStale: boolean;
@@ -309,7 +416,27 @@ export interface AdOverlayRegenerationCheckInput {
 export function shouldRegenerateAdOverlay(input: AdOverlayRegenerationCheckInput): boolean {
   if (!input.hasExistingRow) return true;
   if (input.existingQualityStatus === "rejected") return true;
-  if (input.existingMechanism !== ONE_SHOT_MECHANISM_TAG) return true;
+  // Owner's directive, 2026-11-25 ("prepare a composição híbrida como
+  // mecanismo preferencial para novos produtos"): hybrid_v1 is now a
+  // second APPROVED mechanism, not the old rejected compositor this
+  // check was built to catch — a row tagged with either current
+  // mechanism is fine. Absence (legacy/pre-migration rows, or the real
+  // gap found 2026-11-25 where a zero-cost CTA-bar recomposite script
+  // never re-stamped this field) still counts as a mismatch, unchanged.
+  if (input.existingMechanism !== ONE_SHOT_MECHANISM_TAG && input.existingMechanism !== HYBRID_MECHANISM_TAG) return true;
+  // Real bug caught in this same session, before it ever shipped: unlike
+  // `existingMechanism` above (which deliberately treats a legacy/absent
+  // value as "always regenerate" — a one-time, intentional migration
+  // guard), this field is BRAND NEW — every row in production today
+  // genuinely lacks it. Strict inequality here would read as "every
+  // existing row is version-mismatched" the moment this ships, forcing
+  // a full-catalog regeneration wave on the very next cron cycle —
+  // exactly what "impeça ciclos infinitos de regeneração e gastos
+  // descontrolados" (owner's directive, 2026-11-25) prohibits. Same
+  // "absence is unknown, never evidence of change" treatment as
+  // promptFieldChanged uses for categoryHint/isSeasonalEvent: only a
+  // row that RECORDED a real, different version is a genuine trigger.
+  if (input.existingHenriqueStandardVersion !== null && input.existingHenriqueStandardVersion !== HENRIQUE_STANDARD_VERSION) return true;
   if (input.categoryChanged || input.eventChanged) return true;
   if (input.priceStale) return true;
   return false;

@@ -1,13 +1,15 @@
 import { readFileSync } from "node:fs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { decodePng, pixelAt } from "./helpers/png-decode";
+import { decodePng, pixelAt } from "@/lib/services/ai-creative-factory/png-decode";
 
 /**
  * Owner's directive, 2026-11-24 ("não considere um teste de presença de
  * texto como prova — quero ver"): this is a REAL render, through the
  * actual Satori/next-og pipeline this project already uses, decoded
- * pixel-by-pixel with a small, dependency-free PNG decoder (tests/
- * helpers/png-decode.ts) — not a mock, not a text-presence check. Two
+ * pixel-by-pixel with a small, dependency-free PNG decoder
+ * (lib/services/ai-creative-factory/png-decode.ts, promoted out of
+ * tests/helpers/ 2026-11-24 so margin-safety-check.ts can reuse it in
+ * real production code too) — not a mock, not a text-presence check. Two
  * tiny synthetic fixtures (committed, never the real approved assets)
  * stand in for the real base image and the real CTA bar: a solid blue
  * base (tests/fixtures/cta-base.synthetic.png, 40×80) and a solid
