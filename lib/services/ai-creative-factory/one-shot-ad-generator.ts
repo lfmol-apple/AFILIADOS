@@ -378,12 +378,31 @@ export async function generateBackgroundOnly(input: {
  * serving the old, rejected visual style). */
 export const ONE_SHOT_MECHANISM_TAG = "one_shot_v1";
 
+/** Owner's directive, 2026-11-25 ("cada criativo deverá possuir...
+ * versão do padrão Henrique"): a single source-of-truth version tag for
+ * the APPROVED VISUAL STANDARD itself (docs/henrique-visual-standard/
+ * SPEC.md), independent of `mechanism` above (which tracks HOW the
+ * pixels were produced — one-shot vs. hybrid — not whether the result
+ * follows the approved spec). Bump this, and update SPEC.md to a new
+ * version, only on a real, owner-authorized change to the visual
+ * standard itself ("nenhuma alteração futura nesse padrão poderá ser
+ * feita sem minha autorização expressa e apresentação de comparativo
+ * visual") — never silently alongside an unrelated code change. */
+export const HENRIQUE_STANDARD_VERSION = "v1";
+
 export interface AdOverlayRegenerationCheckInput {
   hasExistingRow: boolean;
   existingQualityStatus: "approved" | "rejected" | "pending" | null;
   /** `promptInputs.mechanism` of the latest existing row, or null for a
    * legacy/pre-one-shot row (or no row at all). */
   existingMechanism: string | null;
+  /** `promptInputs.henriqueStandardVersion` of the latest existing row,
+   * or null for a row predating this field (owner's directive,
+   * 2026-11-25: version-tag every creative against the approved visual
+   * standard). A mismatch here means SPEC.md moved on since this row
+   * was drawn — treated exactly like a mechanism mismatch: always worth
+   * a real regeneration, never silently served as if still current. */
+  existingHenriqueStandardVersion: string | null;
   categoryChanged: boolean;
   eventChanged: boolean;
   priceStale: boolean;
@@ -398,6 +417,19 @@ export function shouldRegenerateAdOverlay(input: AdOverlayRegenerationCheckInput
   if (!input.hasExistingRow) return true;
   if (input.existingQualityStatus === "rejected") return true;
   if (input.existingMechanism !== ONE_SHOT_MECHANISM_TAG) return true;
+  // Real bug caught in this same session, before it ever shipped: unlike
+  // `existingMechanism` above (which deliberately treats a legacy/absent
+  // value as "always regenerate" — a one-time, intentional migration
+  // guard), this field is BRAND NEW — every row in production today
+  // genuinely lacks it. Strict inequality here would read as "every
+  // existing row is version-mismatched" the moment this ships, forcing
+  // a full-catalog regeneration wave on the very next cron cycle —
+  // exactly what "impeça ciclos infinitos de regeneração e gastos
+  // descontrolados" (owner's directive, 2026-11-25) prohibits. Same
+  // "absence is unknown, never evidence of change" treatment as
+  // promptFieldChanged uses for categoryHint/isSeasonalEvent: only a
+  // row that RECORDED a real, different version is a genuine trigger.
+  if (input.existingHenriqueStandardVersion !== null && input.existingHenriqueStandardVersion !== HENRIQUE_STANDARD_VERSION) return true;
   if (input.categoryChanged || input.eventChanged) return true;
   if (input.priceStale) return true;
   return false;

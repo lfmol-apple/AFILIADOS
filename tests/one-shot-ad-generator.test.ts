@@ -9,6 +9,7 @@ import {
   promptFieldChanged,
   prioritizeRegenerationCandidates,
   ONE_SHOT_MECHANISM_TAG,
+  HENRIQUE_STANDARD_VERSION,
 } from "@/lib/services/ai-creative-factory/one-shot-ad-generator";
 
 /**
@@ -409,6 +410,7 @@ describe("shouldRegenerateAdOverlay — mechanism selection, the exact thing tha
     hasExistingRow: true,
     existingQualityStatus: "approved" as const,
     existingMechanism: ONE_SHOT_MECHANISM_TAG,
+    existingHenriqueStandardVersion: HENRIQUE_STANDARD_VERSION,
     categoryChanged: false,
     eventChanged: false,
     priceStale: false,
@@ -425,6 +427,25 @@ describe("shouldRegenerateAdOverlay — mechanism selection, the exact thing tha
   it("ALWAYS regenerates a legacy row (old hybrid compositor mechanism, or unknown) — this is the regression guard", () => {
     expect(shouldRegenerateAdOverlay({ ...base, existingMechanism: null })).toBe(true);
     expect(shouldRegenerateAdOverlay({ ...base, existingMechanism: "hybrid_legacy" })).toBe(true);
+  });
+
+  it("regenerates when a row genuinely RECORDED an older Henrique standard version — owner's directive, 2026-11-25", () => {
+    // Real case this covers: SPEC.md bumps from v1 to v2 after a real,
+    // owner-authorized visual-standard change — every existing row that
+    // actually recorded v1 must be treated as needing review, never
+    // silently served as if it already followed v2.
+    expect(shouldRegenerateAdOverlay({ ...base, existingHenriqueStandardVersion: "v0-pre-standard" })).toBe(true);
+  });
+
+  it("does NOT regenerate solely because the version was never recorded (every pre-existing row, the day this field ships)", () => {
+    // Real bug caught in this same session, before it ever shipped: this
+    // field is brand new — every row in production today genuinely
+    // lacks it. Treating that absence as a mismatch would force a full-
+    // catalog regeneration wave the moment this deploys — exactly what
+    // "impeça ciclos infinitos de regeneração e gastos descontrolados"
+    // prohibits. Same "absence is unknown" treatment promptFieldChanged
+    // already uses for categoryHint/isSeasonalEvent.
+    expect(shouldRegenerateAdOverlay({ ...base, existingHenriqueStandardVersion: null })).toBe(false);
   });
 
   it("regenerates when category changed", () => {

@@ -16,6 +16,7 @@ import {
   OneShotReferenceMissingError,
   OneShotMigrationNotAuthorizedError,
   ONE_SHOT_MECHANISM_TAG,
+  HENRIQUE_STANDARD_VERSION,
   TOP_SAFE_MARGIN_PERCENT as HENRIQUE_TOP_MARGIN_PERCENT,
 } from "@/lib/services/ai-creative-factory/one-shot-ad-generator";
 import { runQualityControl } from "@/lib/services/ai-creative-factory/quality-control";
@@ -78,6 +79,12 @@ function isManuallyForced(merchantListingId: string): boolean {
  */
 interface AdOverlayPromptInputs {
   mechanism: typeof ONE_SHOT_MECHANISM_TAG;
+  /** Owner's directive, 2026-11-25 ("cada criativo deverá possuir...
+   * versão do padrão Henrique"): which version of the approved visual
+   * standard (docs/henrique-visual-standard/SPEC.md) this row was
+   * generated against — reuses the existing promptInputs JSON column,
+   * no schema migration needed. */
+  henriqueStandardVersion: typeof HENRIQUE_STANDARD_VERSION;
   bakedCurrentPrice: number;
   bakedReferencePrice: number | null;
   categoryHint: string | null;
@@ -312,6 +319,14 @@ export async function runVitrineCreativeFactoryJob() {
       const latestAdOverlay = recentAdOverlay[0] ?? null;
       const adPromptInputsPrev = latestAdOverlay?.promptInputs as Partial<AdOverlayPromptInputs> | undefined;
       const adMechanismMismatch = !!latestAdOverlay && adPromptInputsPrev?.mechanism !== ONE_SHOT_MECHANISM_TAG;
+      // Owner's directive, 2026-11-25: a SPEC.md version bump is exactly
+      // as "this row is known-outdated" as a mechanism mismatch — same
+      // treatment everywhere adMechanismMismatch already gates below.
+      // Absence (every row that predates this field) is never itself a
+      // mismatch — see shouldRegenerateAdOverlay's own doc comment for
+      // why: real bug caught before shipping, same session.
+      const adHenriqueVersionMismatch =
+        !!latestAdOverlay && adPromptInputsPrev?.henriqueStandardVersion != null && adPromptInputsPrev.henriqueStandardVersion !== HENRIQUE_STANDARD_VERSION;
       // Real root cause, 2026-11-24: see promptFieldChanged's own doc
       // comment — a row whose promptInputs never recorded categoryHint/
       // isSeasonalEvent (written by something other than this job) must
@@ -319,7 +334,7 @@ export async function runVitrineCreativeFactoryJob() {
       const adCategoryChanged = promptFieldChanged(adPromptInputsPrev?.categoryHint, categoryHint);
       const adEventChanged = promptFieldChanged(adPromptInputsPrev?.isSeasonalEvent, eventName);
       const adPriceStale =
-        !!latestAdOverlay && !adMechanismMismatch && typeof adPromptInputsPrev?.bakedCurrentPrice === "number"
+        !!latestAdOverlay && !adMechanismMismatch && !adHenriqueVersionMismatch && typeof adPromptInputsPrev?.bakedCurrentPrice === "number"
           ? isBakedPriceStale({
               bakedCurrentPrice: adPromptInputsPrev.bakedCurrentPrice,
               bakedReferencePrice: adPromptInputsPrev.bakedReferencePrice ?? null,
@@ -334,6 +349,7 @@ export async function runVitrineCreativeFactoryJob() {
           hasExistingRow: !!latestAdOverlay,
           existingQualityStatus: (latestAdOverlay?.qualityStatus as "approved" | "rejected" | "pending" | null) ?? null,
           existingMechanism: (adPromptInputsPrev?.mechanism as string | undefined) ?? null,
+          existingHenriqueStandardVersion: (adPromptInputsPrev?.henriqueStandardVersion as string | undefined) ?? null,
           categoryChanged: adCategoryChanged,
           eventChanged: adEventChanged,
           priceStale: adPriceStale,
@@ -347,6 +363,7 @@ export async function runVitrineCreativeFactoryJob() {
         !!latestAdOverlay &&
         latestAdOverlay.qualityStatus === "rejected" &&
         !adMechanismMismatch &&
+        !adHenriqueVersionMismatch &&
         !adCategoryChanged &&
         !adEventChanged &&
         !adPriceStale &&
@@ -380,7 +397,7 @@ export async function runVitrineCreativeFactoryJob() {
       // A manual force (owner's explicit request) always bypasses the
       // price-regeneration debounce too — "solicitação manual explícita"
       // means now, not "wait for the debounce window".
-      const priceStaleOnly = !forced && adPriceStale && !adMechanismMismatch && !adCategoryChanged && !adEventChanged && latestAdOverlay?.qualityStatus !== "rejected";
+      const priceStaleOnly = !forced && adPriceStale && !adMechanismMismatch && !adHenriqueVersionMismatch && !adCategoryChanged && !adEventChanged && latestAdOverlay?.qualityStatus !== "rejected";
       if (priceStaleOnly && latestAdOverlay) {
         const canAttemptNow = shouldAttemptPriceRegenerationNow({
           lastAttemptAt: latestAdOverlay.generatedAt,
@@ -476,6 +493,7 @@ export async function runVitrineCreativeFactoryJob() {
       const aiBaseFileName = saveAiBase(selection.merchantListingId, nextAdVersion, oneShot.imageBuffer);
       const promptInputs = {
         mechanism: ONE_SHOT_MECHANISM_TAG,
+        henriqueStandardVersion: HENRIQUE_STANDARD_VERSION,
         bakedCurrentPrice: oneShot.bakedCurrentPrice,
         bakedReferencePrice: oneShot.bakedReferencePrice,
         categoryHint,
