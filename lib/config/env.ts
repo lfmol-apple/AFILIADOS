@@ -383,14 +383,29 @@ const envSchema = z.object({
   /// it lived in the image's own writable layer, not a volume, so a
   /// routine `docker compose build` would silently lose it on the next
   /// deploy with no warning before a real paid call tried to use it.
-  /// Moved to the SAME host-bind-mount pattern already proven for
+  /// Moved to the host-bind-mount pattern already proven for
   /// VITRINE_CREATIVE_DIR/PRODUCT_IMAGE_DIR just above (see
   /// docker-compose.prod.yml's `./data/vitrine-creative-reference` mount
-  /// and docs/DEPLOYMENT.md's one-time provisioning step) — a real
-  /// rebuild can never lose this file again. Missing file →
-  /// OneShotReferenceMissingError, a hard stop, never a silent fallback
-  /// to the old compositor (owner's explicit rule, unchanged by this fix).
-  VITRINE_HENRIQUE_STYLE_REFERENCE_PATH: z.string().default("data/vitrine-creative-reference/henrique-style-reference.png"),
+  /// and docs/DEPLOYMENT.md's one-time provisioning step).
+  ///
+  /// Owner's directive, 2026-11-24 ("estabeleça uma versão oficial,
+  /// protegida e documentada do padrão visual aprovado... não pode
+  /// depender de... pasta gitignored"): this is read by `generateOneShotAd`
+  /// on EVERY real one-shot generation (loadHenriqueStyleReference(),
+  /// `one-shot-ad-generator.ts`) — a hard runtime dependency, not a QA-only
+  /// convenience as an earlier version of this comment incorrectly
+  /// claimed. Moved the default again, to the SAME committed-under-
+  /// public/ convention as VITRINE_CTA_BAR_ASSET_PATH below: the file now
+  /// also lives at `public/vitrine/henrique-style-reference.png` (sha256
+  /// identical to the bind-mounted copy and to the original art Henrique
+  /// approved — verified in docs/henrique-visual-standard/SPEC.md), so it
+  /// survives a fresh clone or disaster recovery with no host volume at
+  /// all, not only a routine rebuild. The bind-mounted data/ copy still
+  /// exists and still works if pointed at explicitly; it's just no longer
+  /// the only durable copy. Missing file → OneShotReferenceMissingError, a
+  /// hard stop, never a silent fallback to the old compositor (owner's
+  /// explicit rule, unchanged by this fix).
+  VITRINE_HENRIQUE_STYLE_REFERENCE_PATH: z.string().default("public/vitrine/henrique-style-reference.png"),
   /// Owner's directive, 2026-11-21 ("não permita que a simples mudança de
   /// mecanismo provoque automaticamente 30 gerações pagas... migração
   /// progressiva, começando com um único produto autorizado"): a SEPARATE
@@ -450,14 +465,16 @@ const envSchema = z.object({
   /// meu Mac"): the approved Mercado Livre CTA bar (handshake icon,
   /// wordmark, "Compre agora no Mercado Livre" button) is now composited
   /// from this real, measured asset — pixel-identical every time — never
-  /// drawn/approximated by the AI model. Deliberately NOT the same
-  /// convention as VITRINE_HENRIQUE_STYLE_REFERENCE_PATH (that one is a
-  /// gitignored, host-bind-mounted manual QA reference, never read by
-  /// this live job): this asset is a hard runtime dependency of every
-  /// real creative generation, so it's a committed file under public/
-  /// (ships in the Docker image automatically via the existing `COPY
-  /// --from=builder /app/public ./public` step — no bind mount, no
-  /// manual step, no host-specific path). Missing file is still a hard
+  /// drawn/approximated by the AI model. Same committed-under-public/
+  /// convention as VITRINE_HENRIQUE_STYLE_REFERENCE_PATH now uses too
+  /// (corrected 2026-11-24 — an earlier version of this comment wrongly
+  /// called that one "a gitignored... manual QA reference, never read by
+  /// this live job"; it is in fact read on every real generation): this
+  /// asset is a hard runtime dependency of every real creative
+  /// generation, so it's a committed file under public/ (ships in the
+  /// Docker image automatically via the existing `COPY --from=builder
+  /// /app/public ./public` step — no bind mount, no manual step, no
+  /// host-specific path). Missing file is still a hard
   /// stop (CtaBarAssetMissingError) — fail closed, never silently falls
   /// back to letting the AI draw the bar again.
   VITRINE_CTA_BAR_ASSET_PATH: z.string().default("public/vitrine/cta-bar-1080w.png"),
