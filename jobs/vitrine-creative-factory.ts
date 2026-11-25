@@ -16,9 +16,11 @@ import {
   OneShotReferenceMissingError,
   OneShotMigrationNotAuthorizedError,
   ONE_SHOT_MECHANISM_TAG,
+  TOP_SAFE_MARGIN_PERCENT as HENRIQUE_TOP_MARGIN_PERCENT,
 } from "@/lib/services/ai-creative-factory/one-shot-ad-generator";
 import { runQualityControl } from "@/lib/services/ai-creative-factory/quality-control";
-import { renderCatalogClean, toBuffer, compositeDeterministicCtaBar, CtaBarAssetMissingError, CREATIVE_FINAL_DIMENSIONS } from "@/lib/services/ai-creative-factory/compositor";
+import { renderCatalogClean, toBuffer, compositeDeterministicCtaBar, CtaBarAssetMissingError, CREATIVE_FINAL_DIMENSIONS, CTA_BAR_HEIGHT_FRACTION } from "@/lib/services/ai-creative-factory/compositor";
+import { checkMarginSafety } from "@/lib/services/ai-creative-factory/margin-safety-check";
 import type { ImpulseFitHypothesis } from "@/lib/services/commercial-intelligence/ad-potential-hypothesis";
 import { saveAiBase, saveFinalRender, finalRenderExists } from "@/lib/services/ai-creative-factory/creative-image-store";
 import { interpretProduct } from "@/lib/services/ai-creative-factory/product-interpretation";
@@ -519,6 +521,57 @@ export async function runVitrineCreativeFactoryJob() {
           await prisma.vitrineCreative.updateMany({ where: { id: latestAdOverlay.id }, data: { publishedAt: null } });
           counters.adUnpublishedStale += 1;
         }
+        continue;
+      }
+
+      // Owner's directive, 2026-11-25 ("avalie uma área de segurança que
+      // impeça tecnicamente o corte... conclua a integração do margin-
+      // safety-check.ts ao pipeline"): a real, free, deterministic gate
+      // runs BEFORE the one paid vision check — same posture as every
+      // other free check in this job (structural size check already ran
+      // inside runQualityControl; this one runs first here specifically
+      // because it needs the PRE-bar buffer, which only exists at this
+      // point in the pipeline). A violation here is exactly as fatal as
+      // a vision-check rejection — it means this image structurally
+      // cannot be published, with cited pixel evidence, never just a
+      // model's opinion. This is a COMPLEMENT to the vision check, never
+      // a replacement — margin-safety-check.ts cannot judge product
+      // fidelity, invented content, or Henrique-standard adherence; it
+      // only proves nothing drawn invades the two reserved zones.
+      const marginCheck = checkMarginSafety({
+        preBarImageBuffer: croppedBase,
+        finalImageBuffer: finalPng,
+        topMarginPercent: HENRIQUE_TOP_MARGIN_PERCENT,
+        ctaBarHeightFraction: CTA_BAR_HEIGHT_FRACTION,
+      });
+      if (!marginCheck.safe) {
+        const violationNotes = marginCheck.violations
+          .map((v) => `zona "${v.zone}": densidade de borda ${v.edgeDensity.toFixed(4)} acima do limite ${v.threshold.toFixed(4)}`)
+          .join("; ");
+        logger.warn("vitrine_creative_factory.margin_safety_violation", { merchantListingId: selection.merchantListingId, violationNotes });
+        await prisma.vitrineCreative.create({
+          data: {
+            merchantListingId: selection.merchantListingId,
+            kind: "ad_overlay",
+            version: nextAdVersion,
+            originalPhotoUrl: product.imageUrl,
+            aiBaseImageUrl: aiBaseFileName,
+            finalImageUrl: product.imageUrl,
+            promptInputs,
+            promptText: oneShot.promptText,
+            model: oneShot.model,
+            costUsd: oneShot.costUsd,
+            qualityStatus: "rejected",
+            qualityNotes: `Reprovado pela checagem determinística de margem (sem IA envolvida) — ${violationNotes}.`,
+            publishedAt: null,
+          },
+        });
+        if (adPriceStale && latestAdOverlay) {
+          await prisma.vitrineCreative.updateMany({ where: { id: latestAdOverlay.id }, data: { publishedAt: null } });
+          counters.adUnpublishedStale += 1;
+        }
+        counters.adRejected += 1;
+        ctx.counters.errors += 1;
         continue;
       }
 

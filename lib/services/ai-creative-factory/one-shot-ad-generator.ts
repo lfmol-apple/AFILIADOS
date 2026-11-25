@@ -186,7 +186,7 @@ const RESERVED_BAR_FRACTION_OF_RAW = (CTA_BAR_HEIGHT_FRACTION * CREATIVE_FINAL_D
 /** Top edge only ever loses the crop — reuse the exact 18% the owner's
  * own approved reference (pilot-result-3) was generated with (comfortably
  * above the real ~8.3% crop) rather than inventing a new "minimum". */
-const TOP_SAFE_MARGIN_PERCENT = 18;
+export const TOP_SAFE_MARGIN_PERCENT = 18;
 /** Bottom edge loses BOTH the crop AND the reserved bar band — real
  * minimum is CROP_FRACTION_PER_EDGE + RESERVED_BAR_FRACTION_OF_RAW
  * (≈18.9% today). Rounded up plus a real safety buffer, same spirit as
@@ -292,6 +292,82 @@ export function buildOneShotPrompt(input: OneShotAdInput): string {
      * definitions above for the exact math. */
     `IMPORTANTE sobre enquadramento: esta imagem será cortada posteriormente para a proporção final 4:5 (a borda superior e a borda inferior serão removidas antes de qualquer outro processamento). Deixe uma margem vazia, neutra, SEM NENHUM elemento (sem título, sem ícone, sem produto, sem selo de preço) ocupando os ${TOP_SAFE_MARGIN_PERCENT}% superiores da altura total da imagem. Na borda inferior, deixe uma margem vazia ainda maior, de pelo menos ${BOTTOM_SAFE_MARGIN_PERCENT}% da altura total — essa margem maior combina a área que será cortada com a área reservada para o elemento do Mercado Livre adicionado depois (ver instrução acima); nenhum título, ícone, produto ou selo de preço pode se estender para dentro dela.`,
   ].join("\n");
+}
+
+/** Tag stored in `VitrineCreative.promptInputs.mechanism` for a row
+ * produced by the hybrid pipeline (see `renderHybridTextOverlay` in
+ * compositor.tsx) — distinct from ONE_SHOT_MECHANISM_TAG so the factory
+ * job and any future audit can always tell which real mechanism drew a
+ * given row's text elements: the AI (one_shot_v1) or deterministic code
+ * (hybrid_v1). */
+export const HYBRID_MECHANISM_TAG = "hybrid_v1";
+
+/** Owner's directive, 2026-11-25 ("Secador Philco — solução
+ * definitiva... IA responsável pelo fundo e pela apresentação visual do
+ * produto. Código determinístico responsável pelo título, preço, faixa
+ * do Mercado Livre e demais elementos comerciais obrigatórios"): real
+ * root cause of the Secador failures (two real generations, two real
+ * price-badge/reserved-zone violations, see margin-safety-check.ts's
+ * calibration data) is that asking an image model to both compose a
+ * photo AND typeset commercial text with pixel-perfect margins is two
+ * different skills bundled into one unreliable request. This prompt
+ * asks for ONLY the first skill — a real product photo, ambientation,
+ * nothing else — the text (title/icons/price) is drawn afterward by
+ * `renderHybridTextOverlay`, with positions computed from real numbers,
+ * never asked for in a sentence.
+ *
+ * Never a replacement for buildOneShotPrompt — that mechanism still
+ * produces the approved, higher-quality result for every product that
+ * doesn't need this fallback (the owner's own rejection of the OLD,
+ * fully-programmatic hybrid architecture, 2026-11-21, was specifically
+ * about assembling the FULL layout from scratch in code — not about
+ * code ever touching typography at all). Piloted on one product
+ * (Secador Philco) before any wider use. */
+export function buildBackgroundOnlyPrompt(input: Pick<OneShotAdInput, "title" | "brand" | "backgroundStyle" | "colorPalette" | "ambientation">): string {
+  const ambientationLine =
+    input.backgroundStyle && input.colorPalette && input.ambientation
+      ? `Fundo e ambientação: ${input.backgroundStyle}. Paleta de cores: ${input.colorPalette}. Sensação geral: ${input.ambientation}. O fundo deve ter profundidade real (textura, iluminação, contexto) — nunca um fundo liso e genérico de "estúdio plano" sem contexto.`
+      : `Escolha uma paleta de cores e ambientação adequadas à categoria real deste produto, combinando com as cores reais vistas na foto, com sensação prática e profissional e com profundidade real de fundo (textura, iluminação, contexto) — nunca um fundo liso e genérico de "estúdio plano" sem contexto algum.`;
+
+  return [
+    `Crie uma fotografia publicitária de produto, vertical, para Instagram/Facebook. Use a segunda imagem fornecida (uma arte real já aprovada do Henrique) apenas como referência de CLIMA/QUALIDADE FOTOGRÁFICA — nunca copie o produto, a marca, texto ou layout dela.`,
+    ``,
+    `O produto real está na PRIMEIRA imagem fornecida: "${input.title}"${input.brand ? `, marca ${input.brand}` : ""}. Preserve o produto exatamente como aparece na foto — mesma cor, formato e proporções reais. Não redesenhe nem altere o produto. Se a foto original incluir uma pessoa ou modelo humano, NÃO a inclua na composição final — mostre apenas o produto.`,
+    ``,
+    `${ambientationLine}`,
+    ``,
+    `Produto grande e centralizado, ocupando a maior parte da composição, com espaço real de respiro ao redor (não precisa encostar nas bordas).`,
+    ``,
+    `IMPORTANTE — isto é uma peça puramente fotográfica: NÃO desenhe absolutamente nenhum texto, número, palavra, letra, título, preço, ícone, selo, badge, logotipo, faixa ou qualquer elemento gráfico de interface nesta imagem. Nenhum elemento comercial de qualquer tipo. Apenas o produto real e o fundo/ambientação — todo o texto e os elementos comerciais são adicionados depois, de forma determinística, por código, não por você. Qualquer letra ou número que aparecer nesta imagem (além do que já existe fisicamente escrito no próprio produto, como uma marca gravada) é um defeito grave.`,
+    ``,
+    `Não invente nem adicione nenhum objeto, produto, embalagem, acessório, brinde ou item extra que não esteja fisicamente presente na foto original do produto.`,
+  ].join("\n");
+}
+
+export async function generateBackgroundOnly(input: {
+  externalId: string;
+  title: string;
+  brand: string | null;
+  productPhoto: Buffer;
+  productPhotoContentType: string;
+  backgroundStyle?: string;
+  colorPalette?: string;
+  ambientation?: string;
+}): Promise<GenerateCreativeResult & { promptText: string }> {
+  // Same real safety gates as generateOneShotAd — a new mechanism is
+  // never an excuse to skip the migration allowlist or the financial
+  // gate.
+  assertMigrationAuthorized(input.externalId);
+  const styleRef = loadHenriqueStyleReference();
+  const promptText = buildBackgroundOnlyPrompt(input);
+  const generation = await generateCreativeBase({
+    productPhoto: input.productPhoto,
+    productPhotoContentType: input.productPhotoContentType,
+    prompt: promptText,
+    styleReferencePhoto: styleRef.buffer,
+    styleReferencePhotoContentType: styleRef.contentType,
+  });
+  return { ...generation, promptText };
 }
 
 /** Tag stored in `VitrineCreative.promptInputs.mechanism` for every row
