@@ -435,6 +435,34 @@ describe("runVitrineCreativeFactoryJob — deterministic CTA bar compositing, 20
     expect(adOverlayCreateCall![0].data.finalImageUrl).toBe("https://precocaindo.com.br/api/vitrine/creative-asset/fake-final.png");
   });
 
+  it("runs quality control on the FINAL composited image, never the raw pre-crop AI output", async () => {
+    // Owner's directive, 2026-11-24 ("a aprovação definitiva deve
+    // considerar a imagem FINAL, exatamente aquela que será
+    // disponibilizada no XML"): real bug this closes — QC used to run
+    // against the raw 1024x1536 generation, before the real crop and the
+    // deterministic bar composite even ran, so a creative could be
+    // approved and then come out defective once actually cropped. Proven
+    // here by asserting the exact bytes and dimensions runQualityControl
+    // receives: they must be compositeDeterministicCtaBar's output at the
+    // real final 1080x1350 size, never the raw one-shot buffer
+    // ("fake-one-shot-png") at the raw 1024x1536 generation size.
+    const qualityControl = await import("@/lib/services/ai-creative-factory/quality-control");
+    const { runVitrineCreativeFactoryJob } = await import("@/jobs/vitrine-creative-factory");
+    await runVitrineCreativeFactoryJob();
+
+    expect(qualityControl.runQualityControl).toHaveBeenCalledWith(
+      expect.objectContaining({
+        generatedImageBuffer: Buffer.from("fake-png-bytes-with-bar"),
+        expectedWidth: 1080,
+        expectedHeight: 1350,
+      }),
+    );
+    const qcCallArg = vi.mocked(qualityControl.runQualityControl).mock.calls[0][0];
+    expect(qcCallArg.generatedImageBuffer).not.toEqual(Buffer.from("fake-one-shot-png"));
+    expect(qcCallArg.expectedWidth).not.toBe(1024);
+    expect(qcCallArg.expectedHeight).not.toBe(1536);
+  });
+
   it("never publishes and never touches the prior approved version when the CTA bar asset is missing", async () => {
     const { CtaBarAssetMissingError } = await import("@/lib/services/ai-creative-factory/compositor");
     compositeDeterministicCtaBarMock.mockRejectedValueOnce(new CtaBarAssetMissingError("faixa ausente (mock)"));

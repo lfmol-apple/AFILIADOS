@@ -241,6 +241,77 @@ describe("classifyVisualFidelity — the 3 real outcomes (owner's correction, 20
     });
   });
 
+  describe("elemento cortado na borda (imagem FINAL pós-corte) → REJECTED only with cited, specific evidence", () => {
+    // Owner's directive, 2026-11-24 ("a aprovação definitiva deve
+    // considerar a imagem FINAL... ausência de textos cortados"): real
+    // bug this closes — a creative was approved against the raw
+    // 1024x1536 AI output, then jobs/vitrine-creative-factory.ts's own
+    // real object-fit: cover crop clipped the title/banner AFTER
+    // approval (confirmed live the same day, by replaying the real crop
+    // on a real test generation). The caller now passes the FINAL
+    // composited image instead (see jobs/vitrine-creative-factory.ts),
+    // and this is the new decision rule the vision check's answer feeds.
+    it("rejects when a specific cut element is cited", () => {
+      const result = classifyVisualFidelity({
+        mesmo_produto_fisico: true,
+        marca_modelo_preservados: true,
+        cor_preservada: true,
+        acessorios_preservados: true,
+        apenas_ambientacao_mudou: true,
+        conteudo_comercial_inventado: false,
+        elemento_cortado_na_borda: true,
+        evidencia_elemento_cortado: "A última linha do botão 'Compre agora no Mercado Livre' está cortada pela borda inferior da imagem.",
+        duvida_requer_revisao_humana: false,
+      });
+      expect(result).toEqual({ approved: false, classification: "recorte_defeituoso" });
+    });
+
+    it("never rejects on the flag alone — missing evidence becomes doubt, not a confident rejection", () => {
+      const result = classifyVisualFidelity({
+        mesmo_produto_fisico: true,
+        marca_modelo_preservados: true,
+        cor_preservada: true,
+        acessorios_preservados: true,
+        apenas_ambientacao_mudou: true,
+        conteudo_comercial_inventado: false,
+        elemento_cortado_na_borda: true,
+        evidencia_elemento_cortado: null,
+        duvida_requer_revisao_humana: false,
+      });
+      expect(result).toEqual({ approved: null, classification: "duvida" });
+    });
+
+    it("is checked independently of conteudo_comercial_inventado — a cut element still rejects even when nothing was invented", () => {
+      const result = classifyVisualFidelity({
+        mesmo_produto_fisico: true,
+        marca_modelo_preservados: true,
+        cor_preservada: true,
+        acessorios_preservados: true,
+        apenas_ambientacao_mudou: true,
+        conteudo_comercial_inventado: false,
+        elemento_cortado_na_borda: true,
+        evidencia_elemento_cortado: "O título 'LAVADORA DE ALTA PRESSÃO' está com a primeira linha cortada pela borda superior.",
+        duvida_requer_revisao_humana: false,
+      });
+      expect(result.approved).toBe(false);
+      expect(result.classification).toBe("recorte_defeituoso");
+    });
+
+    it("does not reject when nothing is cut, even with every other field at its approving value", () => {
+      const result = classifyVisualFidelity({
+        mesmo_produto_fisico: true,
+        marca_modelo_preservados: true,
+        cor_preservada: true,
+        acessorios_preservados: true,
+        apenas_ambientacao_mudou: true,
+        conteudo_comercial_inventado: false,
+        elemento_cortado_na_borda: false,
+        duvida_requer_revisao_humana: false,
+      });
+      expect(result).toEqual({ approved: true, classification: "ambientacao_legitima" });
+    });
+  });
+
   describe("genuine ambiguity → PENDING for human review, never silently approved", () => {
     it("stays pending when the model itself flags doubt, even if the factual fields look fine", () => {
       const result = classifyVisualFidelity({
@@ -313,5 +384,54 @@ describe("runQualityControl — end-to-end with a mocked vision response (no rea
     expect(result.status).toBe("approved");
     expect(result.classification).toBe("ambientacao_legitima");
     expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("asks the vision check about cut elements only when expectedOverlay is passed (ad_overlay), never for catalog_clean", async () => {
+    // Owner's directive, 2026-11-24: proves the new framing questions
+    // (título/benefícios/preço/faixa integralmente visíveis) actually
+    // reach the real outgoing request body when this is an ad_overlay
+    // check (expectedOverlay present) — and are absent for catalog_clean
+    // (no expectedOverlay), which has no title/badges/bar to check.
+    fetchMock.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        choices: [{ message: { content: JSON.stringify({ mesmo_produto_fisico: true, marca_modelo_preservados: true, cor_preservada: true, acessorios_preservados: true, apenas_ambientacao_mudou: true, conteudo_comercial_inventado: false, elemento_cortado_na_borda: false, duvida_requer_revisao_humana: false, nota: "ok" }) } }],
+        usage: { prompt_tokens: 1200, completion_tokens: 80 },
+      }),
+    });
+
+    const { runQualityControl } = await import("@/lib/services/ai-creative-factory/quality-control");
+    await runQualityControl({
+      generatedImageBuffer: Buffer.alloc(2048, 1),
+      expectedWidth: 1080,
+      expectedHeight: 1350,
+      originalPhotoBase64: Buffer.from("fake").toString("base64"),
+      title: "Pistola Tssaper TP550",
+      expectedOverlay: { currentPriceBrl: 228.9, referencePriceBrl: 376.7, benefits: ["550W DE POTÊNCIA"] },
+    });
+
+    const sentBody = JSON.parse(fetchMock.mock.calls[0][1].body as string);
+    const sentText = sentBody.messages[0].content[0].text as string;
+    expect(sentText).toContain("elemento_cortado_na_borda");
+    expect(sentText).toMatch(/faixa do Mercado Livre.*inteiramente vis[íi]vel/i);
+    expect(sentText).toMatch(/t[íi]tulo do produto est[áa] inteiramente vis[íi]vel/i);
+
+    fetchMock.mockClear();
+    await runQualityControl({
+      generatedImageBuffer: Buffer.alloc(2048, 1),
+      expectedWidth: 1080,
+      expectedHeight: 1350,
+      originalPhotoBase64: Buffer.from("fake").toString("base64"),
+      title: "Pistola Tssaper TP550",
+      // no expectedOverlay — a catalog_clean check, nothing to frame-check
+    });
+    const cleanSentBody = JSON.parse(fetchMock.mock.calls[0][1].body as string);
+    const cleanSentText = cleanSentBody.messages[0].content[0].text as string;
+    // The generic "is anything cut" question still applies (catalog_clean
+    // goes through the same real crop and could clip the product itself),
+    // but the detailed title/benefit/price-badge/bar checklist only makes
+    // sense when those elements were actually requested.
+    expect(cleanSentText).not.toMatch(/faixa do Mercado Livre.*inteiramente vis[íi]vel/i);
+    expect(cleanSentText).not.toMatch(/t[íi]tulo do produto est[áa] inteiramente vis[íi]vel/i);
   });
 });

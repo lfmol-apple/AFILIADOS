@@ -143,7 +143,17 @@ IMPORTANTE — isto é esperado e NUNCA deve contar como defeito:
 
 O que REALMENTE conta como defeito (alteração factual do produto):
 - A marca, o modelo, a cor ou os acessórios/componentes reais e físicos do produto são diferentes entre as duas imagens.
-- A segunda imagem contém qualquer texto, preço, especificação ou benefício comercial desenhado pela IA que não existe fisicamente no produto e não foi explicitamente autorizado abaixo.${overlaySection}
+- A segunda imagem contém qualquer texto, preço, especificação ou benefício comercial desenhado pela IA que não existe fisicamente no produto e não foi explicitamente autorizado abaixo.${overlaySection}${
+        overlay
+          ? `
+
+IMPORTANTE — esta segunda imagem é a peça FINAL, exatamente como será publicada (já no formato/corte definitivo, já com qualquer elemento adicionado por composição determinística). Verifique também se algo ficou cortado ou incompleto na borda da imagem:
+- O título do produto está inteiramente visível, sem nenhuma letra cortada pela borda superior ou lateral?
+- Os ícones de benefício e seus rótulos estão inteiramente visíveis, sem nenhum cortado pela borda?
+- O selo de preço está inteiramente visível e o valor está legível, sem nenhum dígito cortado?
+- A faixa do Mercado Livre no rodapé está inteiramente visível, incluindo o texto completo do botão, sem nenhuma letra cortada pela borda inferior?`
+          : ""
+      }
 
 Responda em JSON estrito:
 {
@@ -154,11 +164,15 @@ Responda em JSON estrito:
   "apenas_ambientacao_mudou": true|false,
   "conteudo_comercial_inventado": true|false,
   "evidencia_conteudo_inventado": "string ou null",
+  "elemento_cortado_na_borda": true|false,
+  "evidencia_elemento_cortado": "string ou null",
   "duvida_requer_revisao_humana": true|false,
   "nota": "texto curto explicando, citando especificamente onde cada marca/texto aparece em cada imagem"
 }
 
 Regra crítica sobre "conteudo_comercial_inventado": só marque true quando tiver CERTEZA, nunca por especulação. Se sua nota usar linguagem como "pode indicar", "pode conter", "possivelmente", "talvez" a respeito de um item inventado — isso é DÚVIDA, não uma reprovação confiante: marque "conteudo_comercial_inventado": false e "duvida_requer_revisao_humana": true em vez disso. Quando marcar "conteudo_comercial_inventado": true, "evidencia_conteudo_inventado" é OBRIGATÓRIO e deve citar o item específico e inventado (ex: um preço, texto ou objeto que aparece na segunda imagem e comprovadamente NÃO existe na primeira) — nunca deixe null ou vago nesse caso. A nitidez de um texto/número REAL que já existe no produto (como um número de modelo real ficar mais legível na imagem gerada) nunca conta como conteúdo inventado.
+
+Regra crítica sobre "elemento_cortado_na_borda": mesmo padrão de confiança do item acima — só marque true quando tiver certeza de que um elemento comercial (título, ícone de benefício, selo de preço ou faixa do Mercado Livre) está visivelmente incompleto, cortado por uma borda da imagem. Quando marcar true, "evidencia_elemento_cortado" é OBRIGATÓRIO e deve citar exatamente qual elemento e qual borda (ex: "a última linha do botão 'Compre agora no Mercado Livre' está cortada pela borda inferior"). Isto nunca se aplica à primeira imagem (a foto original do produto) — só à composição final.
 
 Seja preciso e cite evidência textual visível (ex: "EWS1850P aparece no selo superior em ambas as imagens") — nunca reprove só por mudança de cenário, iluminação ou remoção de pessoas.`,
             },
@@ -192,6 +206,8 @@ Seja preciso e cite evidência textual visível (ex: "EWS1850P aparece no selo s
     apenas_ambientacao_mudou?: boolean;
     conteudo_comercial_inventado?: boolean;
     evidencia_conteudo_inventado?: string | null;
+    elemento_cortado_na_borda?: boolean;
+    evidencia_elemento_cortado?: string | null;
     duvida_requer_revisao_humana?: boolean;
     nota?: string;
   };
@@ -212,7 +228,7 @@ Seja preciso e cite evidência textual visível (ex: "EWS1850P aparece no selo s
   return { approved, note: parsed.nota ?? "(sem nota)", costUsd, classification };
 }
 
-export type VisualFidelityClassification = "ambientacao_legitima" | "alteracao_factual" | "conteudo_inventado" | "duvida";
+export type VisualFidelityClassification = "ambientacao_legitima" | "alteracao_factual" | "conteudo_inventado" | "recorte_defeituoso" | "duvida";
 
 /** Pure decision function, separated from the network call so it can be
  * unit-tested with realistic fixtures (owner's directive, 2026-11-20:
@@ -228,6 +244,8 @@ export function classifyVisualFidelity(parsed: {
   apenas_ambientacao_mudou?: boolean;
   conteudo_comercial_inventado?: boolean;
   evidencia_conteudo_inventado?: string | null;
+  elemento_cortado_na_borda?: boolean;
+  evidencia_elemento_cortado?: string | null;
   duvida_requer_revisao_humana?: boolean;
 }): { approved: boolean | null; classification: VisualFidelityClassification } {
   // Real root cause, 2026-11-21 (owner's directive: "uma reprovação por
@@ -244,6 +262,22 @@ export function classifyVisualFidelity(parsed: {
       return { approved: null, classification: "duvida" };
     }
     return { approved: false, classification: "conteudo_inventado" };
+  }
+  // Owner's directive, 2026-11-24 ("a aprovação definitiva deve
+  // considerar a imagem FINAL... ausência de textos cortados"): the real
+  // bug this closes — a creative was approved against the RAW
+  // 1024x1536 generation, then jobs/vitrine-creative-factory.ts's own
+  // real object-fit: cover crop clipped the title/banner afterward,
+  // AFTER approval. Checking the FINAL image (the caller's job — see
+  // runQualityControl's new input) only works if this classifier also
+  // knows how to read that defect once the vision check reports it.
+  // Same evidence-required discipline as conteudo_comercial_inventado.
+  if (parsed.elemento_cortado_na_borda === true) {
+    const evidence = parsed.evidencia_elemento_cortado?.trim();
+    if (!evidence) {
+      return { approved: null, classification: "duvida" };
+    }
+    return { approved: false, classification: "recorte_defeituoso" };
   }
   if (parsed.duvida_requer_revisao_humana === true) {
     return { approved: null, classification: "duvida" };

@@ -470,10 +470,62 @@ export async function runVitrineCreativeFactoryJob() {
 
       await recordCreativeSpend({ amountUsd: oneShot.costUsd, note: `Geração one-shot (ad_overlay, padrão aprovado) — ${product.title.slice(0, 60)}` });
 
+      const nextAdVersion = (latestAdOverlay?.version ?? 0) + 1;
+      const aiBaseFileName = saveAiBase(selection.merchantListingId, nextAdVersion, oneShot.imageBuffer);
+      const promptInputs = {
+        mechanism: ONE_SHOT_MECHANISM_TAG,
+        bakedCurrentPrice: oneShot.bakedCurrentPrice,
+        bakedReferencePrice: oneShot.bakedReferencePrice,
+        categoryHint,
+        isSeasonalEvent: eventName,
+      } satisfies AdOverlayPromptInputs;
+
+      // Owner's directive, 2026-11-24 ("a aprovação definitiva deve
+      // considerar a imagem FINAL, exatamente aquela que será
+      // disponibilizada no XML"): real bug this closes — quality control
+      // used to run against the RAW 1024x1536 generation, BEFORE this
+      // exact crop+composite step, so a creative could be approved and
+      // then come out defective once cropped (confirmed live, 2026-11-24:
+      // a test generation looked fine raw and had its title clipped only
+      // after the real crop ran). The crop and the deterministic bar are
+      // both free (no paid call, no new cost) — moved them BEFORE the
+      // (unchanged, single) paid vision check so that check inspects the
+      // literal bytes that would be published, not an earlier draft of
+      // them. Owner's directive, 2026-11-24 ("quer um corte
+      // determinístico, não apenas um texto de prompt"): the Mercado
+      // Livre CTA bar is no longer part of what the AI draws — it's
+      // composited on top afterward from the real, approved asset,
+      // pixel-identical every time, replacing whatever (if anything) the
+      // AI drew in that same bottom region.
+      const croppedBase = await toBuffer(renderCatalogClean({ aiBaseImageDataUri: `data:image/png;base64,${oneShot.imageBuffer.toString("base64")}` }));
+      let finalPng: Buffer;
+      try {
+        finalPng = await compositeDeterministicCtaBar({
+          baseImageDataUri: `data:image/png;base64,${croppedBase.toString("base64")}`,
+          width: CREATIVE_FINAL_DIMENSIONS.width,
+          height: CREATIVE_FINAL_DIMENSIONS.height,
+        });
+      } catch (err) {
+        if (!(err instanceof CtaBarAssetMissingError)) throw err;
+        logger.error("vitrine_creative_factory.cta_bar_asset_missing", { merchantListingId: selection.merchantListingId, message: String(err) });
+        counters.adBlockedCtaBarAssetMissing += 1;
+        ctx.counters.errors += 1;
+        // Same posture as every other failed-to-finish-safely attempt in
+        // this job: never publish a broken/incomplete result, and if the
+        // old image's price was already confirmed stale, it still comes
+        // down — a missing bar asset doesn't make a known-wrong price
+        // look acceptable again.
+        if (adPriceStale && latestAdOverlay) {
+          await prisma.vitrineCreative.updateMany({ where: { id: latestAdOverlay.id }, data: { publishedAt: null } });
+          counters.adUnpublishedStale += 1;
+        }
+        continue;
+      }
+
       const qc = await runQualityControl({
-        generatedImageBuffer: oneShot.imageBuffer,
-        expectedWidth: 1024,
-        expectedHeight: 1536,
+        generatedImageBuffer: finalPng,
+        expectedWidth: CREATIVE_FINAL_DIMENSIONS.width,
+        expectedHeight: CREATIVE_FINAL_DIMENSIONS.height,
         originalPhotoBase64: photoBuffer.toString("base64"),
         title: product.title,
         expectedOverlay: {
@@ -485,16 +537,6 @@ export async function runVitrineCreativeFactoryJob() {
       if (qc.visionCheckCostUsd) {
         await recordCreativeSpend({ amountUsd: qc.visionCheckCostUsd, note: "Checagem visual de qualidade" });
       }
-
-      const nextAdVersion = (latestAdOverlay?.version ?? 0) + 1;
-      const aiBaseFileName = saveAiBase(selection.merchantListingId, nextAdVersion, oneShot.imageBuffer);
-      const promptInputs = {
-        mechanism: ONE_SHOT_MECHANISM_TAG,
-        bakedCurrentPrice: oneShot.bakedCurrentPrice,
-        bakedReferencePrice: oneShot.bakedReferencePrice,
-        categoryHint,
-        isSeasonalEvent: eventName,
-      } satisfies AdOverlayPromptInputs;
 
       if (qc.status !== "approved") {
         await prisma.vitrineCreative.create({
@@ -530,39 +572,6 @@ export async function runVitrineCreativeFactoryJob() {
         continue;
       }
 
-      // The one-shot image has the product/price/background drawn by the
-      // AI, cropped to the final 4:5 canvas (renderCatalogClean, reused
-      // here purely for its crop math, same as pilot-henrique-style.ts
-      // did). Owner's directive, 2026-11-24 ("quer um corte
-      // determinístico, não apenas um texto de prompt"): the Mercado
-      // Livre CTA bar is no longer part of what the AI draws — it's
-      // composited on top afterward from the real, approved asset,
-      // pixel-identical every time, replacing whatever (if anything) the
-      // AI drew in that same bottom region.
-      const croppedBase = await toBuffer(renderCatalogClean({ aiBaseImageDataUri: `data:image/png;base64,${oneShot.imageBuffer.toString("base64")}` }));
-      let finalPng: Buffer;
-      try {
-        finalPng = await compositeDeterministicCtaBar({
-          baseImageDataUri: `data:image/png;base64,${croppedBase.toString("base64")}`,
-          width: CREATIVE_FINAL_DIMENSIONS.width,
-          height: CREATIVE_FINAL_DIMENSIONS.height,
-        });
-      } catch (err) {
-        if (!(err instanceof CtaBarAssetMissingError)) throw err;
-        logger.error("vitrine_creative_factory.cta_bar_asset_missing", { merchantListingId: selection.merchantListingId, message: String(err) });
-        counters.adBlockedCtaBarAssetMissing += 1;
-        ctx.counters.errors += 1;
-        // Same posture as every other failed-to-finish-safely attempt in
-        // this job: never publish a broken/incomplete result, and if the
-        // old image's price was already confirmed stale, it still comes
-        // down — a missing bar asset doesn't make a known-wrong price
-        // look acceptable again.
-        if (adPriceStale && latestAdOverlay) {
-          await prisma.vitrineCreative.updateMany({ where: { id: latestAdOverlay.id }, data: { publishedAt: null } });
-          counters.adUnpublishedStale += 1;
-        }
-        continue;
-      }
       const finalUrl = saveFinalRender(selection.merchantListingId, "ad_overlay", nextAdVersion, finalPng);
 
       await prisma.$transaction([
