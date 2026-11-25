@@ -1,4 +1,5 @@
 import { describe, expect, it, vi, afterEach } from "vitest";
+import { createHash } from "node:crypto";
 import { prisma } from "@/lib/db";
 import {
   hashPassword,
@@ -13,9 +14,34 @@ import {
 
 const TEST_IP = "203.0.113.42"; // TEST-NET-3, RFC 5737 — never a real address
 
+function hash(token: string): string {
+  return createHash("sha256").update(token).digest("hex");
+}
+
+/**
+ * Real root cause found 2026-11-25 (investigating 7 CI failures shared
+ * by main, #19 and #20): AdminSession is also touched by
+ * tests/owner-traffic.test.ts and tests/pageview-owner-notify.test.ts —
+ * vitest runs test files in parallel workers against the same database,
+ * so the old `adminSession.deleteMany({ where: {} })` here could delete
+ * a session another file's test had just created and not yet asserted
+ * on. adminLoginAttempt has no other reader/writer across the suite, so
+ * its blanket cleanup stays exactly as it was (real risk only exists
+ * when a table is shared across files). */
+let createdSessionTokens: string[] = [];
+
+async function trackedAdminSession() {
+  const result = await createAdminSession();
+  createdSessionTokens.push(result.token);
+  return result;
+}
+
 afterEach(async () => {
   await prisma.adminLoginAttempt.deleteMany({ where: {} });
-  await prisma.adminSession.deleteMany({ where: {} });
+  if (createdSessionTokens.length > 0) {
+    await prisma.adminSession.deleteMany({ where: { tokenHash: { in: createdSessionTokens.map(hash) } } });
+  }
+  createdSessionTokens = [];
 });
 
 describe("password hashing", () => {
@@ -52,7 +78,7 @@ describe("password hashing", () => {
 
 describe("admin sessions", () => {
   it("a freshly created session verifies successfully", async () => {
-    const { token } = await createAdminSession();
+    const { token } = await trackedAdminSession();
     expect(await verifyAdminSession(token)).toBe(true);
   });
 
@@ -63,26 +89,24 @@ describe("admin sessions", () => {
   });
 
   it("logout destroys the session — it can't be reused after", async () => {
-    const { token } = await createAdminSession();
+    const { token } = await trackedAdminSession();
     expect(await verifyAdminSession(token)).toBe(true);
     await destroyAdminSession(token);
     expect(await verifyAdminSession(token)).toBe(false);
   });
 
   it("only the token hash is persisted, never the raw token", async () => {
-    const { token } = await createAdminSession();
+    const { token } = await trackedAdminSession();
     const rows = await prisma.adminSession.findMany();
     expect(rows.some((r) => r.tokenHash === token)).toBe(false);
   });
 
   it("an expired session no longer verifies", async () => {
-    const { token } = await createAdminSession();
+    const { token } = await trackedAdminSession();
     // Force it into the past directly, since createAdminSession() always
     // sets a real future expiry.
-    const { createHash } = await import("node:crypto");
-    const tokenHash = createHash("sha256").update(token).digest("hex");
     await prisma.adminSession.update({
-      where: { tokenHash },
+      where: { tokenHash: hash(token) },
       data: { expiresAt: new Date(Date.now() - 1000) },
     });
     expect(await verifyAdminSession(token)).toBe(false);
