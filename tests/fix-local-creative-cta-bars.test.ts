@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { runCtaBarBatchFix } from "../scripts/fix-local-creative-cta-bars";
-import { decodePng, pixelAt } from "./helpers/png-decode";
+import { decodePng, pixelAt } from "@/lib/services/ai-creative-factory/png-decode";
 
 /**
  * Owner's directive, 2026-11-24 ("adicione testes reais... pro corretor
