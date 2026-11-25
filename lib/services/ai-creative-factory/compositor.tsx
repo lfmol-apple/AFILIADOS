@@ -332,6 +332,102 @@ function hybridPriceTag(price: number): string {
   return price.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+export interface HybridLayoutRect {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+}
+
+export interface HybridLayout {
+  canvasWidth: number;
+  canvasHeight: number;
+  titleFontSize: number;
+  titleLine1: string;
+  titleLine2: string;
+  /** Bounding box of the title block (both lines, when present). */
+  title: HybridLayoutRect;
+  /** Null when the product has no real benefit lines to show. */
+  benefits: HybridLayoutRect | null;
+  benefitLines: number[];
+  price: HybridLayoutRect;
+  /** The reserved band the deterministic CTA bar will occupy — this
+   * function never draws into it, only computes where it starts. */
+  reservedZone: HybridLayoutRect;
+}
+
+/** Single source of truth for every element's position in the hybrid
+ * overlay — owner's directive, 2026-11-25 ("quero uma verificação
+ * objetiva das coordenadas e dos limites dos elementos desenhados"):
+ * `renderHybridTextOverlay` and `checkHybridLayoutGeometry` (in
+ * hybrid-layout-check.ts) both call THIS function, so the check can
+ * never silently drift from what was actually drawn — it verifies the
+ * exact same numbers the renderer used, not a reimplementation of them.
+ * Estimates (text width/line count) reuse the same AVG_CHAR_WIDTH_RATIO
+ * heuristic `fitFontSize` already relies on — intentionally the same
+ * level of precision as the rest of this module, never pretending to be
+ * exact typesetting. */
+export function computeHybridLayout(input: {
+  title: string;
+  currentPrice: number;
+  referencePrice: number | null;
+  hasConfirmedDiscount: boolean;
+  benefits: string[];
+  canvasWidth: number;
+  canvasHeight: number;
+}): HybridLayout {
+  const hasRealDrop = input.hasConfirmedDiscount && input.referencePrice !== null && input.referencePrice > input.currentPrice;
+  const [titleLine1, titleLine2] = splitTitleIntoTwoLines(input.title);
+  const contentWidth = input.canvasWidth - HYBRID_SIDE_PADDING * 2;
+  const titleFontSize = Math.min(
+    fitFontSize(titleLine1, contentWidth, HYBRID_TITLE_MAX_FONT, HYBRID_TITLE_MIN_FONT),
+    fitFontSize(titleLine2, contentWidth, HYBRID_TITLE_MAX_FONT, HYBRID_TITLE_MIN_FONT),
+  );
+  const titleLineHeight = titleFontSize * 1.08;
+  const titleHeight = titleLineHeight * (titleLine2 ? 2 : 1);
+
+  const benefits = input.benefits.slice(0, 3);
+  const benefitsTop = HYBRID_TOP_PADDING + titleFontSize * 2.4 + 32;
+  const benefitMaxTextWidth = contentWidth - HYBRID_ICON_SIZE - 14;
+  const benefitLines = benefits.map((benefit) => {
+    const estimatedWidth = benefit.length * 24 * AVG_CHAR_WIDTH_RATIO;
+    return Math.max(1, Math.ceil(estimatedWidth / benefitMaxTextWidth));
+  });
+  const benefitRowHeights = benefitLines.map((lines) => Math.max(HYBRID_ICON_SIZE, lines * 24 * 1.2));
+  const BENEFIT_ROW_GAP = 16;
+  const benefitsHeight =
+    benefitRowHeights.reduce((sum, h) => sum + h, 0) + Math.max(0, benefitRowHeights.length - 1) * BENEFIT_ROW_GAP;
+
+  const { barY } = computeCtaBarPlacement(input.canvasWidth, input.canvasHeight);
+  // The price badge's position is computed backward from the reserved
+  // band's real top edge, never forward from the title — this is the
+  // one number that structurally cannot drift into the reserved zone.
+  const priceBadgeTop = barY - HYBRID_PRICE_TO_RESERVED_GAP - HYBRID_PRICE_BADGE_HEIGHT;
+  const priceLines = [`Por apenas`, `R$ ${hybridPriceTag(input.currentPrice).replace("R$", "").trim()}`];
+  if (hasRealDrop) priceLines.push(`de ${hybridPriceTag(input.referencePrice!)}`);
+  const priceEstimatedWidth =
+    Math.max(
+      "Por apenas".length * 20,
+      (`R$ ${hybridPriceTag(input.currentPrice).replace("R$", "").trim()}`.length) * 50,
+      hasRealDrop ? `de ${hybridPriceTag(input.referencePrice!)}`.length * 18 : 0,
+    ) *
+      AVG_CHAR_WIDTH_RATIO +
+    28 * 2;
+
+  return {
+    canvasWidth: input.canvasWidth,
+    canvasHeight: input.canvasHeight,
+    titleFontSize,
+    titleLine1,
+    titleLine2,
+    title: { left: HYBRID_SIDE_PADDING, top: HYBRID_TOP_PADDING, width: contentWidth, height: titleHeight },
+    benefits: benefits.length > 0 ? { left: HYBRID_SIDE_PADDING, top: benefitsTop, width: contentWidth, height: benefitsHeight } : null,
+    benefitLines,
+    price: { left: HYBRID_SIDE_PADDING, top: priceBadgeTop, width: priceEstimatedWidth, height: HYBRID_PRICE_BADGE_HEIGHT },
+    reservedZone: { left: 0, top: barY, width: input.canvasWidth, height: input.canvasHeight - barY },
+  };
+}
+
 /** The actual "solução definitiva" piloted on Secador Philco (owner's
  * directive, 2026-11-25): title, benefit icons, and the price badge are
  * drawn here, deterministically, with every position computed from real
@@ -341,19 +437,11 @@ function hybridPriceTag(price: number): string {
  * region, and its own content is mathematically kept clear of it). */
 export function renderHybridTextOverlay(input: HybridTextOverlayInput) {
   const hasRealDrop = input.hasConfirmedDiscount && input.referencePrice !== null && input.referencePrice > input.currentPrice;
-  const [titleLine1, titleLine2] = splitTitleIntoTwoLines(input.title);
+  const layout = computeHybridLayout({ ...input, canvasWidth: FINAL_WIDTH, canvasHeight: FINAL_HEIGHT });
+  const { titleLine1, titleLine2, titleFontSize } = layout;
   const contentWidth = FINAL_WIDTH - HYBRID_SIDE_PADDING * 2;
-  const titleFontSize = Math.min(
-    fitFontSize(titleLine1, contentWidth, HYBRID_TITLE_MAX_FONT, HYBRID_TITLE_MIN_FONT),
-    fitFontSize(titleLine2, contentWidth, HYBRID_TITLE_MAX_FONT, HYBRID_TITLE_MIN_FONT),
-  );
   const benefits = input.benefits.slice(0, 3);
-
-  const { barY } = computeCtaBarPlacement(FINAL_WIDTH, FINAL_HEIGHT);
-  // The price badge's position is computed backward from the reserved
-  // band's real top edge, never forward from the title — this is the
-  // one number that structurally cannot drift into the reserved zone.
-  const priceBadgeTop = barY - HYBRID_PRICE_TO_RESERVED_GAP - HYBRID_PRICE_BADGE_HEIGHT;
+  const priceBadgeTop = layout.price.top;
 
   return new ImageResponse(
     (
