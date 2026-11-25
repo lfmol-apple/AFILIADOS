@@ -19,6 +19,17 @@ const bodySchema = z.object({
     .max(60)
     .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "Use apenas letras minúsculas, números e hífens (ex: casa-inteligente)."),
   name: z.string().trim().min(2).max(120),
+  // Owner's directive, 2026-11-25 ("esse campo é estratégico para a
+  // implantação da segunda vitrine"): same charset convention as slug
+  // (a real sub_id/manual-tag value at the marketplace, never free
+  // text) — required, never generated from slug/name, since it's a
+  // deliberate commercial decision distinct from the vitrine's own URL.
+  attributionTag: z
+    .string()
+    .trim()
+    .min(2)
+    .max(60)
+    .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "Use apenas letras minúsculas, números e hífens (ex: vitrine-casa)."),
   purpose: z.string().trim().max(500).optional(),
   maxProducts: z.number().int().min(1).max(100).optional(),
 });
@@ -37,7 +48,10 @@ export async function POST(request: Request) {
     const vitrine = await createVitrine(parsed.data);
     return NextResponse.json({ vitrine });
   } catch (err) {
-    // Real, expected case: slug already taken (Vitrine.slug is @unique).
+    // Real, expected cases: slug already taken (Vitrine.slug is
+    // @unique), or the attributionTag already belongs to another
+    // vitrine (createVitrine throws DuplicateAttributionTagError with
+    // a message naming which one).
     return NextResponse.json({ error: `Não foi possível criar a vitrine: ${err instanceof Error ? err.message : String(err)}` }, { status: 409 });
   }
 }

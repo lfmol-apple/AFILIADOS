@@ -701,6 +701,27 @@ model Vitrine {
   /// (permanently closed, same release rule, never reactivated).
   status String @default("DRAFT")
 
+  /// This vitrine's OWN commercial attribution tag — the real identifier
+  /// a second (or Nth) vitrine needs before its affiliate links can be
+  /// told apart from the original's at the marketplace (owner's
+  /// directive, 2026-11-25: "esse campo é estratégico para a implantação
+  /// da segunda vitrine e para a separação comercial entre vitrines").
+  /// Same convention as AffiliateLinkRegistry.attributionTag/
+  /// VitrineLink.attributionTag (docs/AFFILIATE_LINK_REGISTRY.md) — a
+  /// plain label, never a secret. @unique because two vitrines sharing a
+  /// tag would make their clicks commercially indistinguishable, which
+  /// defeats the entire point of the field. The original "Vitrine
+  /// Geral" row's value is "vitrinedinamica" — the exact tag
+  /// VitrineLink's own column already defaults to, preserved unchanged
+  /// (see prisma/migrations/<this migration>/migration.sql's backfill).
+  /// NOT yet read by lib/services/affiliate-link-registry.ts, which
+  /// still hardcodes "vitrinedinamica" for every VitrineLink row
+  /// regardless of which vitrine holds the listing ACTIVE — wiring that
+  /// read is the next concrete step before a second vitrine's clicks are
+  /// actually distinguishable in practice, deliberately left out of this
+  /// fix (see this migration's own commit message).
+  attributionTag String @unique
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   pausedAt  DateTime?

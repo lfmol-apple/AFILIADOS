@@ -25,6 +25,22 @@ import type { VitrineCandidate } from "@/lib/services/vitrine-selection";
 
 const TEST_PREFIX = "vmgr-test-";
 
+/** Owner's directive, 2026-11-25 ("Vitrine.attributionTag é estratégico
+ * para a separação comercial entre vitrines"): every test vitrine needs
+ * its own, real, unique attributionTag now that the field is required —
+ * generated here instead of repeated inline so every call site gets a
+ * guaranteed-unique value (also closes a latent Date.now()-collision
+ * risk the old inline `${Date.now()}` slugs had for two vitrines created
+ * in the same millisecond). */
+function testVitrineInput(suffix: string, name: string) {
+  const unique = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  return {
+    slug: `${TEST_PREFIX}${suffix}-${unique}`,
+    name,
+    attributionTag: `${TEST_PREFIX}attr-${suffix}-${unique}`,
+  };
+}
+
 function fakeCandidate(merchantListingId: string, canonicalProductId: string, score: number): VitrineCandidate {
   return {
     merchantListingId,
@@ -93,8 +109,8 @@ describe("vitrine-manager — real transactional cross-vitrine exclusivity (loca
 
   it("a second vitrine loses the real race for the SAME canonical product (different listing id) — Postgres decides, not application logic", async () => {
     const { canonical, listingA, listingB } = await makeSharedCanonicalProductFixture();
-    const vitrineA = await createVitrine({ slug: `${TEST_PREFIX}a-${Date.now()}`, name: "Vitrine A (teste)" });
-    const vitrineB = await createVitrine({ slug: `${TEST_PREFIX}b-${Date.now()}`, name: "Vitrine B (teste)" });
+    const vitrineA = await createVitrine(testVitrineInput("a", "Vitrine A (teste)"));
+    const vitrineB = await createVitrine(testVitrineInput("b", "Vitrine B (teste)"));
     await activateVitrine(vitrineA.id);
     await activateVitrine(vitrineB.id);
 
@@ -116,8 +132,8 @@ describe("vitrine-manager — real transactional cross-vitrine exclusivity (loca
 
   it("real root cause fixed, 2026-11-22 (reavaliação do ciclo de vida): PAUSING a vitrine NEVER releases its products — another vitrine still loses the race for the same canonical product", async () => {
     const { canonical, listingA, listingB } = await makeSharedCanonicalProductFixture();
-    const vitrineA = await createVitrine({ slug: `${TEST_PREFIX}a-${Date.now()}`, name: "Vitrine A (teste)" });
-    const vitrineB = await createVitrine({ slug: `${TEST_PREFIX}b-${Date.now()}`, name: "Vitrine B (teste)" });
+    const vitrineA = await createVitrine(testVitrineInput("a", "Vitrine A (teste)"));
+    const vitrineB = await createVitrine(testVitrineInput("b", "Vitrine B (teste)"));
     await activateVitrine(vitrineA.id);
     await activateVitrine(vitrineB.id);
 
@@ -138,7 +154,7 @@ describe("vitrine-manager — real transactional cross-vitrine exclusivity (loca
 
   it("reactivating a PAUSED vitrine needs zero re-claim — its products were never released", async () => {
     const { canonical, listingA } = await makeSharedCanonicalProductFixture();
-    const vitrineA = await createVitrine({ slug: `${TEST_PREFIX}a-${Date.now()}`, name: "Vitrine A (teste)" });
+    const vitrineA = await createVitrine(testVitrineInput("a", "Vitrine A (teste)"));
     await activateVitrine(vitrineA.id);
     await claimSelectionForVitrine(vitrineA.id, [fakeCandidate(listingA.id, canonical.id, 80)]);
 
@@ -154,8 +170,8 @@ describe("vitrine-manager — real transactional cross-vitrine exclusivity (loca
 
   it("ENDING a vitrine (not pausing) is the real, intentional release point — only then can another vitrine claim the same product", async () => {
     const { canonical, listingA, listingB } = await makeSharedCanonicalProductFixture();
-    const vitrineA = await createVitrine({ slug: `${TEST_PREFIX}a-${Date.now()}`, name: "Vitrine A (teste)" });
-    const vitrineB = await createVitrine({ slug: `${TEST_PREFIX}b-${Date.now()}`, name: "Vitrine B (teste)" });
+    const vitrineA = await createVitrine(testVitrineInput("a", "Vitrine A (teste)"));
+    const vitrineB = await createVitrine(testVitrineInput("b", "Vitrine B (teste)"));
     await activateVitrine(vitrineA.id);
     await activateVitrine(vitrineB.id);
     await claimSelectionForVitrine(vitrineA.id, [fakeCandidate(listingA.id, canonical.id, 80)]);
@@ -174,7 +190,7 @@ describe("vitrine-manager — real transactional cross-vitrine exclusivity (loca
   });
 
   it("an ENDED vitrine can never be reactivated", async () => {
-    const vitrine = await createVitrine({ slug: `${TEST_PREFIX}ended-${Date.now()}`, name: "Vitrine encerrada (teste)" });
+    const vitrine = await createVitrine(testVitrineInput("ended", "Vitrine encerrada (teste)"));
     await activateVitrine(vitrine.id);
     await endVitrine(vitrine.id);
     await expect(activateVitrine(vitrine.id)).rejects.toThrow(VitrineTransitionError);
@@ -182,10 +198,10 @@ describe("vitrine-manager — real transactional cross-vitrine exclusivity (loca
 
   it("a claim attempt for a non-ACTIVE vitrine (DRAFT or PAUSED) is rejected before any write — never silently acquires a new product while not running", async () => {
     const { canonical, listingA } = await makeSharedCanonicalProductFixture();
-    const draft = await createVitrine({ slug: `${TEST_PREFIX}draft-${Date.now()}`, name: "Vitrine rascunho (teste)" });
+    const draft = await createVitrine(testVitrineInput("draft", "Vitrine rascunho (teste)"));
     await expect(claimSelectionForVitrine(draft.id, [fakeCandidate(listingA.id, canonical.id, 80)])).rejects.toThrow(VitrineTransitionError);
 
-    const paused = await createVitrine({ slug: `${TEST_PREFIX}paused-${Date.now()}`, name: "Vitrine pausada (teste)" });
+    const paused = await createVitrine(testVitrineInput("paused", "Vitrine pausada (teste)"));
     await activateVitrine(paused.id);
     await pauseVitrine(paused.id);
     await expect(claimSelectionForVitrine(paused.id, [fakeCandidate(listingA.id, canonical.id, 80)])).rejects.toThrow(VitrineTransitionError);
@@ -193,7 +209,7 @@ describe("vitrine-manager — real transactional cross-vitrine exclusivity (loca
 
   it("concurrency-resistant transition: two concurrent attempts to end the SAME vitrine never both report success, and never double-release", async () => {
     const { canonical, listingA } = await makeSharedCanonicalProductFixture();
-    const vitrineA = await createVitrine({ slug: `${TEST_PREFIX}a-${Date.now()}`, name: "Vitrine A (teste)" });
+    const vitrineA = await createVitrine(testVitrineInput("a", "Vitrine A (teste)"));
     await activateVitrine(vitrineA.id);
     await claimSelectionForVitrine(vitrineA.id, [fakeCandidate(listingA.id, canonical.id, 80)]);
 
@@ -210,7 +226,7 @@ describe("vitrine-manager — real transactional cross-vitrine exclusivity (loca
 
   it("ending a vitrine releases its products the same way pausing does", async () => {
     const { canonical, listingA } = await makeSharedCanonicalProductFixture();
-    const vitrineA = await createVitrine({ slug: `${TEST_PREFIX}a-${Date.now()}`, name: "Vitrine A (teste)" });
+    const vitrineA = await createVitrine(testVitrineInput("a", "Vitrine A (teste)"));
     await activateVitrine(vitrineA.id);
     await claimSelectionForVitrine(vitrineA.id, [fakeCandidate(listingA.id, canonical.id, 80)]);
 
@@ -221,14 +237,14 @@ describe("vitrine-manager — real transactional cross-vitrine exclusivity (loca
   });
 
   it("an already-ACTIVE vitrine cannot be activated again", async () => {
-    const vitrine = await createVitrine({ slug: `${TEST_PREFIX}once-${Date.now()}`, name: "Vitrine única (teste)" });
+    const vitrine = await createVitrine(testVitrineInput("once", "Vitrine única (teste)"));
     await activateVitrine(vitrine.id);
     await expect(activateVitrine(vitrine.id)).rejects.toThrow(VitrineTransitionError);
   });
 
   it("the same listing CAN be re-claimed by the SAME vitrine (upsert, not a conflict with itself)", async () => {
     const { canonical, listingA } = await makeSharedCanonicalProductFixture();
-    const vitrineA = await createVitrine({ slug: `${TEST_PREFIX}a-${Date.now()}`, name: "Vitrine A (teste)" });
+    const vitrineA = await createVitrine(testVitrineInput("a", "Vitrine A (teste)"));
     await activateVitrine(vitrineA.id);
 
     const first = await claimSelectionForVitrine(vitrineA.id, [fakeCandidate(listingA.id, canonical.id, 80)]);

@@ -13,6 +13,17 @@ import { loadVitrineLinkQueue } from "@/lib/services/vitrine-link-queue";
  */
 const TEST_PREFIX = "vlq-test-";
 
+/** Owner's directive, 2026-11-25: every test vitrine needs its own
+ * unique attributionTag now that the field is required. */
+function testVitrineInput(suffix: string, name: string) {
+  const unique = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  return {
+    slug: `${TEST_PREFIX}${suffix}-${unique}`,
+    name,
+    attributionTag: `${TEST_PREFIX}attr-${suffix}-${unique}`,
+  };
+}
+
 async function makeFixture() {
   const merchant = await prisma.merchant.upsert({
     where: { code: "MERCADO_LIVRE" },
@@ -47,7 +58,7 @@ describe("loadVitrineLinkQueue — cross-vitrine isolation", () => {
 
   it("never shows another vitrine's pending link in the legacy (Vitrine Geral) queue, or vice versa", async () => {
     const { listing } = await makeFixture();
-    const otherVitrine = await createVitrine({ slug: `${TEST_PREFIX}other-${Date.now()}`, name: "Outra vitrine (teste)" });
+    const otherVitrine = await createVitrine(testVitrineInput("other", "Outra vitrine (teste)"));
     await prisma.vitrineSelection.create({
       data: {
         vitrineId: otherVitrine.id,

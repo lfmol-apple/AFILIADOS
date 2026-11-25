@@ -14,6 +14,17 @@ import { loadVitrinePublicProducts } from "@/lib/queries/vitrine-public";
  */
 const TEST_PREFIX = "vpub-test-";
 
+/** Owner's directive, 2026-11-25: every test vitrine needs its own
+ * unique attributionTag now that the field is required. */
+function testVitrineInput(suffix: string, name: string) {
+  const unique = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  return {
+    slug: `${TEST_PREFIX}${suffix}-${unique}`,
+    name,
+    attributionTag: `${TEST_PREFIX}attr-${suffix}-${unique}`,
+  };
+}
+
 async function makeFixture() {
   const merchant = await prisma.merchant.upsert({
     where: { code: "MERCADO_LIVRE" },
@@ -74,7 +85,7 @@ describe("loadVitrinePublicProducts — real scoping and ACTIVE-link gating (loc
 
   it("never returns a product with no ACTIVE VitrineLink, even if it's an ACTIVE VitrineSelection", async () => {
     const { canonical, listing } = await makeFixture();
-    const vitrine = await createVitrine({ slug: `${TEST_PREFIX}a-${Date.now()}`, name: "Vitrine pública (teste)" });
+    const vitrine = await createVitrine(testVitrineInput("a", "Vitrine pública (teste)"));
     await prisma.vitrineSelection.create({
       data: {
         vitrineId: vitrine.id,
@@ -96,7 +107,7 @@ describe("loadVitrinePublicProducts — real scoping and ACTIVE-link gating (loc
   it("returns the real product, with the correct Vitrine-tagged href, once a real ACTIVE VitrineLink exists", async () => {
     const { canonical, listing } = await makeFixture();
     const merchant = await prisma.merchant.findUniqueOrThrow({ where: { code: "MERCADO_LIVRE" } });
-    const vitrine = await createVitrine({ slug: `${TEST_PREFIX}b-${Date.now()}`, name: "Vitrine pública (teste)" });
+    const vitrine = await createVitrine(testVitrineInput("b", "Vitrine pública (teste)"));
     await prisma.vitrineSelection.create({
       data: {
         vitrineId: vitrine.id,
@@ -142,7 +153,7 @@ describe("loadVitrinePublicProducts — real scoping and ACTIVE-link gating (loc
   it("falls back to the real marketplace photo when the only VitrineCreative row is unpublished (stale price) — never serves it", async () => {
     const { canonical, listing } = await makeFixture();
     const merchant = await prisma.merchant.findUniqueOrThrow({ where: { code: "MERCADO_LIVRE" } });
-    const vitrine = await createVitrine({ slug: `${TEST_PREFIX}e-${Date.now()}`, name: "Vitrine pública (teste)" });
+    const vitrine = await createVitrine(testVitrineInput("e", "Vitrine pública (teste)"));
     await prisma.vitrineSelection.create({
       data: {
         vitrineId: vitrine.id,
@@ -194,8 +205,8 @@ describe("loadVitrinePublicProducts — real scoping and ACTIVE-link gating (loc
   it("never leaks another vitrine's products — the real bug this query exists to avoid", async () => {
     const { canonical, listing } = await makeFixture();
     const merchant = await prisma.merchant.findUniqueOrThrow({ where: { code: "MERCADO_LIVRE" } });
-    const vitrineA = await createVitrine({ slug: `${TEST_PREFIX}c-${Date.now()}`, name: "Vitrine A (teste)" });
-    const vitrineB = await createVitrine({ slug: `${TEST_PREFIX}d-${Date.now()}`, name: "Vitrine B (teste)" });
+    const vitrineA = await createVitrine(testVitrineInput("c", "Vitrine A (teste)"));
+    const vitrineB = await createVitrine(testVitrineInput("d", "Vitrine B (teste)"));
     await prisma.vitrineSelection.create({
       data: {
         vitrineId: vitrineA.id,
