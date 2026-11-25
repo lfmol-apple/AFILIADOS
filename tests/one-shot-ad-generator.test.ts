@@ -141,6 +141,28 @@ describe("buildOneShotPrompt — preserves real product information, never inven
     expect(prompt).toContain("Não adicione nenhum objeto");
   });
 
+  it("tells the model to remove a human model from the source photo if one is present", () => {
+    // Real gap found live, 2026-11-24 ("resolva tudo"): a product whose
+    // source photo included a human model (common in fitness/beauty
+    // seller stock photos) kept that model in the generated ad, landing
+    // on an off-template lifestyle layout. quality-control.ts has always
+    // treated a model's removal as a legitimate, expected change — this
+    // was the missing instruction that actually asks for it.
+    const prompt = buildOneShotPrompt({
+      externalId: "MLB-TEST",
+      title: "Kit Halteres Barra E Anilhas Musculação Kettlebell Ajustáveis Peso Academia 15kg",
+      brand: "Knack",
+      productPhoto: Buffer.alloc(0),
+      productPhotoContentType: "image/jpeg",
+      currentPrice: 278.99,
+      referencePrice: 397.58,
+      hasConfirmedDiscount: true,
+      benefits: ["ATÉ 15KG", "KETTLEBELL AJUSTÁVEL"],
+    });
+    expect(prompt).toMatch(/NÃO inclua essa pessoa na composição final/);
+    expect(prompt).toMatch(/remoção deliberada e esperada, não um erro/);
+  });
+
   it("tells the model NOT to draw the Mercado Livre CTA bar at all — it's composited deterministically afterward", () => {
     // Final fix, 2026-11-24 (after two prompt-only attempts the owner
     // explicitly rejected as not definitive — a margin-based fix, then a

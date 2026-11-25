@@ -245,6 +245,18 @@ export function buildOneShotPrompt(input: OneShotAdInput): string {
     ``,
     `O produto real está na PRIMEIRA imagem fornecida: "${input.title}"${input.brand ? `, marca ${input.brand}` : ""}. Preserve o produto exatamente como aparece na foto — mesma cor, formato e proporções reais. Não redesenhe nem altere o produto.`,
     ``,
+    /** Real gap found live, 2026-11-24 (owner's directive, "resolva
+     * tudo"): a product whose own source photo includes a human model
+     * (seller stock photos for fitness/beauty categories commonly do)
+     * kept that model in the generated ad, producing a lifestyle-photo
+     * layout that diverges from the approved product-still template — no
+     * instruction here ever told the model to remove it. This is not a
+     * new rule: quality-control.ts's vision check has always treated a
+     * human model's removal as a legitimate, expected ambientation
+     * change, never a defect ("regra deliberada deste projeto, nunca um
+     * erro") — the generation prompt just never actually asked for it. */
+    `Se a foto original do produto incluir uma pessoa ou modelo humano segurando, vestindo ou demonstrando o produto, NÃO inclua essa pessoa na composição final — mostre apenas o produto em si, isolado ou em um cenário de contexto (sem gente), mesmo que a foto original tenha uma pessoa. Esta é uma remoção deliberada e esperada, não um erro.`,
+    ``,
     `${ambientationLine} Inclua:`,
     `- Título do produto em destaque, bold, duas linhas, duas cores.`,
     benefitLines,
