@@ -22,6 +22,13 @@ describe("generateHybridAdOverlay — real pipeline, mocked network only", () =>
     vi.stubEnv("VITRINE_ONE_SHOT_MIGRATION_MAX_CALLS", "5");
     vi.stubEnv("VITRINE_CREATIVE_MODE", "piloto_autorizado");
     vi.stubEnv("VITRINE_CREATIVE_PILOT_MAX_CALLS", "5");
+    // Real root cause found 2026-11-25 (CI-only failure, passed locally
+    // only because a real key happens to be in .env there):
+    // generateCreativeBase checks OPENAI_API_KEY is merely CONFIGURED
+    // before ever reaching the (already mocked) fetch call — a clearly
+    // fake value satisfies that gate without any real network access or
+    // paid call, since fetch itself never leaves this process.
+    vi.stubEnv("OPENAI_API_KEY", "sk-test-dummy-key-mocked-fetch-only-never-a-real-call");
   });
 
   afterEach(() => {
