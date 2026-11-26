@@ -1834,7 +1834,14 @@ model BlackFridayProduct {
   /// explicit rule: "não invente links de afiliado nem tente gerá-los por
   /// mecanismos não autorizados").
   affiliateUrl         String?
-  attributionTag       String                   @default("blackfriday2026")
+  /// Owner's directive, 2026-11-26 ("confirme a etiqueta blackfriday,
+  /// substituindo blackfriday2026 nos registros administrativos"): the
+  /// real tag used when generating the 30 links in the Linkbuilder was
+  /// "blackfriday" (no "2026" suffix) — this default matches that now.
+  /// Purely an administrative/record-keeping field; it never overwrites
+  /// or regenerates the real pasted affiliateUrl, whatever tag is
+  /// already baked into that real URL.
+  attributionTag       String                   @default("blackfriday")
   status               BlackFridayProductStatus @default(PENDING_LINK)
   /// Free-text note for a flagged divergence or an unconfirmed
   /// destination — always human-written, never auto-generated prose.
