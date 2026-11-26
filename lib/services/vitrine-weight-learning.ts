@@ -6,7 +6,8 @@ import { logger } from "@/lib/observability/logger";
  * section 19), implemented honestly rather than simulated.
  *
  * What real data this project actually has: AffiliateClick rows
- * (campaign="vitrine_dinamica") and Henrique's periodic, manual
+ * (campaign="vitrinedinamica", the legacy vitrine's own attributionTag)
+ * and Henrique's periodic, manual
  * VitrineCommissionReport entries. What it does NOT have: ad impressions
  * (no Meta Ads API integration) or per-click commission attribution (ML's
  * own panel reports commission in aggregate, not per click) — so a
@@ -38,11 +39,14 @@ export interface WeightReviewStatus {
 
 /** Owner's authorization, 2026-11-19 ("Autorizo a construção integral
  * dessa camada agora", section 4/7): generalized to accept any
- * attribution tag, never hardcoded to "vitrine_dinamica" — so
+ * attribution tag, never hardcoded to one literal — so
  * "combo_inteligente" (once that module exists) reuses this exact
  * readiness gate instead of a parallel copy, and the two tags' real
- * evidence volumes are never mixed together. */
-export async function reviewVitrineLearningReadiness(campaign = "vitrine_dinamica"): Promise<WeightReviewStatus> {
+ * evidence volumes are never mixed together. Default is the legacy
+ * vitrine's own real attributionTag ("vitrinedinamica"), kept in sync
+ * 2026-11-26 with vitrine-redirect.ts now writing that same real value
+ * for every click instead of the old, differently-spelled literal. */
+export async function reviewVitrineLearningReadiness(campaign = "vitrinedinamica"): Promise<WeightReviewStatus> {
   const [vitrineClickCount, approvedReportCount] = await Promise.all([
     prisma.affiliateClick.count({ where: { campaign } }),
     prisma.vitrineCommissionReport.count({ where: { status: "APPROVED" } }),

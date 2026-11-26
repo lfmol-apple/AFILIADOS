@@ -37,11 +37,24 @@ const VITRINE_MERCHANT_TO_PROVIDER: Record<string, CommerceProviderName> = {
 
 /**
  * Same shape as resolveGenericMerchantRedirect (lib/services/merchant-
- * redirect.ts), reading VitrineLink instead of AffiliateLinkRegistry, and
- * always tagging the click campaign="vitrine_dinamica" — the whole reason
- * this is a separate route instead of reusing /go/[merchant]/[externalId]:
- * clicks from the Meta catalog must be attributable to the Vitrine, never
- * mixed into the site's own "precocaindo" click log.
+ * redirect.ts), reading VitrineLink instead of AffiliateLinkRegistry —
+ * the whole reason this is a separate route instead of reusing
+ * /go/[merchant]/[externalId]: clicks from a Meta catalog must be
+ * attributable to the Vitrine that produced them, never mixed into the
+ * site's own "precocaindo" click log.
+ *
+ * Owner's directive, 2026-11-24 ("Isolamento integral entre vitrines",
+ * item 5: "métricas independentes"): `campaign` used to be the literal
+ * hardcoded string "vitrine_dinamica" for every click, regardless of
+ * which vitrine the listing belonged to — once a second vitrine exists,
+ * its clicks would have been indistinguishable from the legacy one's in
+ * every admin financial view. Now reuses the listing's own
+ * VitrineLink.attributionTag — already the real, per-vitrine identifier
+ * resolved for links in lib/services/vitrine-link-register.ts — so a
+ * click is always traceable to the exact vitrine that generated it,
+ * with no second tagging scheme invented. The legacy vitrine's real
+ * value ("vitrinedinamica") is unchanged, so its existing reports keep
+ * working exactly as before.
  */
 export async function resolveVitrineRedirect(input: {
   merchant: string;
@@ -107,7 +120,7 @@ export async function resolveVitrineRedirect(input: {
           pageSlug: input.searchParams.get("pageSlug") ?? listing.externalId,
           source: input.searchParams.get("source") ?? "meta_catalog",
           medium: input.isOwner ? OWNER_CLICK_MEDIUM : "paid_social",
-          campaign: "vitrine_dinamica",
+          campaign: listing.vitrineLink.attributionTag,
         },
       });
     }
