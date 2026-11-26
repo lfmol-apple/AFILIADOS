@@ -19,7 +19,50 @@ import {
 } from "@/lib/services/ml-panel-check-logic";
 import { openBlackFridayAffiliateLink } from "@/lib/services/ml-panel-check";
 
-const MELI_HOSTS = /^(www\.)?(mercadolivre\.com(\.br)?|meli\.la)$/i;
+/**
+ * Owner's directive, 2026-11-26 ("prossiga com as correções de segurança
+ * da validação dos links"): every real Mercado Livre domain this
+ * campaign's own official list and short-link resolution actually use
+ * this session — confirmed against the 30 official links read earlier,
+ * not copied from lib/merchants/config.ts's own ML allowlist (which is
+ * missing "produto.mercadolivre.com.br", the host item 6's own official
+ * link uses; adding it there would affect the whole site, out of scope
+ * for a campaign meant to stay fully independent — see this file's own
+ * header comment). A single source here, reused by every entry point
+ * that accepts a URL from the admin: the save path (below), the
+ * "testar destino" check, and the XML eligibility gate itself, so a
+ * non-Mercado-Livre or non-https URL can never reach the public catalog
+ * regardless of which path it tries to get in through.
+ */
+const BLACK_FRIDAY_ALLOWED_HOSTS = new Set([
+  "mercadolivre.com.br",
+  "www.mercadolivre.com.br",
+  "produto.mercadolivre.com.br",
+  "mercadolivre.com",
+  "www.mercadolivre.com",
+  "meli.la",
+]);
+
+function isAllowedBlackFridayHost(url: URL): boolean {
+  return url.protocol === "https:" && BLACK_FRIDAY_ALLOWED_HOSTS.has(url.hostname.toLowerCase());
+}
+
+/** Throws BlackFridayUpdateError (never silently drops/rewrites the
+ * value) when a pasted URL isn't https on an allowed Mercado Livre host
+ * — called before persisting mlUrlOriginal/affiliateUrl, never after. */
+function assertAllowedBlackFridayUrl(rawUrl: string, fieldLabel: string): void {
+  let url: URL;
+  try {
+    url = new URL(rawUrl);
+  } catch {
+    throw new BlackFridayUpdateError(`${fieldLabel}: isso não parece um link válido.`);
+  }
+  if (!isAllowedBlackFridayHost(url)) {
+    throw new BlackFridayUpdateError(
+      `${fieldLabel}: precisa ser um link https do Mercado Livre (mercadolivre.com.br, produto.mercadolivre.com.br ou meli.la). Recebido: ${url.hostname}.`,
+    );
+  }
+}
 
 export interface BlackFridayCandidateCreative {
   id: string;
@@ -46,13 +89,26 @@ export interface BlackFridayCounters {
 }
 
 function isXmlEligible(p: BlackFridayProduct): boolean {
-  return (
-    p.enabled &&
-    p.status === "VALIDATED" &&
-    !!p.affiliateUrl &&
-    !!p.mlUrlOriginal &&
-    !!p.selectedCreativeId
-  );
+  if (
+    !p.enabled ||
+    p.status !== "VALIDATED" ||
+    !p.affiliateUrl ||
+    !p.mlUrlOriginal ||
+    !p.selectedCreativeId
+  ) {
+    return false;
+  }
+  // Defense in depth, 2026-11-26 ("correções de segurança da validação
+  // dos links"): updateBlackFridayProduct already refuses to SAVE a
+  // non-Mercado-Livre URL, but this is the one choke point every row
+  // must pass through to ever reach the public XML — never trusts that
+  // every write path upheld the rule, checks it again here regardless of
+  // how the row got its current affiliateUrl.
+  try {
+    return isAllowedBlackFridayHost(new URL(p.affiliateUrl));
+  } catch {
+    return false;
+  }
 }
 
 export interface BlackFridaySurplusCreative {
@@ -148,10 +204,10 @@ export async function checkBlackFridayLink(input: {
   } catch {
     return { status: "invalid", message: "Isso não parece um link.", linkTitle: null, profileOk: null };
   }
-  if (!MELI_HOSTS.test(url.hostname)) {
+  if (!isAllowedBlackFridayHost(url)) {
     return {
       status: "invalid",
-      message: "Esse link não é do Mercado Livre.",
+      message: "Esse link não é do Mercado Livre (https, mercadolivre.com.br/produto.mercadolivre.com.br/meli.la).",
       linkTitle: null,
       profileOk: null,
     };
@@ -198,6 +254,14 @@ export async function updateBlackFridayProduct(
 ): Promise<BlackFridayProduct> {
   const existing = await prisma.blackFridayProduct.findUnique({ where: { id } });
   if (!existing) throw new BlackFridayUpdateError("Produto não encontrado.");
+
+  // Owner's directive, 2026-11-26 ("correções de segurança da validação
+  // dos links"): reject here, at save time, never silently accept and
+  // only catch it later in XML generation — the owner gets an
+  // immediate, actionable error instead of a row that quietly never
+  // makes it to the feed.
+  if (input.mlUrlOriginal) assertAllowedBlackFridayUrl(input.mlUrlOriginal, "Link original");
+  if (input.affiliateUrl) assertAllowedBlackFridayUrl(input.affiliateUrl, "Link de afiliado");
 
   if (input.selectedCreativeId) {
     const creative = await prisma.blackFridayCreative.findUnique({

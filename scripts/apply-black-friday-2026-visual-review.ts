@@ -87,18 +87,10 @@ async function main() {
   // eliminações acima.
   await confirmSlot(15);
   await confirmSlot(17);
-  // Item 20: a escolha entre os 2 criativos foi resolvida, mas a
-  // divergência de marca (anúncio é Simake, criativo impresso é Strike)
-  // não foi endereçada pelo dono — mantemos essa parte do aviso, não a
-  // apagamos silenciosamente.
-  await confirmSlot(20, false);
-  await prisma.blackFridayProduct.update({
-    where: { slotNumber: 20 },
-    data: {
-      reviewNote:
-        "Divergência de marca ainda não confirmada: o anúncio oficial é da marca Simake, o criativo selecionado está impresso com a marca 'STRIKE'. Confirme com o Henrique antes de validar.",
-    },
-  });
+  // Item 20: owner's follow-up message explicitly confirmed this item is
+  // correct (brand divergence accepted, not a mistake) — the note this
+  // script previously kept here is now cleared.
+  await confirmSlot(20);
 
   console.log("Revisão visual aplicada.");
 }

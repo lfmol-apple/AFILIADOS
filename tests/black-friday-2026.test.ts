@@ -122,6 +122,58 @@ describe("updateBlackFridayProduct", () => {
     expect(updated.affiliateUrl).toBe("https://mercadolivre.com/sec/newlink");
     expect(updated.status).toBe("LINK_PASTED");
   });
+
+  it("accepts produto.mercadolivre.com.br — the real host item 6's own official link uses, missing from the site-wide ML allowlist", async () => {
+    const { product } = await makeProductWithCreatives({ slotOffset: 13, candidateCount: 1, select: "first" });
+    const updated = await updateBlackFridayProduct(product.id, {
+      mlUrlOriginal: "https://produto.mercadolivre.com.br/MLB-4824049721-kit-6-cuecas-boxer-lupo",
+    });
+    expect(updated.mlUrlOriginal).toContain("produto.mercadolivre.com.br");
+  });
+
+  it("refuses to save a non-Mercado-Livre host for mlUrlOriginal, at save time, never silently accepted", async () => {
+    const { product } = await makeProductWithCreatives({ slotOffset: 14, candidateCount: 1, select: "first" });
+    await expect(
+      updateBlackFridayProduct(product.id, { mlUrlOriginal: "https://evil.example.com/produto" }),
+    ).rejects.toThrow(BlackFridayUpdateError);
+  });
+
+  it("refuses to save a non-Mercado-Livre host for affiliateUrl, at save time", async () => {
+    const { product } = await makeProductWithCreatives({ slotOffset: 15, candidateCount: 1, select: "first" });
+    await expect(
+      updateBlackFridayProduct(product.id, { affiliateUrl: "http://mercadolivre.com.br.evil.example.com/sec/x" }),
+    ).rejects.toThrow(BlackFridayUpdateError);
+  });
+
+  it("refuses a Mercado Livre host served over plain http — https only", async () => {
+    const { product } = await makeProductWithCreatives({ slotOffset: 16, candidateCount: 1, select: "first" });
+    await expect(
+      updateBlackFridayProduct(product.id, { affiliateUrl: "http://mercadolivre.com.br/sec/x" }),
+    ).rejects.toThrow(BlackFridayUpdateError);
+  });
+});
+
+describe("XML eligibility is re-checked against the Mercado Livre host allowlist at read time", () => {
+  it("excludes a row even if status/fields all look eligible, when affiliateUrl's host somehow isn't an allowed Mercado Livre domain", async () => {
+    const { product } = await makeProductWithCreatives({
+      slotOffset: 17,
+      candidateCount: 1,
+      status: "VALIDATED",
+      select: "first",
+    });
+    // Bypasses updateBlackFridayProduct on purpose — simulates a bad row
+    // getting into the table some other way, to prove the XML gate
+    // itself (not just the save path) refuses a non-ML host.
+    await prisma.blackFridayProduct.update({
+      where: { id: product.id },
+      data: {
+        mlUrlOriginal: "https://www.mercadolivre.com.br/p/MLB1111111",
+        affiliateUrl: "https://attacker.example.com/not-mercado-livre",
+      },
+    });
+    const eligible = await loadXmlEligibleBlackFridayProducts();
+    expect(eligible.find((p) => p.id === product.id)).toBeUndefined();
+  });
 });
 
 describe("GET /catalogo/black-friday-2026.xml", () => {
