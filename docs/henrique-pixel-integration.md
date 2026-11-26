@@ -3,6 +3,9 @@
 Documento de entrega, 2026-11-25. Escrito para quem vai configurar a campanha no
 Gerenciador de Negócios/Eventos da Meta — não é um documento de engenharia.
 
+**Status: publicado em produção em 2026-11-26.** Tudo descrito abaixo já está
+no ar em `precocaindo.com.br` — não é um plano, é o que está funcionando agora.
+
 ## 1. URLs oficiais
 
 | O que | URL |
