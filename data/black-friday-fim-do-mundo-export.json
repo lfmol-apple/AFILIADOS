@@ -1,7 +1,19 @@
 {
   "campaign": "black-friday-fim-do-mundo",
-  "exportedAt": "2026-11-26T18:03:23.677Z",
+  "exportedAt": "2026-11-26T18:51:20.935Z",
   "creatives": [
+    {
+      "sha256": "31c795d908700f06e51b4d69bc16d2a2c9576fe3a204b2ef11987a32a029cb92",
+      "groupKey": "fdm-guardaroupa-lopas-8portas",
+      "originalFilename": "WhatsApp Image 2026-11-26 at 15.44.22.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/31c795d908700f06.jpeg"
+    },
+    {
+      "sha256": "f795821fc10a54898dd851318bc22680fdb4a238ff3fffbdc2e12ce206add26d",
+      "groupKey": "fdm-tv-lg-65-4k-superseded-20261126",
+      "originalFilename": "fdm05.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/f795821fc10a5489.jpeg"
+    },
     {
       "sha256": "40718b9f621af1ce261c797882f90fd367e40d2b866e3cb8ff61ca7688de6edf",
       "groupKey": "fdm-notebook-acer-nitro-v15",
@@ -27,12 +39,6 @@
       "storedPath": "/black-friday-fim-do-mundo/abf9b0d75822574e.jpeg"
     },
     {
-      "sha256": "f795821fc10a54898dd851318bc22680fdb4a238ff3fffbdc2e12ce206add26d",
-      "groupKey": "fdm-tv-lg-65-4k",
-      "originalFilename": "fdm05.jpeg",
-      "storedPath": "/black-friday-fim-do-mundo/f795821fc10a5489.jpeg"
-    },
-    {
       "sha256": "fd747b41856e98d358ebe3dd9d93db069d80abe64dde667b2a5b1bb71c286f92",
       "groupKey": "fdm-geladeira-brastemp-385l",
       "originalFilename": "fdm06.jpeg",
@@ -45,34 +51,10 @@
       "storedPath": "/black-friday-fim-do-mundo/63ae7a6277ae8202.jpeg"
     },
     {
-      "sha256": "6872298da3ea0853ac6ff74d72924c934563602005be0c462361dad4bd5d5cea",
-      "groupKey": "fdm-lavadora-midea-13kg",
-      "originalFilename": "fdm08.jpeg",
-      "storedPath": "/black-friday-fim-do-mundo/6872298da3ea0853.jpeg"
-    },
-    {
-      "sha256": "a38ed0d027493ac6fd8dc8a2de158c6e6bed4d6ed1822540edeaa6ecb9678afa",
-      "groupKey": "fdm-ar-split-samsung-windfree",
-      "originalFilename": "fdm09.jpeg",
-      "storedPath": "/black-friday-fim-do-mundo/a38ed0d027493ac6.jpeg"
-    },
-    {
       "sha256": "a25697b06601122be993c32ba11a6ba6e18758532eb1e4c4886d73bf94305859",
       "groupKey": "fdm-ar-portatil-kabum-700",
       "originalFilename": "fdm10.jpeg",
       "storedPath": "/black-friday-fim-do-mundo/a25697b06601122b.jpeg"
-    },
-    {
-      "sha256": "2a24db678ec9087d8f1b60606646fc6657451aec73aaa0b60d8467e92b07ab91",
-      "groupKey": "fdm-galaxy-s24",
-      "originalFilename": "fdm11.jpeg",
-      "storedPath": "/black-friday-fim-do-mundo/2a24db678ec9087d.jpeg"
-    },
-    {
-      "sha256": "f6dd999a1f81b6d05c573577aa012b4134ec098f14d4e8772eb7b591c1f76c0d",
-      "groupKey": "fdm-ps5-slim-digital",
-      "originalFilename": "fdm12.jpeg",
-      "storedPath": "/black-friday-fim-do-mundo/f6dd999a1f81b6d0.jpeg"
     },
     {
       "sha256": "13bb2912bd9430bf11e8bcb17a4558c4df96ad5403afff0eb90ed43d1460d2b5",
@@ -81,16 +63,70 @@
       "storedPath": "/black-friday-fim-do-mundo/13bb2912bd9430bf.jpeg"
     },
     {
+      "sha256": "a38ed0d027493ac6fd8dc8a2de158c6e6bed4d6ed1822540edeaa6ecb9678afa",
+      "groupKey": "fdm-ar-split-samsung-windfree-superseded-20261126",
+      "originalFilename": "fdm09.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/a38ed0d027493ac6.jpeg"
+    },
+    {
+      "sha256": "2a24db678ec9087d8f1b60606646fc6657451aec73aaa0b60d8467e92b07ab91",
+      "groupKey": "fdm-galaxy-s24-superseded-20261126",
+      "originalFilename": "fdm11.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/2a24db678ec9087d.jpeg"
+    },
+    {
       "sha256": "57942097034fa66cda200b934052a74b0f964b8c6329c3534bd6205faeb743bd",
-      "groupKey": "fdm-guardaroupa-lopas-8portas",
+      "groupKey": "fdm-guardaroupa-lopas-8portas-superseded-20261126",
       "originalFilename": "fdm14.jpeg",
       "storedPath": "/black-friday-fim-do-mundo/57942097034fa66c.jpeg"
+    },
+    {
+      "sha256": "6872298da3ea0853ac6ff74d72924c934563602005be0c462361dad4bd5d5cea",
+      "groupKey": "fdm-lavadora-midea-13kg-superseded-20261126",
+      "originalFilename": "fdm08.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/6872298da3ea0853.jpeg"
+    },
+    {
+      "sha256": "f6dd999a1f81b6d05c573577aa012b4134ec098f14d4e8772eb7b591c1f76c0d",
+      "groupKey": "fdm-ps5-slim-digital-superseded-20261126",
+      "originalFilename": "fdm12.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/f6dd999a1f81b6d0.jpeg"
     },
     {
       "sha256": "67b5d3f93db45aeeab13f2516094479b1cf7b6b103458af5055bb3c9c234f257",
       "groupKey": "fdm-esteira-eletrica-dobravel",
       "originalFilename": "fdm15.jpeg",
       "storedPath": "/black-friday-fim-do-mundo/67b5d3f93db45aee.jpeg"
+    },
+    {
+      "sha256": "c7e6140c807343905bbcd8347609241c8f5b24bb844852c8ee95b812463d332e",
+      "groupKey": "fdm-tv-lg-65-4k",
+      "originalFilename": "WhatsApp Image 2026-11-26 at 15.44.21.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/c7e6140c80734390.jpeg"
+    },
+    {
+      "sha256": "dc38f5cff31406ac92dbd99ab682d125407f1305477c0ef6c47d3522983693ee",
+      "groupKey": "fdm-lavadora-midea-13kg",
+      "originalFilename": "WhatsApp Image 2026-11-26 at 15.44.21 (1).jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/dc38f5cff31406ac.jpeg"
+    },
+    {
+      "sha256": "dd5620052f01dbf1c8e665ced8697f5c5ad98b73c36b29ec342c899caa35ac8a",
+      "groupKey": "fdm-ar-split-samsung-windfree",
+      "originalFilename": "WhatsApp Image 2026-11-26 at 15.44.21 (2).jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/dd5620052f01dbf1.jpeg"
+    },
+    {
+      "sha256": "bd4a6737726e0eb10c04fd4b6b0619f75f4936f6e43dd8fd0a69d2ff526920a6",
+      "groupKey": "fdm-galaxy-s24",
+      "originalFilename": "WhatsApp Image 2026-11-26 at 15.44.22 (1).jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/bd4a6737726e0eb1.jpeg"
+    },
+    {
+      "sha256": "a0c695cca0a51a2ba1c64b10bd125b6a30c87c57fd3c7edbb2b1b4c7b9b6b49a",
+      "groupKey": "fdm-ps5-slim-digital",
+      "originalFilename": "WhatsApp Image 2026-11-26 at 15.32.38.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/a0c695cca0a51a2b.jpeg"
     }
   ],
   "products": [
@@ -171,7 +207,7 @@
       "creativeGroupKey": "fdm-tv-lg-65-4k",
       "name": "Smart TV PRO 65\" 4K Ultra HD AI",
       "brand": "LG",
-      "advertisedPrice": 3599,
+      "advertisedPrice": 2869,
       "currentPrice": 2896,
       "mlUrlOriginal": "https://meli.la/2kjohnN",
       "resolvedProductUrl": "https://www.mercadolivre.com.br/p/MLB75681241",
@@ -181,8 +217,8 @@
       "affiliateUrl": null,
       "attributionTag": "blackfridayfimdomundo",
       "status": "PENDING_LINK",
-      "reviewNote": "Preço anunciado no criativo (R$ 3.599,00) parece divergir do preço atual lido na página (em torno de R$ 2.896, formato truncado sem centavos) — confirme antes de validar.",
-      "selectedCreativeSha256": "f795821fc10a54898dd851318bc22680fdb4a238ff3fffbdc2e12ce206add26d"
+      "reviewNote": null,
+      "selectedCreativeSha256": "c7e6140c807343905bbcd8347609241c8f5b24bb844852c8ee95b812463d332e"
     },
     {
       "slotNumber": 6,
@@ -225,7 +261,7 @@
       "creativeGroupKey": "fdm-lavadora-midea-13kg",
       "name": "Lavadora de Roupas Wave Agitator 13kg Branca",
       "brand": "Midea",
-      "advertisedPrice": 1829.39,
+      "advertisedPrice": 1647,
       "currentPrice": 1647,
       "mlUrlOriginal": "https://meli.la/1G7pZSe",
       "resolvedProductUrl": "https://www.mercadolivre.com.br/p/MLB45804798",
@@ -235,15 +271,15 @@
       "affiliateUrl": null,
       "attributionTag": "blackfridayfimdomundo",
       "status": "PENDING_LINK",
-      "reviewNote": "Preço anunciado (R$ 1.829,39) ~10% acima do preço atual lido na página (R$ 1.647) — confirme antes de validar.",
-      "selectedCreativeSha256": "6872298da3ea0853ac6ff74d72924c934563602005be0c462361dad4bd5d5cea"
+      "reviewNote": null,
+      "selectedCreativeSha256": "dc38f5cff31406ac92dbd99ab682d125407f1305477c0ef6c47d3522983693ee"
     },
     {
       "slotNumber": 9,
       "creativeGroupKey": "fdm-ar-split-samsung-windfree",
       "name": "Ar Condicionado Split WindFree AI Pro 12.000 BTUs Frio",
       "brand": "Samsung",
-      "advertisedPrice": 3072.86,
+      "advertisedPrice": 2799,
       "currentPrice": 2799,
       "mlUrlOriginal": "https://meli.la/1xe94co",
       "resolvedProductUrl": "https://www.mercadolivre.com.br/p/MLB76156293",
@@ -253,8 +289,8 @@
       "affiliateUrl": null,
       "attributionTag": "blackfridayfimdomundo",
       "status": "PENDING_LINK",
-      "reviewNote": "Preço anunciado (R$ 3.072,86) ~9% acima do preço atual lido na página (R$ 2.799) — confirme antes de validar.",
-      "selectedCreativeSha256": "a38ed0d027493ac6fd8dc8a2de158c6e6bed4d6ed1822540edeaa6ecb9678afa"
+      "reviewNote": null,
+      "selectedCreativeSha256": "dd5620052f01dbf1c8e665ced8697f5c5ad98b73c36b29ec342c899caa35ac8a"
     },
     {
       "slotNumber": 10,
@@ -279,7 +315,7 @@
       "creativeGroupKey": "fdm-galaxy-s24",
       "name": "Galaxy S24 Galaxy AI 512GB 8GB RAM Preto",
       "brand": "Samsung",
-      "advertisedPrice": 4399.99,
+      "advertisedPrice": 3849,
       "currentPrice": 3849,
       "mlUrlOriginal": "https://meli.la/2zPQRqw",
       "resolvedProductUrl": "https://www.mercadolivre.com.br/p/MLB29699966",
@@ -289,15 +325,15 @@
       "affiliateUrl": null,
       "attributionTag": "blackfridayfimdomundo",
       "status": "PENDING_LINK",
-      "reviewNote": "ATENÇÃO — divergência de variante: o criativo anuncia 512GB, a página resolvida mostra a variante de 256GB (R$ 3.849, vs R$ 4.399,99 anunciado). Confirme qual variante corresponde ao link antes de validar — não presuma.",
-      "selectedCreativeSha256": "2a24db678ec9087d8f1b60606646fc6657451aec73aaa0b60d8467e92b07ab91"
+      "reviewNote": "ATENÇÃO — NÃO RESOLVIDO: o novo criativo enviado pelo Henrique ainda anuncia 512GB, mas o preço impresso (R$ 3.849,00) é o da variante de 256GB na página resolvida. Confirme manualmente a variante correta antes de validar — não presuma.",
+      "selectedCreativeSha256": "bd4a6737726e0eb10c04fd4b6b0619f75f4936f6e43dd8fd0a69d2ff526920a6"
     },
     {
       "slotNumber": 12,
       "creativeGroupKey": "fdm-ps5-slim-digital",
       "name": "Console PlayStation 5 Slim Edição Digital 825GB Branco",
       "brand": "Sony",
-      "advertisedPrice": 4000,
+      "advertisedPrice": 4596.6,
       "currentPrice": null,
       "mlUrlOriginal": "https://meli.la/27kfRW9",
       "resolvedProductUrl": "https://www.mercadolivre.com.br/p/MLB29001054",
@@ -307,8 +343,8 @@
       "affiliateUrl": null,
       "attributionTag": "blackfridayfimdomundo",
       "status": "PENDING_LINK",
-      "reviewNote": null,
-      "selectedCreativeSha256": "f6dd999a1f81b6d05c573577aa012b4134ec098f14d4e8772eb7b591c1f76c0d"
+      "reviewNote": "Novo criativo do Henrique altera o preço impresso de R$ 4.000,00 para R$ 4.596,60 — não houve reverificação independente do preço atual na página do Mercado Livre. Confirme antes de validar.",
+      "selectedCreativeSha256": "a0c695cca0a51a2ba1c64b10bd125b6a30c87c57fd3c7edbb2b1b4c7b9b6b49a"
     },
     {
       "slotNumber": 13,
@@ -333,7 +369,7 @@
       "creativeGroupKey": "fdm-guardaroupa-lopas-8portas",
       "name": "Guarda-roupa Easy Slim 8 Portas com 2 Espelhos",
       "brand": "Móveis Lopas",
-      "advertisedPrice": 794.92,
+      "advertisedPrice": 996.31,
       "currentPrice": 996.31,
       "mlUrlOriginal": "https://meli.la/1rLrspj",
       "resolvedProductUrl": "https://www.mercadolivre.com.br/p/MLB51396300",
@@ -343,8 +379,8 @@
       "affiliateUrl": null,
       "attributionTag": "blackfridayfimdomundo",
       "status": "PENDING_LINK",
-      "reviewNote": "Preço anunciado (R$ 794,92) abaixo do preço atual lido na página (R$ 996,31, ~25% maior) — confirme antes de validar.",
-      "selectedCreativeSha256": "57942097034fa66cda200b934052a74b0f964b8c6329c3534bd6205faeb743bd"
+      "reviewNote": null,
+      "selectedCreativeSha256": "31c795d908700f06e51b4d69bc16d2a2c9576fe3a204b2ef11987a32a029cb92"
     },
     {
       "slotNumber": 15,
