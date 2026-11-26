@@ -67,6 +67,9 @@ export default async function BlackFriday2026Page() {
         <a href="/admin/black-friday-2026/galeria" className="border-border-subtle rounded border px-2 py-1">
           Conferência visual (galeria) →
         </a>
+        <a href="/admin/black-friday-2026/lote" className="bg-brand text-brand-foreground rounded px-2 py-1 font-semibold">
+          Cadastrar links em lote →
+        </a>
       </div>
 
       <BlackFridayPanelList

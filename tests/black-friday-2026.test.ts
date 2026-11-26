@@ -10,6 +10,8 @@ import {
   loadXmlEligibleBlackFridayProducts,
 } from "@/lib/services/black-friday-2026";
 import { GET as blackFridayXmlRoute } from "@/app/catalogo/black-friday-2026.xml/route";
+import { GET as blackFridayGoRoute } from "@/app/go/black-friday-2026/[id]/route";
+import { previewBlackFridayBatch } from "@/lib/services/black-friday-link-batch";
 
 /**
  * Owner's directive, 2026-11-26 ("OPERAÇÃO BLACK FRIDAY 2026"): proves the
@@ -308,5 +310,78 @@ describe("independence between the Black Friday catalog and the Vitrine Geral", 
     for (const line of importLines(source)) {
       expect(line).not.toMatch(/vitrine/i);
     }
+  });
+});
+
+describe("GET /go/black-friday-2026/[id] — domain-verified fallback redirect", () => {
+  it("404s for a product that isn't VALIDATED yet — never redirects an unconfirmed link", async () => {
+    const { product } = await makeProductWithCreatives({
+      slotOffset: 40,
+      candidateCount: 1,
+      status: "LINK_PASTED",
+      withLinks: true,
+      select: "first",
+    });
+    const response = await blackFridayGoRoute(new Request("http://test/go/black-friday-2026/x"), {
+      params: Promise.resolve({ id: product.id }),
+    });
+    expect(response.status).toBe(404);
+  });
+
+  it("404s for a disabled product even if otherwise VALIDATED", async () => {
+    const { product } = await makeProductWithCreatives({
+      slotOffset: 41,
+      candidateCount: 1,
+      status: "VALIDATED",
+      withLinks: true,
+      select: "first",
+    });
+    await updateBlackFridayProduct(product.id, { enabled: false });
+    const response = await blackFridayGoRoute(new Request("http://test/go/black-friday-2026/x"), {
+      params: Promise.resolve({ id: product.id }),
+    });
+    expect(response.status).toBe(404);
+  });
+
+  it("302-redirects to the real affiliateUrl for a VALIDATED, enabled product", async () => {
+    const { product } = await makeProductWithCreatives({
+      slotOffset: 42,
+      candidateCount: 1,
+      status: "VALIDATED",
+      withLinks: true,
+      select: "first",
+    });
+    const response = await blackFridayGoRoute(new Request("http://test/go/black-friday-2026/x"), {
+      params: Promise.resolve({ id: product.id }),
+    });
+    expect(response.status).toBe(302);
+    expect(response.headers.get("location")).toBe("https://mercadolivre.com/sec/bftestlink");
+  });
+});
+
+describe("previewBlackFridayBatch — batch-paste link check", () => {
+  it("flags a non-Mercado-Livre link as invalid without ever fetching it", async () => {
+    const rows = await previewBlackFridayBatch(
+      ["https://attacker.example.com/not-ml"],
+      [{ id: "p1", title: "Produto Teste" }],
+    );
+    expect(rows).toHaveLength(1);
+    expect(rows[0]!.status).toBe("invalid");
+    expect(rows[0]!.pickId).toBeNull();
+  });
+
+  it("flags a link already saved on a product as duplicate, never re-saved onto a second one", async () => {
+    const { product } = await makeProductWithCreatives({
+      slotOffset: 43,
+      candidateCount: 1,
+      status: "LINK_PASTED",
+      withLinks: true,
+      select: "first",
+    });
+    const rows = await previewBlackFridayBatch(
+      ["https://mercadolivre.com/sec/bftestlink"],
+      [{ id: product.id, title: product.name }],
+    );
+    expect(rows[0]!.status).toBe("duplicate");
   });
 });

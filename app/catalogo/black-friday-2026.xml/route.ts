@@ -1,4 +1,5 @@
 import { siteConfig } from "@/lib/config/site";
+import { env } from "@/lib/config/env";
 import { loadXmlEligibleBlackFridayProducts } from "@/lib/services/black-friday-2026";
 
 export const dynamic = "force-dynamic";
@@ -12,33 +13,39 @@ export const dynamic = "force-dynamic";
  * affiliateUrl + mlUrlOriginal, AND a chosen creative is ever included
  * (loadXmlEligibleBlackFridayProducts' own rule) — never a partial row.
  *
- * `g:link` points straight at the real Mercado Livre affiliate URL (owner's
- * explicit requirement, section 7: "o consumidor não deverá ser obrigado a
- * visitar o PreçoCaindo antes de chegar ao Mercado Livre"), unlike the
- * Vitrine Geral feed which redirects through this site's own verified
- * domain. OPEN RISK, flagged for the owner before activation (section 7's
- * own instruction: "confirme... compatibilidade dos destinos com anúncios
- * de catálogo"): Meta's Commerce Manager catalog spec has historically
- * required `link` to resolve on the advertiser's OWN verified domain, not
- * a third party's — whether a Mercado Livre affiliate URL is accepted here
- * is unconfirmed and must be checked in Commerce Manager's Diagnostics tab
- * before this feed is registered for real. If it is rejected, the
- * alternative is the same redirect-through-precocaindo.com.br pattern the
- * Vitrine Geral feed already uses (losing the "no intermediate click"
- * property) — present that tradeoff to the owner rather than silently
- * switching.
+ * `g:link` points straight at the real Mercado Livre affiliate URL by
+ * default (owner's explicit requirement, section 7: "o consumidor não
+ * deverá ser obrigado a visitar o PreçoCaindo antes de chegar ao Mercado
+ * Livre"), unlike the Vitrine Geral feed which redirects through this
+ * site's own verified domain. OPEN RISK, flagged for the owner before
+ * activation: Meta's Commerce Manager catalog spec has historically
+ * required `link` to resolve on the advertiser's OWN verified domain,
+ * not a third party's — whether a Mercado Livre affiliate URL is
+ * accepted here is unconfirmed (checked again 2026-11-26: no official
+ * Meta source confirms or forbids it either way) and must be checked in
+ * Commerce Manager's Diagnostics tab before this feed is registered for
+ * real. The fallback is already built and one env var away:
+ * BLACK_FRIDAY_2026_CATALOG_LINK_MODE="redirect" switches every item to
+ * app/go/black-friday-2026/[id]/route.ts, the same domain-verified
+ * 302-redirect pattern the Vitrine Geral feed already uses (one extra
+ * click, but unambiguously compliant) — no code change needed the
+ * moment Diagnostics flags an item.
  */
 export async function GET() {
   const products = await loadXmlEligibleBlackFridayProducts();
 
   const items = products.map((p) => {
     const price = p.currentPrice !== null ? Number(p.currentPrice) : Number(p.advertisedPrice);
+    const link =
+      env.BLACK_FRIDAY_2026_CATALOG_LINK_MODE === "redirect"
+        ? `${siteConfig.url}/go/black-friday-2026/${p.id}`
+        : p.affiliateUrl!;
     return (
       `<item>` +
       `<g:id>${escapeXml(p.id)}</g:id>` +
       `<title>${escapeXml(p.name)}</title>` +
       `<description>${escapeXml(p.brand ? `${p.brand} — ${p.name}` : p.name)}</description>` +
-      `<link>${escapeXml(p.affiliateUrl!)}</link>` +
+      `<link>${escapeXml(link)}</link>` +
       `<g:image_link>${escapeXml(`${siteConfig.url}${p.selectedCreative!.storedPath}`)}</g:image_link>` +
       `<g:price>${price.toFixed(2)} BRL</g:price>` +
       `<g:availability>in stock</g:availability>` +

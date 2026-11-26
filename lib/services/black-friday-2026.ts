@@ -43,7 +43,7 @@ const BLACK_FRIDAY_ALLOWED_HOSTS = new Set([
   "meli.la",
 ]);
 
-function isAllowedBlackFridayHost(url: URL): boolean {
+export function isAllowedBlackFridayHost(url: URL): boolean {
   return url.protocol === "https:" && BLACK_FRIDAY_ALLOWED_HOSTS.has(url.hostname.toLowerCase());
 }
 

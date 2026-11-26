@@ -274,6 +274,24 @@ const envSchema = z.object({
     .enum(["redirect", "product_page"])
     .default("redirect"),
 
+  // BLACK_FRIDAY_2026_CATALOG_LINK_MODE: "direct" (default, owner's
+  // explicit requirement 2026-11-26, "PROMPT MASTER — BLACK FRIDAY 2026"
+  // section 14: "não quero obrigar o consumidor a navegar pelo
+  // PreçoCaindo antes de chegar ao Mercado Livre") makes the Black
+  // Friday catalog feed's `link` point straight at the real pasted
+  // affiliate URL — zero intermediate page. Whether Meta's Commerce
+  // Manager accepts a third-party affiliate domain there is genuinely
+  // unconfirmed (same open question as VITRINE_CATALOG_LINK_MODE's own
+  // doc comment, research repeated 2026-11-26 found no official
+  // confirmation either way). The moment Commerce Manager's Diagnostics
+  // tab flags an item for this, flip to "redirect" — app/go/black-
+  // friday-2026/[id]/route.ts is a plain, already-tested 302 through
+  // this site's own verified domain, zero code change needed at the
+  // moment it's needed.
+  BLACK_FRIDAY_2026_CATALOG_LINK_MODE: z
+    .enum(["direct", "redirect"])
+    .default("direct"),
+
   // Meta Marketing API — real ad-spend import (jobs/vitrine-meta-spend-
   // sync.ts), confirmed feasible via research 2026-11-19: a System User
   // long-lived token scoped to Henrique's OWN ad account needs only
