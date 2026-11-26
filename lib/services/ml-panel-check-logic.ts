@@ -158,6 +158,29 @@ export function carriesVitrineProfile(finalUrlAndHtml: string): boolean {
   return VITRINE_PROFILE_MARKERS.some((m) => text.includes(m));
 }
 
+/** Owner's directive, 2026-11-26 ("OPERAÇÃO BLACK FRIDAY 2026"): the
+ * campaign's attribution tag ("etiqueta de atribuição exclusiva para
+ * Black Friday") is still subject to the owner's own confirmation — never
+ * hardcoded to one exact `matt_word` here the way the site/Vitrine checks
+ * are. This only confirms the link still carries the SAME Mercado Livre
+ * affiliate account (matt_tool/social markers), whatever word the owner
+ * ends up using in the Linkbuilder. */
+export const BLACK_FRIDAY_ACCOUNT_MARKERS = [
+  "matt_tool=85497435",
+  "matt_tool_id=85497435",
+  "/social/mohe4109227",
+] as const;
+
+export function carriesBlackFridayAccount(finalUrlAndHtml: string): boolean {
+  let text = finalUrlAndHtml;
+  try {
+    text = decodeURIComponent(finalUrlAndHtml);
+  } catch {
+    // keep raw
+  }
+  return BLACK_FRIDAY_ACCOUNT_MARKERS.some((m) => text.includes(m));
+}
+
 export interface MatchablePick {
   id: string;
   title: string;
