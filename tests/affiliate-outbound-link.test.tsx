@@ -38,6 +38,11 @@ describe("AffiliateOutboundLink — never alters the real affiliate link, only a
     expect(fakeEvent.preventDefault).not.toHaveBeenCalled();
   });
 
+  it("never fires AddToCart — PreçoCaindo has no cart (reaffirmed 2026-11-25): the real module doesn't even export it", async () => {
+    const real = await vi.importActual<Record<string, unknown>>("@/lib/analytics/meta-pixel-client");
+    expect(real.trackAddToCart).toBeUndefined();
+  });
+
   it("never forces a new tab (no target='_blank' added) and never appends anything to the href via rel/query", () => {
     const element = AffiliateOutboundLink({ product, href: REAL_HREF, children: "Ver no Mercado Livre →" });
     const props = element.props as Record<string, unknown>;
