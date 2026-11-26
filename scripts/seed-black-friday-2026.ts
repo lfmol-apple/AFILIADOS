@@ -157,7 +157,7 @@ async function main() {
 
     const creativeGroupKey = product.candidates[0]!.groupKey;
     await prisma.blackFridayProduct.upsert({
-      where: { slotNumber: product.slotNumber },
+      where: { campaign_slotNumber: { campaign: "black-friday-2026", slotNumber: product.slotNumber } },
       update: {
         name: product.name,
         brand: product.brand,
@@ -167,6 +167,7 @@ async function main() {
         ...(selectedCreativeId ? { selectedCreativeId } : {}),
       },
       create: {
+        campaign: "black-friday-2026",
         slotNumber: product.slotNumber,
         name: product.name,
         brand: product.brand,

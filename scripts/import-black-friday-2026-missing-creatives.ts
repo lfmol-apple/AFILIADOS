@@ -71,7 +71,7 @@ async function main() {
     });
 
     const updated = await prisma.blackFridayProduct.update({
-      where: { slotNumber: item.slot },
+      where: { campaign_slotNumber: { campaign: "black-friday-2026", slotNumber: item.slot } },
       data: {
         creativeGroupKey: item.groupKey,
         advertisedPrice: item.advertisedPrice,

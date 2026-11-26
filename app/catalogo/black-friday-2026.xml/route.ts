@@ -1,6 +1,6 @@
 import { siteConfig } from "@/lib/config/site";
 import { env } from "@/lib/config/env";
-import { loadXmlEligibleBlackFridayProducts } from "@/lib/services/black-friday-2026";
+import { loadXmlEligibleBlackFridayProducts, BLACK_FRIDAY_2026_CAMPAIGN } from "@/lib/services/black-friday-2026";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +32,7 @@ export const dynamic = "force-dynamic";
  * moment Diagnostics flags an item.
  */
 export async function GET() {
-  const products = await loadXmlEligibleBlackFridayProducts();
+  const products = await loadXmlEligibleBlackFridayProducts(BLACK_FRIDAY_2026_CAMPAIGN);
 
   const items = products.map((p) => {
     const price = p.currentPrice !== null ? Number(p.currentPrice) : Number(p.advertisedPrice);

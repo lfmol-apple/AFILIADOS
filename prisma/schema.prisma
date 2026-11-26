@@ -1770,6 +1770,15 @@ enum BlackFridayProductStatus {
 /// "não associe imagens aos links apenas pela ordem dos arquivos").
 model BlackFridayCreative {
   id                 String               @id @default(cuid())
+  /// Owner's directive, 2026-11-26 ("SEGUNDA CAMPANHA — BLACK FRIDAY FIM
+  /// DO MUNDO"): which independent campaign this creative belongs to
+  /// ("black-friday-2026" | "black-friday-fim-do-mundo", ...). sha256
+  /// stays globally unique (a real content hash never collides by
+  /// coincidence); groupKey only needs to be unique WITHIN a campaign —
+  /// every campaign's own seed script picks a distinct prefix so this is
+  /// never actually tested across campaigns, but the index below scopes
+  /// lookups to be safe regardless.
+  campaign           String               @default("black-friday-2026")
   groupKey           String
   sha256             String               @unique
   originalFilename   String
@@ -1780,7 +1789,7 @@ model BlackFridayCreative {
   importedAt         DateTime             @default(now())
   selectedByProducts BlackFridayProduct[]
 
-  @@index([groupKey])
+  @@index([campaign, groupKey])
 }
 
 /// One of the 30 hand-picked Black Friday 2026 products. `slotNumber` is
@@ -1791,7 +1800,15 @@ model BlackFridayCreative {
 /// own.
 model BlackFridayProduct {
   id                   String                   @id @default(cuid())
-  slotNumber           Int                      @unique
+  /// Owner's directive, 2026-11-26 ("SEGUNDA CAMPANHA — BLACK FRIDAY FIM
+  /// DO MUNDO", section 3, "independência das campanhas"): which
+  /// independent campaign this product belongs to. `slotNumber` alone
+  /// can no longer be globally unique once a second campaign also
+  /// numbers its own products starting at 1 — see the compound unique
+  /// index below, added by the same migration that introduced this
+  /// column.
+  campaign             String                   @default("black-friday-2026")
+  slotNumber           Int
   /// Links back to BlackFridayCreative.groupKey — lets the panel list every
   /// candidate creative for this slot even before one is selected (an
   /// ambiguous slot has no selectedCreative yet, so it can't be found via
@@ -1852,5 +1869,6 @@ model BlackFridayProduct {
   createdAt            DateTime                 @default(now())
   updatedAt            DateTime                 @updatedAt
 
-  @@index([status])
+  @@unique([campaign, slotNumber])
+  @@index([campaign, status])
 }

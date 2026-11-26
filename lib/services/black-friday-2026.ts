@@ -19,6 +19,15 @@ import {
 } from "@/lib/services/ml-panel-check-logic";
 import { openBlackFridayAffiliateLink } from "@/lib/services/ml-panel-check";
 
+/** The first campaign's own slug — every one of its existing routes
+ * passes this literal constant, never a bare string, so a typo can
+ * never silently create a third, accidental campaign. */
+export const BLACK_FRIDAY_2026_CAMPAIGN = "black-friday-2026";
+
+/** Owner's directive, 2026-11-26 ("SEGUNDA CAMPANHA — BLACK FRIDAY FIM DO
+ * MUNDO"): the second, fully independent campaign's slug. */
+export const BLACK_FRIDAY_FIM_DO_MUNDO_CAMPAIGN = "black-friday-fim-do-mundo";
+
 /**
  * Owner's directive, 2026-11-26 ("prossiga com as correções de segurança
  * da validação dos links"): every real Mercado Livre domain this
@@ -119,7 +128,12 @@ export interface BlackFridaySurplusCreative {
   sha256: string;
 }
 
-export async function loadBlackFridayPanel(): Promise<{
+/** Owner's directive, 2026-11-26 ("SEGUNDA CAMPANHA — BLACK FRIDAY FIM DO
+ * MUNDO"): every function here that lists/loads products takes the
+ * campaign explicitly — never a default, never inferred — so a second
+ * (third, ...) campaign can reuse this exact module without any risk of
+ * silently mixing its rows with another campaign's. */
+export async function loadBlackFridayPanel(campaign: string): Promise<{
   rows: BlackFridayPanelRow[];
   counters: BlackFridayCounters;
   /** Owner's directive, section 7 ("se algum criativo não corresponder a
@@ -132,10 +146,11 @@ export async function loadBlackFridayPanel(): Promise<{
 }> {
   const [products, creatives] = await Promise.all([
     prisma.blackFridayProduct.findMany({
+      where: { campaign },
       orderBy: { slotNumber: "asc" },
       include: { selectedCreative: true },
     }),
-    prisma.blackFridayCreative.findMany(),
+    prisma.blackFridayCreative.findMany({ where: { campaign } }),
   ]);
 
   const byGroup = new Map<string, typeof creatives>();
@@ -267,7 +282,11 @@ export async function updateBlackFridayProduct(
     const creative = await prisma.blackFridayCreative.findUnique({
       where: { id: input.selectedCreativeId },
     });
-    if (!creative || creative.groupKey !== existing.creativeGroupKey) {
+    if (
+      !creative ||
+      creative.groupKey !== existing.creativeGroupKey ||
+      creative.campaign !== existing.campaign
+    ) {
       throw new BlackFridayUpdateError("Criativo não pertence a este produto.");
     }
   }
@@ -288,9 +307,10 @@ export async function updateBlackFridayProduct(
 }
 
 /** Products the XML feed may publish — see isXmlEligible's own rule. */
-export async function loadXmlEligibleBlackFridayProducts() {
+export async function loadXmlEligibleBlackFridayProducts(campaign: string) {
   const products = await prisma.blackFridayProduct.findMany({
     where: {
+      campaign,
       status: "VALIDATED",
       affiliateUrl: { not: null },
       mlUrlOriginal: { not: null },

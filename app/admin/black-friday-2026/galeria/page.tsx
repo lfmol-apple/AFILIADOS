@@ -6,7 +6,7 @@ import {
   isAdminRequestAuthorized,
 } from "@/lib/admin/auth";
 import { AdminLoginForm } from "@/components/admin-login-form";
-import { loadBlackFridayPanel, type BlackFridayPanelRow } from "@/lib/services/black-friday-2026";
+import { loadBlackFridayPanel, BLACK_FRIDAY_2026_CAMPAIGN, type BlackFridayPanelRow } from "@/lib/services/black-friday-2026";
 
 export const metadata: Metadata = {
   title: "Black Friday 2026 — conferência visual — Admin",
@@ -52,7 +52,7 @@ export default async function BlackFridayGaleriaPage() {
   );
   if (!authorized) return <AdminLoginForm />;
 
-  const { rows, surplusCreatives } = await loadBlackFridayPanel();
+  const { rows, surplusCreatives } = await loadBlackFridayPanel(BLACK_FRIDAY_2026_CAMPAIGN);
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6">

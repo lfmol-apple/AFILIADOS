@@ -6,7 +6,7 @@ import {
 } from "@/lib/admin/auth";
 import { AdminLoginForm } from "@/components/admin-login-form";
 import { PanelBatch } from "@/components/panel-batch";
-import { loadBlackFridayPanel } from "@/lib/services/black-friday-2026";
+import { loadBlackFridayPanel, BLACK_FRIDAY_2026_CAMPAIGN } from "@/lib/services/black-friday-2026";
 
 export const metadata: Metadata = {
   title: "Black Friday 2026 — links em lote — Admin",
@@ -31,7 +31,7 @@ export default async function BlackFridayBatchLinksPage() {
   );
   if (!authorized) return <AdminLoginForm />;
 
-  const { rows } = await loadBlackFridayPanel();
+  const { rows } = await loadBlackFridayPanel(BLACK_FRIDAY_2026_CAMPAIGN);
   const pending = rows.filter((r) => r.status !== "VALIDATED" && r.enabled);
   const addresses = pending
     .map((r) => r.resolvedProductUrl ?? r.mlUrlOriginal)

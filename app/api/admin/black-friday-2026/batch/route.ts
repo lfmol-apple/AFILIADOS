@@ -5,7 +5,7 @@ import {
   ADMIN_SESSION_COOKIE,
   isAdminRequestAuthorized,
 } from "@/lib/admin/auth";
-import { loadBlackFridayPanel } from "@/lib/services/black-friday-2026";
+import { loadBlackFridayPanel, BLACK_FRIDAY_2026_CAMPAIGN } from "@/lib/services/black-friday-2026";
 import { BATCH_MAX_LINKS } from "@/lib/services/ml-panel-batch";
 import { parseBatchLinks } from "@/lib/services/ml-panel-check-logic";
 import { previewBlackFridayBatch } from "@/lib/services/black-friday-link-batch";
@@ -49,7 +49,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { rows: products } = await loadBlackFridayPanel();
+  const { rows: products } = await loadBlackFridayPanel(BLACK_FRIDAY_2026_CAMPAIGN);
   const pending = products
     .filter((p) => p.status !== "VALIDATED" && p.enabled)
     .map((p) => ({

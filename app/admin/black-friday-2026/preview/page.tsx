@@ -5,7 +5,7 @@ import {
   isAdminRequestAuthorized,
 } from "@/lib/admin/auth";
 import { AdminLoginForm } from "@/components/admin-login-form";
-import { loadBlackFridayPanel } from "@/lib/services/black-friday-2026";
+import { loadBlackFridayPanel, BLACK_FRIDAY_2026_CAMPAIGN } from "@/lib/services/black-friday-2026";
 import { BlackFridayFeedSimulator } from "@/components/black-friday-feed-simulator";
 
 export const metadata: Metadata = {
@@ -32,7 +32,7 @@ export default async function BlackFridayPreviewPage() {
   );
   if (!authorized) return <AdminLoginForm />;
 
-  const { rows, counters } = await loadBlackFridayPanel();
+  const { rows, counters } = await loadBlackFridayPanel(BLACK_FRIDAY_2026_CAMPAIGN);
   const products = rows
     .filter((r) => r.selectedCreative && r.enabled)
     .map((r) => ({
