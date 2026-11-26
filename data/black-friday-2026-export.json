@@ -1,5 +1,5 @@
 {
-  "exportedAt": "2026-11-26T16:10:19.259Z",
+  "exportedAt": "2026-11-26T16:58:39.176Z",
   "creatives": [
     {
       "sha256": "59d28b71bec9dd94d6b944039c216f62dcd0f47ec9c83a8a59f3b052e8f14ba8",
@@ -196,7 +196,7 @@
       "resolvedTitle": null,
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "858a2edf8535bab46e064a3878d7ca44ff9c20c3fd4186936d02b07d52bf7c2f"
@@ -214,7 +214,7 @@
       "resolvedTitle": null,
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "1d03b82ff8a4a9ab1e42103d4c67950c87f7f7bb6bd95331af0dba6bbcb93c05"
@@ -232,7 +232,7 @@
       "resolvedTitle": null,
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "56af9f3c7c8a3bdfba5659cb1398d546c26e00bcd859592052d6da2330180297"
@@ -250,7 +250,7 @@
       "resolvedTitle": null,
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "fa2477a2319108424e45a80d9b1f9dbca5bb543de8818c9e95b2cd03fcea72bb"
@@ -268,7 +268,7 @@
       "resolvedTitle": null,
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "1dbf8850f03b792a43c0715d32192c2c08e61a940be8ef15da1f49fba7c37136"
@@ -286,7 +286,7 @@
       "resolvedTitle": null,
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "d95412eb6877c1c34b35f3e3cf03d611338305e2990769e02d07141c0d87ebea"
@@ -304,7 +304,7 @@
       "resolvedTitle": null,
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "99d256ccc9a3e4d7e252575ff2bbe87ec0272d67fe57d315128a1ea50ca5ff65"
@@ -322,7 +322,7 @@
       "resolvedTitle": null,
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "5c2b47f7ed0ff413d5893d04e8135423fac4be841f3cf8ff529b85c030d8ce99"
@@ -340,7 +340,7 @@
       "resolvedTitle": null,
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "2a977eed9f68242e4da2e624d6243ddb61b995f38858945f1ff507ee5a597178"
@@ -358,7 +358,7 @@
       "resolvedTitle": null,
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "b85d630c0aed16e315886a5ac66c362956562f2cfd83cd2da9d04c1c35247880"
@@ -376,7 +376,7 @@
       "resolvedTitle": null,
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "753a5de973b584e4c3d7ab106503f4adf1b7e6838540bfbcfb6e405981eba3de"
@@ -394,7 +394,7 @@
       "resolvedTitle": null,
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "e7c2da912dcbffbab4e6e84de5e64e47c4db9ed57f3f926e6561529a31fdeee9"
@@ -412,7 +412,7 @@
       "resolvedTitle": null,
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "b3b9575ba67afa94ac21d7123531e8019ae99b686a3cd1289a7d3637daf4612f"
@@ -430,7 +430,7 @@
       "resolvedTitle": null,
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "ee0aaeb6747e7a7b826cc373b11864592e880a7cc6e00c427eae2dca8af74524"
@@ -448,7 +448,7 @@
       "resolvedTitle": null,
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "9a067e7b4bf92ff12e2f0ccb039825148adeb9a975423eae4c50dd572f39cae5"
@@ -466,7 +466,7 @@
       "resolvedTitle": null,
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "59d28b71bec9dd94d6b944039c216f62dcd0f47ec9c83a8a59f3b052e8f14ba8"
@@ -484,7 +484,7 @@
       "resolvedTitle": null,
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "d50ff51004e9cdae5a6bdd2a112c41a6b9bcf98ee94d66c994f64e7e971f024e"
@@ -502,7 +502,7 @@
       "resolvedTitle": null,
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "d973c9d096f2a7dad5c39b860462fcbd3c13aac31c0dde5fe0912851cfcaf78f"
@@ -520,7 +520,7 @@
       "resolvedTitle": null,
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "c025cf5b7ac797629e25dc70c74551e3699a9181feeb867507822842a57fe0b7"
@@ -538,7 +538,7 @@
       "resolvedTitle": null,
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "5ae0cbe8278d79b157646c8fae1e8b76ead2a5994576015693585b7ca6f6dc69"
@@ -556,7 +556,7 @@
       "resolvedTitle": null,
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "6b84be2f00e732d3d688951691ad2e1fe1ca0b4f73092b200698e70d9391b3d8"
@@ -574,7 +574,7 @@
       "resolvedTitle": null,
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "a7baae94d58db8a19b4a4eae4b23b23e25c6d397b16d5707e65ab8096bb12c72"
@@ -592,7 +592,7 @@
       "resolvedTitle": null,
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "a2f79592babaa90e0df7e4b6e5284d9e079c8f5e05562403bb7262e57422422f"
@@ -610,7 +610,7 @@
       "resolvedTitle": "Garrafa Térmica 800ml Inox Bico Duplo Canudo Alça Esporte Azul - R$ 44,99",
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "a883ac683782e04ae25ed5c6483c525ec0cf52cd466f4e0cb47a329b7bbb6c03"
@@ -628,7 +628,7 @@
       "resolvedTitle": "Dreame D15 Plus Robot Vacuum E Passa Pano, 13000 Pa, 127v - R$ 1.808",
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "db42029e0c32b22105586f61098245d36762b012fc2fa02978c82507f6d3aa98"
@@ -646,7 +646,7 @@
       "resolvedTitle": "Bicicleta Bike Elétrica Dobrável 400w 48v 25km/h Aro 14 Preto 14 - R$ 2.240",
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "ebc567b3083e06874f79a66420b3efea0408848889191cc3346d4e012c5bb0e5"
@@ -664,7 +664,7 @@
       "resolvedTitle": "Carrinho De Bebê Passeio 3 Em 1 Reversível Moisés Dobrável - R$ 597,81",
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "3cb4442778db9c5478184cf59a8b211ec5850b040d9729f29f0a4ab95f6b8cf9"
@@ -682,7 +682,7 @@
       "resolvedTitle": "Patinete Elétrico GM5 P1 Preto Dobrável com Bluetooth, 25 Km/h e Autonomia de 22 Km - R$ 1.159",
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "5ef3289466b6c60b6bd7b29003177eb6730a9188f7fa4be8ea0a864f7bf95514"
@@ -700,7 +700,7 @@
       "resolvedTitle": "Loção Hidratante Corporal 3 Ceramidas Hidratação 120h CeraVe 473ml - R$ 79,90",
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": "Preço anunciado no criativo (R$ 77,27) diverge ligeiramente do preço atual lido na página do produto (R$ 79,90) — divergência pequena (~3,4%), mas registrada para acompanhamento.",
       "selectedCreativeSha256": "80d0fb237db6041c0e1f19dba2e6424e32b35e6c5d0a0473ef332502ad8b458b"
@@ -718,7 +718,7 @@
       "resolvedTitle": "Cetaphil Loção Hidratante Corporal e Facial para Pele Sensível, Normal a Seca 1L - Hidratação 48h - R$ 150,76",
       "enabled": true,
       "affiliateUrl": null,
-      "attributionTag": "blackfriday2026",
+      "attributionTag": "blackfriday",
       "status": "PENDING_LINK",
       "reviewNote": null,
       "selectedCreativeSha256": "4c7434922bee8d4e88d18ae4c2dbd85cbd73756caaa51949bac8b861e6a5ccbc"

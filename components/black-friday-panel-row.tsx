@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 export interface BlackFridayCandidateProp {
@@ -51,6 +52,7 @@ function formatDateTime(iso: string | null): string {
 }
 
 export function BlackFridayPanelRow(props: BlackFridayPanelRowProps) {
+  const router = useRouter();
   const [mlUrlOriginal, setMlUrlOriginal] = useState(props.mlUrlOriginal ?? "");
   const [affiliateUrl, setAffiliateUrl] = useState(props.affiliateUrl ?? "");
   const [selectedCreativeId, setSelectedCreativeId] = useState(props.selectedCreativeId);
@@ -89,6 +91,15 @@ export function BlackFridayPanelRow(props: BlackFridayPanelRowProps) {
         setDestinationCheckedAt(data.product.destinationCheckedAt);
       }
       setMessage("Salvo.");
+      // Owner's directive, 2026-11-26 ("o resumo apresenta informações
+      // incompatíveis com os status individuais dos produtos"): the
+      // counters at the top of the page are rendered once, server-side,
+      // at page load — without this, they go stale the moment any row
+      // saves a change, even though this row's own displayed status is
+      // already correct. Re-runs the server component so the counters
+      // (and every other row, which already reflects its own last save)
+      // match reality again.
+      router.refresh();
     } catch {
       setMessage("Falha de rede ao salvar.");
     } finally {
