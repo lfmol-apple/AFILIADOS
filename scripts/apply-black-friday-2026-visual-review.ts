@@ -43,14 +43,16 @@ async function eliminateCreative(originalFilename: string) {
 }
 
 async function confirmSlot(slot: number, clearNote = true) {
-  const product = await prisma.blackFridayProduct.findUnique({ where: { slotNumber: slot } });
+  const product = await prisma.blackFridayProduct.findUnique({
+    where: { campaign_slotNumber: { campaign: "black-friday-2026", slotNumber: slot } },
+  });
   if (!product) throw new Error(`Slot ${slot} não encontrado`);
   const candidates = await prisma.blackFridayCreative.findMany({ where: { groupKey: product.creativeGroupKey } });
   if (candidates.length !== 1) {
     throw new Error(`Slot ${slot}: esperado exatamente 1 candidato após as eliminações, encontrado ${candidates.length}`);
   }
   await prisma.blackFridayProduct.update({
-    where: { slotNumber: slot },
+    where: { campaign_slotNumber: { campaign: "black-friday-2026", slotNumber: slot } },
     data: {
       selectedCreativeId: candidates[0]!.id,
       ...(clearNote ? { reviewNote: null } : {}),

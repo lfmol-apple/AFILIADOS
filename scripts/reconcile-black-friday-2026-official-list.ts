@@ -299,13 +299,14 @@ async function main() {
     // protects affiliateUrl/status instead, which this script never
     // touches at all — see the upsert below.)
     await prisma.blackFridayProduct.upsert({
-      where: { slotNumber: official.slot },
+      where: { campaign_slotNumber: { campaign: "black-friday-2026", slotNumber: official.slot } },
       update: {
         ...facts,
         currentPrice: official.currentPrice ?? null,
         selectedCreativeId,
       },
       create: {
+        campaign: "black-friday-2026",
         slotNumber: official.slot,
         ...facts,
         currentPrice: official.currentPrice ?? null,

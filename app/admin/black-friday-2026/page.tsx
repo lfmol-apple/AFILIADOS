@@ -6,7 +6,7 @@ import {
   isAdminRequestAuthorized,
 } from "@/lib/admin/auth";
 import { AdminLoginForm } from "@/components/admin-login-form";
-import { loadBlackFridayPanel } from "@/lib/services/black-friday-2026";
+import { loadBlackFridayPanel, BLACK_FRIDAY_2026_CAMPAIGN } from "@/lib/services/black-friday-2026";
 import { BlackFridayPanelList } from "@/components/black-friday-panel-list";
 import { CopyXmlUrlButton } from "@/components/copy-xml-url-button";
 import { siteConfig } from "@/lib/config/site";
@@ -24,7 +24,7 @@ export default async function BlackFriday2026Page() {
   );
   if (!authorized) return <AdminLoginForm />;
 
-  const { rows, counters, surplusCreatives } = await loadBlackFridayPanel();
+  const { rows, counters, surplusCreatives } = await loadBlackFridayPanel(BLACK_FRIDAY_2026_CAMPAIGN);
   const xmlUrl = `${siteConfig.url}/catalogo/black-friday-2026.xml`;
 
   return (

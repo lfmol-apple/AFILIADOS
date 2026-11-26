@@ -234,6 +234,12 @@ export default async function AdminPage(props: PagePropsWithSearch) {
           >
             Black Friday 2026 →
           </a>
+          <a
+            href="/admin/black-friday-fim-do-mundo"
+            className="border-border-subtle hover:border-brand rounded-full border px-3 py-1.5 text-xs font-medium"
+          >
+            Black Friday Fim do Mundo →
+          </a>
           {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- plain <a>, same convention as every other admin nav link in this exact file */}
           <a
             href="/admin/vitrines"

@@ -1,0 +1,416 @@
+{
+  "campaign": "black-friday-fim-do-mundo",
+  "exportedAt": "2026-11-26T19:12:20.312Z",
+  "creatives": [
+    {
+      "sha256": "31c795d908700f06e51b4d69bc16d2a2c9576fe3a204b2ef11987a32a029cb92",
+      "groupKey": "fdm-guardaroupa-lopas-8portas",
+      "originalFilename": "WhatsApp Image 2026-11-26 at 15.44.22.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/31c795d908700f06.jpeg"
+    },
+    {
+      "sha256": "f795821fc10a54898dd851318bc22680fdb4a238ff3fffbdc2e12ce206add26d",
+      "groupKey": "fdm-tv-lg-65-4k-superseded-20261126",
+      "originalFilename": "fdm05.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/f795821fc10a5489.jpeg"
+    },
+    {
+      "sha256": "40718b9f621af1ce261c797882f90fd367e40d2b866e3cb8ff61ca7688de6edf",
+      "groupKey": "fdm-notebook-acer-nitro-v15",
+      "originalFilename": "fdm01.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/40718b9f621af1ce.jpeg"
+    },
+    {
+      "sha256": "d388dec4fcf020823fe852e058a4f846443c6c56a2fd14d3d8279cbee9576a0d",
+      "groupKey": "fdm-drone-dji-mini5-pro",
+      "originalFilename": "fdm02.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/d388dec4fcf02082.jpeg"
+    },
+    {
+      "sha256": "6b2383815ba558da7396185089edd58812152b4477fcf2c173efa91e39522674",
+      "groupKey": "fdm-projetor-epson-e24",
+      "originalFilename": "fdm03.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/6b2383815ba558da.jpeg"
+    },
+    {
+      "sha256": "abf9b0d75822574e7795a09ea2eaaefdea0901ba1aa0e979aeb9962fb6fc6cb5",
+      "groupKey": "fdm-impressora3d-bambulab-a1",
+      "originalFilename": "fdm04.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/abf9b0d75822574e.jpeg"
+    },
+    {
+      "sha256": "fd747b41856e98d358ebe3dd9d93db069d80abe64dde667b2a5b1bb71c286f92",
+      "groupKey": "fdm-geladeira-brastemp-385l",
+      "originalFilename": "fdm06.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/fd747b41856e98d3.jpeg"
+    },
+    {
+      "sha256": "63ae7a6277ae82025bd2d92fdd3e702a5dc2ad148fd0db7e66ebd17e8fd62b98",
+      "groupKey": "fdm-lavaeseca-samsung-13kg",
+      "originalFilename": "fdm07.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/63ae7a6277ae8202.jpeg"
+    },
+    {
+      "sha256": "a25697b06601122be993c32ba11a6ba6e18758532eb1e4c4886d73bf94305859",
+      "groupKey": "fdm-ar-portatil-kabum-700",
+      "originalFilename": "fdm10.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/a25697b06601122b.jpeg"
+    },
+    {
+      "sha256": "13bb2912bd9430bf11e8bcb17a4558c4df96ad5403afff0eb90ed43d1460d2b5",
+      "groupKey": "fdm-airfryer-mondial-4l",
+      "originalFilename": "fdm13.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/13bb2912bd9430bf.jpeg"
+    },
+    {
+      "sha256": "a38ed0d027493ac6fd8dc8a2de158c6e6bed4d6ed1822540edeaa6ecb9678afa",
+      "groupKey": "fdm-ar-split-samsung-windfree-superseded-20261126",
+      "originalFilename": "fdm09.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/a38ed0d027493ac6.jpeg"
+    },
+    {
+      "sha256": "2a24db678ec9087d8f1b60606646fc6657451aec73aaa0b60d8467e92b07ab91",
+      "groupKey": "fdm-galaxy-s24-superseded-20261126",
+      "originalFilename": "fdm11.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/2a24db678ec9087d.jpeg"
+    },
+    {
+      "sha256": "57942097034fa66cda200b934052a74b0f964b8c6329c3534bd6205faeb743bd",
+      "groupKey": "fdm-guardaroupa-lopas-8portas-superseded-20261126",
+      "originalFilename": "fdm14.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/57942097034fa66c.jpeg"
+    },
+    {
+      "sha256": "6872298da3ea0853ac6ff74d72924c934563602005be0c462361dad4bd5d5cea",
+      "groupKey": "fdm-lavadora-midea-13kg-superseded-20261126",
+      "originalFilename": "fdm08.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/6872298da3ea0853.jpeg"
+    },
+    {
+      "sha256": "f6dd999a1f81b6d05c573577aa012b4134ec098f14d4e8772eb7b591c1f76c0d",
+      "groupKey": "fdm-ps5-slim-digital-superseded-20261126",
+      "originalFilename": "fdm12.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/f6dd999a1f81b6d0.jpeg"
+    },
+    {
+      "sha256": "67b5d3f93db45aeeab13f2516094479b1cf7b6b103458af5055bb3c9c234f257",
+      "groupKey": "fdm-esteira-eletrica-dobravel",
+      "originalFilename": "fdm15.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/67b5d3f93db45aee.jpeg"
+    },
+    {
+      "sha256": "c7e6140c807343905bbcd8347609241c8f5b24bb844852c8ee95b812463d332e",
+      "groupKey": "fdm-tv-lg-65-4k",
+      "originalFilename": "WhatsApp Image 2026-11-26 at 15.44.21.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/c7e6140c80734390.jpeg"
+    },
+    {
+      "sha256": "dc38f5cff31406ac92dbd99ab682d125407f1305477c0ef6c47d3522983693ee",
+      "groupKey": "fdm-lavadora-midea-13kg",
+      "originalFilename": "WhatsApp Image 2026-11-26 at 15.44.21 (1).jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/dc38f5cff31406ac.jpeg"
+    },
+    {
+      "sha256": "dd5620052f01dbf1c8e665ced8697f5c5ad98b73c36b29ec342c899caa35ac8a",
+      "groupKey": "fdm-ar-split-samsung-windfree",
+      "originalFilename": "WhatsApp Image 2026-11-26 at 15.44.21 (2).jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/dd5620052f01dbf1.jpeg"
+    },
+    {
+      "sha256": "018461668177f85db2ba263b2609dc6c61374ad8a94b5fa3d65658b14fd68649",
+      "groupKey": "fdm-galaxy-s24",
+      "originalFilename": "WhatsApp Image 2026-11-26 at 16.10.57.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/018461668177f85d.jpeg"
+    },
+    {
+      "sha256": "bd4a6737726e0eb10c04fd4b6b0619f75f4936f6e43dd8fd0a69d2ff526920a6",
+      "groupKey": "fdm-galaxy-s24-superseded-20261126",
+      "originalFilename": "WhatsApp Image 2026-11-26 at 15.44.22 (1).jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/bd4a6737726e0eb1.jpeg"
+    },
+    {
+      "sha256": "d17ec1ee24d79f79b26fca6aa863be159c0d4f9eae24767d8e5dd0dc3a2381d3",
+      "groupKey": "fdm-ps5-slim-digital",
+      "originalFilename": "WhatsApp Image 2026-11-26 at 16.10.31.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/d17ec1ee24d79f79.jpeg"
+    },
+    {
+      "sha256": "a0c695cca0a51a2ba1c64b10bd125b6a30c87c57fd3c7edbb2b1b4c7b9b6b49a",
+      "groupKey": "fdm-ps5-slim-digital-superseded-20261126",
+      "originalFilename": "WhatsApp Image 2026-11-26 at 15.32.38.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/a0c695cca0a51a2b.jpeg"
+    }
+  ],
+  "products": [
+    {
+      "slotNumber": 1,
+      "creativeGroupKey": "fdm-notebook-acer-nitro-v15",
+      "name": "Notebook Gamer Nitro V15 Intel i7 RTX 4050 8GB 512GB SSD",
+      "brand": "Acer",
+      "advertisedPrice": 5439.99,
+      "currentPrice": null,
+      "mlUrlOriginal": "https://meli.la/1DtNStD",
+      "resolvedProductUrl": "https://www.mercadolivre.com.br/p/MLB72018722",
+      "resolvedExternalId": "MLB72018722",
+      "resolvedTitle": null,
+      "enabled": true,
+      "affiliateUrl": null,
+      "attributionTag": "blackfridayfimdomundo",
+      "status": "PENDING_LINK",
+      "reviewNote": null,
+      "selectedCreativeSha256": "40718b9f621af1ce261c797882f90fd367e40d2b866e3cb8ff61ca7688de6edf"
+    },
+    {
+      "slotNumber": 2,
+      "creativeGroupKey": "fdm-drone-dji-mini5-pro",
+      "name": "Drone Mini 5 Pro Fly More Plus com Controle RC 2",
+      "brand": "DJI",
+      "advertisedPrice": 9035.99,
+      "currentPrice": null,
+      "mlUrlOriginal": "https://meli.la/1kAkoyb",
+      "resolvedProductUrl": "https://www.mercadolivre.com.br/p/MLB56721548",
+      "resolvedExternalId": "MLB56721548",
+      "resolvedTitle": null,
+      "enabled": true,
+      "affiliateUrl": null,
+      "attributionTag": "blackfridayfimdomundo",
+      "status": "PENDING_LINK",
+      "reviewNote": null,
+      "selectedCreativeSha256": "d388dec4fcf020823fe852e058a4f846443c6c56a2fd14d3d8279cbee9576a0d"
+    },
+    {
+      "slotNumber": 3,
+      "creativeGroupKey": "fdm-projetor-epson-e24",
+      "name": "Projetor Multimídia Powerlite E24 3.600 Lúmens XGA",
+      "brand": "Epson",
+      "advertisedPrice": 3229.9,
+      "currentPrice": null,
+      "mlUrlOriginal": "https://meli.la/1nv7RF5",
+      "resolvedProductUrl": "https://www.mercadolivre.com.br/p/MLB61372830",
+      "resolvedExternalId": "MLB61372830",
+      "resolvedTitle": null,
+      "enabled": true,
+      "affiliateUrl": null,
+      "attributionTag": "blackfridayfimdomundo",
+      "status": "PENDING_LINK",
+      "reviewNote": null,
+      "selectedCreativeSha256": "6b2383815ba558da7396185089edd58812152b4477fcf2c173efa91e39522674"
+    },
+    {
+      "slotNumber": 4,
+      "creativeGroupKey": "fdm-impressora3d-bambulab-a1",
+      "name": "Impressora 3D A1 FDM Aberta",
+      "brand": "Bambu Lab",
+      "advertisedPrice": 2697.05,
+      "currentPrice": null,
+      "mlUrlOriginal": "https://meli.la/2MQKCai",
+      "resolvedProductUrl": "https://www.mercadolivre.com.br/p/MLB45248118",
+      "resolvedExternalId": "MLB45248118",
+      "resolvedTitle": null,
+      "enabled": true,
+      "affiliateUrl": null,
+      "attributionTag": "blackfridayfimdomundo",
+      "status": "PENDING_LINK",
+      "reviewNote": null,
+      "selectedCreativeSha256": "abf9b0d75822574e7795a09ea2eaaefdea0901ba1aa0e979aeb9962fb6fc6cb5"
+    },
+    {
+      "slotNumber": 5,
+      "creativeGroupKey": "fdm-tv-lg-65-4k",
+      "name": "Smart TV PRO 65\" 4K Ultra HD AI",
+      "brand": "LG",
+      "advertisedPrice": 2869,
+      "currentPrice": 2896,
+      "mlUrlOriginal": "https://meli.la/2kjohnN",
+      "resolvedProductUrl": "https://www.mercadolivre.com.br/p/MLB75681241",
+      "resolvedExternalId": "MLB75681241",
+      "resolvedTitle": null,
+      "enabled": true,
+      "affiliateUrl": null,
+      "attributionTag": "blackfridayfimdomundo",
+      "status": "PENDING_LINK",
+      "reviewNote": null,
+      "selectedCreativeSha256": "c7e6140c807343905bbcd8347609241c8f5b24bb844852c8ee95b812463d332e"
+    },
+    {
+      "slotNumber": 6,
+      "creativeGroupKey": "fdm-geladeira-brastemp-385l",
+      "name": "Geladeira Frost Free Duplex Inox 385 Litros BRM46MK",
+      "brand": "Brastemp",
+      "advertisedPrice": 2679.38,
+      "currentPrice": null,
+      "mlUrlOriginal": "https://meli.la/16whCNL",
+      "resolvedProductUrl": "https://www.mercadolivre.com.br/p/MLB64307757",
+      "resolvedExternalId": "MLB64307757",
+      "resolvedTitle": null,
+      "enabled": true,
+      "affiliateUrl": null,
+      "attributionTag": "blackfridayfimdomundo",
+      "status": "PENDING_LINK",
+      "reviewNote": null,
+      "selectedCreativeSha256": "fd747b41856e98d358ebe3dd9d93db069d80abe64dde667b2a5b1bb71c286f92"
+    },
+    {
+      "slotNumber": 7,
+      "creativeGroupKey": "fdm-lavaeseca-samsung-13kg",
+      "name": "Lava e Seca Front Load 13kg Smart AI Control WD13FG6B34BX/AZ",
+      "brand": "Samsung",
+      "advertisedPrice": 4439,
+      "currentPrice": null,
+      "mlUrlOriginal": "https://meli.la/27JE2LC",
+      "resolvedProductUrl": "https://www.mercadolivre.com.br/p/MLB60385574",
+      "resolvedExternalId": "MLB60385574",
+      "resolvedTitle": null,
+      "enabled": true,
+      "affiliateUrl": null,
+      "attributionTag": "blackfridayfimdomundo",
+      "status": "PENDING_LINK",
+      "reviewNote": null,
+      "selectedCreativeSha256": "63ae7a6277ae82025bd2d92fdd3e702a5dc2ad148fd0db7e66ebd17e8fd62b98"
+    },
+    {
+      "slotNumber": 8,
+      "creativeGroupKey": "fdm-lavadora-midea-13kg",
+      "name": "Lavadora de Roupas Wave Agitator 13kg Branca",
+      "brand": "Midea",
+      "advertisedPrice": 1647,
+      "currentPrice": 1647,
+      "mlUrlOriginal": "https://meli.la/1G7pZSe",
+      "resolvedProductUrl": "https://www.mercadolivre.com.br/p/MLB45804798",
+      "resolvedExternalId": "MLB45804798",
+      "resolvedTitle": null,
+      "enabled": true,
+      "affiliateUrl": null,
+      "attributionTag": "blackfridayfimdomundo",
+      "status": "PENDING_LINK",
+      "reviewNote": null,
+      "selectedCreativeSha256": "dc38f5cff31406ac92dbd99ab682d125407f1305477c0ef6c47d3522983693ee"
+    },
+    {
+      "slotNumber": 9,
+      "creativeGroupKey": "fdm-ar-split-samsung-windfree",
+      "name": "Ar Condicionado Split WindFree AI Pro 12.000 BTUs Frio",
+      "brand": "Samsung",
+      "advertisedPrice": 2799,
+      "currentPrice": 2799,
+      "mlUrlOriginal": "https://meli.la/1xe94co",
+      "resolvedProductUrl": "https://www.mercadolivre.com.br/p/MLB76156293",
+      "resolvedExternalId": "MLB76156293",
+      "resolvedTitle": null,
+      "enabled": true,
+      "affiliateUrl": null,
+      "attributionTag": "blackfridayfimdomundo",
+      "status": "PENDING_LINK",
+      "reviewNote": null,
+      "selectedCreativeSha256": "dd5620052f01dbf1c8e665ced8697f5c5ad98b73c36b29ec342c899caa35ac8a"
+    },
+    {
+      "slotNumber": 10,
+      "creativeGroupKey": "fdm-ar-portatil-kabum-700",
+      "name": "Ar Condicionado Portátil Smart 700 12.000 BTUs Quente e Frio",
+      "brand": "KABUM!",
+      "advertisedPrice": 1869.99,
+      "currentPrice": null,
+      "mlUrlOriginal": "https://meli.la/2u5TrXk",
+      "resolvedProductUrl": "https://www.mercadolivre.com.br/p/MLB80139594",
+      "resolvedExternalId": "MLB80139594",
+      "resolvedTitle": null,
+      "enabled": true,
+      "affiliateUrl": null,
+      "attributionTag": "blackfridayfimdomundo",
+      "status": "PENDING_LINK",
+      "reviewNote": null,
+      "selectedCreativeSha256": "a25697b06601122be993c32ba11a6ba6e18758532eb1e4c4886d73bf94305859"
+    },
+    {
+      "slotNumber": 11,
+      "creativeGroupKey": "fdm-galaxy-s24",
+      "name": "Galaxy S24 Galaxy AI 512GB 8GB RAM Preto",
+      "brand": "Samsung",
+      "advertisedPrice": 3849,
+      "currentPrice": 3849,
+      "mlUrlOriginal": "https://meli.la/2zPQRqw",
+      "resolvedProductUrl": "https://www.mercadolivre.com.br/p/MLB29699966",
+      "resolvedExternalId": "MLB29699966",
+      "resolvedTitle": null,
+      "enabled": true,
+      "affiliateUrl": null,
+      "attributionTag": "blackfridayfimdomundo",
+      "status": "PENDING_LINK",
+      "reviewNote": null,
+      "selectedCreativeSha256": "018461668177f85db2ba263b2609dc6c61374ad8a94b5fa3d65658b14fd68649"
+    },
+    {
+      "slotNumber": 12,
+      "creativeGroupKey": "fdm-ps5-slim-digital",
+      "name": "Console PlayStation 5 Slim Edição Digital 825GB Branco",
+      "brand": "Sony",
+      "advertisedPrice": 4596.6,
+      "currentPrice": null,
+      "mlUrlOriginal": "https://meli.la/27kfRW9",
+      "resolvedProductUrl": "https://www.mercadolivre.com.br/p/MLB29001054",
+      "resolvedExternalId": "MLB29001054",
+      "resolvedTitle": null,
+      "enabled": true,
+      "affiliateUrl": null,
+      "attributionTag": "blackfridayfimdomundo",
+      "status": "PENDING_LINK",
+      "reviewNote": null,
+      "selectedCreativeSha256": "d17ec1ee24d79f79b26fca6aa863be159c0d4f9eae24767d8e5dd0dc3a2381d3"
+    },
+    {
+      "slotNumber": 13,
+      "creativeGroupKey": "fdm-airfryer-mondial-4l",
+      "name": "Fritadeira Sem Óleo Air Fryer AFN-40-BI 4L 1500W",
+      "brand": "Mondial",
+      "advertisedPrice": 323,
+      "currentPrice": null,
+      "mlUrlOriginal": "https://meli.la/2z3F47y",
+      "resolvedProductUrl": "https://www.mercadolivre.com.br/p/MLB19635464",
+      "resolvedExternalId": "MLB19635464",
+      "resolvedTitle": null,
+      "enabled": true,
+      "affiliateUrl": null,
+      "attributionTag": "blackfridayfimdomundo",
+      "status": "PENDING_LINK",
+      "reviewNote": null,
+      "selectedCreativeSha256": "13bb2912bd9430bf11e8bcb17a4558c4df96ad5403afff0eb90ed43d1460d2b5"
+    },
+    {
+      "slotNumber": 14,
+      "creativeGroupKey": "fdm-guardaroupa-lopas-8portas",
+      "name": "Guarda-roupa Easy Slim 8 Portas com 2 Espelhos",
+      "brand": "Móveis Lopas",
+      "advertisedPrice": 996.31,
+      "currentPrice": 996.31,
+      "mlUrlOriginal": "https://meli.la/1rLrspj",
+      "resolvedProductUrl": "https://www.mercadolivre.com.br/p/MLB51396300",
+      "resolvedExternalId": "MLB51396300",
+      "resolvedTitle": null,
+      "enabled": true,
+      "affiliateUrl": null,
+      "attributionTag": "blackfridayfimdomundo",
+      "status": "PENDING_LINK",
+      "reviewNote": null,
+      "selectedCreativeSha256": "31c795d908700f06e51b4d69bc16d2a2c9576fe3a204b2ef11987a32a029cb92"
+    },
+    {
+      "slotNumber": 15,
+      "creativeGroupKey": "fdm-esteira-eletrica-dobravel",
+      "name": "Esteira Ergométrica Elétrica Dobrável Residencial Cardio",
+      "brand": null,
+      "advertisedPrice": 689.99,
+      "currentPrice": null,
+      "mlUrlOriginal": "https://meli.la/2PcyYU6",
+      "resolvedProductUrl": "https://www.mercadolivre.com.br/p/MLB77671293",
+      "resolvedExternalId": "MLB77671293",
+      "resolvedTitle": null,
+      "enabled": true,
+      "affiliateUrl": null,
+      "attributionTag": "blackfridayfimdomundo",
+      "status": "PENDING_LINK",
+      "reviewNote": null,
+      "selectedCreativeSha256": "67b5d3f93db45aeeab13f2516094479b1cf7b6b103458af5055bb3c9c234f257"
+    }
+  ]
+}

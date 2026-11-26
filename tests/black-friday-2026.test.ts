@@ -8,6 +8,7 @@ import {
   updateBlackFridayProduct,
   BlackFridayUpdateError,
   loadXmlEligibleBlackFridayProducts,
+  BLACK_FRIDAY_2026_CAMPAIGN,
 } from "@/lib/services/black-friday-2026";
 import { GET as blackFridayXmlRoute } from "@/app/catalogo/black-friday-2026.xml/route";
 import { GET as blackFridayGoRoute } from "@/app/go/black-friday-2026/[id]/route";
@@ -80,7 +81,7 @@ afterEach(async () => {
 describe("loadBlackFridayPanel", () => {
   it("lists every candidate creative for an ambiguous group even before one is selected", async () => {
     const { product, creatives } = await makeProductWithCreatives({ slotOffset: 1, candidateCount: 2 });
-    const { rows } = await loadBlackFridayPanel();
+    const { rows } = await loadBlackFridayPanel(BLACK_FRIDAY_2026_CAMPAIGN);
     const row = rows.find((r) => r.id === product.id);
     expect(row).toBeDefined();
     expect(row!.candidates.map((c) => c.id).sort()).toEqual(creatives.map((c) => c.id).sort());
@@ -89,7 +90,7 @@ describe("loadBlackFridayPanel", () => {
 
   it("counts a row as xmlEligible only when VALIDATED + links + selected creative are all present", async () => {
     await makeProductWithCreatives({ slotOffset: 2, candidateCount: 1, status: "VALIDATED", withLinks: true, select: "first" });
-    const { rows, counters } = await loadBlackFridayPanel();
+    const { rows, counters } = await loadBlackFridayPanel(BLACK_FRIDAY_2026_CAMPAIGN);
     const eligibleAmongFixtures = rows.filter(
       (r) => r.slotNumber === TEST_SLOT_BASE + 2,
     );
@@ -99,7 +100,7 @@ describe("loadBlackFridayPanel", () => {
 
   it("never counts a VALIDATED row with no selected creative as xmlEligible", async () => {
     await makeProductWithCreatives({ slotOffset: 3, candidateCount: 2, status: "VALIDATED", withLinks: true, select: "none" });
-    const eligible = await loadXmlEligibleBlackFridayProducts();
+    const eligible = await loadXmlEligibleBlackFridayProducts(BLACK_FRIDAY_2026_CAMPAIGN);
     expect(eligible.find((p) => p.slotNumber === TEST_SLOT_BASE + 3)).toBeUndefined();
   });
 });
@@ -173,7 +174,7 @@ describe("XML eligibility is re-checked against the Mercado Livre host allowlist
         affiliateUrl: "https://attacker.example.com/not-mercado-livre",
       },
     });
-    const eligible = await loadXmlEligibleBlackFridayProducts();
+    const eligible = await loadXmlEligibleBlackFridayProducts(BLACK_FRIDAY_2026_CAMPAIGN);
     expect(eligible.find((p) => p.id === product.id)).toBeUndefined();
   });
 });
@@ -215,7 +216,7 @@ describe("a disabled product is never XML-eligible", () => {
       select: "first",
     });
     await updateBlackFridayProduct(product.id, { enabled: false });
-    const eligible = await loadXmlEligibleBlackFridayProducts();
+    const eligible = await loadXmlEligibleBlackFridayProducts(BLACK_FRIDAY_2026_CAMPAIGN);
     expect(eligible.find((p) => p.id === product.id)).toBeUndefined();
   });
 });
@@ -240,7 +241,7 @@ describe("official reconciliation — real imported data (read-only against the 
   // they assert the real invariants in full.
   it("has exactly the 30 official slots, numbered 1-30, none of the superseded preliminary-only products", async () => {
     const products = await prisma.blackFridayProduct.findMany({
-      where: { slotNumber: { gte: 1, lte: 30 } },
+      where: { campaign: BLACK_FRIDAY_2026_CAMPAIGN, slotNumber: { gte: 1, lte: 30 } },
       orderBy: { slotNumber: "asc" },
     });
     if (products.length === 0) return; // nothing seeded in this environment
@@ -253,15 +254,21 @@ describe("official reconciliation — real imported data (read-only against the 
 
   it("no slot is left pointing at the 'missing-N' sentinel group — Henrique's follow-up delivery (2026-11-26) filled the last 2 gaps", async () => {
     const products = await prisma.blackFridayProduct.findMany({
-      where: { slotNumber: { gte: 1, lte: 30 }, creativeGroupKey: { startsWith: "missing-" } },
+      where: { campaign: BLACK_FRIDAY_2026_CAMPAIGN, slotNumber: { gte: 1, lte: 30 }, creativeGroupKey: { startsWith: "missing-" } },
     });
     expect(products).toHaveLength(0);
   });
 
   it("slots 12 and 14 (the ones that had no creative at reconciliation time) now each have exactly their own confirmed creative, identified by spec/brand match, never by file order", async () => {
     const [slot12, slot14] = await Promise.all([
-      prisma.blackFridayProduct.findUnique({ where: { slotNumber: 12 }, include: { selectedCreative: true } }),
-      prisma.blackFridayProduct.findUnique({ where: { slotNumber: 14 }, include: { selectedCreative: true } }),
+      prisma.blackFridayProduct.findUnique({
+        where: { campaign_slotNumber: { campaign: BLACK_FRIDAY_2026_CAMPAIGN, slotNumber: 12 } },
+        include: { selectedCreative: true },
+      }),
+      prisma.blackFridayProduct.findUnique({
+        where: { campaign_slotNumber: { campaign: BLACK_FRIDAY_2026_CAMPAIGN, slotNumber: 14 } },
+        include: { selectedCreative: true },
+      }),
     ]);
     if (!slot12 && !slot14) return; // nothing seeded in this environment
     expect(slot12?.name).toContain("Parafusadeira");

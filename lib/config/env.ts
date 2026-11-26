@@ -292,6 +292,15 @@ const envSchema = z.object({
     .enum(["direct", "redirect"])
     .default("direct"),
 
+  // Same purpose as BLACK_FRIDAY_2026_CATALOG_LINK_MODE above, kept as a
+  // fully separate switch for the second campaign (owner's directive,
+  // 2026-11-26, "SEGUNDA CAMPANHA — BLACK FRIDAY FIM DO MUNDO", section
+  // 8: "independência das campanhas") — flipping one never affects the
+  // other.
+  BLACK_FRIDAY_FIM_DO_MUNDO_CATALOG_LINK_MODE: z
+    .enum(["direct", "redirect"])
+    .default("direct"),
+
   // Meta Marketing API — real ad-spend import (jobs/vitrine-meta-spend-
   // sync.ts), confirmed feasible via research 2026-11-19: a System User
   // long-lived token scoped to Henrique's OWN ad account needs only

@@ -91,7 +91,9 @@ async function main() {
   let productsImported = 0;
   for (const p of raw.products) {
     const selectedCreativeId = p.selectedCreativeSha256 ? (shaToId.get(p.selectedCreativeSha256) ?? null) : null;
-    const existing = await prisma.blackFridayProduct.findUnique({ where: { slotNumber: p.slotNumber } });
+    const existing = await prisma.blackFridayProduct.findUnique({
+      where: { campaign_slotNumber: { campaign: "black-friday-2026", slotNumber: p.slotNumber } },
+    });
 
     const facts = {
       creativeGroupKey: p.creativeGroupKey,
@@ -107,7 +109,7 @@ async function main() {
     };
 
     await prisma.blackFridayProduct.upsert({
-      where: { slotNumber: p.slotNumber },
+      where: { campaign_slotNumber: { campaign: "black-friday-2026", slotNumber: p.slotNumber } },
       update: {
         ...facts,
         // Never clobber real owner progress already in this environment.
@@ -118,6 +120,7 @@ async function main() {
         ...(existing ? {} : { enabled: p.enabled }),
       },
       create: {
+        campaign: "black-friday-2026",
         slotNumber: p.slotNumber,
         ...facts,
         currentPrice: p.currentPrice,
