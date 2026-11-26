@@ -183,13 +183,23 @@ export async function getVitrineLink(
 /**
  * The Vitrine Inteligente flow: same human-assisted Mercado Livre paste-in
  * as saveManualAffiliateLinkFromCategoryQueue, but persisted to the
- * dedicated VitrineLink table with the "vitrinedinamica" tag instead of
- * "precocaindo" — the two tags must never collide or overwrite each other,
- * which is exactly why this is a different table, not a second row in
- * AffiliateLinkRegistry (that one is @unique per listing).
+ * dedicated VitrineLink table — a different table, not a second row in
+ * AffiliateLinkRegistry (that one is @unique per listing), because the
+ * "precocaindo" tag and a Vitrine's own tag must never collide or
+ * overwrite each other.
+ *
+ * Owner's directive, 2026-11-24 ("Isolamento integral entre vitrines",
+ * item 3: "links e campanhas identificáveis separadamente"): real bug
+ * this closes — both branches of this function's own upsert used to
+ * hardcode the literal string "vitrinedinamica" regardless of which
+ * vitrine the listing actually belonged to, so a second vitrine's real
+ * clicks/commissions would have been indistinguishable from the legacy
+ * campaign's. The caller (lib/services/vitrine-link-register.ts) now
+ * resolves the real, current tag via resolveAttributionTagForListing()
+ * and passes it explicitly — never guessed or defaulted here.
  */
 export async function saveVitrineLink(
-  input: Omit<SaveAffiliateLinkInput, "attributionTag">,
+  input: SaveAffiliateLinkInput,
 ): Promise<VitrineLink> {
   const routingCode = toRoutingMerchantCode(input.merchantCode);
   if (!routingCode) {
@@ -230,7 +240,7 @@ export async function saveVitrineLink(
       merchantId: input.merchantId,
       publicUrl: input.publicUrl,
       affiliateUrl: input.affiliateUrl,
-      attributionTag: "vitrinedinamica",
+      attributionTag: input.attributionTag,
       source: "MANUAL_ADMIN_CATEGORY",
       status: "ACTIVE",
       lastValidatedAt: new Date(),
@@ -238,7 +248,7 @@ export async function saveVitrineLink(
     update: {
       publicUrl: input.publicUrl,
       affiliateUrl: input.affiliateUrl,
-      attributionTag: "vitrinedinamica",
+      attributionTag: input.attributionTag,
       source: "MANUAL_ADMIN_CATEGORY",
       status: "ACTIVE",
       lastValidatedAt: new Date(),

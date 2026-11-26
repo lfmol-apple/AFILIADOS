@@ -108,6 +108,26 @@ export async function createVitrine(input: CreateVitrineInput) {
   }
 }
 
+/** Owner's directive, 2026-11-24 ("Isolamento integral entre vitrines",
+ * item 3: "links e campanhas identificáveis separadamente"): the real,
+ * single source of truth for which tag a given listing's VitrineLink
+ * should carry right now — whichever vitrine currently holds it ACTIVE.
+ * Returns the legacy vitrine's own real tag ("vitrinedinamica") for
+ * every listing still only ever handled by it today — the existing,
+ * unchanged behavior for the 17 real products already live. Never
+ * guesses; a listing not ACTIVE anywhere is a caller error, surfaced as
+ * a thrown error rather than a silent fallback to the wrong tag. */
+export async function resolveAttributionTagForListing(merchantListingId: string): Promise<string> {
+  const active = await prisma.vitrineSelection.findFirst({
+    where: { merchantListingId, status: "ACTIVE" },
+    select: { vitrine: { select: { attributionTag: true } } },
+  });
+  if (!active) {
+    throw new Error(`resolveAttributionTagForListing: ${merchantListingId} is not ACTIVE in any vitrine.`);
+  }
+  return active.vitrine.attributionTag;
+}
+
 export async function listVitrines() {
   return prisma.vitrine.findMany({ orderBy: { createdAt: "desc" } });
 }
