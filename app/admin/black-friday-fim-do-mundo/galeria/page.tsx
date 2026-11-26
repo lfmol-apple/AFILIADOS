@@ -68,6 +68,78 @@ export default async function BlackFridayFimDoMundoGaleriaPage() {
         para colar os links de afiliado.
       </p>
 
+      {(() => {
+        const divergent = rows.filter((row) => row.reviewNote);
+        if (divergent.length === 0) return null;
+        return (
+          <div className="mt-8 rounded border border-amber-300 bg-amber-50 p-4">
+            <h2 className="text-lg font-semibold text-amber-900">
+              Divergências a confirmar ({divergent.length})
+            </h2>
+            <p className="mt-1 text-sm text-amber-800">
+              Nenhuma imagem ou link foi substituído automaticamente. Cada linha abaixo compara o preço do
+              criativo, o preço identificado na página resolvida e o destino do link — a decisão é manual.
+            </p>
+            <div className="mt-4 space-y-4">
+              {divergent.map((row) => {
+                const link = row.resolvedProductUrl ?? row.mlUrlOriginal;
+                const isVariantMismatch = row.reviewNote?.toLowerCase().includes("variante") ?? false;
+                return (
+                  <div
+                    key={row.id}
+                    className="grid gap-3 rounded border border-amber-200 bg-white p-3 sm:grid-cols-[auto_1fr_1fr_1fr]"
+                  >
+                    <div className="relative mx-auto aspect-[3/4] w-24 overflow-hidden rounded border">
+                      {row.candidates[0] && (
+                        <Image
+                          src={row.candidates[0].storedPath}
+                          alt={row.candidates[0].originalFilename}
+                          fill
+                          sizes="96px"
+                          className="object-contain"
+                        />
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-foreground/60">Produto</p>
+                      <p className="text-sm font-medium">
+                        {String(row.slotNumber).padStart(2, "0")}. {row.name}
+                      </p>
+                      {isVariantMismatch && (
+                        <span className="mt-1 inline-block rounded-full bg-red-200 px-2 py-0.5 text-xs font-semibold text-red-900">
+                          bloqueado — divergência de variante
+                        </span>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-foreground/60">Preço do criativo</p>
+                      <p className="text-sm">
+                        {currency(row.advertisedPrice !== null ? Number(row.advertisedPrice) : null)}
+                      </p>
+                      <p className="mt-2 text-xs font-semibold text-foreground/60">Preço identificado</p>
+                      <p className="text-sm">
+                        {currency(row.currentPrice !== null ? Number(row.currentPrice) : null)}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-foreground/60">Destino do link</p>
+                      {link ? (
+                        <a href={link} target="_blank" rel="noopener" className="text-brand break-all text-sm underline">
+                          {link}
+                        </a>
+                      ) : (
+                        <p className="text-sm text-foreground/50">—</p>
+                      )}
+                      <p className="mt-2 text-xs leading-snug text-amber-800">{row.reviewNote}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
+
       <div className="mt-8 space-y-10">
         {rows.map((row) => {
           const status = matchStatus(row);
