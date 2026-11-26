@@ -7,6 +7,7 @@ import {
 import { AdminLoginForm } from "@/components/admin-login-form";
 import { loadBlackFridayPanel, BLACK_FRIDAY_FIM_DO_MUNDO_CAMPAIGN } from "@/lib/services/black-friday-2026";
 import { BlackFridayFeedSimulator } from "@/components/black-friday-feed-simulator";
+import { getPublicImageDimensions } from "@/lib/media/image-dimensions";
 
 export const metadata: Metadata = {
   title: "Black Friday Fim do Mundo — prévia mobile — Admin",
@@ -30,15 +31,20 @@ export default async function BlackFridayFimDoMundoPreviewPage() {
   const { rows, counters } = await loadBlackFridayPanel(BLACK_FRIDAY_FIM_DO_MUNDO_CAMPAIGN);
   const products = rows
     .filter((r) => r.selectedCreative && r.enabled)
-    .map((r) => ({
-      id: r.id,
-      slotNumber: r.slotNumber,
-      name: r.name,
-      brand: r.brand,
-      imagePath: r.selectedCreative!.storedPath,
-      price: r.currentPrice !== null ? Number(r.currentPrice) : r.advertisedPrice !== null ? Number(r.advertisedPrice) : null,
-      affiliateUrl: r.status === "VALIDATED" ? r.affiliateUrl : null,
-    }));
+    .map((r) => {
+      const dims = getPublicImageDimensions(r.selectedCreative!.storedPath);
+      return {
+        id: r.id,
+        slotNumber: r.slotNumber,
+        name: r.name,
+        brand: r.brand,
+        imagePath: r.selectedCreative!.storedPath,
+        imageWidth: dims?.width ?? null,
+        imageHeight: dims?.height ?? null,
+        price: r.currentPrice !== null ? Number(r.currentPrice) : r.advertisedPrice !== null ? Number(r.advertisedPrice) : null,
+        affiliateUrl: r.status === "VALIDATED" ? r.affiliateUrl : null,
+      };
+    });
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-8 sm:px-6">
