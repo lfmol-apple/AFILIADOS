@@ -1,4 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
+import { createHash } from "node:crypto";
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 import { prisma } from "@/lib/db";
 import {
   loadBlackFridayPanel,
@@ -145,5 +148,105 @@ describe("GET /catalogo/black-friday-2026.xml", () => {
     const xml = await response.text();
     expect(xml).toContain("<g:availability>in stock</g:availability>");
     expect(xml).toContain("<g:condition>new</g:condition>");
+  });
+});
+
+describe("a disabled product is never XML-eligible", () => {
+  it("excludes a VALIDATED, fully-linked product the owner disabled individually", async () => {
+    const { product } = await makeProductWithCreatives({
+      slotOffset: 30,
+      candidateCount: 1,
+      status: "VALIDATED",
+      withLinks: true,
+      select: "first",
+    });
+    await updateBlackFridayProduct(product.id, { enabled: false });
+    const eligible = await loadXmlEligibleBlackFridayProducts();
+    expect(eligible.find((p) => p.id === product.id)).toBeUndefined();
+  });
+});
+
+describe("official reconciliation — real imported data (read-only against the local dev DB)", () => {
+  /**
+   * Owner's directive, 2026-11-26 ("CADASTRO AUTOMÁTICO DOS 30 LINKS
+   * ORIGINAIS" + section 20's acceptance criteria): proves the real 30
+   * official slots are present with stable numbering, the 2 products the
+   * official list omits from the preliminary table (kit natalino,
+   * protetor Hidrabene) are never force-fit into a slot, the 2 products
+   * with genuinely no matching creative stay excluded, and every
+   * imported creative file on disk still hashes to exactly what this
+   * project recorded at import time — proof no file was ever modified.
+   */
+  it("has exactly the 30 official slots, numbered 1-30, none of the superseded preliminary-only products", async () => {
+    const products = await prisma.blackFridayProduct.findMany({
+      where: { slotNumber: { gte: 1, lte: 30 } },
+      orderBy: { slotNumber: "asc" },
+    });
+    expect(products).toHaveLength(30);
+    expect(products.map((p) => p.slotNumber)).toEqual(Array.from({ length: 30 }, (_, i) => i + 1));
+    const names = products.map((p) => p.name).join(" | ");
+    expect(names).not.toContain("Kit Natalino");
+    expect(names).not.toContain("Hidrabene");
+  });
+
+  it("leaves the 2 products with no matching creative excluded from the XML, never guessed", async () => {
+    const products = await prisma.blackFridayProduct.findMany({
+      where: { slotNumber: { gte: 1, lte: 30 }, creativeGroupKey: { startsWith: "missing-" } },
+    });
+    expect(products.length).toBeGreaterThanOrEqual(2);
+    for (const p of products) {
+      expect(p.selectedCreativeId).toBeNull();
+    }
+  });
+
+  it("every imported creative file on disk still hashes to exactly its recorded sha256 — never modified, resized or recompressed", async () => {
+    const creatives = await prisma.blackFridayCreative.findMany();
+    expect(creatives.length).toBeGreaterThan(0);
+    for (const creative of creatives) {
+      const absolutePath = join(process.cwd(), "public", creative.storedPath.replace(/^\//, ""));
+      const bytes = readFileSync(absolutePath);
+      const actualSha256 = createHash("sha256").update(bytes).digest("hex");
+      expect(actualSha256).toBe(creative.sha256);
+    }
+  });
+
+  it("never leaves an orphan file in public/black-friday-2026 that isn't a recorded creative", async () => {
+    const creatives = await prisma.blackFridayCreative.findMany();
+    const recordedFiles = new Set(creatives.map((c) => c.storedPath.replace(/^\//, "")));
+    const dir = join(process.cwd(), "public", "black-friday-2026");
+    const onDisk = readdirSync(dir).map((f) => `black-friday-2026/${f}`);
+    for (const file of onDisk) {
+      expect(recordedFiles.has(file)).toBe(true);
+    }
+  });
+});
+
+function importLines(source: string): string[] {
+  return source.split("\n").filter((line) => /^\s*import\b/.test(line));
+}
+
+describe("independence between the Black Friday catalog and the Vitrine Geral", () => {
+  // Doc comments freely MENTION "Vitrine Geral" to explain the deliberate
+  // separation (that's the point) — what must never happen is an actual
+  // `import ... from ".../vitrine..."` line, so only import statements are
+  // checked here, never the whole file's prose.
+  it("the Black Friday XML route never imports a Vitrine* service or model", async () => {
+    const source = readFileSync(
+      join(process.cwd(), "app", "catalogo", "black-friday-2026.xml", "route.ts"),
+      "utf-8",
+    );
+    for (const line of importLines(source)) {
+      expect(line).not.toMatch(/vitrine/i);
+    }
+  });
+
+  it("the Black Friday service module never imports a Vitrine* service or model", async () => {
+    const source = readFileSync(
+      join(process.cwd(), "lib", "services", "black-friday-2026.ts"),
+      "utf-8",
+    );
+    for (const line of importLines(source)) {
+      expect(line).not.toMatch(/vitrine/i);
+    }
   });
 });

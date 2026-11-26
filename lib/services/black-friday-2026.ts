@@ -21,9 +21,16 @@ import { openBlackFridayAffiliateLink } from "@/lib/services/ml-panel-check";
 
 const MELI_HOSTS = /^(www\.)?(mercadolivre\.com(\.br)?|meli\.la)$/i;
 
+export interface BlackFridayCandidateCreative {
+  id: string;
+  storedPath: string;
+  originalFilename: string;
+  sha256: string;
+}
+
 export interface BlackFridayPanelRow extends BlackFridayProduct {
-  selectedCreative: { id: string; storedPath: string; originalFilename: string } | null;
-  candidates: { id: string; storedPath: string; originalFilename: string }[];
+  selectedCreative: BlackFridayCandidateCreative | null;
+  candidates: BlackFridayCandidateCreative[];
 }
 
 export interface BlackFridayCounters {
@@ -33,11 +40,14 @@ export interface BlackFridayCounters {
   validated: number;
   divergent: number;
   rejected: number;
+  disabled: number;
+  missingCreative: number;
   xmlEligible: number;
 }
 
 function isXmlEligible(p: BlackFridayProduct): boolean {
   return (
+    p.enabled &&
     p.status === "VALIDATED" &&
     !!p.affiliateUrl &&
     !!p.mlUrlOriginal &&
@@ -45,9 +55,24 @@ function isXmlEligible(p: BlackFridayProduct): boolean {
   );
 }
 
+export interface BlackFridaySurplusCreative {
+  id: string;
+  groupKey: string;
+  storedPath: string;
+  originalFilename: string;
+  sha256: string;
+}
+
 export async function loadBlackFridayPanel(): Promise<{
   rows: BlackFridayPanelRow[];
   counters: BlackFridayCounters;
+  /** Owner's directive, section 7 ("se algum criativo não corresponder a
+   * nenhum dos 30 produtos, mantenha-o separado e identificado como
+   * excedente"): creatives imported from Henrique's files that no
+   * official slot's creativeGroupKey points to — never deleted, just
+   * surfaced separately so they're never silently lost or confused with
+   * a real candidate. */
+  surplusCreatives: BlackFridaySurplusCreative[];
 }> {
   const [products, creatives] = await Promise.all([
     prisma.blackFridayProduct.findMany({
@@ -70,8 +95,20 @@ export async function loadBlackFridayPanel(): Promise<{
       id: c.id,
       storedPath: c.storedPath,
       originalFilename: c.originalFilename,
+      sha256: c.sha256,
     })),
   }));
+
+  const usedGroupKeys = new Set(products.map((p) => p.creativeGroupKey));
+  const surplusCreatives: BlackFridaySurplusCreative[] = creatives
+    .filter((c) => !usedGroupKeys.has(c.groupKey))
+    .map((c) => ({
+      id: c.id,
+      groupKey: c.groupKey,
+      storedPath: c.storedPath,
+      originalFilename: c.originalFilename,
+      sha256: c.sha256,
+    }));
 
   const counters: BlackFridayCounters = {
     total: products.length,
@@ -80,10 +117,12 @@ export async function loadBlackFridayPanel(): Promise<{
     validated: products.filter((p) => p.status === "VALIDATED").length,
     divergent: products.filter((p) => p.status === "DIVERGENT").length,
     rejected: products.filter((p) => p.status === "REJECTED").length,
+    disabled: products.filter((p) => !p.enabled).length,
+    missingCreative: products.filter((p) => (byGroup.get(p.creativeGroupKey) ?? []).length === 0).length,
     xmlEligible: products.filter(isXmlEligible).length,
   };
 
-  return { rows, counters };
+  return { rows, counters, surplusCreatives };
 }
 
 export class BlackFridayUpdateError extends Error {}
@@ -147,6 +186,10 @@ export interface BlackFridayUpdateInput {
   status?: BlackFridayProductStatus;
   reviewNote?: string | null;
   markDestinationChecked?: boolean;
+  /** Owner's directive, section 10 ("Possibilidade de desativar
+   * individualmente o produto") — independent of status, see schema's
+   * own doc comment on BlackFridayProduct.enabled. */
+  enabled?: boolean;
 }
 
 export async function updateBlackFridayProduct(
@@ -173,6 +216,7 @@ export async function updateBlackFridayProduct(
       ...(input.currentPrice !== undefined ? { currentPrice: input.currentPrice } : {}),
       ...(input.selectedCreativeId !== undefined ? { selectedCreativeId: input.selectedCreativeId } : {}),
       ...(input.status !== undefined ? { status: input.status } : {}),
+      ...(input.enabled !== undefined ? { enabled: input.enabled } : {}),
       ...(input.reviewNote !== undefined ? { reviewNote: input.reviewNote } : {}),
       ...(input.markDestinationChecked ? { destinationCheckedAt: new Date() } : {}),
     },

@@ -20,6 +20,7 @@ const bodySchema = z.object({
     .optional(),
   reviewNote: z.string().max(2000).nullable().optional(),
   markDestinationChecked: z.boolean().optional(),
+  enabled: z.boolean().optional(),
 });
 
 export async function PATCH(
