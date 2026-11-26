@@ -189,14 +189,22 @@ describe("official reconciliation — real imported data (read-only against the 
     expect(names).not.toContain("Hidrabene");
   });
 
-  it("leaves the 2 products with no matching creative excluded from the XML, never guessed", async () => {
+  it("no slot is left pointing at the 'missing-N' sentinel group — Henrique's follow-up delivery (2026-11-26) filled the last 2 gaps", async () => {
     const products = await prisma.blackFridayProduct.findMany({
       where: { slotNumber: { gte: 1, lte: 30 }, creativeGroupKey: { startsWith: "missing-" } },
     });
-    expect(products.length).toBeGreaterThanOrEqual(2);
-    for (const p of products) {
-      expect(p.selectedCreativeId).toBeNull();
-    }
+    expect(products).toHaveLength(0);
+  });
+
+  it("slots 12 and 14 (the ones that had no creative at reconciliation time) now each have exactly their own confirmed creative, identified by spec/brand match, never by file order", async () => {
+    const [slot12, slot14] = await Promise.all([
+      prisma.blackFridayProduct.findUnique({ where: { slotNumber: 12 }, include: { selectedCreative: true } }),
+      prisma.blackFridayProduct.findUnique({ where: { slotNumber: 14 }, include: { selectedCreative: true } }),
+    ]);
+    expect(slot12?.name).toContain("Parafusadeira");
+    expect(slot12?.selectedCreative?.groupKey).toBe("parafusadeira-21v-46pc");
+    expect(slot14?.name).toContain("Purificador");
+    expect(slot14?.selectedCreative?.groupKey).toBe("electrolux-purificador-pe11b");
   });
 
   it("every imported creative file on disk still hashes to exactly its recorded sha256 — never modified, resized or recompressed", async () => {
