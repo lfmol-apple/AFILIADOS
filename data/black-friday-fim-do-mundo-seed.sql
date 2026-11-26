@@ -79,11 +79,19 @@ VALUES ('bfseed_blackfridayfimdomundo_dd5620052f01dbf1c8e665ced8697f5c5ad98b73c3
 ON CONFLICT (sha256) DO UPDATE SET campaign = EXCLUDED.campaign, "groupKey" = EXCLUDED."groupKey", "originalFilename" = EXCLUDED."originalFilename", "storedPath" = EXCLUDED."storedPath";
 
 INSERT INTO "BlackFridayCreative" (id, campaign, "groupKey", sha256, "originalFilename", "storedPath", "importedAt")
-VALUES ('bfseed_blackfridayfimdomundo_bd4a6737726e0eb10c04fd4b6b0619f75f4936f6e43dd8fd0a69d2ff526920a6', 'black-friday-fim-do-mundo', 'fdm-galaxy-s24', 'bd4a6737726e0eb10c04fd4b6b0619f75f4936f6e43dd8fd0a69d2ff526920a6', 'WhatsApp Image 2026-11-26 at 15.44.22 (1).jpeg', '/black-friday-fim-do-mundo/bd4a6737726e0eb1.jpeg', now())
+VALUES ('bfseed_blackfridayfimdomundo_018461668177f85db2ba263b2609dc6c61374ad8a94b5fa3d65658b14fd68649', 'black-friday-fim-do-mundo', 'fdm-galaxy-s24', '018461668177f85db2ba263b2609dc6c61374ad8a94b5fa3d65658b14fd68649', 'WhatsApp Image 2026-11-26 at 16.10.57.jpeg', '/black-friday-fim-do-mundo/018461668177f85d.jpeg', now())
 ON CONFLICT (sha256) DO UPDATE SET campaign = EXCLUDED.campaign, "groupKey" = EXCLUDED."groupKey", "originalFilename" = EXCLUDED."originalFilename", "storedPath" = EXCLUDED."storedPath";
 
 INSERT INTO "BlackFridayCreative" (id, campaign, "groupKey", sha256, "originalFilename", "storedPath", "importedAt")
-VALUES ('bfseed_blackfridayfimdomundo_a0c695cca0a51a2ba1c64b10bd125b6a30c87c57fd3c7edbb2b1b4c7b9b6b49a', 'black-friday-fim-do-mundo', 'fdm-ps5-slim-digital', 'a0c695cca0a51a2ba1c64b10bd125b6a30c87c57fd3c7edbb2b1b4c7b9b6b49a', 'WhatsApp Image 2026-11-26 at 15.32.38.jpeg', '/black-friday-fim-do-mundo/a0c695cca0a51a2b.jpeg', now())
+VALUES ('bfseed_blackfridayfimdomundo_bd4a6737726e0eb10c04fd4b6b0619f75f4936f6e43dd8fd0a69d2ff526920a6', 'black-friday-fim-do-mundo', 'fdm-galaxy-s24-superseded-20261126', 'bd4a6737726e0eb10c04fd4b6b0619f75f4936f6e43dd8fd0a69d2ff526920a6', 'WhatsApp Image 2026-11-26 at 15.44.22 (1).jpeg', '/black-friday-fim-do-mundo/bd4a6737726e0eb1.jpeg', now())
+ON CONFLICT (sha256) DO UPDATE SET campaign = EXCLUDED.campaign, "groupKey" = EXCLUDED."groupKey", "originalFilename" = EXCLUDED."originalFilename", "storedPath" = EXCLUDED."storedPath";
+
+INSERT INTO "BlackFridayCreative" (id, campaign, "groupKey", sha256, "originalFilename", "storedPath", "importedAt")
+VALUES ('bfseed_blackfridayfimdomundo_d17ec1ee24d79f79b26fca6aa863be159c0d4f9eae24767d8e5dd0dc3a2381d3', 'black-friday-fim-do-mundo', 'fdm-ps5-slim-digital', 'd17ec1ee24d79f79b26fca6aa863be159c0d4f9eae24767d8e5dd0dc3a2381d3', 'WhatsApp Image 2026-11-26 at 16.10.31.jpeg', '/black-friday-fim-do-mundo/d17ec1ee24d79f79.jpeg', now())
+ON CONFLICT (sha256) DO UPDATE SET campaign = EXCLUDED.campaign, "groupKey" = EXCLUDED."groupKey", "originalFilename" = EXCLUDED."originalFilename", "storedPath" = EXCLUDED."storedPath";
+
+INSERT INTO "BlackFridayCreative" (id, campaign, "groupKey", sha256, "originalFilename", "storedPath", "importedAt")
+VALUES ('bfseed_blackfridayfimdomundo_a0c695cca0a51a2ba1c64b10bd125b6a30c87c57fd3c7edbb2b1b4c7b9b6b49a', 'black-friday-fim-do-mundo', 'fdm-ps5-slim-digital-superseded-20261126', 'a0c695cca0a51a2ba1c64b10bd125b6a30c87c57fd3c7edbb2b1b4c7b9b6b49a', 'WhatsApp Image 2026-11-26 at 15.32.38.jpeg', '/black-friday-fim-do-mundo/a0c695cca0a51a2b.jpeg', now())
 ON CONFLICT (sha256) DO UPDATE SET campaign = EXCLUDED.campaign, "groupKey" = EXCLUDED."groupKey", "originalFilename" = EXCLUDED."originalFilename", "storedPath" = EXCLUDED."storedPath";
 
 INSERT INTO "BlackFridayProduct" (id, campaign, "slotNumber", "creativeGroupKey", name, brand, "advertisedPrice", "currentPrice", "mlUrlOriginal", "resolvedProductUrl", "resolvedExternalId", "resolvedTitle", "resolvedAt", enabled, "affiliateUrl", "attributionTag", status, "reviewNote", "selectedCreativeId", "createdAt", "updatedAt")
@@ -277,7 +285,7 @@ ON CONFLICT (campaign, "slotNumber") DO UPDATE SET
   "updatedAt" = now();
 
 INSERT INTO "BlackFridayProduct" (id, campaign, "slotNumber", "creativeGroupKey", name, brand, "advertisedPrice", "currentPrice", "mlUrlOriginal", "resolvedProductUrl", "resolvedExternalId", "resolvedTitle", "resolvedAt", enabled, "affiliateUrl", "attributionTag", status, "reviewNote", "selectedCreativeId", "createdAt", "updatedAt")
-VALUES ('bfseed_blackfridayfimdomundo_slot11', 'black-friday-fim-do-mundo', 11, 'fdm-galaxy-s24', 'Galaxy S24 Galaxy AI 512GB 8GB RAM Preto', 'Samsung', 3849, 3849, 'https://meli.la/2zPQRqw', 'https://www.mercadolivre.com.br/p/MLB29699966', 'MLB29699966', NULL, now(), true, NULL, 'blackfridayfimdomundo', 'PENDING_LINK'::"BlackFridayProductStatus", 'ATENÇÃO — NÃO RESOLVIDO: o novo criativo enviado pelo Henrique ainda anuncia 512GB, mas o preço impresso (R$ 3.849,00) é o da variante de 256GB na página resolvida. Confirme manualmente a variante correta antes de validar — não presuma.', (SELECT id FROM "BlackFridayCreative" WHERE sha256 = 'bd4a6737726e0eb10c04fd4b6b0619f75f4936f6e43dd8fd0a69d2ff526920a6'), now(), now())
+VALUES ('bfseed_blackfridayfimdomundo_slot11', 'black-friday-fim-do-mundo', 11, 'fdm-galaxy-s24', 'Galaxy S24 Galaxy AI 512GB 8GB RAM Preto', 'Samsung', 3849, 3849, 'https://meli.la/2zPQRqw', 'https://www.mercadolivre.com.br/p/MLB29699966', 'MLB29699966', NULL, now(), true, NULL, 'blackfridayfimdomundo', 'PENDING_LINK'::"BlackFridayProductStatus", NULL, (SELECT id FROM "BlackFridayCreative" WHERE sha256 = '018461668177f85db2ba263b2609dc6c61374ad8a94b5fa3d65658b14fd68649'), now(), now())
 ON CONFLICT (campaign, "slotNumber") DO UPDATE SET
   "creativeGroupKey" = EXCLUDED."creativeGroupKey",
   name = EXCLUDED.name,
@@ -296,7 +304,7 @@ ON CONFLICT (campaign, "slotNumber") DO UPDATE SET
   "updatedAt" = now();
 
 INSERT INTO "BlackFridayProduct" (id, campaign, "slotNumber", "creativeGroupKey", name, brand, "advertisedPrice", "currentPrice", "mlUrlOriginal", "resolvedProductUrl", "resolvedExternalId", "resolvedTitle", "resolvedAt", enabled, "affiliateUrl", "attributionTag", status, "reviewNote", "selectedCreativeId", "createdAt", "updatedAt")
-VALUES ('bfseed_blackfridayfimdomundo_slot12', 'black-friday-fim-do-mundo', 12, 'fdm-ps5-slim-digital', 'Console PlayStation 5 Slim Edição Digital 825GB Branco', 'Sony', 4596.6, NULL, 'https://meli.la/27kfRW9', 'https://www.mercadolivre.com.br/p/MLB29001054', 'MLB29001054', NULL, now(), true, NULL, 'blackfridayfimdomundo', 'PENDING_LINK'::"BlackFridayProductStatus", 'Novo criativo do Henrique altera o preço impresso de R$ 4.000,00 para R$ 4.596,60 — não houve reverificação independente do preço atual na página do Mercado Livre. Confirme antes de validar.', (SELECT id FROM "BlackFridayCreative" WHERE sha256 = 'a0c695cca0a51a2ba1c64b10bd125b6a30c87c57fd3c7edbb2b1b4c7b9b6b49a'), now(), now())
+VALUES ('bfseed_blackfridayfimdomundo_slot12', 'black-friday-fim-do-mundo', 12, 'fdm-ps5-slim-digital', 'Console PlayStation 5 Slim Edição Digital 825GB Branco', 'Sony', 4596.6, NULL, 'https://meli.la/27kfRW9', 'https://www.mercadolivre.com.br/p/MLB29001054', 'MLB29001054', NULL, now(), true, NULL, 'blackfridayfimdomundo', 'PENDING_LINK'::"BlackFridayProductStatus", NULL, (SELECT id FROM "BlackFridayCreative" WHERE sha256 = 'd17ec1ee24d79f79b26fca6aa863be159c0d4f9eae24767d8e5dd0dc3a2381d3'), now(), now())
 ON CONFLICT (campaign, "slotNumber") DO UPDATE SET
   "creativeGroupKey" = EXCLUDED."creativeGroupKey",
   name = EXCLUDED.name,

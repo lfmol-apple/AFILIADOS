@@ -1,6 +1,6 @@
 {
   "campaign": "black-friday-fim-do-mundo",
-  "exportedAt": "2026-11-26T18:51:20.935Z",
+  "exportedAt": "2026-11-26T19:12:20.312Z",
   "creatives": [
     {
       "sha256": "31c795d908700f06e51b4d69bc16d2a2c9576fe3a204b2ef11987a32a029cb92",
@@ -117,14 +117,26 @@
       "storedPath": "/black-friday-fim-do-mundo/dd5620052f01dbf1.jpeg"
     },
     {
-      "sha256": "bd4a6737726e0eb10c04fd4b6b0619f75f4936f6e43dd8fd0a69d2ff526920a6",
+      "sha256": "018461668177f85db2ba263b2609dc6c61374ad8a94b5fa3d65658b14fd68649",
       "groupKey": "fdm-galaxy-s24",
+      "originalFilename": "WhatsApp Image 2026-11-26 at 16.10.57.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/018461668177f85d.jpeg"
+    },
+    {
+      "sha256": "bd4a6737726e0eb10c04fd4b6b0619f75f4936f6e43dd8fd0a69d2ff526920a6",
+      "groupKey": "fdm-galaxy-s24-superseded-20261126",
       "originalFilename": "WhatsApp Image 2026-11-26 at 15.44.22 (1).jpeg",
       "storedPath": "/black-friday-fim-do-mundo/bd4a6737726e0eb1.jpeg"
     },
     {
-      "sha256": "a0c695cca0a51a2ba1c64b10bd125b6a30c87c57fd3c7edbb2b1b4c7b9b6b49a",
+      "sha256": "d17ec1ee24d79f79b26fca6aa863be159c0d4f9eae24767d8e5dd0dc3a2381d3",
       "groupKey": "fdm-ps5-slim-digital",
+      "originalFilename": "WhatsApp Image 2026-11-26 at 16.10.31.jpeg",
+      "storedPath": "/black-friday-fim-do-mundo/d17ec1ee24d79f79.jpeg"
+    },
+    {
+      "sha256": "a0c695cca0a51a2ba1c64b10bd125b6a30c87c57fd3c7edbb2b1b4c7b9b6b49a",
+      "groupKey": "fdm-ps5-slim-digital-superseded-20261126",
       "originalFilename": "WhatsApp Image 2026-11-26 at 15.32.38.jpeg",
       "storedPath": "/black-friday-fim-do-mundo/a0c695cca0a51a2b.jpeg"
     }
@@ -325,8 +337,8 @@
       "affiliateUrl": null,
       "attributionTag": "blackfridayfimdomundo",
       "status": "PENDING_LINK",
-      "reviewNote": "ATENÇÃO — NÃO RESOLVIDO: o novo criativo enviado pelo Henrique ainda anuncia 512GB, mas o preço impresso (R$ 3.849,00) é o da variante de 256GB na página resolvida. Confirme manualmente a variante correta antes de validar — não presuma.",
-      "selectedCreativeSha256": "bd4a6737726e0eb10c04fd4b6b0619f75f4936f6e43dd8fd0a69d2ff526920a6"
+      "reviewNote": null,
+      "selectedCreativeSha256": "018461668177f85db2ba263b2609dc6c61374ad8a94b5fa3d65658b14fd68649"
     },
     {
       "slotNumber": 12,
@@ -343,8 +355,8 @@
       "affiliateUrl": null,
       "attributionTag": "blackfridayfimdomundo",
       "status": "PENDING_LINK",
-      "reviewNote": "Novo criativo do Henrique altera o preço impresso de R$ 4.000,00 para R$ 4.596,60 — não houve reverificação independente do preço atual na página do Mercado Livre. Confirme antes de validar.",
-      "selectedCreativeSha256": "a0c695cca0a51a2ba1c64b10bd125b6a30c87c57fd3c7edbb2b1b4c7b9b6b49a"
+      "reviewNote": null,
+      "selectedCreativeSha256": "d17ec1ee24d79f79b26fca6aa863be159c0d4f9eae24767d8e5dd0dc3a2381d3"
     },
     {
       "slotNumber": 13,
