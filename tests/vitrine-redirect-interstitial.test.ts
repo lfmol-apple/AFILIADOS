@@ -20,6 +20,7 @@ describe("renderVitrineRedirectInterstitial", () => {
     title: "Secador De Cabelos Philco PSC3500",
     price: 498.9,
     destination: "https://mercadolivre.com/sec/abc123",
+    merchantProductUrl: "https://www.mercadolivre.com.br/p/MLB49652036",
   };
 
   it("includes the real Pixel init + PageView base snippet with the real pixel id", () => {
@@ -33,7 +34,14 @@ describe("renderVitrineRedirectInterstitial", () => {
     expect(html).toContain("fbq('track', 'ViewContent', eventPayload)");
     expect(html).toContain("fbq('trackCustom', 'AffiliateOutboundClick', eventPayload)");
     expect(html).toContain('"content_ids":["cmwjnyrpl0008pf01cyhwi12o"]');
-    expect(html).not.toContain("MLB");
+    // content_ids itself must never carry the ML item id — the real ML id
+    // DOES legitimately appear elsewhere now, inside content_url (next test).
+    expect(html).not.toContain('"content_ids":["MLB');
+  });
+
+  it("includes the real Mercado Livre product URL as content_url — never event_source_url, never faked", () => {
+    const html = renderVitrineRedirectInterstitial(baseInput);
+    expect(html).toContain('"content_url":"https://www.mercadolivre.com.br/p/MLB49652036"');
   });
 
   it("never fires the standard AddToCart event — PreçoCaindo has no cart", () => {
