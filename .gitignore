@@ -63,3 +63,10 @@ next-env.d.ts
 # — never committed, same reasoning as vitrine-creative-reference above.
 # Noticed untracked during local (non-Docker) test runs on 2026-11-24.
 /data/vitrine-creatives/
+
+# Black Friday 2026 — raw import staging (extracted zips + the full
+# hashed/deduplicated working set Henrique's files went through before
+# scripts/seed-black-friday-2026.ts copied the real 34 into
+# public/black-friday-2026/). Intermediate working data only, never the
+# source of truth — safe to delete/recreate locally, never committed.
+/.black-friday-2026-staging/

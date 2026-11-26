@@ -3,6 +3,7 @@ import { extractCatalogProductId } from "@/lib/services/ml-panel-register";
 import {
   carriesOwnerProfile,
   carriesVitrineProfile,
+  carriesBlackFridayAccount,
   decideVerdict,
   expectedIdsFromProductUrl,
   pageTitleFromHtml,
@@ -61,6 +62,16 @@ export async function openVitrineAffiliateLink(
   affiliateUrl: string,
 ): Promise<OpenedLink> {
   return openAffiliateLink(affiliateUrl, carriesVitrineProfile);
+}
+
+/** Black Friday 2026 variant — same link-opening logic, checks only that
+ * the same Mercado Livre affiliate account's markers are present (see
+ * carriesBlackFridayAccount's own doc comment for why the tag word itself
+ * isn't enforced yet). */
+export async function openBlackFridayAffiliateLink(
+  affiliateUrl: string,
+): Promise<OpenedLink> {
+  return openAffiliateLink(affiliateUrl, carriesBlackFridayAccount);
 }
 
 /**

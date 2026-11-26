@@ -777,7 +777,7 @@ model VitrineSelection {
   scoreBreakdown Json
   reason         String
 
-  activatedAt   DateTime?
+  activatedAt      DateTime?
   /// Owner's authorization, 2026-11-23 ("Operação Cérebro Comercial" —
   /// correção do orçamento de rotação): real root cause found — the
   /// weekly rotation budget (VITRINE_MAX_WEEKLY_REPLACEMENTS) counts
@@ -804,7 +804,7 @@ model VitrineSelection {
   /// never silently treated as a real swap just because the field is
   /// missing.
   activationSource String?
-  retiredAt     DateTime?
+  retiredAt        DateTime?
   /// Owner's directive, 2026-11-21 ("Registrar motivos de retirada"):
   /// `reason` is reused from the ORIGINAL selection and jobs/vitrine-
   /// renew.ts never touched it on retirement, so a retired row's `reason`
@@ -814,7 +814,7 @@ model VitrineSelection {
   /// backfilled/guessed) and the admin panel must show that explicitly as
   /// "motivo não registrado antes desta mudança" — only retirements from
   /// this change forward get a real value.
-  retiredReason String?
+  retiredReason    String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1733,4 +1733,96 @@ model CommercialAnalystSpend {
   recordedAt   DateTime @default(now())
 
   @@index([spentOn])
+}
+
+/// Owner's directive, 2026-11-26 ("OPERAÇÃO BLACK FRIDAY 2026"): a fully
+/// independent, manual catalog for the one-off 27/11/2026 campaign —
+/// deliberately NOT wired to MerchantListing/CanonicalProduct (those back
+/// the automated Vitrine Geral discovery pipeline; this is 30 products the
+/// owner hand-picked with Henrique, each requiring a manually-pasted real
+/// Mercado Livre affiliate link). Never touched by jobs/vitrine-renew.ts or
+/// any other automated selection — see lib/services/black-friday-2026.ts.
+enum BlackFridayProductStatus {
+  /// No link pasted yet — the default for every freshly-imported row.
+  PENDING_LINK
+  /// Owner pasted mlUrlOriginal + affiliateUrl; destination not yet
+  /// confirmed by a human (owner's rule: "não considere suficiente
+  /// receber HTTP 200... confirme o destino comercial efetivo").
+  LINK_PASTED
+  /// A human confirmed the affiliate link truly lands on the advertised
+  /// product (not a social/profile page) — only a VALIDATED row with a
+  /// selected creative and no open price divergence is XML-eligible.
+  VALIDATED
+  /// Flagged: advertised price vs. current verified price diverged
+  /// meaningfully, or the destination check failed — never silently
+  /// excluded, always visible in the panel's counters.
+  DIVERGENT
+  /// Owner's explicit call to drop a product from this campaign (e.g.
+  /// sold out) — kept for audit, never deleted.
+  REJECTED
+}
+
+/// One distinct candidate creative file Henrique sent — several rows can
+/// share the same `groupKey` when his export contained more than one
+/// version for the same product (owner's own example: "Kit de ferramentas
+/// 48V — R$ 699,56 e R$ 621,00"); the owner picks the real one by hand,
+/// this project never guesses from file order (owner's explicit rule:
+/// "não associe imagens aos links apenas pela ordem dos arquivos").
+model BlackFridayCreative {
+  id                 String               @id @default(cuid())
+  groupKey           String
+  sha256             String               @unique
+  originalFilename   String
+  /// Public, static path under /public — served as-is, never redrawn,
+  /// recropped or passed through the AI creative factory (owner's rule:
+  /// "não regenere imagens... não aplique templates").
+  storedPath         String
+  importedAt         DateTime             @default(now())
+  selectedByProducts BlackFridayProduct[]
+
+  @@index([groupKey])
+}
+
+/// One of the 30 hand-picked Black Friday 2026 products. `slotNumber` is
+/// this product's position in this project's own visual-inventory pass —
+/// the owner's real numbered list of 30 original links had not arrived
+/// yet at import time, so this must be reconciled against it once
+/// received, never treated as the final authoritative numbering on its
+/// own.
+model BlackFridayProduct {
+  id                   String                   @id @default(cuid())
+  slotNumber           Int                      @unique
+  /// Links back to BlackFridayCreative.groupKey — lets the panel list every
+  /// candidate creative for this slot even before one is selected (an
+  /// ambiguous slot has no selectedCreative yet, so it can't be found via
+  /// that relation alone).
+  creativeGroupKey     String
+  name                 String
+  brand                String?
+  /// Exactly what's printed on Henrique's creative — never the owner's
+  /// own guess, never silently updated after import.
+  advertisedPrice      Decimal                  @db.Decimal(10, 2)
+  /// Filled in later by a (non-paid) price check against the real,
+  /// already-pasted link — null until then.
+  currentPrice         Decimal?                 @db.Decimal(10, 2)
+  /// Null until the owner pastes it (section 1/5 of the owner's
+  /// directive) — this project never invents or fetches it automatically.
+  mlUrlOriginal        String?
+  /// Null until the owner generates it manually via Mercado Livre's own
+  /// Linkbuilder and pastes it — never generated by this project (owner's
+  /// explicit rule: "não invente links de afiliado nem tente gerá-los por
+  /// mecanismos não autorizados").
+  affiliateUrl         String?
+  attributionTag       String                   @default("blackfriday2026")
+  status               BlackFridayProductStatus @default(PENDING_LINK)
+  /// Free-text note for a flagged divergence or an unconfirmed
+  /// destination — always human-written, never auto-generated prose.
+  reviewNote           String?
+  selectedCreativeId   String?
+  selectedCreative     BlackFridayCreative?     @relation(fields: [selectedCreativeId], references: [id])
+  destinationCheckedAt DateTime?
+  createdAt            DateTime                 @default(now())
+  updatedAt            DateTime                 @updatedAt
+
+  @@index([status])
 }
