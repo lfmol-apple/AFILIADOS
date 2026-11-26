@@ -119,6 +119,6 @@ describe("resolveVitrineRedirect — real product identity for the Pixel interst
     });
     const clicks = await prisma.affiliateClick.findMany({ where: { merchantListingId: listing.id } });
     expect(clicks).toHaveLength(1);
-    expect(clicks[0]!.campaign).toBe("vitrine_dinamica");
+    expect(clicks[0]!.campaign).toBe("vitrinedinamica");
   });
 });

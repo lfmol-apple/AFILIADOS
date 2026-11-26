@@ -3,8 +3,9 @@ import { prisma } from "@/lib/db";
 /**
  * Vitrine Inteligente Fase 3 — financial tracking by tag (project brief
  * section 17). Real inputs only:
- *  - clicks: AffiliateClick rows with campaign="vitrine_dinamica" — fully
- *    automated, already logged by app/go/vitrine/.../route.ts.
+ *  - clicks: AffiliateClick rows with campaign=<vitrine's own
+ *    attributionTag> — fully automated, already logged by
+ *    app/go/vitrine/.../route.ts (lib/services/vitrine-redirect.ts).
  *  - ad spend / commission: Henrique's manual entries (VitrineAdSpend,
  *    VitrineCommissionReport) — there is no automated source for either
  *    today (no Meta Ads API integration, no ML/Shopee commission-
@@ -70,13 +71,23 @@ function sumDecimal(values: { toNumber(): number }[]): number {
 export async function getVitrineFinancialSummary(input: {
   periodStart: Date;
   periodEnd: Date;
-  /** Owner's authorization, 2026-11-19: defaults to "vitrine_dinamica"
-   * (unchanged behavior) — pass "combo_inteligente" once that module
-   * exists, reusing this exact function, never a parallel copy. */
+  /** Owner's authorization, 2026-11-19: defaults to "vitrinedinamica",
+   * the legacy vitrine's own real attributionTag (unchanged behavior) —
+   * pass another vitrine's attributionTag to scope the summary to it,
+   * reusing this exact function, never a parallel copy.
+   *
+   * Reconciled 2026-11-26 (recovered from feat/vitrine-segunda's
+   * 153764d, click campaign tag follows the real owning vitrine): this
+   * default used to be the literal "vitrine_dinamica" (with an
+   * underscore the real attributionTag never had) — harmless on its
+   * own since every click-writing/reading site shared that same typo,
+   * but it would have silently zeroed out every new click once
+   * vitrine-redirect.ts started writing the REAL attributionTag
+   * instead. Fixed here in the same step so neither side regresses. */
   campaign?: string;
 }): Promise<VitrineFinancialSummary> {
   const { periodStart, periodEnd } = input;
-  const campaign = input.campaign ?? "vitrine_dinamica";
+  const campaign = input.campaign ?? "vitrinedinamica";
 
   const [vitrineClicks, siteClicks, adSpends, commissionReports] = await Promise.all([
     prisma.affiliateClick.count({

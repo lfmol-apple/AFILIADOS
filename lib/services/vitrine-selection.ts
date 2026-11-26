@@ -250,7 +250,7 @@ export async function buildCommercialCandidatePool(poolSize = 3000): Promise<Can
 
   const clickCounts = await prisma.affiliateClick.groupBy({
     by: ["merchantListingId"],
-    where: { campaign: "vitrine_dinamica", merchantListingId: { in: deduped.map((l) => l.id) } },
+    where: { campaign: "vitrinedinamica", merchantListingId: { in: deduped.map((l) => l.id) } },
     _count: { _all: true },
   });
   const clicksByListing = new Map(clickCounts.map((c) => [c.merchantListingId, c._count._all]));

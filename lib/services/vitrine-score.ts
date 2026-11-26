@@ -171,7 +171,7 @@ export function calculateVitrineScore(input: VitrineScoreInput): VitrineScoreRes
       weight: VITRINE_SCORE_WEIGHTS.adPerformance,
       detail:
         input.vitrineClickCount > 0
-          ? `${input.vitrineClickCount} cliques reais via campanha vitrine_dinamica.`
+          ? `${input.vitrineClickCount} cliques reais via campanha vitrinedinamica.`
           : "Sem cliques da Vitrine ainda.",
     },
   };
