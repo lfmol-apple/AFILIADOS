@@ -6,6 +6,9 @@ import { isPrefetchRequest } from "@/lib/http/is-prefetch-request";
 import { isKnownBotRequest } from "@/lib/http/is-bot-request";
 import { isBurstRequest } from "@/lib/http/is-burst-request";
 import { env } from "@/lib/config/env";
+import { describeAffiliateClickForOwner } from "@/lib/analytics/click-notification";
+import { sendPushToOwner } from "@/lib/push/send";
+import { logger } from "@/lib/observability/logger";
 
 /**
  * Owner's directive, 2026-11-25 ("PIXEL DA META – AJUSTE NA VITRINE
@@ -45,12 +48,13 @@ export async function GET(
     isPrefetchRequest(request.headers, url.searchParams) ||
     isKnownBotRequest(request.headers) ||
     isBurstRequest(request.headers);
+  const isOwner = await isOwnerRequest(request);
 
   const result = await resolveVitrineRedirect({
     merchant,
     externalId,
     searchParams: url.searchParams,
-    isOwner: await isOwnerRequest(request),
+    isOwner,
     isPrefetch,
   });
 
@@ -58,6 +62,21 @@ export async function GET(
     return NextResponse.json(
       { error: result.errorMessage },
       { status: result.errorStatus },
+    );
+  }
+
+  // Owner's request, 2026-11-27: this route (the Meta-catalog-ad and
+  // Vitrine Inteligente redirect, for Mercado Livre and Shopee) never
+  // notified the owner on click — confirmed live, every recent
+  // MERCADO_LIVRE AffiliateClick is pageType=catalog, all through here,
+  // none ever pushed a notification. The other two /go/* routes
+  // (merchant-redirect.ts, go-amazon-handler.ts) already do this on a
+  // real, non-bot hit; this just brings the vitrine route to parity.
+  if (!isPrefetch && !isOwner) {
+    void sendPushToOwner(
+      describeAffiliateClickForOwner(merchant, result.title),
+    ).catch((error) =>
+      logger.warn("push.click_notify_failed", { error: String(error) }),
     );
   }
 
