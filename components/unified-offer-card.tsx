@@ -78,6 +78,13 @@ function AmazonMark() {
   );
 }
 
+/** Owner's request, 2026-11-27: a generic seasonal "Black Friday" tag on
+ * every card, today only — never a numeric claim (that's the existing,
+ * separate discount badge below, shown only when a real discountPercent
+ * exists). Gated on the literal date so it never lingers past today
+ * without anyone having to remember to remove it. */
+const BLACK_FRIDAY_TODAY = new Date().toISOString().slice(0, 10) === "2026-11-27";
+
 export function UnifiedOfferCard({ item }: { item: UnifiedOfferCardData }) {
   if (!item.href) return null; // structural safety net — see the type's own doc comment.
 
@@ -122,17 +129,24 @@ export function UnifiedOfferCard({ item }: { item: UnifiedOfferCardData }) {
             />
           ) : null}
         </a>
-        {item.verifiedDrop ? (
-          <span className="pointer-events-none absolute top-2.5 left-2.5 rounded-full bg-emerald-600 px-2.5 py-1 text-xs leading-none font-bold text-white shadow-md shadow-emerald-600/30">
-            📉 −{Math.round(item.verifiedDrop.dropPercent * 100)}% comprovado
-          </span>
-        ) : (
-          discount !== null && (
-            <span className="pointer-events-none absolute top-2.5 left-2.5 rounded-full bg-rose-600/90 px-2.5 py-1 text-xs leading-none font-bold text-white shadow-md shadow-rose-600/30">
-              −{discount}% na loja
+        <div className="pointer-events-none absolute top-2.5 left-2.5 flex flex-col items-start gap-1.5">
+          {BLACK_FRIDAY_TODAY && (
+            <span className="rounded-full bg-slate-950 px-2.5 py-1 text-xs leading-none font-bold tracking-wide text-amber-400 shadow-md shadow-black/30">
+              BLACK FRIDAY
             </span>
-          )
-        )}
+          )}
+          {item.verifiedDrop ? (
+            <span className="rounded-full bg-emerald-600 px-2.5 py-1 text-xs leading-none font-bold text-white shadow-md shadow-emerald-600/30">
+              📉 −{Math.round(item.verifiedDrop.dropPercent * 100)}% comprovado
+            </span>
+          ) : (
+            discount !== null && (
+              <span className="rounded-full bg-rose-600/90 px-2.5 py-1 text-xs leading-none font-bold text-white shadow-md shadow-rose-600/30">
+                −{discount}% na loja
+              </span>
+            )
+          )}
+        </div>
         <span className="pointer-events-none absolute top-2.5 right-2.5 flex items-center gap-1.5 rounded-full border border-black/8 bg-white/70 px-2 py-1 text-[11px] leading-none font-semibold text-slate-800 shadow-sm backdrop-blur-md">
           <span
             aria-hidden
