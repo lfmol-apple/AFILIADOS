@@ -68,7 +68,7 @@ export function StoreBrandBar({
   if (available.length <= 1) return null;
 
   return (
-    <div className="-mt-3 mb-3 flex flex-wrap items-center justify-center gap-2 sm:-mt-4 sm:mb-5">
+    <div className="mt-3 mb-3 flex flex-wrap items-center justify-center gap-2 sm:mt-4 sm:mb-5">
       <Link
         href={offersHref(view, { store: null })}
         scroll={false}

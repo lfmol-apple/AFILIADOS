@@ -1,4 +1,5 @@
 import type { UnifiedOfferCard as UnifiedOfferCardData } from "@/lib/queries/unified-offers";
+import { isBlackFridayToday } from "@/lib/config/black-friday-today";
 
 /**
  * ONE card shape for every merchant — project brief, 2026-09-08:
@@ -78,13 +79,6 @@ function AmazonMark() {
   );
 }
 
-/** Owner's request, 2026-11-27: a generic seasonal "Black Friday" tag on
- * every card, today only — never a numeric claim (that's the existing,
- * separate discount badge below, shown only when a real discountPercent
- * exists). Gated on the literal date so it never lingers past today
- * without anyone having to remember to remove it. */
-const BLACK_FRIDAY_TODAY = new Date().toISOString().slice(0, 10) === "2026-11-27";
-
 export function UnifiedOfferCard({ item }: { item: UnifiedOfferCardData }) {
   if (!item.href) return null; // structural safety net — see the type's own doc comment.
 
@@ -130,7 +124,7 @@ export function UnifiedOfferCard({ item }: { item: UnifiedOfferCardData }) {
           ) : null}
         </a>
         <div className="pointer-events-none absolute top-2.5 left-2.5 flex flex-col items-start gap-1.5">
-          {BLACK_FRIDAY_TODAY && (
+          {isBlackFridayToday() && (
             <span className="rounded-full bg-slate-950 px-2.5 py-1 text-xs leading-none font-bold tracking-wide text-amber-400 shadow-md shadow-black/30">
               BLACK FRIDAY
             </span>

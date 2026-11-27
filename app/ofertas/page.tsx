@@ -11,6 +11,7 @@ import { OffersCategoryNav } from "@/components/offers-category-nav";
 import { OffersInfiniteList } from "@/components/offers-infinite-list";
 import { OffersToolbar } from "@/components/offers-toolbar";
 import { StoreBrandBar } from "@/components/store-brand-bar";
+import { isBlackFridayToday } from "@/lib/config/black-friday-today";
 import { OfferCategoryTile } from "@/components/offer-category-icon";
 import { SearchPageForm } from "@/components/search-page-form";
 import { parseOffersView } from "@/lib/offers/view";
@@ -203,38 +204,58 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
         items={[{ label: "Início", href: "/" }, { label: "Ofertas" }]}
       />
 
-      <header className="relative mt-3 overflow-hidden rounded-2xl bg-linear-to-br from-teal-700 to-teal-950 p-4 text-white sm:mt-4 sm:p-8">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -top-16 -right-10 h-56 w-56 rounded-full bg-white/10"
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute right-28 -bottom-24 h-44 w-44 rounded-full bg-white/5"
-        />
-        <div className="relative max-w-2xl">
-          <h1 className="text-xl font-bold tracking-tight text-balance sm:text-4xl">
-            {title}
-          </h1>
-          <p className="mt-2 hidden text-sm leading-relaxed text-white/85 sm:block sm:text-base">
-            Priorizamos por demanda, preço e evidência real, sem olhar a
-            comissão. Atualizado automaticamente.
-          </p>
-        </div>
-        {pool.length > 0 && (
-          <ul className="relative mt-3 flex flex-wrap gap-2 text-xs font-semibold sm:mt-5 sm:text-sm">
-            <li className="rounded-full border border-white/25 bg-white/15 px-3 py-1.5 shadow-[inset_0_1px_0_rgb(255_255_255/0.3)] backdrop-blur-md">
-              {firstPage.total} {firstPage.total === 1 ? "oferta" : "ofertas"}
-              {category ? " nesta categoria" : ""}
-            </li>
-            {merchantsPresent.length > 0 && (
+      {isBlackFridayToday() ? (
+        <header className="relative mt-3 overflow-hidden rounded-2xl bg-linear-to-br from-yellow-400 to-amber-500 p-4 text-slate-950 sm:mt-4 sm:p-8">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -top-16 -right-10 h-56 w-56 rounded-full bg-white/20"
+          />
+          <div className="relative max-w-2xl">
+            <h1 className="text-2xl font-black tracking-tight text-balance sm:text-5xl">
+              <span className="text-white [-webkit-text-stroke:2px_#0f172a] drop-shadow-[2px_2px_0_#dc2626]">
+                BLACK
+              </span>{" "}
+              <span className="text-slate-950">FRIDAY</span>
+            </h1>
+            <p className="mt-2 text-sm leading-snug font-bold text-slate-900 sm:text-lg">
+              Aproveite as melhores ofertas das melhores lojas!
+            </p>
+          </div>
+        </header>
+      ) : (
+        <header className="relative mt-3 overflow-hidden rounded-2xl bg-linear-to-br from-teal-700 to-teal-950 p-4 text-white sm:mt-4 sm:p-8">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -top-16 -right-10 h-56 w-56 rounded-full bg-white/10"
+          />
+          <div
+            aria-hidden
+            className="pointer-events-none absolute right-28 -bottom-24 h-44 w-44 rounded-full bg-white/5"
+          />
+          <div className="relative max-w-2xl">
+            <h1 className="text-xl font-bold tracking-tight text-balance sm:text-4xl">
+              {title}
+            </h1>
+            <p className="mt-2 hidden text-sm leading-relaxed text-white/85 sm:block sm:text-base">
+              Priorizamos por demanda, preço e evidência real, sem olhar a
+              comissão. Atualizado automaticamente.
+            </p>
+          </div>
+          {pool.length > 0 && (
+            <ul className="relative mt-3 flex flex-wrap gap-2 text-xs font-semibold sm:mt-5 sm:text-sm">
               <li className="rounded-full border border-white/25 bg-white/15 px-3 py-1.5 shadow-[inset_0_1px_0_rgb(255_255_255/0.3)] backdrop-blur-md">
-                {merchantsPresent.join(" · ")}
+                {firstPage.total} {firstPage.total === 1 ? "oferta" : "ofertas"}
+                {category ? " nesta categoria" : ""}
               </li>
-            )}
-          </ul>
-        )}
-      </header>
+              {merchantsPresent.length > 0 && (
+                <li className="rounded-full border border-white/25 bg-white/15 px-3 py-1.5 shadow-[inset_0_1px_0_rgb(255_255_255/0.3)] backdrop-blur-md">
+                  {merchantsPresent.join(" · ")}
+                </li>
+              )}
+            </ul>
+          )}
+        </header>
+      )}
 
       <StoreBrandBar
         view={view}
