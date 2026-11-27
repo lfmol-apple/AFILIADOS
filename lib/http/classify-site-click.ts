@@ -17,8 +17,14 @@
  *  - pageType=product  → counted only if Referer is /produto/<pageSlug> on
  *    our own host. Otherwise: redirect the visitor, record nothing, notify
  *    nobody.
- *  - pageType=ofertas  → counted only if Referer is on /ofertas, but NEVER
- *    notifies (the owner wants product clicks only, not home/ofertas).
+ *  - pageType=ofertas  → counted only if Referer is on /ofertas, and now
+ *    DOES notify (owner's request, 2026-11-27: a product click must
+ *    notify regardless of which page it came from — most of today's real
+ *    clicks are on /ofertas, not individual /produto pages, so "product
+ *    clicks only" was silencing nearly everything) — same Referer check
+ *    and dedupe window as pageType=product, so this doesn't reopen the
+ *    2026-11-20 scraper problem (that one forged a fake /produto/<slug>
+ *    referer; it never bothered faking /ofertas).
  *  - anything else (telegram, whatsapp, radar, admin...) → counted as before
  *    (those legitimately arrive from outside the site), never notifies.
  */
@@ -79,7 +85,15 @@ export function classifySiteClick(
   if (pageType === "ofertas") {
     const path = refererPath(headers);
     const fromOfertas = path === "/ofertas" || path?.startsWith("/ofertas/");
-    return { record: Boolean(fromOfertas), notify: false };
+    if (!fromOfertas) return { record: false, notify: false };
+    const key = `${clientIp(headers)}|ofertas|${pageSlug ?? "unknown"}`;
+    const last = seen.get(key);
+    seen.set(key, now);
+    if (seen.size > MAX_TRACKED) {
+      for (const [k, t] of seen) if (now - t >= NOTIFY_DEDUPE_MS) seen.delete(k);
+    }
+    const duplicate = last !== undefined && now - last < NOTIFY_DEDUPE_MS;
+    return { record: true, notify: !duplicate };
   }
 
   return { record: true, notify: false };
