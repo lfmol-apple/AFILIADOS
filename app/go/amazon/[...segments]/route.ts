@@ -47,7 +47,12 @@ export async function GET(
   }
 
   const url = new URL(request.url);
-  const verdict = classifySiteClick(request.headers, url.searchParams);
+  const verdict = classifySiteClick(
+    request.headers,
+    url.searchParams,
+    Date.now(),
+    asin,
+  );
   const result = await handleGoAmazonRequest(
     marketplace,
     asin,

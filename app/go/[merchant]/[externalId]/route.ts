@@ -12,7 +12,12 @@ export async function GET(
 ) {
   const { merchant, externalId } = await context.params;
   const url = new URL(request.url);
-  const verdict = classifySiteClick(request.headers, url.searchParams);
+  const verdict = classifySiteClick(
+    request.headers,
+    url.searchParams,
+    Date.now(),
+    externalId,
+  );
   const result = await resolveMerchantRedirect({
     merchant,
     externalId,

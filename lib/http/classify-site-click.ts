@@ -63,6 +63,14 @@ export function classifySiteClick(
   headers: Headers,
   searchParams: URLSearchParams,
   now: number = Date.now(),
+  /** The actual product identifier (externalId/asin) being redirected to.
+   * pageSlug is a constant ("ofertas") for every /ofertas click, so
+   * without this the dedupe key collapsed every different product from
+   * the same IP into one bucket — found live, 2026-11-27: clicking a
+   * second, different product within the 10min window silently looked
+   * like a repeat of the first and never notified. Optional/unused for
+   * pageType=product, where pageSlug is already the real product slug. */
+  productKey?: string,
 ): SiteClickVerdict {
   const pageType = searchParams.get("pageType");
   const pageSlug = searchParams.get("pageSlug");
@@ -86,7 +94,7 @@ export function classifySiteClick(
     const path = refererPath(headers);
     const fromOfertas = path === "/ofertas" || path?.startsWith("/ofertas/");
     if (!fromOfertas) return { record: false, notify: false };
-    const key = `${clientIp(headers)}|ofertas|${pageSlug ?? "unknown"}`;
+    const key = `${clientIp(headers)}|ofertas|${productKey ?? pageSlug ?? "unknown"}`;
     const last = seen.get(key);
     seen.set(key, now);
     if (seen.size > MAX_TRACKED) {
