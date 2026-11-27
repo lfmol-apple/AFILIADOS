@@ -10,6 +10,7 @@ import { UnifiedOfferCard } from "@/components/unified-offer-card";
 import { OffersCategoryNav } from "@/components/offers-category-nav";
 import { OffersInfiniteList } from "@/components/offers-infinite-list";
 import { OffersToolbar } from "@/components/offers-toolbar";
+import { StoreBrandBar } from "@/components/store-brand-bar";
 import { OfferCategoryTile } from "@/components/offer-category-icon";
 import { SearchPageForm } from "@/components/search-page-form";
 import { parseOffersView } from "@/lib/offers/view";
@@ -235,6 +236,11 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
         )}
       </header>
 
+      <StoreBrandBar
+        view={view}
+        stores={Array.from(new Set(pool.map((c) => c.merchant)))}
+      />
+
       {!catalogSafe && pool.length === 0 ? (
         <PreLaunchNotice />
       ) : pool.length === 0 ? (
@@ -251,11 +257,7 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
             total={visibleTotal}
           />
           <div className="min-w-0">
-            <OffersToolbar
-              view={view}
-              total={firstPage.total}
-              stores={Array.from(new Set(pool.map((c) => c.merchant)))}
-            />
+            <OffersToolbar view={view} total={firstPage.total} />
             <OffersInfiniteList
               key={`${category ?? "todas"}|${view.sort}|${view.store ?? "todas"}|${view.page}`}
               initialItems={firstPage.items}
