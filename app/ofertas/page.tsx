@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
@@ -205,22 +206,15 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
       />
 
       {isBlackFridayToday() ? (
-        <header className="relative mt-3 overflow-hidden rounded-2xl bg-linear-to-br from-yellow-400 to-amber-500 p-4 text-slate-950 sm:mt-4 sm:p-8">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -top-16 -right-10 h-56 w-56 rounded-full bg-white/20"
+        <header className="relative mt-3 overflow-hidden rounded-2xl sm:mt-4">
+          <Image
+            src="/ofertas/black-friday-banner.png"
+            alt="Black Friday — Aproveite as melhores ofertas das melhores lojas!"
+            width={2172}
+            height={724}
+            priority
+            className="h-auto w-full"
           />
-          <div className="relative max-w-2xl">
-            <h1 className="text-2xl font-black tracking-tight text-balance sm:text-5xl">
-              <span className="text-white [-webkit-text-stroke:2px_#0f172a] drop-shadow-[2px_2px_0_#dc2626]">
-                BLACK
-              </span>{" "}
-              <span className="text-slate-950">FRIDAY</span>
-            </h1>
-            <p className="mt-2 text-sm leading-snug font-bold text-slate-900 sm:text-lg">
-              Aproveite as melhores ofertas das melhores lojas!
-            </p>
-          </div>
         </header>
       ) : (
         <header className="relative mt-3 overflow-hidden rounded-2xl bg-linear-to-br from-teal-700 to-teal-950 p-4 text-white sm:mt-4 sm:p-8">

@@ -10,11 +10,20 @@ const STORE_STYLE: Record<(typeof STORE_OPTIONS)[number]["merchant"], string> = 
   AMAZON: "bg-slate-900 text-white hover:bg-slate-800 border-transparent",
 };
 
+/** A simplified handshake glyph (two clasped hands) — Mercado Livre's own
+ * mark, never a copied logo asset file, just a vector shape evocative
+ * enough to read as "Mercado Livre" at a glance (same approach as
+ * AmazonSmile below and unified-offer-card.tsx's AmazonMark). */
 function MercadoLivreMark() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden fill="none">
-      <circle cx="12" cy="12" r="10" fill="#2D3277" />
-      <path d="M6.5 13.5c1.5 2 3.5 2 5.5 2s4-0 5.5-2" stroke="#FFE600" strokeWidth="1.8" strokeLinecap="round" />
+    <svg width="18" height="14" viewBox="0 0 28 20" aria-hidden fill="none">
+      <path
+        d="M2 10c2-3 5-4 7-2l2 2 2-2c2-2 5-1 7 2M2 10c0 3 2 5 4 5h2l2-2 2 2h2c2 0 4-2 4-5"
+        stroke="#2D3277"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -68,12 +77,12 @@ export function StoreBrandBar({
   if (available.length <= 1) return null;
 
   return (
-    <div className="mt-3 mb-3 flex flex-wrap items-center justify-center gap-2 sm:mt-4 sm:mb-5">
+    <div className="mt-3 mb-3 -mx-4 flex items-center gap-2 overflow-x-auto px-4 [scrollbar-width:none] sm:mx-0 sm:mt-4 sm:mb-5 sm:flex-wrap sm:justify-center sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
       <Link
         href={offersHref(view, { store: null })}
         scroll={false}
         aria-current={view.store === null ? "true" : undefined}
-        className={`flex min-h-10 items-center rounded-full border px-4 text-sm font-semibold transition ${
+        className={`flex min-h-10 shrink-0 items-center rounded-full border px-4 text-sm font-semibold transition ${
           view.store === null
             ? "border-brand bg-brand/10 text-brand"
             : "border-border-subtle bg-background hover:border-brand/50"
@@ -89,7 +98,7 @@ export function StoreBrandBar({
             href={offersHref(view, { store: s.slug })}
             scroll={false}
             aria-current={active ? "true" : undefined}
-            className={`flex min-h-10 items-center gap-1.5 rounded-full border px-4 text-sm font-semibold shadow-sm transition ${STORE_STYLE[s.merchant]} ${active ? "ring-2 ring-offset-2 ring-offset-background" : ""}`}
+            className={`flex min-h-10 shrink-0 items-center gap-1.5 rounded-full border px-4 text-sm font-semibold shadow-sm transition ${STORE_STYLE[s.merchant]} ${active ? "ring-2 ring-offset-2 ring-offset-background" : ""}`}
           >
             {STORE_MARK[s.merchant]}
             {s.merchant === "AMAZON" ? (
