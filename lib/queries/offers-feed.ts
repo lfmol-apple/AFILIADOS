@@ -103,18 +103,11 @@ async function buildPool(): Promise<UnifiedOfferCard[]> {
       return [];
     }),
   ]);
-  console.error("offers_feed.debug_pinned_cards", {
-    count: pinnedCards.length,
-    ids: pinnedCards.map((c) => c.id),
-    hrefs: pinnedCards.slice(0, 3).map((c) => c.href),
-  });
   const boosted = applyEngagementBoost(merchantOffers, engagementSignals);
   const ranked = interleaveByMerchant(selectTopUnifiedOffers(boosted, boosted.length));
   const rankedIds = new Set(ranked.map((c) => c.id));
   const merged = [...ranked, ...pinnedCards.filter((c) => !rankedIds.has(c.id))];
-  const final = pinOffersToTop(merged);
-  console.error("offers_feed.debug_final_top10", final.slice(0, 10).map((c) => mlExternalIdFromHref(c.href) ?? c.href));
-  return final;
+  return pinOffersToTop(merged);
 }
 
 /** `/go/mercado-livre/{externalId}?...` — see unified-offers.ts's own href construction. */
