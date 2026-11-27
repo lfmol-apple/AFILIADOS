@@ -144,17 +144,28 @@ export async function getOfertas({
     active: true,
     ...visibleDataSourceFilter(),
     ...(categorySlug ? { category: { slug: categorySlug } } : {}),
+    // Owner's request, 2026-11-27: a single `contains: query` required the
+    // whole phrase as one literal substring, so word order mattered
+    // ("tenis nike" never matched "Nike Tênis Esportivo"). Split into
+    // words and require every one present (in title, brand or category,
+    // independently) instead of the whole phrase matching one field.
     ...(query
       ? {
-          OR: [
-            { title: { contains: query, mode: "insensitive" as const } },
-            { brand: { contains: query, mode: "insensitive" as const } },
-            {
-              category: {
-                name: { contains: query, mode: "insensitive" as const },
-              },
-            },
-          ],
+          AND: query
+            .trim()
+            .split(/\s+/)
+            .filter(Boolean)
+            .map((word) => ({
+              OR: [
+                { title: { contains: word, mode: "insensitive" as const } },
+                { brand: { contains: word, mode: "insensitive" as const } },
+                {
+                  category: {
+                    name: { contains: word, mode: "insensitive" as const },
+                  },
+                },
+              ],
+            })),
         }
       : {}),
   };

@@ -600,20 +600,32 @@ export async function searchUnifiedOffers(input: {
 
   let merchantCards: UnifiedOfferCard[] = [];
   if (page === 1) {
-    // 200 is getUnifiedMerchantOffers's own CANDIDATE_POOL_CEILING — the
-    // most it will ever fetch per merchant regardless of the number
-    // passed here, so this isn't requesting "everything eligible" anymore
-    // (the catalog is far larger than 200 rows today); it's the largest
-    // bounded, ranked candidate set that function will return, filtered
-    // by text after the fact. See that function's doc comment.
-    const eligible = await getUnifiedMerchantOffers(200, {
-      source: "search",
-      campaign: input.query,
-    });
-    const needle = input.query.trim().toLowerCase();
-    merchantCards = needle
-      ? eligible.filter((card) => card.title.toLowerCase().includes(needle))
-      : [];
+    // Owner's request, 2026-11-27: "tenis nike" didn't match "Nike Tênis
+    // Esportivo" — the old filter required the whole query as one literal
+    // substring, so word order mattered and a 200-row pool (this
+    // function's own CANDIDATE_POOL_CEILING default) often didn't even
+    // contain the real match. Raised to 2000 (same ceiling the main
+    // /ofertas feed already uses safely) and switched to "every word
+    // present, any order" — still no real typo/accent tolerance (that
+    // needs a DB-level fix — unaccent/pg_trgm — deliberately deferred,
+    // see this function's PR), but covers the common reordering case.
+    const eligible = await getUnifiedMerchantOffers(
+      400,
+      { source: "search", campaign: input.query },
+      { poolCeiling: 2000 },
+    );
+    const words = input.query
+      .trim()
+      .toLowerCase()
+      .split(/\s+/)
+      .filter(Boolean);
+    merchantCards =
+      words.length > 0
+        ? eligible.filter((card) => {
+            const title = card.title.toLowerCase();
+            return words.every((word) => title.includes(word));
+          })
+        : [];
   }
 
   const items = [...amazonCards, ...merchantCards].sort(
