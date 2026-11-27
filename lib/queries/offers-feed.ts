@@ -21,6 +21,7 @@ import {
   applyEngagementBoost,
   getEngagementSignals,
 } from "@/lib/queries/engagement-boost";
+import { PINNED_OFFER_EXTERNAL_IDS } from "@/lib/config/pinned-offers";
 
 /**
  * Paginated, category-filterable feed behind /ofertas (infinite scroll).
@@ -90,7 +91,38 @@ async function buildPool(): Promise<UnifiedOfferCard[]> {
     }),
   ]);
   const boosted = applyEngagementBoost(merchantOffers, engagementSignals);
-  return interleaveByMerchant(selectTopUnifiedOffers(boosted, boosted.length));
+  const ranked = interleaveByMerchant(selectTopUnifiedOffers(boosted, boosted.length));
+  return pinOffersToTop(ranked);
+}
+
+/** `/go/mercado-livre/{externalId}?...` — see unified-offers.ts's own href construction. */
+function mlExternalIdFromHref(href: string | null): string | null {
+  const m = href ? /^\/go\/mercado-livre\/([^?]+)/.exec(href) : null;
+  return m ? decodeURIComponent(m[1]!) : null;
+}
+
+/**
+ * Moves PINNED_OFFER_EXTERNAL_IDS to the very front, in that config's own
+ * order, ahead of the normal ranked pool — everything else keeps its
+ * existing relative order untouched. See that file's own doc comment for
+ * why this exists instead of a fabricated score.
+ */
+function pinOffersToTop(cards: UnifiedOfferCard[]): UnifiedOfferCard[] {
+  if (PINNED_OFFER_EXTERNAL_IDS.length === 0) return cards;
+  const order = new Map(PINNED_OFFER_EXTERNAL_IDS.map((id, i) => [id, i]));
+  const pinned: UnifiedOfferCard[] = [];
+  const rest: UnifiedOfferCard[] = [];
+  for (const card of cards) {
+    const externalId = mlExternalIdFromHref(card.href);
+    if (externalId && order.has(externalId)) pinned.push(card);
+    else rest.push(card);
+  }
+  pinned.sort(
+    (a, b) =>
+      order.get(mlExternalIdFromHref(a.href)!)! -
+      order.get(mlExternalIdFromHref(b.href)!)!,
+  );
+  return [...pinned, ...rest];
 }
 
 /**
