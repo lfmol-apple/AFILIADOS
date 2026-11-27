@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { AnalyticsBeacon } from "@/components/analytics-beacon";
@@ -12,7 +11,6 @@ import { OffersCategoryNav } from "@/components/offers-category-nav";
 import { OffersInfiniteList } from "@/components/offers-infinite-list";
 import { OffersToolbar } from "@/components/offers-toolbar";
 import { StoreBrandBar } from "@/components/store-brand-bar";
-import { isBlackFridayToday } from "@/lib/config/black-friday-today";
 import { OfferCategoryTile } from "@/components/offer-category-icon";
 import { SearchPageForm } from "@/components/search-page-form";
 import { parseOffersView } from "@/lib/offers/view";
@@ -205,51 +203,38 @@ export default async function OfertasPage(props: PagePropsWithSearch) {
         items={[{ label: "Início", href: "/" }, { label: "Ofertas" }]}
       />
 
-      {isBlackFridayToday() ? (
-        <header className="relative mt-3 overflow-hidden rounded-2xl sm:mt-4">
-          <Image
-            src="/ofertas/black-friday-banner.png"
-            alt="Black Friday — Aproveite as melhores ofertas das melhores lojas!"
-            width={2172}
-            height={724}
-            priority
-            className="h-auto w-full"
-          />
-        </header>
-      ) : (
-        <header className="relative mt-3 overflow-hidden rounded-2xl bg-linear-to-br from-teal-700 to-teal-950 p-4 text-white sm:mt-4 sm:p-8">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -top-16 -right-10 h-56 w-56 rounded-full bg-white/10"
-          />
-          <div
-            aria-hidden
-            className="pointer-events-none absolute right-28 -bottom-24 h-44 w-44 rounded-full bg-white/5"
-          />
-          <div className="relative max-w-2xl">
-            <h1 className="text-xl font-bold tracking-tight text-balance sm:text-4xl">
-              {title}
-            </h1>
-            <p className="mt-2 hidden text-sm leading-relaxed text-white/85 sm:block sm:text-base">
-              Priorizamos por demanda, preço e evidência real, sem olhar a
-              comissão. Atualizado automaticamente.
-            </p>
-          </div>
-          {pool.length > 0 && (
-            <ul className="relative mt-3 flex flex-wrap gap-2 text-xs font-semibold sm:mt-5 sm:text-sm">
+      <header className="relative mt-3 overflow-hidden rounded-2xl bg-linear-to-br from-teal-700 to-teal-950 p-4 text-white sm:mt-4 sm:p-8">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-16 -right-10 h-56 w-56 rounded-full bg-white/10"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute right-28 -bottom-24 h-44 w-44 rounded-full bg-white/5"
+        />
+        <div className="relative max-w-2xl">
+          <h1 className="text-xl font-bold tracking-tight text-balance sm:text-4xl">
+            {title}
+          </h1>
+          <p className="mt-2 hidden text-sm leading-relaxed text-white/85 sm:block sm:text-base">
+            Priorizamos por demanda, preço e evidência real, sem olhar a
+            comissão. Atualizado automaticamente.
+          </p>
+        </div>
+        {pool.length > 0 && (
+          <ul className="relative mt-3 flex flex-wrap gap-2 text-xs font-semibold sm:mt-5 sm:text-sm">
+            <li className="rounded-full border border-white/25 bg-white/15 px-3 py-1.5 shadow-[inset_0_1px_0_rgb(255_255_255/0.3)] backdrop-blur-md">
+              {firstPage.total} {firstPage.total === 1 ? "oferta" : "ofertas"}
+              {category ? " nesta categoria" : ""}
+            </li>
+            {merchantsPresent.length > 0 && (
               <li className="rounded-full border border-white/25 bg-white/15 px-3 py-1.5 shadow-[inset_0_1px_0_rgb(255_255_255/0.3)] backdrop-blur-md">
-                {firstPage.total} {firstPage.total === 1 ? "oferta" : "ofertas"}
-                {category ? " nesta categoria" : ""}
+                {merchantsPresent.join(" · ")}
               </li>
-              {merchantsPresent.length > 0 && (
-                <li className="rounded-full border border-white/25 bg-white/15 px-3 py-1.5 shadow-[inset_0_1px_0_rgb(255_255_255/0.3)] backdrop-blur-md">
-                  {merchantsPresent.join(" · ")}
-                </li>
-              )}
-            </ul>
-          )}
-        </header>
-      )}
+            )}
+          </ul>
+        )}
+      </header>
 
       <StoreBrandBar
         view={view}

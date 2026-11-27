@@ -1,5 +1,4 @@
 import type { UnifiedOfferCard as UnifiedOfferCardData } from "@/lib/queries/unified-offers";
-import { isBlackFridayToday } from "@/lib/config/black-friday-today";
 
 /**
  * ONE card shape for every merchant — project brief, 2026-09-08:
@@ -123,25 +122,18 @@ export function UnifiedOfferCard({ item }: { item: UnifiedOfferCardData }) {
             />
           ) : null}
         </a>
-        <div className="pointer-events-none absolute top-2.5 left-2.5 flex flex-col items-start gap-1.5">
-          {isBlackFridayToday() && (
-            <span className="rounded-full bg-slate-950 px-1.5 py-0.5 text-[9px] leading-none font-bold tracking-wide text-amber-400 shadow-md shadow-black/30 sm:px-2.5 sm:py-1 sm:text-xs">
-              BLACK FRIDAY
+        {item.verifiedDrop ? (
+          <span className="pointer-events-none absolute top-2.5 left-2.5 rounded-full bg-emerald-600 px-2.5 py-1 text-xs leading-none font-bold text-white shadow-md shadow-emerald-600/30">
+            📉 −{Math.round(item.verifiedDrop.dropPercent * 100)}% comprovado
+          </span>
+        ) : (
+          discount !== null && (
+            <span className="pointer-events-none absolute top-2.5 left-2.5 rounded-full bg-rose-600/90 px-2.5 py-1 text-xs leading-none font-bold text-white shadow-md shadow-rose-600/30">
+              −{discount}% na loja
             </span>
-          )}
-          {item.verifiedDrop ? (
-            <span className="rounded-full bg-emerald-600 px-2.5 py-1 text-xs leading-none font-bold text-white shadow-md shadow-emerald-600/30">
-              📉 −{Math.round(item.verifiedDrop.dropPercent * 100)}% comprovado
-            </span>
-          ) : (
-            discount !== null && (
-              <span className="rounded-full bg-rose-600/90 px-2.5 py-1 text-xs leading-none font-bold text-white shadow-md shadow-rose-600/30">
-                −{discount}% na loja
-              </span>
-            )
-          )}
-        </div>
-        <span className="pointer-events-none absolute top-2.5 right-2.5 flex items-center gap-1 rounded-full border border-black/8 bg-white/70 px-1.5 py-0.5 text-[9px] leading-none font-semibold text-slate-800 shadow-sm backdrop-blur-md sm:gap-1.5 sm:px-2 sm:py-1 sm:text-[11px]">
+          )
+        )}
+        <span className="pointer-events-none absolute top-2.5 right-2.5 flex items-center gap-1.5 rounded-full border border-black/8 bg-white/70 px-2 py-1 text-[11px] leading-none font-semibold text-slate-800 shadow-sm backdrop-blur-md">
           <span
             aria-hidden
             className={`h-1.5 w-1.5 rounded-full ${MERCHANT_DOT[item.merchant]}`}
