@@ -2,6 +2,7 @@ import { getOfertas } from "@/lib/queries/products";
 import { stripNoindexDetailLinks } from "@/lib/seo/indexable-product-links";
 import {
   getUnifiedMerchantOffers,
+  getMercadoLivreOfferCardsByExternalIds,
   mapAmazonProductToUnifiedCard,
   selectTopUnifiedOffers,
   type SearchUnifiedOffersResult,
@@ -72,7 +73,7 @@ const state = (g.__offersFeedState ??= { cached: null, inflight: null });
  * in the main feed. Decision: keep Amazon out of this pool entirely.
  */
 async function buildPool(): Promise<UnifiedOfferCard[]> {
-  const [merchantOffers, engagementSignals] = await Promise.all([
+  const [merchantOffers, engagementSignals, pinnedCards] = await Promise.all([
     getUnifiedMerchantOffers(
       POOL_LIMIT,
       { source: "ofertas" },
@@ -89,10 +90,24 @@ async function buildPool(): Promise<UnifiedOfferCard[]> {
       console.error("offers_feed.engagement_signals_failed", error);
       return { clicksByCardId: new Map(), viewsBySlug: new Map() };
     }),
+    // The pin list has zero real demand/offerQuality signal (never
+    // fabricated), so it can't be trusted to survive the pool-ceiling's
+    // score-ordered truncation above on its own — confirmed live,
+    // 2026-11-27: 6 of 45 pinned products silently missing from
+    // merchantOffers despite having a real price and an ACTIVE link.
+    // Fetched directly so pinning is never probabilistic.
+    getMercadoLivreOfferCardsByExternalIds(PINNED_OFFER_EXTERNAL_IDS, {
+      source: "ofertas",
+    }).catch((error) => {
+      console.error("offers_feed.pinned_cards_failed", error);
+      return [];
+    }),
   ]);
   const boosted = applyEngagementBoost(merchantOffers, engagementSignals);
   const ranked = interleaveByMerchant(selectTopUnifiedOffers(boosted, boosted.length));
-  return pinOffersToTop(ranked);
+  const rankedIds = new Set(ranked.map((c) => c.id));
+  const merged = [...ranked, ...pinnedCards.filter((c) => !rankedIds.has(c.id))];
+  return pinOffersToTop(merged);
 }
 
 /** `/go/mercado-livre/{externalId}?...` — see unified-offers.ts's own href construction. */

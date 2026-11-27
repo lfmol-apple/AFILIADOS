@@ -433,6 +433,111 @@ export async function getUnifiedMerchantOffers(
     .slice(0, limit);
 }
 
+/**
+ * Owner's curated pin list (lib/config/pinned-offers.ts) must always
+ * show up on /ofertas — but selectCandidateListingIds's pool membership
+ * above is a bounded, score-ordered query, and these listings have no
+ * real demand/offerQuality signal (never fabricated — see that file's
+ * own doc comment), so they tie with every other zero-score ML listing
+ * and aren't reliably among the top `poolSize` rows once the pool is
+ * bigger than that ceiling. This fetches them directly by externalId —
+ * same card shape as getUnifiedMerchantOffers's ML mapping above, same
+ * "best real offer sibling" lookup — guaranteeing inclusion regardless
+ * of score or pool size.
+ */
+export async function getMercadoLivreOfferCardsByExternalIds(
+  externalIds: readonly string[],
+  linkParams?: Record<string, string>,
+): Promise<UnifiedOfferCard[]> {
+  if (externalIds.length === 0) return [];
+  const mlCatalogListings = await prisma.merchantListing.findMany({
+    where: {
+      externalId: { in: [...externalIds] },
+      merchant: { code: "MERCADO_LIVRE" },
+      active: true,
+      canonicalProductId: { not: null },
+      affiliateLink: { status: "ACTIVE" },
+    },
+    include: {
+      canonicalProduct: {
+        select: { title: true, imageUrl: true, specifications: true, publicSlug: true },
+      },
+      monetizationScore: true,
+    },
+  });
+  if (mlCatalogListings.length === 0) return [];
+
+  const canonicalProductIds = mlCatalogListings
+    .map((c) => c.canonicalProductId)
+    .filter((id): id is string => id !== null);
+  const catalogListingIds = mlCatalogListings.map((c) => c.id);
+  const bestOfferIds = await selectBestOfferIdsPerCanonicalProduct(
+    canonicalProductIds,
+    catalogListingIds,
+  );
+  const bestOffers = bestOfferIds.length
+    ? await prisma.merchantListing.findMany({
+        where: { id: { in: bestOfferIds } },
+        include: {
+          monetizationScore: true,
+          signals: { orderBy: { observedAt: "desc" }, take: 1 },
+        },
+      })
+    : [];
+  const bestOfferByCanonicalId = bestByNonCommissionSignal(
+    bestOffers,
+    (offer) => nonCommissionSignal(offer.monetizationScore?.components) ?? -1,
+  );
+
+  const params = new URLSearchParams({
+    pageType: "ofertas",
+    pageSlug: "ofertas",
+    source: "unified_offers",
+    ...linkParams,
+  }).toString();
+
+  return mlCatalogListings
+    .map((catalogListing) => {
+      const bestOffer = catalogListing.canonicalProductId
+        ? bestOfferByCanonicalId.get(catalogListing.canonicalProductId)
+        : undefined;
+      const offerRaw = bestOffer?.signals[0]?.raw as {
+        price?: number;
+        original_price?: number | null;
+        discountPercent?: number | null;
+      } | null;
+      return {
+        id: catalogListing.id,
+        merchant: "MERCADO_LIVRE" as const,
+        title:
+          catalogListing.canonicalProduct?.title ?? catalogListing.externalId,
+        imageUrl: catalogListing.canonicalProduct?.imageUrl ?? null,
+        currentPrice: offerRaw?.price ?? null,
+        referencePrice: offerRaw?.original_price ?? null,
+        discountPercent: offerRaw?.discountPercent ?? null,
+        rating: null,
+        soldQuantity: null,
+        opportunitySignal: nonCommissionSignal(
+          (bestOffer ?? catalogListing).monetizationScore?.components,
+        ),
+        href: `/go/mercado-livre/${encodeURIComponent(catalogListing.externalId)}?${params}`,
+        detailHref: catalogListing.canonicalProduct?.publicSlug
+          ? `/produto/${catalogListing.canonicalProduct.publicSlug}`
+          : undefined,
+        categorySlug: classifyOffer({
+          title:
+            catalogListing.canonicalProduct?.title ?? catalogListing.externalId,
+          mlDomainId: (
+            catalogListing.canonicalProduct?.specifications as {
+              domainId?: string;
+            } | null
+          )?.domainId,
+        }),
+      };
+    })
+    .filter((c) => c.currentPrice !== null);
+}
+
 export interface SearchUnifiedOffersResult {
   items: UnifiedOfferCard[];
   page: number;
