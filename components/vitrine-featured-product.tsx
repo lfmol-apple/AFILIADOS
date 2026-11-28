@@ -2,6 +2,7 @@ import { ProductImage } from "@/components/product-image";
 import { AffiliateOutboundLink } from "@/components/affiliate-outbound-link";
 import { VitrineViewContentBeacon } from "@/components/vitrine-view-content-beacon";
 import { formatCurrency } from "@/lib/format";
+import { siteConfig } from "@/lib/config/site";
 import type { VitrinePublicProduct } from "@/lib/queries/vitrine-public";
 
 /**
@@ -35,12 +36,19 @@ export function VitrineFeaturedProduct({ product }: { product: VitrinePublicProd
   const discount =
     product.discountPercent !== null && product.discountPercent > 0 ? Math.round(product.discountPercent * 100) : null;
 
+  const canonicalUrl = product.detailHref ? `${siteConfig.url}${product.detailHref}` : null;
+
   return (
     <div
       data-screenshot-card
       className="bg-surface mb-8 overflow-hidden rounded-3xl border border-border-subtle shadow-[0_1px_2px_rgb(0_0_0/0.04)] sm:grid sm:grid-cols-2"
     >
-      <VitrineViewContentBeacon merchantListingId={product.id} title={product.title} price={product.currentPrice} />
+      <VitrineViewContentBeacon
+        merchantListingId={product.id}
+        title={product.title}
+        price={product.currentPrice}
+        canonicalUrl={canonicalUrl}
+      />
       <div className="bg-surface-muted relative aspect-square w-full sm:aspect-auto">
         <ProductImage src={product.imageUrl} alt={product.title} className="h-full w-full object-cover" iconClassName="h-16 w-16" />
         {discount !== null && (
@@ -64,7 +72,7 @@ export function VitrineFeaturedProduct({ product }: { product: VitrinePublicProd
             only adds the click-side Pixel event — it never touches
             `href` or forces a new tab. */}
         <AffiliateOutboundLink
-          product={{ merchantListingId: product.id, title: product.title, price: product.currentPrice }}
+          product={{ merchantListingId: product.id, title: product.title, price: product.currentPrice, canonicalUrl }}
           href={product.href!}
           className="mt-6 block rounded-full bg-[#1A1A2E] py-4 text-center text-base font-bold text-white"
         >

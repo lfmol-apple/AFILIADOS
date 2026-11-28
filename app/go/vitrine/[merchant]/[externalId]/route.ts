@@ -92,6 +92,7 @@ export async function GET(
     title: result.title,
     price: result.currentPrice,
     destination: result.destination,
+    merchantProductUrl: result.merchantProductUrl,
   });
   return new NextResponse(html, {
     status: 200,

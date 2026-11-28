@@ -1,4 +1,7 @@
+import type { ReactNode } from "react";
 import type { UnifiedOfferCard as UnifiedOfferCardData } from "@/lib/queries/unified-offers";
+import { AffiliateOutboundLink } from "@/components/affiliate-outbound-link";
+import { siteConfig } from "@/lib/config/site";
 
 /**
  * ONE card shape for every merchant — project brief, 2026-09-08:
@@ -14,6 +17,23 @@ import type { UnifiedOfferCard as UnifiedOfferCardData } from "@/lib/queries/uni
  * shape; cropping made some look broken), and the bottom block has fixed
  * price and meta rows, so prices line up across a row even when one card has
  * no rating or sales figure.
+ *
+ * Henrique's team, 2026-11-26: these cards (home, /ofertas, the rest-of-
+ * vitrine grid) were the one real gap in AffiliateOutboundClick coverage —
+ * this is the single commercial-click signal the whole site fires (see
+ * lib/analytics/meta-pixel-client.ts's own doc comment), and until now
+ * ONLY the dedicated product page and the Vitrine featured slot fired it.
+ * Fixed here by wrapping the outbound anchors in AffiliateOutboundLink,
+ * same as everywhere else — never altering `href`, target, or rel, only
+ * adding the click-side pixel call. Deliberately NOT fired for AMAZON:
+ * `item.id` is `Product.id` for Amazon (see unified-offers.ts's own
+ * builder) but `MerchantListing.id` for ML/Shopee — sending the wrong id
+ * space as `merchantListingId` would break the project's own rule that
+ * content_ids must always be the real id the Meta catalog publishes as
+ * `g:id`, never a different id. This never touches the real per-click
+ * source/campaign classification already recorded by our own
+ * AffiliateClick row at /go/... (lib/http/classify-site-click.ts) — that
+ * is a separate, unchanged mechanism.
  */
 const MERCHANT_LABEL: Record<UnifiedOfferCardData["merchant"], string> = {
   AMAZON: "Amazon",
@@ -78,6 +98,51 @@ function AmazonMark() {
   );
 }
 
+/** Renders the tracked AffiliateOutboundLink when this card's `item.id` is
+ * a real MerchantListing.id (ML/Shopee) and a real price is known, the
+ * plain untracked `<a>` otherwise (Amazon, or a price genuinely unknown —
+ * same never-guess rule meta-pixel-client.ts already enforces). Never
+ * changes href/target/rel either way. */
+function CardAnchor({
+  item,
+  href,
+  target,
+  rel,
+  className,
+  children,
+}: {
+  item: UnifiedOfferCardData;
+  href: string;
+  target: string | undefined;
+  rel: string | undefined;
+  className: string;
+  children: ReactNode;
+}) {
+  if (item.merchant === "AMAZON" || item.currentPrice === null) {
+    return (
+      <a href={href} target={target} rel={rel} className={className}>
+        {children}
+      </a>
+    );
+  }
+  return (
+    <AffiliateOutboundLink
+      product={{
+        merchantListingId: item.id,
+        title: item.title,
+        price: item.currentPrice,
+        canonicalUrl: item.detailHref ? `${siteConfig.url}${item.detailHref}` : null,
+      }}
+      href={href}
+      target={target}
+      rel={rel}
+      className={className}
+    >
+      {children}
+    </AffiliateOutboundLink>
+  );
+}
+
 export function UnifiedOfferCard({ item }: { item: UnifiedOfferCardData }) {
   if (!item.href) return null; // structural safety net — see the type's own doc comment.
 
@@ -111,7 +176,7 @@ export function UnifiedOfferCard({ item }: { item: UnifiedOfferCardData }) {
       {/* Image box: the merchant link covers just the photo here (not an
           ancestor of the Amazon badge below), so the two never nest. */}
       <div className="relative aspect-square w-full overflow-hidden bg-white">
-        <a href={item.href} target={target} rel={rel} className="absolute inset-0 block">
+        <CardAnchor item={item} href={item.href} target={target} rel={rel} className="absolute inset-0 block">
           {item.imageUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -121,7 +186,7 @@ export function UnifiedOfferCard({ item }: { item: UnifiedOfferCardData }) {
               className="h-full w-full object-contain p-3 transition duration-300 group-hover:scale-105 sm:p-4"
             />
           ) : null}
-        </a>
+        </CardAnchor>
         {item.verifiedDrop ? (
           <span className="pointer-events-none absolute top-2.5 left-2.5 rounded-full bg-emerald-600 px-2.5 py-1 text-xs leading-none font-bold text-white shadow-md shadow-emerald-600/30">
             📉 −{Math.round(item.verifiedDrop.dropPercent * 100)}% comprovado
@@ -151,7 +216,7 @@ export function UnifiedOfferCard({ item }: { item: UnifiedOfferCardData }) {
         )}
       </div>
 
-      <a href={item.href} target={target} rel={rel} className="flex flex-1 flex-col p-3 sm:p-4">
+      <CardAnchor item={item} href={item.href} target={target} rel={rel} className="flex flex-1 flex-col p-3 sm:p-4">
         <h3 className="line-clamp-2 min-h-[2.5rem] text-sm leading-snug font-medium">
           {item.title}
         </h3>
@@ -206,7 +271,7 @@ export function UnifiedOfferCard({ item }: { item: UnifiedOfferCardData }) {
             </span>
           </span>
         </div>
-      </a>
+      </CardAnchor>
       {item.amazonMatch && (
         <a
           href={item.amazonMatch.href}

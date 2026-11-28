@@ -22,6 +22,20 @@ export interface VitrineProductIdentity {
    * placeholder value. Null when genuinely unknown (never guessed; the
    * event is simply not fired in that case). */
   price: number | null;
+  /** Owner's directive, 2026-11-26 ("a equipe do Henrique informou que
+   * os eventos estão chegando com a URL da home... não falsifique
+   * event_source_url... envie a URL canônica do produto como parâmetro
+   * adicional, preservando a URL real de origem"). `event_source_url`
+   * itself is never set here — fbq.js already derives it honestly from
+   * the real browser location at call time, and this project never
+   * overrides that. This is a SEPARATE, additional field (`content_url`
+   * in the sent payload) so Henrique's team can always see, in Events
+   * Manager's raw event data, which exact product the event was about —
+   * regardless of which internal route (product page, Vitrine grid, the
+   * /go/vitrine/... interstitial) the browser happened to be on when it
+   * fired. Absolute URL, real, never fabricated; omitted (not sent) when
+   * genuinely unknown — never a guessed value. */
+  canonicalUrl?: string | null;
 }
 
 function fbqAvailableWithConsent(): boolean {
@@ -41,6 +55,7 @@ export function trackViewContent(product: VitrineProductIdentity): void {
     value: product.price,
     currency: "BRL",
     content_type: "product",
+    ...(product.canonicalUrl ? { content_url: product.canonicalUrl } : {}),
   });
 }
 
@@ -66,5 +81,6 @@ export function trackAffiliateOutboundClick(product: VitrineProductIdentity): vo
     value: product.price,
     currency: "BRL",
     content_type: "product",
+    ...(product.canonicalUrl ? { content_url: product.canonicalUrl } : {}),
   });
 }

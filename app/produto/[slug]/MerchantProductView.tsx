@@ -124,7 +124,12 @@ export function MerchantProductView({
     <div className="mx-auto w-full max-w-5xl overflow-x-hidden px-4 py-8 sm:px-6">
       <AnalyticsBeacon pageType="product" pageSlug={data.slug} productId={data.merchantListingId} />
       {vitrineTracked && data.currentPrice !== null && (
-        <VitrineViewContentBeacon merchantListingId={data.merchantListingId} title={data.title} price={data.currentPrice} />
+        <VitrineViewContentBeacon
+          merchantListingId={data.merchantListingId}
+          title={data.title}
+          price={data.currentPrice}
+          canonicalUrl={`${siteConfig.url}/produto/${data.slug}`}
+        />
       )}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScriptPayload(breadcrumbList) }} />
@@ -186,7 +191,12 @@ export function MerchantProductView({
 
             {data.ctaHref && vitrineTracked && data.currentPrice !== null ? (
               <AffiliateOutboundLink
-                product={{ merchantListingId: data.merchantListingId, title: data.title, price: data.currentPrice }}
+                product={{
+                  merchantListingId: data.merchantListingId,
+                  title: data.title,
+                  price: data.currentPrice,
+                  canonicalUrl: `${siteConfig.url}/produto/${data.slug}`,
+                }}
                 href={data.ctaHref}
                 className={`mt-5 block rounded-full py-4 text-center text-base font-bold ${MERCHANT_BUTTON_CLASS[data.source]}`}
               >

@@ -52,6 +52,14 @@ export interface VitrineRedirectInterstitialInput {
    * follows. */
   price: number | null;
   destination: string;
+  /** Owner's directive, 2026-11-26 ("não falsifique event_source_url...
+   * envie a URL canônica do produto como parâmetro adicional"): the real
+   * Mercado Livre product URL (never the affiliate tracking link),
+   * attached as the fired events' `content_url` — so Henrique's team can
+   * always see which exact product an event was about in Events
+   * Manager's raw data, regardless of event_source_url (honestly this
+   * interstitial's own URL, never touched/faked here). */
+  merchantProductUrl: string;
 }
 
 export function renderVitrineRedirectInterstitial(input: VitrineRedirectInterstitialInput): string {
@@ -63,6 +71,7 @@ export function renderVitrineRedirectInterstitial(input: VitrineRedirectIntersti
     value: input.price,
     currency: "BRL",
     content_type: "product",
+    content_url: input.merchantProductUrl,
   });
 
   // Owner's directive, 2026-11-25 ("o redirecionamento deve funcionar

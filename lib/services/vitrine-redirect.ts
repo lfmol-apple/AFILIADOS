@@ -26,6 +26,16 @@ export type VitrineRedirectResult =
       merchantListingId: string;
       title: string;
       currentPrice: number | null;
+      /** Owner's directive, 2026-11-26 ("não falsifique event_source_url...
+       * envie a URL canônica do produto como parâmetro adicional"): the
+       * real Mercado Livre product URL for this exact listing
+       * (MerchantListing.productUrl — the plain page, never the affiliate
+       * tracking link), so the interstitial can attach it as the Pixel
+       * event's `content_url`. There is no PreçoCaindo-own canonical
+       * `/produto/[slug]` page to use instead here — the catalog feed only
+       * ever routes to this interstitial when one doesn't exist yet (see
+       * app/catalogo/mercado-livre.xml/route.ts). */
+      merchantProductUrl: string;
     }
   | { status: "error"; errorStatus: number; errorMessage: string };
 
@@ -131,6 +141,7 @@ export async function resolveVitrineRedirect(input: {
       merchantListingId: listing.id,
       title: listing.canonicalProduct?.title ?? facts?.title ?? listing.externalId,
       currentPrice: facts?.currentPrice ?? null,
+      merchantProductUrl: listing.productUrl,
     };
   } catch (err) {
     if (err instanceof MerchantRoutingError) {
