@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { saveVitrineLink } from "@/lib/services/affiliate-link-registry";
+import { resolveAttributionTagForListing } from "@/lib/services/vitrine-manager";
 
 export class VitrineRegisterError extends Error {}
 
@@ -31,12 +32,19 @@ export async function registerVitrineLink(input: {
     throw new VitrineRegisterError("Produto da Vitrine não encontrado.");
   }
 
+  // Owner's directive, 2026-11-24 ("Isolamento integral entre vitrines",
+  // item 3): never hardcoded here — it's whichever vitrine currently
+  // holds this exact listing ACTIVE, so a real click is always
+  // traceable to the vitrine that actually produced it.
+  const attributionTag = await resolveAttributionTagForListing(listing.id);
+
   await saveVitrineLink({
     merchantListingId: listing.id,
     merchantId: listing.merchantId,
     merchantCode: listing.merchant.code,
     publicUrl: listing.productUrl,
     affiliateUrl: input.affiliateUrl,
+    attributionTag,
   });
 
   return {
